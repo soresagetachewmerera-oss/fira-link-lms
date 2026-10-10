@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\SystemMaintenanceController;
 use App\Http\Controllers\Admin\NewsletterController as AdminNewsletterController;
 use App\Http\Controllers\Admin\EventManagementController;
+use App\Http\Controllers\Admin\TourManagementController;
 use App\Http\Controllers\Admin\CustomPageController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\NotificationController;
@@ -106,6 +107,19 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/events', [EventManagementController::class, 'index'])->name('events.index');
     Route::get('/events/{event}', [EventManagementController::class, 'show'])->name('events.show');
     Route::patch('/events/{event}/toggle-publish', [EventManagementController::class, 'togglePublish'])->name('events.toggle-publish');
+
+    // Tour management
+    Route::get('/tours', [TourManagementController::class, 'index'])->name('tours.index');
+    Route::get('/tours/create', [TourManagementController::class, 'create'])->name('tours.create');
+    Route::post('/tours', [TourManagementController::class, 'store'])->name('tours.store');
+    Route::get('/tours/bookings', [TourManagementController::class, 'bookings'])->name('tours.bookings.index');
+    Route::get('/tours/bookings/{booking}', [TourManagementController::class, 'showBooking'])->name('tours.bookings.show');
+    Route::put('/tours/bookings/{booking}/status', [TourManagementController::class, 'updateBookingStatus'])->name('tours.bookings.update-status');
+    Route::get('/tours/{tour}', [TourManagementController::class, 'show'])->name('tours.show');
+    Route::get('/tours/{tour}/edit', [TourManagementController::class, 'edit'])->name('tours.edit');
+    Route::put('/tours/{tour}', [TourManagementController::class, 'update'])->name('tours.update');
+    Route::delete('/tours/{tour}', [TourManagementController::class, 'destroy'])->name('tours.destroy');
+    Route::patch('/tours/{tour}/toggle-publish', [TourManagementController::class, 'togglePublish'])->name('tours.toggle-publish');
 
     // Instructor management
     Route::get('/instructors', [InstructorController::class, 'index'])->name('instructors.index');

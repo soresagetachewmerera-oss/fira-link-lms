@@ -6,10 +6,10 @@ import '../l10n/app_localizations.dart';
 import '../config/config.dart';
 import '../screens/courses/courses_screen.dart';
 import '../screens/profile/profile_screen.dart';
-import '../screens/instructor/all_instructors_screen.dart';
 import '../screens/events/events_screen.dart';
+import '../screens/tours/tours_screen.dart';
 
-enum BottomNavTab { home, instructors, courses, events, profile }
+enum BottomNavTab { home, tours, courses, events, profile, instructors }
 
 class AppBottomNavBar extends StatelessWidget {
   const AppBottomNavBar({super.key, required this.currentTab});
@@ -52,15 +52,15 @@ class AppBottomNavBar extends StatelessWidget {
             },
           ),
           _BottomNavItem(
-            label: 'Instructors',
-            icon: HugeIcons.strokeRoundedUserGroup,
-            isActive: currentTab == BottomNavTab.instructors,
+            label: 'Tours',
+            icon: HugeIcons.strokeRoundedRoute01,
+            isActive: currentTab == BottomNavTab.tours,
             onTap: () {
-              if (currentTab != BottomNavTab.instructors) {
+              if (currentTab != BottomNavTab.tours) {
                 Navigator.of(context).pushReplacement(
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) =>
-                        const AllInstructorsScreen(),
+                        const ToursScreen(),
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
                           return FadeTransition(

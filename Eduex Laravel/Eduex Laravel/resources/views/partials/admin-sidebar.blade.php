@@ -127,6 +127,22 @@
                 </a>
             </li>
 
+            <li class="dropdown {{ request()->routeIs('admin.tours.*') ? 'active' : '' }}">
+                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-route"></i>
+                    <span>Tours &amp; Expeditions</span></a>
+                <ul class="dropdown-menu">
+                    <li class="{{ request()->routeIs('admin.tours.index') || request()->routeIs('admin.tours.show') || request()->routeIs('admin.tours.edit') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.tours.index') }}">All Tours</a>
+                    </li>
+                    <li class="{{ request()->routeIs('admin.tours.create') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.tours.create') }}">Create New Tour</a>
+                    </li>
+                    <li class="{{ request()->routeIs('admin.tours.bookings.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.tours.bookings.index') }}">Tour Bookings</a>
+                    </li>
+                </ul>
+            </li>
+
             <li
                 class="dropdown {{ request()->routeIs('admin.frontend.menus.*') || request()->routeIs('admin.frontend.settings.*') || request()->routeIs('admin.frontend.faq.*') || request()->routeIs('admin.frontend.seo.*') || request()->routeIs('admin.frontend.marquee.*') || request()->routeIs('admin.frontend.home.*') || request()->routeIs('admin.frontend.about.*') || request()->routeIs('admin.frontend.contact.*') || request()->routeIs('admin.custom-pages.*') || request()->routeIs('admin.frontend.theme.*') ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-paint-brush"></i>
