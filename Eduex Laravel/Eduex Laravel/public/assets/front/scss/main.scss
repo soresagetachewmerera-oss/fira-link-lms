@@ -1,0 +1,119 @@
+/*
+--------------------------------------------------------------
+Theme Name   : Eduex 
+Author       : MHQuickDev
+Author URI   : https://themeforest.net/user/mhquickdev
+Description  : Eduex - Education & Kindergarten HTML Template
+Version      : 1.0.0
+--------------------------------------------------------------
+
+[Table of Contents]
+
+01. Basic
+    01.1 Mixins
+    01.2 Variables
+    01.3 Buttons
+    01.4 Typography
+
+02. Template Sections
+    02.1 Preloader
+    02.2 Header
+    02.3 Hero
+    02.4 About
+    02.5 Feature
+    02.6 Courses
+    02.7 Event
+    02.8 Team
+    02.9 Testimonial
+    02.10 FAQ
+    02.11 CTA
+    02.12 Project
+    02.13 Helping
+    02.14 News
+    02.15 Contact
+    02.16 Section (Common Section Title/Spacing)
+    02.17 MeanMenu (Mobile Menu)
+    02.18 Footer
+    02.19 Animation
+
+--------------------------------------------------------------
+CSS Table of Contents Ends Here
+--------------------------------------------------------------
+*/
+
+/*--------------------------------------------------------------
+01. BASIC
+--------------------------------------------------------------*/
+
+/* 01.1 Mixins */
+@import "_mixins";
+
+/* 01.2 Variables */
+@import "_variables";
+
+/* 01.3 Buttons */
+@import "_buttons";
+
+/* 01.4 Typography */
+@import "_typography";
+
+/*--------------------------------------------------------------
+02. TEMPLATE SECTIONS
+--------------------------------------------------------------*/
+
+/* 02.1 Preloader */
+@import "_preloader";
+
+/* 02.2 Header */
+@import "_header";
+
+/* 02.3 Hero */
+@import "_hero";
+
+/* 02.4 About */
+@import "_about";
+
+/* 02.5 Feature */
+@import "_feature";
+
+/* 02.6 Courses */
+@import "_courses";
+
+/* 02.7 Event */
+@import "_event";
+
+/* 02.8 Team */
+@import "_team";
+
+/* 02.9 Testimonial */
+@import "_testimonial";
+
+/* 02.10 FAQ */
+@import "_faq";
+
+/* 02.11 CTA */
+@import "_cta";
+
+/* 02.12 Project */
+@import "_project";
+
+/* 02.13 Helping */
+@import "_helping";
+
+/* 02.14 News */
+@import "_news";
+
+/* 02.15 Contact */
+@import "_contact";
+
+/* 02.16 Section (Common Section Title/Spacing) */
+@import "_section";
+
+/* 02.17 MeanMenu (Mobile Menu) */
+@import "_meanmenu";
+
+/* 02.18 Footer */
+@import "_footer";
+
+/* 02.19 Animation */
+@import "_animation";

@@ -1,0 +1,303 @@
+.mhq-event-details-area {
+    .mhq-image {
+        img {
+            @include imgw;
+            border-radius: 18px;
+        }
+    }
+
+    .mhq-event-details-wrapper {
+       .details-content {
+        margin-top: 30px;
+
+        @include breakpoint (max-sm){
+           margin-top: 20px;
+        }
+
+        h2 {
+            font-weight: 600;
+            font-size: 36px;
+
+            @include breakpoint (max-md){
+                font-size: 30px;
+            }
+
+            @include breakpoint (max-sm){
+                font-size: 26px;
+            }
+        }
+
+        .thumb {
+            img {
+                @include imgw;
+                border-radius: 10px;
+            }
+        }
+
+        .offer-list {
+            margin-top: 30px;
+            margin-bottom: 30px;
+
+            li {
+                i {
+                    color: $theme-color;
+                    margin-right: 5px;
+                }
+
+                &:not(:last-child){
+                    margin-bottom: 15px;
+                }
+            }
+        }
+
+        .location {
+            @include flex;
+            gap: 30px;
+            margin-top: 20px;
+
+            li {
+                i {
+                    color: $theme-color;
+                    margin-right: 5px;
+                }
+
+                a {
+                    color: $text-color;
+                }
+            }
+        }
+
+        .map-items {
+            margin-top: 40px;
+
+            iframe {
+                width: 100%;
+                height: 450px;
+            }
+        }
+        }
+    }
+
+    .event-details-information {
+        background-color: #F2F4F7;
+        padding: 40px 35px;
+        border-radius: 18px;
+        margin-top: 40px;
+        margin-left: 30px;
+
+        @include breakpoint (max-xxl){
+            margin-left: 0;
+        }
+
+        .information-list {
+            margin-top: 20px;
+            margin-bottom: 30px;
+
+            li {
+                @include flex;
+                justify-content: space-between;
+                padding: 15px 0;
+                border-bottom: 1px solid $border-color;
+
+                span {
+                    font-size: 16px;
+                    color: $text-color;
+                    font-weight: 400;
+
+                    i {
+                        margin-right: 10px;
+                    }
+                }
+
+                .text {
+                    font-weight: 500;
+                    color: $header-color;
+                    text-align: right;
+                    display: inline-block;
+
+                    &.color-2 {
+                        color: $theme-color;
+                    }
+
+                    &.color-3 {
+                        color: $theme-color;
+                    }
+                }
+            }
+        }
+
+        .theme-btn {
+            width: 100%;
+            background-color: $theme-color;
+            color: $white;
+            padding: 20px 30px;
+            justify-content: center;
+            border-radius: 30px;
+
+            &::before,&::after {
+                display: none;
+            }
+
+            &:hover {
+                background-color: $header-color;
+            }
+        }
+
+        .coming-soon-timer{
+            @include flex;
+                gap: 30px;
+				max-width: 650px;
+				justify-content: center;
+				margin: 30px auto;
+
+                @include breakpoint(max-xxl){
+                    flex-wrap: wrap;
+                    gap: 20px;
+                }
+
+                .timer-content {
+
+                    h3 {
+                        font-size: 22px;
+                        font-weight: 700;
+                        color: $header-color;
+						width: 70px;
+						height: 70px;
+						line-height: 70px;
+						border-radius: 50%;
+						display: inline-block;
+                        background-color: $white;
+                        text-align: center;
+
+                        
+                        &.bg-2 {
+                            span {
+                                background-color: #C3F499;
+                            }
+                        }
+
+                        &.bg-3 {
+                            span {
+                                background-color: #00E2C5;
+                            }
+                        }
+
+                        &.bg-4 {
+                            span {
+                                background-color: #66FFFF;
+                            }
+                        }
+                    }
+
+                    p {
+                        font-weight: 600;
+                        font-size: 18px;
+                        color: $header-color;
+						margin-top: 10px;
+                        text-align: center;
+                    }
+                }
+        }
+
+        .share-btn {
+            font-size: 16px;
+            font-weight: 600;
+            color: $theme-color;
+            display: inline-block;
+
+            i {
+                margin-right: 5px;
+            }
+        }
+    } 
+}
+
+.mhq-event-box-items-2 {
+    margin-top: 30px;
+    @include flex;
+    border-radius: 18px;
+    background-color: #F2F4F7;
+
+    @include breakpoint (max-xl){
+        display: block;
+    }
+
+    .mhq-image {
+        max-width: 264px;
+
+         @include breakpoint (max-xl){
+            max-width: initial;
+
+            img {
+                border-radius: 12px !important;
+            }
+        }
+
+        img {
+            @include imgw;
+            border-radius: 18px 0px 0px 18px;
+        }
+    }
+
+    .mhq-content {
+        padding: 0 30px;
+        flex-basis: 60%;
+
+        @include breakpoint (max-xl){
+          padding: 25px;
+        }
+
+        h3 {
+            a {
+                &:hover {
+                    color: $theme-color;
+                }
+            }
+        }
+
+        .list-box {
+            @include flex;
+            gap: 20px;
+            margin-top: 15px;
+
+            li {
+                @include flex;
+                gap: 10px;
+                font-size: 16px;
+
+                i {
+                    color: $theme-color-2;
+                }
+            }
+        }
+
+        .theme-btn {
+            background-color: transparent;
+            color: $header-color;
+            border-radius: 30px;
+            border: 1px solid #6C706F;
+            margin-top: 20px;
+
+            i {
+                background-color: $theme-color;
+                color: $white;
+                width: 35px;
+                height: 35px;
+                line-height: 35px;
+            }
+
+            &::before {
+                background-color: $theme-color;
+            }
+
+            &:hover {
+                color: $white;
+
+                i {
+                    background-color: $white;
+                    color: $theme-color;
+                }
+            }
+        }
+    }
+}

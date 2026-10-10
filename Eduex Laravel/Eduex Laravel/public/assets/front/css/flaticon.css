@@ -1,0 +1,138 @@
+@font-face {
+  font-family: "flaticon";
+  src: url("../flaticon/flaticon.woff2?08d623f7d395108672d02bf7cebbddae") format("woff2"),
+url("../flaticon/flaticon.woff?08d623f7d395108672d02bf7cebbddae") format("woff"),
+url("../flaticon/flaticon.eot?08d623f7d395108672d02bf7cebbddae#iefix") format("embedded-opentype"),
+}
+
+i[class^="flaticon-"]:before, i[class*=" flaticon-"]:before, span[class^="flaticon-"]:before, span[class*=" flaticon-"]:before {
+  font-family: flaticon !important;
+  font-style: normal;
+  font-weight: normal !important;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.flaticon-air-freight:before {
+  content: "\f101";
+}
+.flaticon-freight:before {
+  content: "\f102";
+}
+.flaticon-ship:before {
+  content: "\f103";
+}
+.flaticon-cargo-train:before {
+  content: "\f104";
+}
+.flaticon-tracking:before {
+  content: "\f105";
+}
+.flaticon-world-wide:before {
+  content: "\f106";
+}
+.flaticon-tracking-1:before {
+  content: "\f107";
+}
+.flaticon-coin-stack:before {
+  content: "\f108";
+}
+.flaticon-favorite:before {
+  content: "\f109";
+}
+.flaticon-target-audience:before {
+  content: "\f10a";
+}
+.flaticon-speech-bubbles:before {
+  content: "\f10b";
+}
+.flaticon-track:before {
+  content: "\f10c";
+}
+.flaticon-air-plane:before {
+  content: "\f10d";
+}
+.flaticon-shipping:before {
+  content: "\f10e";
+}
+.flaticon-container-truck:before {
+  content: "\f10f";
+}
+.flaticon-product-lifecycle:before {
+  content: "\f110";
+}
+.flaticon-delivery:before {
+  content: "\f111";
+}
+.flaticon-logistics:before {
+  content: "\f112";
+}
+.flaticon-booking:before {
+  content: "\f113";
+}
+.flaticon-schedule:before {
+  content: "\f114";
+}
+.flaticon-transporting:before {
+  content: "\f115";
+}
+.flaticon-fast-delivery:before {
+  content: "\f116";
+}
+.flaticon-delivery-box:before {
+  content: "\f117";
+}
+.flaticon-transport:before {
+  content: "\f118";
+}
+.flaticon-distribution:before {
+  content: "\f119";
+}
+.flaticon-delivery-time:before {
+  content: "\f11a";
+}
+.flaticon-business:before {
+  content: "\f11b";
+}
+.flaticon-location:before {
+  content: "\f11c";
+}
+.flaticon-order-tracking:before {
+  content: "\f11d";
+}
+.flaticon-air-freight-1:before {
+  content: "\f11e";
+}
+.flaticon-airplane:before {
+  content: "\f11f";
+}
+.flaticon-phone:before {
+  content: "\f120";
+}
+.flaticon-air-plane-1:before {
+  content: "\f121";
+}
+.flaticon-air-freight-2:before {
+  content: "\f122";
+}
+.flaticon-global-shipping:before {
+  content: "\f123";
+}
+.flaticon-globe:before {
+  content: "\f124";
+}
+.flaticon-air-freight-3:before {
+  content: "\f125";
+}
+.flaticon-asterisk:before {
+  content: "\f126";
+}
+.flaticon-supply-chain:before {
+  content: "\f127";
+}
+.flaticon-logistics-1:before {
+  content: "\f128";
+}

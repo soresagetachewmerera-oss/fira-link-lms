@@ -1,0 +1,19 @@
+@extends('layouts.admin')
+
+@section('title', 'Edit Course Language')
+
+@section('breadcrumb')
+    <div class="section-header-breadcrumb">
+        <div class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></div>
+        <div class="breadcrumb-item"><a href="{{ route('admin.course-languages.index') }}">Course Languages</a></div>
+        <div class="breadcrumb-item">Edit</div>
+    </div>
+@endsection
+
+@section('main-content')
+    @include('admin.course-languages.partials.form', [
+        'action' => route('admin.course-languages.update', $language),
+        'method' => 'PUT',
+        'submitLabel' => 'Update Language',
+    ])
+@endsection

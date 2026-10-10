@@ -1,0 +1,212 @@
+/**
+ * Custom CSS for the admin panel.
+ *
+ */
+
+/* Badge Pulse Animation for Pending Notifications */
+.badge-pulse {
+    animation: pulse 2s infinite;
+    position: relative;
+}
+
+.badge-pulse::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: pulse-ring 2s infinite;
+    z-index: -1;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+/*# sourceMappingURL=custom.css.map */
+.modal-backdrop.show {
+    display: none;
+}
+
+.profile-photo-xl {
+    max-width: 200px;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.profile-placeholder-xl {
+    width: 200px;
+    height: 200px;
+}
+
+.avatar-sm {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+.avatar-placeholder-sm {
+    width: 40px;
+    height: 40px;
+}
+
+.course-thumb-sm {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+
+.course-thumb-placeholder {
+    width: 60px;
+    height: 60px;
+}
+
+.course-thumb-xs {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+}
+
+.course-thumb-xs-placeholder {
+    width: 50px;
+    height: 50px;
+}
+
+.status-select-inline {
+    min-width: 120px;
+}
+
+.status-select-colored {
+    border: none;
+    font-weight: 600;
+    color: #fff;
+}
+
+.status-select--pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.status-select--completed {
+    background-color: #28a745;
+}
+
+.status-select--failed {
+    background-color: #dc3545;
+}
+
+.status-select--refunded {
+    background-color: #6c757d;
+}
+
+.progress-vertical-lg {
+    height: 30px;
+}
+
+.progress-vertical-md {
+    height: 20px;
+}
+
+.receipt-image {
+    max-width: 100%;
+}
+
+.receipt-image-lg {
+    max-height: 70vh;
+}
+
+.card-body-tall {
+    min-height: 320px;
+}
+
+.chart-wrapper-lg {
+    position: relative;
+    height: 320px;
+    width: 100%;
+}
+
+.chart-wrapper-md {
+    position: relative;
+    height: 260px;
+    width: 100%;
+}
+
+.progress-thin {
+    height: 8px;
+}
+
+.swal-textarea {
+    width: 100%;
+    min-height: 100px;
+    margin-top: 10px;
+}
+/* Floating Sidebar Styles */
+body.sidebar-floating .main-sidebar {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    height: calc(100vh - 40px);
+    width: 250px;
+    border-radius: 15px !important;
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+    background-color: #fff;
+}
+
+body.sidebar-floating .main-content {
+    padding-left: 290px;
+}
+
+body.sidebar-floating .navbar-bg {
+    left: 290px;
+    width: calc(100% - 290px);
+}
+
+body.sidebar-floating .main-navbar {
+    left: 290px;
+    width: calc(100% - 290px);
+}
+
+@media (max-width: 1024px) {
+    body.sidebar-floating .main-sidebar {
+        left: -270px;
+    }
+    
+    body.sidebar-floating.sidebar-show .main-sidebar {
+        left: 20px;
+    }
+    
+    body.sidebar-floating .main-content,
+    body.sidebar-floating .navbar-bg,
+    body.sidebar-floating .main-navbar {
+        padding-left: 30px;
+        left: 0;
+        width: 100%;
+    }
+}

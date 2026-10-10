@@ -1,0 +1,86 @@
+//>>>>> Component Button Here <<<<<//
+.theme-btn {
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+    vertical-align: middle;
+    display: inline-block;
+    border: none;
+    text-transform: capitalize;
+    text-align: center;
+    border-radius: 30px;
+    background: $theme-color;
+    font-family: 'Poppins', sans-serif;
+    color: $white;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 6px 6px 6px 32px;
+    letter-spacing: -0.18px;
+
+    i {
+        margin-left: 10px;
+        @include transition;
+        width: 44px;
+        height: 44px;
+        line-height: 44px;
+        border-radius: 50%;
+        background-color: $theme-color-2;
+        color: $header-color;
+    }
+
+    &::before {
+        content: "";
+        position: absolute;
+        height: 100%;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        background-color: $theme-color-2;
+        z-index: -1;
+        transition: all 0.4s ease-out;
+        border-radius: inherit;
+    }
+
+    &:hover {
+        color: $header-color;
+        box-shadow: none;
+
+        &::before {
+            width: 100%;
+        }
+
+        i {
+            background-color: $theme-color;
+            color: $white;
+        }
+    }
+
+    @include breakpoint (max-sm){
+        font-size: 14px;
+    }
+}
+
+.link-btns {
+    font-size: 16px;
+    font-weight: 600;
+    display: inline-block;
+    font-family: "Open Sans", sans-serif;
+    text-transform: capitalize;
+    color: $theme-color;
+
+    i {
+        transform: rotate(-40deg);
+        @include transition;
+        font-weight: 400;
+    }
+
+    &:hover {
+
+        i {
+            transform: rotate(0);
+        }
+    }
+}
+
+//>>>>> Component Button End <<<<<//

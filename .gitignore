@@ -1,0 +1,26 @@
+# OS generated
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Flutter
+Eduex Flutter/.dart_tool/
+Eduex Flutter/.flutter-plugins
+Eduex Flutter/.flutter-plugins-dependencies
+Eduex Flutter/.pub-cache/
+Eduex Flutter/.pub/
+Eduex Flutter/build/
+
+# Laravel
+Eduex Laravel/Eduex Laravel/vendor/
+Eduex Laravel/Eduex Laravel/node_modules/
+Eduex Laravel/Eduex Laravel/.phpunit.result.cache
+Eduex Laravel/Eduex Laravel/storage/framework/cache/data/*
+Eduex Laravel/Eduex Laravel/storage/framework/sessions/*
+Eduex Laravel/Eduex Laravel/storage/framework/views/*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

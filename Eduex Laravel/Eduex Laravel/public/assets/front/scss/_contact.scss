@@ -1,0 +1,86 @@
+.contact-wrapper {
+    .mhq-contact-content {
+        .contact-text {
+            margin-top: 25px;
+        }
+
+        ul {
+            margin-top: 30px;
+            li {
+                @include flex;
+                gap: 20px;
+                .icon {
+                    width: 50px;
+                    height: 50px;
+                    line-height: 50px;
+                    text-align: center;
+                    background-color: $theme-color-2;
+                    color: $header-color;
+                    font-size: 24px;
+                    border-radius: 6px;
+                }
+
+                .content {
+                    h5 {
+                        font-size: 18px;
+                        margin-bottom: 5px;
+                    }
+
+                    a {
+                        color: $text-color;
+                    }
+                }
+
+                &:not(:last-child) {
+                    margin-bottom: 30px;
+                    
+                }
+            }
+        }
+    }
+
+    .mhq-contact-items {
+        .contact-form-box {
+            margin-top: 40px;
+            background-color: #F2F4F7;
+            padding: 40px;
+            border-radius: 18px;
+            .form-clt {
+                input,textarea {
+                    border-radius: 8px;
+                    border: none;
+                    background: $white;
+                    line-height: 1;
+                    padding: 20px 25px;
+                    width: 100%;
+                    text-transform: capitalize;
+                    color: $text-color;
+
+                }
+
+                textarea {
+                    padding-bottom: 110px;
+                }
+            }
+        }
+    }
+}
+
+.map-area {
+    iframe {
+        height: 700px;
+        width: 100%;
+
+        @include breakpoint (max-lg){
+            height: 650px;
+        }
+
+        @include breakpoint (max-md){
+            height: 530px;
+        }
+
+        @include breakpoint (max-sm){
+            height: 430px;
+        }
+    }
+}

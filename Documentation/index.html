@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>eduex Documentation</title>
+    <link rel="icon" href="assets/images/favicon.png" type="image/x-icon">
+    <link rel="icon" href="assets/images/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="assets/css/vendor/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/docs.css">
+</head>
+
+<body>
+    <button class="sidebar-toggle btn btn-primary d-lg-none" type="button" id="sidebarToggle">Menu</button>
+    <div class="container-fluid doc-container">
+        <div class="row flex-nowrap">
+            <aside id="docSidebar" class="doc-sidebar col-lg-3 col-xl-2" aria-label="Documentation navigation">
+                <div class="brand">
+                    <span class="brand-icon bg-white"><img src="assets/images/favicon.svg" alt="eduex" class="w-100"
+                            style="width: 20px; height: 20px;"></span>
+                    <div>
+                        <p class="brand-title">eduex Docs</p>
+                        <p class="brand-subtitle">Laravel Edition</p>
+                    </div>
+                </div>
+
+                <nav class="sidebar-section" style="margin-top: 20px;">
+                    <h2>I. Getting Started</h2>
+                    <ul>
+                        <li><a href="#welcome">Welcome</a></li>
+                        <li><a href="#requirements">System requirements</a></li>
+                        <li><a href="#wizard">Installer wizard (Codecanyone)</a></li>
+                        <li><a href="#manual-install">Manual installation fallback</a></li>
+                        <li><a href="#demo-accounts">Demo accounts</a></li>
+                        <li><a href="#update-system">Update System</a></li>
+                        <li><a href="#basic-usage">Basic usage & getting started</a></li>
+                    </ul>
+                </nav>
+
+                <nav class="sidebar-section" style="margin-top: 20px;">
+                    <h2>II. Platform Management</h2>
+                    <ul>
+                        <li><a href="#features">Key features</a></li>
+                        <li><a href="#configuration">Environment keys</a></li>
+                        <li><a href="#admin-settings">Admin settings</a></li>
+                        <li><a href="#frontend-manager">Frontend Manager</a></li>
+                        <li><a href="#theme-settings">Theme Settings</a></li>
+                        <li><a href="#post-install">Post-install checklist</a></li>
+                        <li><a href="#troubleshooting">Troubleshooting</a></li>
+                    </ul>
+                </nav>
+
+                <nav class="sidebar-section" style="margin-top: 20px;">
+                    <h2>III. Best Practices & FAQ</h2>
+                    <ul>
+                        <li><a href="#best-practices">Best practices & tips</a></li>
+                        <li><a href="#faq">Frequently asked questions</a></li>
+                    </ul>
+                </nav>
+
+                <nav class="sidebar-section" style="margin-top: 20px;">
+                    <h2>IV. Mobile App</h2>
+                    <ul>
+                        <li><a href="#flutter-prerequisites">Prerequisites</a></li>
+                        <li><a href="#flutter-installation">Installation</a></li>
+                        <li><a href="#flutter-connect">Connect to Backend</a></li>
+                        <li><a href="#flutter-package-name">App Name & Package</a></li>
+                        <li><a href="#flutter-branding">Logo & Splash</a></li>
+                        <li><a href="#flutter-colors">Colors & Theme</a></li>
+                        <li><a href="#flutter-homepage">Homepage Configuration</a></li>
+                        <li><a href="#flutter-localization">Language & Localization</a></li>
+                        <li><a href="#flutter-android">Android Build</a></li>
+                        <li><a href="#flutter-ios">iOS Build</a></li>
+                    </ul>
+                </nav>
+
+                <nav class="sidebar-section" style="margin-top: 20px;">
+                    <h2>V. Changelog</h2>
+                    <ul>
+                        <li><a href="#changelog">Release Notes</a></li>
+                        <li><a href="#changelog-v2-0-0">v2.0.0 — Latest</a></li>
+                        <li><a href="#changelog-v1-3-1">v1.3.1</a></li>
+                        <li><a href="#changelog-v1-3-0">v1.3.0</a></li>
+                        <li><a href="#changelog-v1-2-2">v1.2.2</a></li>
+                        <li><a href="#changelog-v1-2-1">v1.2.1</a></li>
+                        <li><a href="#changelog-v1-2-0">v1.2.0</a></li>
+                        <li><a href="#changelog-v1-1-1">v1.1.1</a></li>
+                        <li><a href="#changelog-v1-1-0">v1.1.0</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <main class="content col">
+                <header class="hero" id="welcome">
+                    <h1>Welcome to eduex</h1>
+                    <p>Thanks for choosing the eduex learning platform. This guide walks through Codecanyone
+                        installation
+                        steps, manual setup, demo users, and all major admin configuration panels.</p>
+                </header>
+
+                <section id="requirements">
+                    <h2>System requirements</h2>
+                    <p>Before you run the installer, ensure the target server meets the minimum requirements:</p>
+                    <ul>
+                        <li>PHP 8.2+ with extensions: OpenSSL, PDO, Mbstring, Tokenizer, JSON, cURL, Fileinfo, BCMath.
+                        </li>
+                        <li>Database: MySQL 8, MariaDB 10.5+, PostgreSQL 12+, or SQL Server 2019+.</li>
+                        <li>Queue backend (database driver supported by default; Redis or others optional).</li>
+                    </ul>
+                </section>
+
+                <section id="cpanel-prep">
+                    <h2>cPanel: create database &amp; upload files</h2>
+
+                    <h3>Database &amp; user</h3>
+                    <ol>
+                        <li>Open <strong>MySQL® Databases</strong> in cPanel and create a database (for example
+                            <code>eduex_db</code>).
+                        </li>
+                        <li>Create a database user with a strong password, then add the user to the database granting
+                            <strong>ALL PRIVILEGES</strong>.
+                        </li>
+                        <img src="assets/images/db/1.png" alt="System requirements" class="w-100">
+                        <img src="assets/images/db/2.png" alt="System requirements" class="w-100">
+                        <img src="assets/images/db/3.png" alt="System requirements" class="w-100">
+                    </ol>
+
+                    <h3>Upload application files</h3>
+                    <ol>
+                        <li>Zip the project locally (excluding <code>node_modules</code>, <code>storage/logs</code>,
+                            vendor if you prefer running composer on the server).</li>
+                        <li>In <strong>File Manager</strong> go to <code>public_html/</code> (or the target directory)
+                            and upload the archive, then extract it.</li>
+                        <img src="assets/images/file/1.png" alt="System requirements" class="w-100">
+                        <img src="assets/images/file/2.png" alt="System requirements" class="w-100">
+                        <img src="assets/images/file/3.png" alt="System requirements" class="w-100">
+                        <br>
+                        <code class="code-block p-2 mt-4">
+                        Without terminal access, you can complete migrations by visiting <code>/install</code> after
+                        uploading.
+                        </code>
+                        </li>
+                    </ol>
+                </section>
+
+                <section id="wizard">
+                    <h2>Codecanyone setup wizard</h2>
+                    <p>eduex bundles a polished Codecanyone-style wizard for first-time installs. Browse to
+                        <code>/install</code> after configuring your vhost or running <code>php artisan serve</code>.
+                    </p>
+
+                    <div class="wizard-steps">
+                        <article>
+                            <h3>1. Welcome</h3>
+                            <p>Quick intro, high-level checklist, and a reminder about server requirements.</p>
+                        </article>
+                        <article>
+                            <h3>2. Requirements</h3>
+                            <p>Automated PHP version and extension checks. You must satisfy all prerequisites to
+                                continue.
+                            </p>
+                        </article>
+                        <article>
+                            <h3>3. Permissions</h3>
+                            <p>Validates directory write access for <code>storage</code> and
+                                <code>bootstrap/cache</code>.
+                            </p>
+                        </article>
+                        <article>
+                            <h3>4. Environment</h3>
+                            <p>Guided form covering application info, database credentials, cache/session drivers, and
+                                mail
+                                setup. Values are persisted to <code>.env</code>.</p>
+                        </article>
+                        <article>
+                            <h3>5. Database</h3>
+                            <p>Runs migrations, seeds all demo data, performs artisan maintenance commands, and logs
+                                output
+                                in real time.</p>
+                        </article>
+                        <article>
+                            <h3>6. Finish</h3>
+                            <p>Displays environment summary, seeded demo accounts, and the path to the
+                                <code>storage/installed</code> marker.
+                            </p>
+                        </article>
+                    </div>
+
+                    <h2 style="margin-top: 20px;">Step 1: Welcome</h2>
+                    <img src="assets/images/step/1.png" alt="Welcome" class="w-100" style="border-radius: 10px;">
+
+                    <h2>Step 2: Requirements</h2>
+                    <img src="assets/images/step/2.png" alt="Requirements" class="w-100" style="border-radius: 10px;">
+
+                    <h2>Step 3: Permissions</h2>
+                    <img src="assets/images/step/3.png" alt="Permissions" class="w-100" style="border-radius: 10px;">
+
+                    <h2>Step 4: Environment</h2>
+                    <img src="assets/images/step/4.png" alt="Environment" class="w-100" style="border-radius: 10px;">
+
+                    <h2>Step 5: Database</h2>
+                    <img src="assets/images/step/5.png" alt="Database" class="w-100" style="border-radius: 10px;">
+
+                    <h2>Step 6: Finish</h2>
+                    <img src="assets/images/step/6.png" alt="Finish" class="w-100" style="border-radius: 10px;">
+
+                </section>
+
+                <section id="manual-install">
+                    <h2>Manual installation fallback</h2>
+                    <p>If you cannot access the browser wizard (headless servers, CLI-only environments), follow these
+                        steps:</p>
+                    <ol>
+                        <li>Copy the environment template and update manually:
+                            <pre><code>cp .env.example .env
+php artisan key:generate</code></pre>
+                        </li>
+                        <li>Configure database credentials in <code>.env</code>, ensure the database exists, then run:
+                            <pre><code>php artisan migrate --force
+php artisan db:seed --force</code></pre>
+                        </li>
+                        <li>Run final commands to clear caches and ensure the app key exists:
+                            <pre><code>php artisan optimize:clear
+php artisan key:generate --force</code></pre>
+                        </li>
+                        <li>Create the installation marker to skip the wizard:
+                            <pre><code>php -r "file_exists('storage/installed') || touch('storage/installed');"</code></pre>
+                        </li>
+                    </ol>
+
+                    <div class="callout info">
+                        <strong>Tip:</strong> Delete <code>storage/installed</code> anytime you need to re-run the
+                        wizard.
+                    </div>
+                </section>
+
+                <section id="demo-accounts">
+                    <h2>Demo accounts</h2>
+                    <p>The seeders provision three ready-to-use accounts for quick testing. All use the password
+                        <code>password</code>.
+                    </p>
+                    <table class="doc-table">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Email</th>
+                                <th>Password</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Administrator</td>
+                                <td><code>admin@eduex.com</code></td>
+                                <td><code>password</code></td>
+                            </tr>
+                            <tr>
+                                <td>Instructor</td>
+                                <td><code>instructor@eduex.com</code></td>
+                                <td><code>password</code></td>
+                            </tr>
+                            <tr>
+                                <td>Student</td>
+                                <td><code>student@eduex.com</code></td>
+                                <td><code>password</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="update-system">
+                    <h2>Update System</h2>
+                    <p>Keeping your system up-to-date is crucial for security and new features. The built-in updater
+                        allows you to apply database changes automatically.</p>
+
+                    <div class="alert alert-danger mb-4">
+                        <h5><i class="fas fa-exclamation-triangle me-2"></i>Critical Pre-Update Instructions</h5>
+                        <ul class="mb-0">
+                            <li><strong>Custom Code Warning:</strong> If you have made any custom modifications to
+                                the core code, they <strong>will be overwritten</strong> during the update.</li>
+                            <li><strong>Free Update Support:</strong> If you are unsure, you can ask our
+                                support team for a free update service.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card mb-4 border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <strong><i class="fas fa-save me-2"></i>Before Uploading New Files</strong>
+                        </div>
+                        <div class="card-body">
+                            <p>When uploading the new version files to your server, you must preserve your existing
+                                configuration and user data:</p>
+                            <ol>
+                                <li><strong>Backup .env:</strong> Rename your current <code>.env</code> file to
+                                    <code>old.env</code> (or keep a local backup).
+                                </li>
+                                <li><strong>Backup Storage:</strong> Rename your current <code>storage</code> folder
+                                    to <code>old_storage</code>.</li>
+                                <li>Upload the new version files (delete old files except your backups).</li>
+                                <li><strong>Restore Config:</strong> Delete the new <code>.env</code> and rename
+                                    <code>old.env</code> back to <code>.env</code>.
+                                </li>
+                                <li><strong>Restore Data:</strong> Delete the new <code>storage</code> folder and
+                                    rename <code>old_storage</code> back to <code>storage</code>.</li>
+                            </ol>
+                            <p class="mb-0 text-muted small">This ensures you keep your database credentials, app
+                                keys, and user uploaded files intact.</p>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5><i class="fas fa-sync-alt me-2 text-primary"></i>One-Click Updater</h5>
+                            <p>Once you have uploaded the new files and restored your configuration:</p>
+                            <ol>
+                                <li>Login to the Admin Panel.</li>
+                                <li>Navigate to <strong>/admin/updater</strong>.</li>
+                                <li>The system will compare your current database version with the codebase version.
+                                </li>
+                                <li>If an update is available (e.g., Codebase Version > Database Version), the
+                                    <strong>Update System Now</strong> button will be active.
+                                </li>
+                                <li>Click the button to safely run migrations and update the system version.</li>
+                            </ol>
+                            <img src="assets/images/updater.png" alt="System Updater Interface"
+                                class="img-fluid rounded shadow-lg mt-3 w-100 border">
+
+                            <div class="mt-4 text-center">
+                                <a href="https://youtu.be/hFEa-6NKqDk" target="_blank"
+                                    class="btn btn-danger btn-lg shadow-lg px-5 py-3 rounded-pill"
+                                    style="color: white; text-decoration: none;">
+                                    <i class="fas fa-play-circle me-2 fa-lg"></i> Watch Update Tutorial
+                                </a>
+                                <p class="text-muted small mt-2">Click to open the step-by-step video guide</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="basic-usage">
+                    <h2>Basic Usage & Getting Started</h2>
+                    <p>After installation, here's how to start using eduex:</p>
+
+                    <h3>1. First Login & Dashboard Overview</h3>
+                    <ol>
+                        <li>Open your browser and navigate to your installation URL.</li>
+                        <li>Log in with one of the demo accounts above.</li>
+                        <li><strong>Admin Dashboard:</strong> Access platform-wide settings, user management, and
+                            analytics.</li>
+                        <li><strong>Instructor Dashboard:</strong> Create and manage courses, track student progress,
+                            view earnings.</li>
+                        <li><strong>Student Dashboard:</strong> Enroll in courses, track learning progress, access
+                            certificates.</li>
+                    </ol>
+
+                    <h3>2. Creating Your First Course (As Instructor)</h3>
+                    <ol>
+                        <li>Navigate to <strong>Courses</strong> → <strong>Create New Course</strong>.</li>
+                        <li>Fill in basic details:
+                            <ul>
+                                <li>Course Title</li>
+                                <li>Course Description</li>
+                                <li>Category</li>
+                                <li>Price (set to 0 for free courses)</li>
+                            </ul>
+                        </li>
+                        <li>Upload a course thumbnail image.</li>
+                        <li>Set course visibility (Draft, Published, or Private).</li>
+                        <li>Click <strong>Save & Continue</strong>.</li>
+                    </ol>
+
+                    <h3>3. Adding Course Content</h3>
+                    <ol>
+                        <li>Create course modules: <strong>Add Module</strong> → enter module title → save.</li>
+                        <li>Add lessons to each module: Click module → <strong>Add Lesson</strong>.</li>
+                        <li>Lesson content types:
+                            <ul>
+                                <li><strong>Video:</strong> Upload or embed from YouTube/Vimeo.</li>
+                                <li><strong>Text:</strong> Rich text content with formatting.</li>
+                                <li><strong>Document:</strong> PDFs and downloadable resources.</li>
+                                <li><strong>Quiz:</strong> Test student knowledge (see quiz section).</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <h3>4. Creating Quizzes & Assessments</h3>
+                    <ol>
+                        <li>Navigate to course → <strong>Lesson & Modules</strong> → <strong>Create Quiz</strong>.</li>
+                        <li>Set quiz details:
+                            <ul>
+                                <li>Quiz title</li>
+                                <li>Passing percentage</li>
+                                <li>Max attempts</li>
+                                <li>Time limit (optional)</li>
+                            </ul>
+                        </li>
+                        <li>Add questions: Multiple choice, true/false, short answer, essay.</li>
+                        <li>Assign passing grades and point values.</li>
+                        <li>Publish quiz to make it available to students.</li>
+                    </ol>
+
+                    <h3>5. Managing Student Enrollment</h3>
+                    <ol>
+                        <li>Students can self-enroll in published courses.</li>
+                        <li>For paid courses, they complete checkout via your configured payment gateway.</li>
+                        <li>View enrolled students: Course → <strong>Enrollments</strong>.</li>
+                        <li>Monitor progress: Click student name → see lesson completion, quiz scores, time spent.</li>
+                        <li>Grant certificates manually or automatically upon course completion.</li>
+                    </ol>
+
+                    <h3>6. Tracking Performance & Analytics</h3>
+                    <ol>
+                        <li><strong>Admin Dashboard:</strong> View total enrollments, revenue, top courses.</li>
+                        <li><strong>Instructor Analytics:</strong> Course performance, student engagement, earnings
+                            breakdown.</li>
+                        <li><strong>Detailed Reports:</strong> Export enrollment, progress, and revenue data.</li>
+                    </ol>
+
+                    <h3>7. Managing Events & Webinars</h3>
+                    <ol>
+                        <li>Create live events: <strong>Events</strong> → <strong>Create Event</strong>.</li>
+                        <li>Set event details: Date, time, duration, capacity.</li>
+                        <li>Enable booking: Students register and receive meeting links/join instructions.</li>
+                        <li>Record sessions for on-demand playback after live event.</li>
+                    </ol>
+
+                    <h3>8. Understanding User Roles</h3>
+                    <div class="callout info">
+                        <strong>Admin:</strong> Full platform access—manage users, settings, payments, analytics.
+                        <br><strong>Instructor:</strong> Create courses, manage students, track earnings, view
+                        analytics.
+                        <br><strong>Student:</strong> Enroll courses, access content, take quizzes, earn certificates.
+                    </div>
+                </section>
+
+                <section id="features">
+                    <h2>Key features</h2>
+                    <p>Highlights of the eduex platform:</p>
+                    <ul>
+                        <li>Multi-role authentication (Admin, Instructor, Student) with approval pipelines.</li>
+                        <li>Course builder with modules, lessons, quizzes, assignments, certificates, and progress
+                            tracking.
+                        </li>
+                        <li>Event management and booking system for webinars and in-person sessions.</li>
+                        <li>Payment integrations: Stripe, Paystack, Razorpay, Flutterwave, PayPal, SSLCommerz, Mollie
+                            with
+                            revenue sharing.</li>
+                        <li>Marketing toolkit: blog, testimonials, newsletter signup, customizable pages.</li>
+                        <li>Rich analytics dashboards for enrollments, revenue, and learner engagement.</li>
+                    </ul>
+                </section>
+
+                <section id="configuration">
+                    <h2>Environment keys reference<small>Must be set in .env file</small></small></h2>
+                    <small>
+                        <code>Example:<br>
+                            APP_NAME=eduex <br>
+                            APP_URL=https://lms.example.com
+                        </code>
+                    </small>
+                    </small></h2>
+                    <table class="doc-table">
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>APP_NAME</code></td>
+                                <td>Brand name displayed across headers, transactional emails, and metadata.</td>
+                                <td><code>eduex</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>APP_URL</code></td>
+                                <td>Primary application URL. Important for mailers, queues, and asset helpers.</td>
+                                <td><code>https://lms.example.com</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="admin-settings">
+                    <h2>Admin settings walkthrough</h2>
+                    <p>Sign into the admin dashboard and navigate to <strong>Settings</strong> to manage the following
+                        modules:</p>
+                    <img src="assets/images/settings.png" alt="Admin settings" class="w-100">
+                    <div class="settings-grid">
+                        <article>
+                            <h3>Platform Configuration</h3>
+                            <ul>
+                                <li>Site name, tagline, footer copy.</li>
+                                <li>Primary color palette and favicon upload.</li>
+                                <li>Time zone, date formats, Currency defaults.</li>
+                            </ul>
+                            <img src="assets/images/platform-configuration.png" alt="Platform configuration"
+                                class="w-100">
+                        </article>
+                        <article>
+                            <h3>Course Settings</h3>
+                            <ul>
+                                <li>Approval rules for new courses.</li>
+                                <li>Default Course Visibility</li>
+                            </ul>
+                            <img src="assets/images/course-configuration.png" alt="Course settings" class="w-100">
+                        </article>
+                        <article>
+                            <h3>Payment Gateways</h3>
+                            <ul>
+                                <li>Configure Stripe, Paystack, Razorpay, Flutterwave, PayPal, SSLCommerz, Mollie.</li>
+                                <li>Enable/disable gateways and set fee structures.</li>
+                                <li>Manage Offline Payment Methods</li>
+                            </ul>
+                            <img src="assets/images/gateway-configuration.png" alt="Payment gateways" class="w-100">
+                        </article>
+                        <article>
+                            <h3>Branding &amp; Assets</h3>
+                            <ul>
+                                <li>Upload logos for light/dark themes and app favicon.</li>
+                                <li>Manage Color Palette</li>
+                            </ul>
+                            <img src="assets/images/branding-configuration.png" alt="Branding configuration"
+                                class="w-100">
+                        </article>
+                        <article>
+                            <h3>Contact Details</h3>
+                            <ul>
+                                <li>Primary support email, phone, physical address.</li>
+                                <li>Contact Information</li>
+                            </ul>
+                            <img src="assets/images/contact-configuration.png" alt="Contact details" class="w-100">
+                        </article>
+                        <article>
+                            <h3>Email &amp; Notifications</h3>
+                            <ul>
+                                <li>Email Preference</li>
+                                <li>Notification Preference</li>
+                            </ul>
+                            <img src="assets/images/email-configuration.png" alt="Email configuration" class="w-100">
+                        </article>
+                        <article>
+                            <h3>SMTP Configuration</h3>
+                            <ul>
+                                <li>SMTP Host</li>
+                                <li>SMTP Port</li>
+                                <li>SMTP Username</li>
+                                <li>SMTP Password</li>
+                                <li>SMTP Encryption</li>
+                            </ul>
+                            <img src="assets/images/smtp-configuration.png" alt="SMTP configuration" class="w-100">
+                        </article>
+                        <article>
+                            <h3>Authentication &amp; OTP</h3>
+                            <ul>
+                                <li>Enable login OTP, email verification, and security thresholds.</li>
+                                <li>Configure OTP expiry and resend limits.</li>
+                            </ul>
+                            <img src="assets/images/otp-configuration.png" alt="Authentication configuration"
+                                class="w-100">
+                        </article>
+                        <article>
+                            <h3>Revenue Distribution</h3>
+                            <ul>
+                                <li>Set commission percentages for instructors vs. platform.</li>
+                                <li>Fixed Commission</li>
+                            </ul>
+                            <img src="assets/images/revenue-configuration.png" alt="Revenue configuration"
+                                class="w-100">
+                        </article>
+                        <article>
+                            <h3>Withdrawals</h3>
+                            <ul>
+                                <li>Minimum Withdrawal Amount</li>
+                            </ul>
+                            <img src="assets/images/payout-configuration.png" alt="Withdrawals configuration"
+                                class="w-100">
+                        </article>
+                        <article>
+                            <h3>Account Deletion</h3>
+                            <ul>
+                                <li>Approve or reject user-initiated deletion requests.</li>
+                            </ul>
+                            <img src="assets/images/acc-del-configuration.png" alt="Account deletion configuration"
+                                class="w-100">
+                        </article>
+                        <article>
+                            <h3>Recaptcha Configuration</h3>
+                            <ul>
+                                <li>Enable Google reCAPTCHA v2/v3 site and secret keys.</li>
+                                <li>Toggle usage on login, registration, and forms.</li>
+                            </ul>
+                            <img src="assets/images/captcha-configuration.png" alt="Recaptcha configuration"
+                                class="w-100">
+                        </article>
+                    </div>
+
+                </section>
+
+                <section id="frontend-manager">
+                    <h2>Frontend Manager</h2>
+                    <p>The <strong>Frontend Manager</strong> module controls most public-facing content. From the admin
+                        sidebar open <strong>Frontend Manager</strong> to access the following tools:</p>
+
+                    <ul>
+                        <li><strong>Menus</strong> &mdash; manage main, mobile, footer, and quick-link menus. Use the
+                            <em>Manage</em> buttons to add, sort, nest, or disable menu items without touching code.
+                        </li>
+                        <img src="assets/images/front/1.png" alt="Menus" class="w-100">
+                        <li><strong>Homepage</strong> &mdash; update hero titles, highlights, featured categories,
+                            instructor
+                            sections, testimonials, and calls-to-action.</li>
+                        <img src="assets/images/front/2.png" alt="Homepage" class="w-100">
+                        <li><strong>About Page</strong> &mdash; edit the mission statement, team bios, statistics, and
+                            timeline
+                            content displayed on the about page.</li>
+                        <img src="assets/images/front/3.png" alt="About Page" class="w-100">
+                        <li><strong>Contact Page</strong> &mdash; configure map iframe, address, phone numbers, contact
+                            form
+                            copy, and support email.</li>
+                        <img src="assets/images/front/4.png" alt="Contact Page" class="w-100">
+                        <li><strong>FAQ Content</strong> &mdash; maintain frequently asked questions grouped by
+                            category.
+                            Enable/disable items instantly to curate the FAQ section.</li>
+                        <img src="assets/images/front/5.png" alt="FAQ Content" class="w-100">
+                        <li><strong>Marquee Items</strong> &mdash; control the scrolling marquee text that sits at the
+                            top of
+                            marketing pages.</li>
+                        <img src="assets/images/front/6.png" alt="Marquee Items" class="w-100">
+                        <li><strong>SEO Metadata</strong> &mdash; override page titles, descriptions, and OpenGraph
+                            information
+                            for key landing pages.</li>
+                        <img src="assets/images/front/7.png" alt="SEO Metadata" class="w-100">
+                        <li><strong>Custom Pages</strong> &mdash; create additional static pages (terms, privacy, refund
+                            policy)
+                            using the built-in editor.</li>
+                        <img src="assets/images/front/8.png" alt="Custom Pages" class="w-100">
+                        <li><strong>Footer &amp; Contact</strong> &mdash; adjust footer description, social links, and
+                            primary
+                            contact information displayed site-wide.</li>
+                        <img src="assets/images/front/9.png" alt="Footer & Contact" class="w-100">
+                    </ul>
+
+                    <p>Changes are saved immediately. Clear caches (<code>php artisan optimize:clear</code>) if your
+                        deployment
+                </section>
+
+                <section id="theme-settings">
+                    <h2>Theme Settings</h2>
+                    <p>eduex supports multiple front-end themes and layouts. To activate, configure, and manage themes, open <strong>Frontend Settings &gt; Themes</strong> from the admin sidebar.</p>
+
+                    <h3>Activating a Theme</h3>
+                    <ol>
+                        <li>The admin dashboard displays all installed themes with their respective status, version, and author details.</li>
+                        <li>Click the <strong>Active</strong> toggle button on any theme card to activate it as the primary storefront theme.</li>
+                        <li>Active theme preview is automatically updated using the theme's <code>screenshot.png</code> asset.</li>
+                    </ol>
+
+                    <img src="assets/images/theme.png" alt="Theme Settings" class="w-100" style="border-radius: 10px; margin-top: 15px; margin-bottom: 20px;">
+
+                    <h3>Managing Homepage Layout Variants</h3>
+                    <p>Themes can support different design variations (e.g., <em>Kindergarten</em> vs. <em>Early Education</em> variants for the Eduna theme). To manage these variants:</p>
+                    <ul>
+                        <li>Open the <strong>Homepage</strong> tab inside <strong>Frontend Manager</strong>.</li>
+                        <li>Locate the <strong>Homepage Theme</strong> dropdown selection.</li>
+                        <li>Select your desired variant (for example, <em>Early Education</em> or <em>Kindergarten</em>) and click <strong>Update</strong>.</li>
+                        <li>The homepage will automatically adapt to the new design and pull dynamic database contents (courses, categories, events, blogs) for the chosen theme layout variant.</li>
+                    </ul>
+                </section>
+
+                <section id="post-install">
+                    <h2>Post-install checklist</h2>
+                    <ul>
+                        <li>Update branding (logos, hero headlines, footer text).</li>
+                        <li>Configure payment gateways with live credentials.</li>
+                        <li>Set up SMTP and test transactional emails.</li>
+                    </ul>
+                </section>
+
+                <section id="troubleshooting">
+                    <h2>Troubleshooting</h2>
+                    <h3>Common issues</h3>
+                    <ul>
+                        <li><strong>Setup wizard blank page:</strong> check <code>storage/logs/laravel.log</code> for
+                            SQL or
+                            permission errors.</li>
+                        <li><strong>Cache table missing:</strong> run
+                            <code>php artisan migrate --path=database/migrations/0001_01_01_000001_create_cache_table.php</code>.
+                        </li>
+                        <li><strong>Queue jobs not processing:</strong> ensure the queue worker is supervised or run
+                            <code>php artisan queue:work</code>.
+                        </li>
+                    </ul>
+
+                    <h3>Useful artisan commands</h3>
+                    <pre><code># Clear caches and rebuild autoload optimizations
+php artisan optimize:clear
+
+# Run migrations with seeders again
+php artisan migrate:fresh --seed
+
+# Monitor Horizon or queue (if using Redis)
+php artisan queue:listen</code></pre>
+                </section>
+
+                <section id="support" class="support-cta">
+                    <h2>Support & Contact Information</h2>
+                    <p>We're here to help! Use the following resources to get support or reach out with questions:</p>
+
+                    <h3>Getting Help</h3>
+                    <ul>
+                        <li><strong>Documentation:</strong> Review this guide for setup, configuration, and usage
+                            instructions.</li>
+                        <li><strong>Email Support:</strong> For technical issues, feature requests, or general
+                            inquiries.</li>
+                        <li><strong>FAQ:</strong> Check our FAQ section for answers to common questions.</li>
+                        <li><strong>Community Forum:</strong> Connect with other eduex users and share solutions.</li>
+                    </ul>
+
+                    <h3>Contact Methods</h3>
+                    <div class="callout info">
+                        <strong>Email:</strong> <a href="mailto:mhquickdev@gmail.com">mhquickdev@gmail.com</a>
+                        <br><strong>Response Time:</strong> 24-48 hours for support inquiries
+                        <br><strong>Availability:</strong> Monday - Friday, 9 AM - 6 PM (GMT+6)
+                    </div>
+
+                    <h3>Before Contacting Support</h3>
+                    <ol>
+                        <li>Check this documentation thoroughly.</li>
+                        <li>Review the troubleshooting section for common issues.</li>
+                        <li>Check your server logs: <code>storage/logs/laravel.log</code>.</li>
+                        <li>Verify your server meets all system requirements.</li>
+                        <li>Provide relevant error messages and context when reaching out.</li>
+                    </ol>
+
+                    <h3>Information to Include</h3>
+                    <p>When reporting an issue, include:</p>
+                    <ul>
+                        <li>Error message or screenshot</li>
+                        <li>Your PHP version and database type</li>
+                        <li>Browser and OS being used</li>
+                        <li>Steps to reproduce the issue</li>
+                        <li>Any recent changes to your installation</li>
+                    </ul>
+
+                    <div
+                        style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                        <h4>Ready to Get Started?</h4>
+                        <p>If you have questions or need assistance, don't hesitate to reach out.</p>
+                        <a href="https://mhquickdev.agency" class="support-button"
+                            style="display: inline-block; padding: 12px 30px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">Contact
+                            Support</a>
+                    </div>
+                </section>
+                <hr style="margin: 60px 0; border: none; border-top: 2px solid #e0e0e0;">
+
+                <section id="best-practices">
+                    <h2>Best Practices & Tips</h2>
+
+                    <h3>Security Best Practices</h3>
+                    <ul>
+                        <li><strong>Change default passwords:</strong> Update demo account passwords immediately in
+                            production.</li>
+                        <li><strong>Use HTTPS:</strong> Always serve the platform over HTTPS in production.</li>
+                        <li><strong>Regular backups:</strong> Implement automated database and file backups.</li>
+                        <li><strong>Keep software updated:</strong> Update Laravel, PHP, and dependencies regularly.
+                        </li>
+                        <li><strong>Enable reCAPTCHA:</strong> Protect login and registration forms from bot attacks.
+                        </li>
+                        <li><strong>Strong email security:</strong> Use secure SMTP with authentication and encryption.
+                        </li>
+                    </ul>
+
+                    <h3>Performance Optimization</h3>
+                    <ul>
+                        <li>Enable <strong>caching:</strong> Configure Redis or Memcached for sessions and data caching.
+                        </li>
+                        <li>Compress assets: Minify CSS/JS files and optimize images.</li>
+                        <li>Use CDN: Serve static assets from a CDN for faster delivery globally.</li>
+                        <li>Database indexing: Ensure critical tables are properly indexed.</li>
+                        <li>Queue jobs: Use background jobs for emails, notifications, and heavy processing.</li>
+                    </ul>
+
+                    <h3>Course Creation Tips</h3>
+                    <ul>
+                        <li><strong>Structure matters:</strong> Organize courses into logical modules and lessons.</li>
+                        <li><strong>Engagement:</strong> Mix video, text, and interactive content to keep students
+                            engaged.</li>
+                        <li><strong>Assessments:</strong> Use quizzes strategically to reinforce learning.</li>
+                        <li><strong>Descriptions:</strong> Write clear, compelling course descriptions to improve
+                            enrollment.</li>
+                        <li><strong>Support materials:</strong> Provide downloadable resources, transcripts, and
+                            supplementary materials.</li>
+                    </ul>
+
+                    <h3>User Management Best Practices</h3>
+                    <ul>
+                        <li>Regularly audit user accounts and permissions.</li>
+                        <li>Implement role-based access control (RBAC) for sensitive operations.</li>
+                        <li>Monitor suspicious login attempts in admin logs.</li>
+                        <li>Use strong password policies and two-factor authentication when available.</li>
+                    </ul>
+                </section>
+
+                <section id="faq">
+                    <h2>Frequently Asked Questions</h2>
+
+                    <h3>Installation & Setup</h3>
+                    <div class="faq-item">
+                        <h4>Q: What if the installer wizard doesn't load?</h4>
+                        <p><strong>A:</strong> Check your server logs at <code>storage/logs/laravel.log</code> for
+                            database or permission errors. Ensure <code>storage</code> and <code>bootstrap/cache</code>
+                            directories are writable.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h4>Q: Can I run eduex without a database?</h4>
+                        <p><strong>A:</strong> No, a database is required for the platform to function. Support includes
+                            MySQL, MariaDB, PostgreSQL, and SQL Server.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h4>Q: How do I restore a backup?</h4>
+                        <p><strong>A:</strong> Restore your database from backup, then upload the backed-up files to
+                            your server. Run <code>php artisan migrate --force</code> if needed.</p>
+                    </div>
+
+                    <h3>Configuration & Customization</h3>
+                    <div class="faq-item">
+                        <h4>Q: How do I change the platform colors and logo?</h4>
+                        <p><strong>A:</strong> Log in as admin and navigate to <strong>Settings</strong> →
+                            <strong>Branding & Assets</strong> to upload logos and customize colors.
+                        </p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h4>Q: Can I use a custom domain?</h4>
+                        <p><strong>A:</strong> Yes, point your domain to the server hosting eduex. Update
+                            <code>APP_URL</code> in your <code>.env</code> file with your domain.
+                        </p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h4>Q: How do I add multiple payment gateways?</h4>
+                        <p><strong>A:</strong> Go to <strong>Settings</strong> → <strong>Payment Gateways</strong>, fill
+                            in credentials for each gateway you want to enable, and toggle them active.</p>
+                    </div>
+
+                    <h3>Courses & Content</h3>
+                    <div class="faq-item">
+                        <h4>Q: Can students access course content offline?</h4>
+                        <p><strong>A:</strong> Not natively, but instructors can provide downloadable PDFs and course
+                            materials for offline reference.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h4>Q: What file formats are supported for course uploads?</h4>
+                        <p><strong>A:</strong> Video: MP4, WebM, OGG. Documents: PDF, DOC, DOCX, XLS, XLSX. Images: JPG,
+                            PNG, GIF, WebP.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h4>Q: Can instructors see student progress in real-time?</h4>
+                        <p><strong>A:</strong> Yes, instructors can view student progress, quiz scores, and time spent
+                            in the course analytics dashboard.</p>
+                    </div>
+
+                    <h3>Payments & Revenue</h3>
+                    <div class="faq-item">
+                        <h4>Q: Which payment gateways are supported?</h4>
+                        <p><strong>A:</strong> Stripe, Paystack, Razorpay, Flutterwave, PayPal, SSLCommerz, and Mollie
+                            are all integrated.</p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h4>Q: How is revenue split between instructors and the platform?</h4>
+                        <p><strong>A:</strong> Configure revenue sharing percentages in <strong>Settings</strong> →
+                            <strong>Revenue Distribution</strong>.
+                        </p>
+                    </div>
+
+                    <div class="faq-item">
+                        <h4>Q: Can I offer refunds?</h4>
+                        <p><strong>A:</strong> Yes, admins can process refunds manually. Configure refund policies and
+                            expiration in settings.</p>
+                    </div>
+                </section>
+
+                <hr style="margin: 60px 0; border: none; border-top: 2px solid #e0e0e0;">
+                <section id="flutter-prerequisites">
+                    <h2>Flutter App Configuration</h2>
+                    <p>Complete guide to re-branding, configuring, and publishing the eduex mobile application.</p>
+
+                    <h3>Prerequisites</h3>
+                    <ul>
+                        <li><strong>Flutter SDK:</strong> 3.9.0+</li>
+                        <li><strong>Dart SDK:</strong> 3.0.0+</li>
+                        <li><strong>IDE:</strong> VS Code or Android Studio</li>
+                        <li><strong>MacOS:</strong> Required for iOS builds</li>
+                    </ul>
+                </section>
+
+                <section id="flutter-installation">
+                    <h2>Installation</h2>
+                    <ol>
+                        <li>Unzip the <code>eduex_flutter</code> directory.</li>
+                        <li>Open the folder in your IDE.</li>
+                        <li>Run dependencies installation:
+                            <pre><code>flutter pub get</code></pre>
+                        </li>
+                        <li>Run the app:
+                            <pre><code>flutter run</code></pre>
+                        </li>
+                    </ol>
+                </section>
+
+                <section id="flutter-connect">
+                    <h2>Connect to Backend</h2>
+                    <p>Link the mobile app to your installed Laravel server.</p>
+                    <ol>
+                        <li>Open <code>lib/config/config.dart</code>.</li>
+                        <li>Update <code>baseUrl</code>:
+                            <pre><code>static const String baseUrl = 'https://your-domain.com';</code></pre>
+                        </li>
+                    </ol>
+                </section>
+
+                <!-- PACKAGE NAME SECTION -->
+                <section id="flutter-package-name">
+                    <h2>App Name & Package ID</h2>
+
+                    <h3>Change App Display Name</h3>
+                    <p><strong>Android:</strong> Open <code>android/app/src/main/AndroidManifest.xml</code> and update:
+                    </p>
+                    <pre><code>android:label="Your App Name"</code></pre>
+
+                    <p><strong>iOS:</strong> Open <code>ios/Runner/Info.plist</code> and update:</p>
+                    <pre><code>&lt;key&gt;CFBundleDisplayName&lt;/key&gt;
+&lt;string&gt;Your App Name&lt;/string&gt;</code></pre>
+
+                    <h3>Change Package Name / Bundle ID</h3>
+                    <div class="callout info">
+                        <strong>Global Replace:</strong> The easiest way is to use your IDE's "Replace in Files"
+                        feature.
+                        Replace <code>com.example.eduex_app</code> with <code>com.yourcompany.appname</code>.
+                    </div>
+                    <h4>Android Specifics</h4>
+                    <ol>
+                        <li>Update <code>applicationId</code> in <code>android/app/build.gradle.kts</code>.</li>
+                        <li>Update the package path structure in
+                            <code>android/app/src/main/kotlin/com/example/eduex_app/</code> to match your new ID.
+                        </li>
+                        <li>Update <code>AndroidManifest.xml</code>.</li>
+                    </ol>
+                    <h4>iOS Specifics</h4>
+                    <ol>
+                        <li>Open <code>ios/Runner.xcodeproj</code> within Xcode.</li>
+                        <li>Select the <strong>Runner</strong> target.</li>
+                        <li>Update the <strong>Bundle Identifier</strong> field.</li>
+                    </ol>
+                </section>
+
+                <!-- BRANDING SECTION -->
+                <section id="flutter-branding">
+                    <h2>Logo & Splash Screen</h2>
+
+                    <h3>Change App Icon</h3>
+                    <p>We use the <code>flutter_launcher_icons</code> package to generate icons for all devices.</p>
+                    <ol>
+                        <li>Replace the file at <code>assets/img/icon.png</code> with your logo (1024x1024px, no
+                            transparency recommended).</li>
+                        <li>Run the generator command in your terminal:
+                            <pre><code>dart run flutter_launcher_icons</code></pre>
+                        </li>
+                        <li>This works for both Android and iOS.</li>
+                    </ol>
+
+                    <h3>Change Splash Screen</h3>
+                    <ol>
+                        <li>Replace <code>assets/img/splash.png</code> with your own image.</li>
+                        <li>To change the splash background color, edit
+                            <code>lib/screens/splash/splash_screen.dart</code>.
+                        </li>
+                    </ol>
+                </section>
+
+                <!-- COLORS SECTION -->
+                <section id="flutter-colors">
+                    <h2>Colors & Theme</h2>
+                    <p>You can change the primary and secondary colors of the entire application from a single file.</p>
+                    <ol>
+                        <li>Open <code>lib/theme/app_theme.dart</code>.</li>
+                        <li>Locate the <code>AppTheme</code> class.</li>
+                        <li>Change the color hex codes:
+                            <pre><code>class AppTheme {
+  // Primary Brand Color
+  static const Color primary = Color(0xFF1EA9FF); // Change this
+  
+  // Secondary Brand Color
+  static const Color secondary = Color(0xFF085BC5); // Change this
+  
+  // ... other colors
+}</code></pre>
+                        </li>
+                    </ol>
+                </section>
+
+                <!-- HOMEPAGE CONFIGURATION SECTION -->
+                <section id="flutter-homepage">
+                    <h2>Homepage Configuration</h2>
+                    <p>EduEx Flutter app supports multiple homepage design layouts. You can easily set or switch your default homepage layout from a single central configuration file.</p>
+                    
+                    <h3>Switching the Default Homepage</h3>
+                    <ol>
+                        <li>Open <code>lib/config/config.dart</code>.</li>
+                        <li>Locate the <code>AppConfig</code> class and the <code>defaultHomePage</code> property.</li>
+                        <li>Set <code>defaultHomePage</code> to your desired <code>HomePageType</code>:
+                            <pre><code>/// Default Homepage selection option
+/// Select between [HomePageType.home1] or [HomePageType.home2]
+static const HomePageType defaultHomePage = HomePageType.home2;</code></pre>
+                        </li>
+                    </ol>
+
+                    <h3>Available Homepage Options</h3>
+                    <ul>
+                        <li><code>HomePageType.home1</code>: Classic homepage layout with top search app bar, banners, grid categories, and course listings.</li>
+                        <li><code>HomePageType.home2</code>: Modern homepage layout featuring a curved primary header, search bar, interactive PageView featured course slider, styled category chips, live class banner, AI suggestions, and dynamic backend sections.</li>
+                    </ul>
+
+                    <p>Once updated, the app will automatically display your chosen homepage across app launch, splash redirect, onboarding completion, and the bottom navigation bar.</p>
+                </section>
+
+                <!-- LOCALIZATION SECTION -->
+                <section id="flutter-localization">
+                    <h2>Language & Localization</h2>
+                    <p>The app supports multiple languages using Flutter's localization system.</p>
+
+                    <h3>Adding a New Language</h3>
+                    <ol>
+                        <li>Go to <code>lib/l10n/</code> directory.</li>
+                        <li>Create a new ARB file, e.g., <code>app_es.arb</code> for Spanish.</li>
+                        <li>Copy the content from <code>app_en.arb</code> and translate the values.</li>
+                    </ol>
+
+                    <h3>Registering the Language</h3>
+                    <ol>
+                        <li>Open <code>lib/main.dart</code> or <code>lib/app.dart</code>.</li>
+                        <li>Add the new locale to <code>supportedLocales</code>:
+                            <pre><code>supportedLocales: const [
+  Locale('en'), // English
+  Locale('es'), // Spanish (Added)
+],</code></pre>
+                        </li>
+                    </ol>
+                    <p>Flutter will automatically generate the Dart code when you run the app again.</p>
+                </section>
+
+                <section id="flutter-android">
+                    <h2>Android Deployment</h2>
+                    <ol>
+                        <li>Generate a keystore file.</li>
+                        <li>Create <code>android/key.properties</code> with your keystore details.</li>
+                        <li>Build the App Bundle:
+                            <pre><code>flutter build appbundle --release</code></pre>
+                        </li>
+                    </ol>
+                </section>
+
+                <section id="flutter-ios">
+                    <h2>iOS Deployment</h2>
+                    <ol>
+                        <li>Open workspace: <code>open ios/Runner.xcworkspace</code></li>
+                        <li>Archive and Upload via Xcode.</li>
+                    </ol>
+                </section>
+
+                <hr style="margin: 60px 0; border: none; border-top: 2px solid #e0e0e0;">
+
+                <!-- CHANGELOG SECTION -->
+                <section id="changelog">
+                    <h2>Changelog</h2>
+                    <p>A complete history of releases, new features, improvements, and fixes for the eduex platform.</p>
+                </section>
+
+                <section id="changelog-v2-0-0">
+                    <h2>Version 2.0.0 <span
+                            style="font-size: 0.6em; background: #1EA9FF; color: white; padding: 3px 10px; border-radius: 20px; vertical-align: middle; margin-left: 8px;">Latest</span>
+                    </h2>
+
+                    <!-- Certificate Verification System -->
+                    <h3>&#x2728; New: Certificate Verification System</h3>
+                    <ul>
+                        <li>Added Certificate Verification System across the platform (Web Application, Student Mobile App, and Instructor Mobile App).</li>
+                    </ul>
+
+                    <!-- Student App Enhancements -->
+                    <h3>&#x1F3A8; Added: New Student App Home Page &amp; Configurable Options</h3>
+                    <ul>
+                        <li>Added New Student App 2 Home Page design featuring a curved primary header, search bar, PageView featured course slider, styled category chips, live class banner, AI suggestions, and dynamic backend content.</li>
+                        <li>Configurable default homepage option in app settings to seamlessly switch between Home 1 and Home 2.</li>
+                    </ul>
+
+                    <!-- Currency Support -->
+                    <h3>&#x1F4B1; Added: Currency Support</h3>
+                    <ul>
+                        <li>Added PKR in currency lists.</li>
+                    </ul>
+
+                    <!-- Fully Integrated Subscription System -->
+                    <h3>&#x1F4B3; New: Fully Integrated Subscription System</h3>
+
+                    <p><strong>Web Platform (Laravel)</strong></p>
+                    <ul>
+                        <li>Added subscription revenue breakdown calculation &amp; automatic instructor commission distribution.</li>
+                        <li>Added real-time subscription status banners on the Student Dashboard.</li>
+                        <li>Added multi-gateway payment processing &amp; secure backend payment verification.</li>
+                    </ul>
+
+                    <p><strong>Student App (Flutter)</strong></p>
+                    <ul>
+                        <li>Added Subscription Plan comparison &amp; feature details page.</li>
+                        <li>Added Multi-Gateway In-App Payment Checkout (Stripe, Razorpay, bKash, SSLCommerz, Paystack, Flutterwave, PayPal, Mollie, XPay).</li>
+                        <li>Added Offline Payment screen with bank details, transaction reference input, and receipt image upload.</li>
+                        <li>Added My Subscription screen with 1-tap enrolment for included courses and bundles.</li>
+                        <li>Added dynamic subscription status banners on Student Dashboard with direct action buttons.</li>
+                    </ul>
+                </section>
+
+                <section id="changelog-v1-3-1">
+                    <h2>Version 1.3.1</h2>
+
+                    <!-- Dedicated Theme Manager -->
+                    <h3>&#x2728; New: Dedicated Theme Manager</h3>
+                    <ul>
+                        <li>Now supports uploading and installing custom themes and dedicated 3rd-party developer themes.</li>
+                    </ul>
+                </section>
+
+                <section id="changelog-v1-3-0">
+                    <h2>Version 1.3.0</h2>
+
+                    <!-- Coupon & Discount System -->
+                    <h3>&#x2728; New: Coupon &amp; Discount System</h3>
+                    <ul>
+                        <li>Added support for percentage-based and fixed-amount discount coupons.</li>
+                        <li>Configurable coupon validity periods with start/end dates and usage limits.</li>
+                        <li>Support for both platform-wide and course-specific coupons.</li>
+                        <li>Instructors can create and manage coupons for their own courses.</li>
+                        <li>Fully integrated across the Web Platform, Student App, and Instructor App.</li>
+                    </ul>
+
+                    <!-- Course Discussion & Forum System -->
+                    <h3>&#x2728; New: Course Discussion &amp; Forum System</h3>
+                    <ul>
+                        <li>Added dedicated discussion forums for each course.</li>
+                        <li>Students and instructors can create posts, reply to discussions, and like comments.</li>
+                        <li>Added instructor announcement pinning for important course updates.</li>
+                    </ul>
+
+                    <!-- Live Classes Module -->
+                    <h3>&#x2728; New: Fully Integrated Live Classes Module</h3>
+
+                    <strong class="ml-3">Web Platform (Laravel)</strong>
+                    <ul>
+                        <li>Added Live Course option during course creation.</li>
+                        <li>Instructors can schedule live lessons using Zoom, Google Meet, or custom meeting platforms.
+                        </li>
+                        <li>Added real-time live session banners with direct join functionality.</li>
+                        <li>Added countdown timers for upcoming live sessions.</li>
+                        <li>Added automatic recording playback support after session completion.</li>
+                        <li>Added LIVE badges across course listings, dashboards, and catalog pages.</li>
+                        <li>Added live status indicators within course curriculum sections.</li>
+                        <li>Added multilingual support for live class labels and statuses.</li>
+                    </ul>
+
+                    <strong class="ml-3">Student App (Flutter)</strong>
+                    <ul>
+                        <li>Added LIVE badge overlays across course listings and enrolled courses.</li>
+                        <li>Added dedicated live lesson indicators within course curriculum screens.</li>
+                        <li>Added support for live session status and scheduling data.</li>
+                    </ul>
+
+                    <!-- Advanced Language Manager -->
+                    <h3>&#x2728; New: Advanced Language Manager</h3>
+                    <ul>
+                        <li>Added Admin Language Manager for creating and removing system languages.</li>
+                        <li>Added filesystem-based translation management without database dependency.</li>
+                        <li>Added translation editor with pagination, search filters, and automatic key sorting.</li>
+                        <li>Added automatic synchronization of new translation keys across all installed languages.</li>
+                        <li>Improved localization performance through active locale caching.</li>
+                    </ul>
+
+                    <!-- Offline Payment Instructions -->
+                    <h3>&#x2728; New: Offline Payment Instructions Support</h3>
+                    <ul>
+                        <li>Students can now view offline payment instructions directly within the app.</li>
+                    </ul>
+
+                    <!-- XPay Gateway -->
+                    <h3>&#x2728; New: XPay PKR Online Payment Gateway</h3>
+                    <ul>
+                        <li>Added <strong>XPay</strong> — a Pakistani PKR online payment gateway — to the supported
+                            payment integrations.</li>
+                    </ul>
+
+                    <!-- Cron Job Manager -->
+                    <h3>&#x2728; New: Cron Job Manager</h3>
+                    <ul>
+                        <li>Added a new built-in Cron Job Manager for scheduling and monitoring background tasks from
+                            the admin panel.</li>
+                    </ul>
+
+                    <!-- Improvements -->
+                    <h3>&#x1F527; Improvements</h3>
+                    <ul>
+                        <li>Optimized API responses for live course and lesson data.</li>
+                        <li>Improved multilingual system scalability and maintainability.</li>
+                        <li>Enhanced overall platform performance for language loading and translation management.</li>
+                    </ul>
+                </section>
+
+                <!-- v1.2.2 -->
+                <section id="changelog-v1-2-2">
+                    <h2>Version 1.2.2</h2>
+
+                    <h3>&#x1F41B; Fixed</h3>
+                    <ul>
+                        <li>Fixed: Free Courses Enrolment Error.</li>
+                        <li>Fixed: Contact us page 2 brand slider.</li>
+                        <li>Fixed: Dashboard Branding Title.</li>
+                    </ul>
+
+                    <h3>&#x2728; Added</h3>
+                    <ul>
+                        <li>Added: Custom CSS, JS, and custom Script insert from admin panel.</li>
+                        <li>Added: Admin can now delete a course completely.</li>
+                        <li>Added: Loading effects during course publish.</li>
+                    </ul>
+                </section>
+
+                <!-- v1.2.1 -->
+                <section id="changelog-v1-2-1">
+                    <h2>Version 1.2.1</h2>
+
+                    <h3>&#x2728; Added</h3>
+                    <ul>
+                        <li>Bundle Courses module added.</li>
+                        <li>Bkash Payment Gateway added.</li>
+                    </ul>
+
+                    <h3>&#x1F4F1; App</h3>
+                    <ul>
+                        <li>Block screen recordings and screenshots in app course access page.</li>
+                    </ul>
+
+                    <h3>&#x1F310; Web</h3>
+                    <ul>
+                        <li>Fixed minor bugs.</li>
+                    </ul>
+                </section>
+
+                <!-- v1.2.0 -->
+                <section id="changelog-v1-2-0">
+                    <h2>Version 1.2.0</h2>
+
+                    <h3>&#x2728; Added</h3>
+                    <ul>
+                        <li>Chat module added.</li>
+                    </ul>
+
+                    <h3>&#x1F4F1; App</h3>
+                    <ul>
+                        <li>Fixed video player full-screen issue.</li>
+                    </ul>
+
+                    <h3>&#x1F310; Web</h3>
+                    <ul>
+                        <li>Multi-language support added.</li>
+                    </ul>
+                </section>
+
+                <!-- v1.1.1 -->
+                <section id="changelog-v1-1-1">
+                    <h2>Version 1.1.1</h2>
+
+                    <h3>&#x1F41B; Fixed</h3>
+                    <ul>
+                        <li>Image issue fixed.</li>
+                        <li>API rate limit issue fixed.</li>
+                    </ul>
+                </section>
+
+                <!-- v1.1.0 -->
+                <section id="changelog-v1-1-0">
+                    <h2>Version 1.1.0</h2>
+
+                    <h3>&#x1F41B; Fixed</h3>
+                    <ul>
+                        <li>Logo issue fixed.</li>
+                        <li>Color issue fixed.</li>
+                    </ul>
+
+                    <h3>&#x2728; Added</h3>
+                    <ul>
+                        <li>One-click updater.</li>
+                    </ul>
+                </section>
+
+            </main>
+        </div>
+    </div>
+    <div class="mobile-sidebar-overlay" id="sidebarOverlay"></div>
+
+    <footer class="page-footer">
+        <p>&copy; 2025 eduex. Documentation prepared for Codecanyone distribution.</p>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('.doc-container');
+            const sidebar = document.getElementById('docSidebar');
+            const toggle = document.getElementById('sidebarToggle');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (!container || !sidebar || !toggle || !overlay) {
+                return;
+            }
+
+            const openSidebar = () => {
+                container.classList.add('sidebar-open');
+                overlay.classList.add('active');
+            };
+
+            const closeSidebar = () => {
+                container.classList.remove('sidebar-open');
+                overlay.classList.remove('active');
+            };
+
+            toggle.addEventListener('click', () => {
+                if (container.classList.contains('sidebar-open')) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+
+            overlay.addEventListener('click', closeSidebar);
+
+            sidebar.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 992) {
+                        closeSidebar();
+                    }
+                });
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 992) {
+                    closeSidebar();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
