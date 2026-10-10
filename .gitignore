@@ -24,3 +24,11 @@ Eduex Laravel/Eduex Laravel/storage/framework/views/*
 .vscode/
 *.swp
 *.swo
+
+releases/
+*.apk
+
+
+storage/logs/*
+*.log
+
