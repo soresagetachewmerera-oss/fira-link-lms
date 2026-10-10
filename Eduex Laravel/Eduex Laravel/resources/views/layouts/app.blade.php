@@ -17,7 +17,10 @@
     <!--<< Favcion >>-->
     @php($favicon = branding_asset(['favicon_path', 'logos.favicon', 'favicon'], 'assets/front/img/favicon.svg'))
     <link rel="icon" type="image/png" href="{{ $favicon }}">
-    <link rel="shortcut icon" href="{{ $favicon }}">
+    <!--<< Fonts >>-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!--<< CSS Styles >>-->
     @if(active_theme() && request()->routeIs('home'))

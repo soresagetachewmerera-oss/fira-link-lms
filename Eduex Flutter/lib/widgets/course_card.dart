@@ -116,18 +116,21 @@ class CourseCard extends StatelessWidget {
                       course.title,
                       style: TextStyle(
                         color: AppTheme.getTextColor(context),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        height: 1.3,
+                        letterSpacing: -0.1,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 3),
                     Text(
                       course.instructor?.name ?? 'Instructor',
                       style: TextStyle(
-                        color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
-                        fontSize: 11,
+                        color: AppTheme.getTextColor(context).withValues(alpha: 0.6),
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w500,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -137,38 +140,38 @@ class CourseCard extends StatelessWidget {
                       children: <Widget>[
                         HugeIcon(
                           icon: HugeIcons.strokeRoundedPlay,
-                          size: 11,
+                          size: 10,
                           color: AppTheme.getTextColor(
                             context,
                           ).withValues(alpha: 0.5),
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 3),
                         Flexible(
                           child: Text(
                             '${course.lessonsCount} ${context.l10n.lessons}',
                             style: TextStyle(
                               color: AppTheme.getTextColor(
                                 context,
-                              ).withValues(alpha: 0.5),
-                              fontSize: 10,
+                              ).withValues(alpha: 0.6),
+                              fontSize: 9.5,
                               fontWeight: FontWeight.w500,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: Text(
                             '·',
                             style: TextStyle(
                               color: AppTheme.getTextColor(
                                 context,
                               ).withValues(alpha: 0.5),
-                              fontSize: 10,
+                              fontSize: 9.5,
                             ),
                           ),
                         ),
-                        Text('⭐', style: TextStyle(fontSize: 10)),
+                        Text('⭐', style: TextStyle(fontSize: 9.5)),
                         const SizedBox(width: 2),
                         Flexible(
                           child: Text(
@@ -176,8 +179,8 @@ class CourseCard extends StatelessWidget {
                             style: TextStyle(
                               color: AppTheme.getTextColor(
                                 context,
-                              ).withValues(alpha: 0.5),
-                              fontSize: 10,
+                              ).withValues(alpha: 0.6),
+                              fontSize: 9.5,
                               fontWeight: FontWeight.w500,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -196,8 +199,9 @@ class CourseCard extends StatelessWidget {
                             ),
                             style: const TextStyle(
                               color: AppTheme.primary,
-                              fontSize: 15,
+                              fontSize: 13.5,
                               fontWeight: FontWeight.w700,
+                              letterSpacing: -0.2,
                             ),
                           ),
                           const SizedBox(width: 4),
@@ -207,7 +211,7 @@ class CourseCard extends StatelessWidget {
                               color: AppTheme.getTextColor(
                                 context,
                               ).withValues(alpha: 0.4),
-                              fontSize: 11,
+                              fontSize: 10.5,
                               fontWeight: FontWeight.w500,
                               decoration: TextDecoration.lineThrough,
                             ),
@@ -217,8 +221,9 @@ class CourseCard extends StatelessWidget {
                             settingsProvider.formatPrice(course.price),
                             style: const TextStyle(
                               color: AppTheme.primary,
-                              fontSize: 15,
+                              fontSize: 13.5,
                               fontWeight: FontWeight.w700,
+                              letterSpacing: -0.2,
                             ),
                           ),
                       ],

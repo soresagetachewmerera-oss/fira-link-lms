@@ -566,9 +566,9 @@ class _Home2ScreenState extends State<Home2Screen> {
                 'Featured Courses',
                 style: TextStyle(
                   color: AppTheme.getTextColor(context),
-                  fontSize: 18,
+                  fontSize: 15.5,
                   fontWeight: FontWeight.w700,
-                  letterSpacing: 0.2,
+                  letterSpacing: 0.1,
                   fontFamily: 'Montserrat',
                 ),
               ),
@@ -1363,19 +1363,19 @@ class _CourseCard2 extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: AppTheme.getTextColor(context),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.1,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.1,
                     fontFamily: 'Montserrat',
-                    height: 1.25,
+                    height: 1.3,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 5),
                 Row(
                   children: <Widget>[
                     Icon(
                       Icons.person_outline,
-                      size: 13,
+                      size: 12,
                       color: AppTheme.getTextColor(context).withValues(alpha: 0.6),
                     ),
                     const SizedBox(width: 4),
@@ -1386,7 +1386,7 @@ class _CourseCard2 extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: AppTheme.getTextColor(context).withValues(alpha: 0.7),
-                          fontSize: 11,
+                          fontSize: 10.5,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Montserrat',
                         ),
@@ -1400,7 +1400,7 @@ class _CourseCard2 extends StatelessWidget {
                     children: <Widget>[
                       HugeIcon(
                         icon: HugeIcons.strokeRoundedBook01,
-                        size: 13,
+                        size: 12,
                         color: AppTheme.getTextColor(context).withValues(alpha: 0.6),
                       ),
                       const SizedBox(width: 4),
@@ -1408,7 +1408,7 @@ class _CourseCard2 extends StatelessWidget {
                         '${course.lessonsCount} Lessons',
                         style: TextStyle(
                           color: AppTheme.getTextColor(context).withValues(alpha: 0.7),
-                          fontSize: 11,
+                          fontSize: 10.5,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Montserrat',
                         ),
@@ -1420,8 +1420,9 @@ class _CourseCard2 extends StatelessWidget {
                   priceText,
                   style: TextStyle(
                     color: AppTheme.getPrimaryColor(context),
-                    fontSize: 15,
+                    fontSize: 13.5,
                     fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
                     fontFamily: 'Montserrat',
                   ),
                 ),
