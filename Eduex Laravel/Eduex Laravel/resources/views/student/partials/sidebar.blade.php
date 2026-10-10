@@ -42,13 +42,7 @@
                     <span>{{ __('student.notifications') }}</span>
                 </a>
             </li>
-            <li>
-                <a href="{{ route('student.ai-chat.index') }}"
-                    class="{{ request()->routeIs('student.ai-chat.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-robot"></i>
-                    <span>{{ __('student.ai_assistant') }}</span>
-                </a>
-            </li>
+
             <li>
                 <a href="{{ route('student.messages.index') }}"
                     class="{{ request()->routeIs('student.messages.*') ? 'active' : '' }}">

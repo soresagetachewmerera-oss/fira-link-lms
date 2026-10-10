@@ -30,10 +30,10 @@ class PlatformSettings {
     );
   }
 
-  String get siteName => platform['site_name'] ?? 'EduEx';
-  String get tagline => platform['tagline'] ?? '';
-  String get supportEmail => contact['support_email'] ?? 'info@eduex.com';
-  String get supportPhone => contact['support_phone'] ?? '';
+  String get siteName => platform['site_name'] ?? 'Fira Link Academy';
+  String get tagline => platform['tagline'] ?? 'Art of Excellence!!';
+  String get supportEmail => contact['support_email'] ?? 'support@firalink.com';
+  String get supportPhone => contact['support_phone'] ?? '+251 911 000 000';
 }
 
 class CurrencySettings {

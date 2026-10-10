@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Light Theme Colors - Fira Link Purple Branding
-  static const Color primary = Color(0xFF7C3AED); // Fira Link Brand Purple (#7C3AED)
-  static const Color primaryDark = Color(0xFF8B5CF6); // Vibrant Purple for Dark Mode (#8B5CF6)
-  static const Color splashBackground = Color(0xFFF8F7FF); // Clean Soft Lavender Tint Background
-  static const Color mint100 = Color(0xFFF3E8FF); // Purple 100
-  static const Color mint200 = Color(0xFFE9D5FF); // Purple 200
-  static const Color mint300 = Color(0xFFD8B4FE); // Purple 300
-  static const Color mint400 = Color(0xFFC084FC); // Purple 400
+  // Light Theme Colors - Official Fira Purple Branding
+  static const Color primary = Color(0xFF6D1A95); // Fira Purple (#6D1A95)
+  static const Color primaryDark = Color(0xFF8225AF); // Fira Purple Dark Variant
+  static const Color splashBackground = Color(0xFFF9F7FC); // Clean Tint Background
+  static const Color mint100 = Color(0xFFF5EAFC); // Purple 100
+  static const Color mint200 = Color(0xFFE9D0F8); // Purple 200
+  static const Color mint300 = Color(0xFFD3A7F0); // Purple 300
+  static const Color mint400 = Color(0xFFB97CE5); // Purple 400
   static const Color softOrange800 = Color.fromARGB(255, 241, 155, 80);
   static const Color softOrange900 = Color.fromARGB(255, 241, 155, 80);
-  static const Color softBlue800 = Color(0xFF7C3AED);
-  static const Color softBlue900 = Color(0xFF6D28D9);
+  static const Color softBlue800 = Color(0xFF6D1A95);
+  static const Color softBlue900 = Color(0xFF50126F);
   static const Color softGray150 = Color.fromARGB(255, 251, 252, 252);
 
   // Dark Theme Colors - Midnight Purple / Obsidian

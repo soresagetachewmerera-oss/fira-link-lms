@@ -1,6 +1,6 @@
 @php
-    $primaryColor = branding_settings('primary_color', '#7C3AED');
-    $secondaryColor = branding_settings('secondary_color', '#6D28D9');
+    $primaryColor = branding_settings('primary_color', '#6D1A95');
+    $secondaryColor = branding_settings('secondary_color', '#50126f');
 @endphp
 <style>
     /* ==========================================================================

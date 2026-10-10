@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Certificate of Completion</title>
+    <title>Course Completion Certificate | Fira Link Academy</title>
     <style>
         @page {
             size: 297mm 235mm;
@@ -213,18 +213,18 @@
 
             <div class="certificate-content">
                 <div class="certificate-heading">
-                    <h1 class="other-font">Certificate of Completion</h1>
-                    <p class="other-font">This certificate proudly acknowledges</p>
+                    <div style="font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: #6D1A95; font-weight: 700; margin-bottom: 5px;">Fira Link Academy</div>
+                    <h1 class="other-font" style="color: #6D1A95;">Course Completion Certificate</h1>
+                    <p class="other-font">This certificate proudly acknowledges that</p>
                     <div class="recipient-name">{{ $student_name }}</div>
                 </div>
 
                 <div class="certificate-body">
-                    <div class="pre-title other-font"><strong>has completed the</strong></div>
+                    <div class="pre-title other-font"><strong>has successfully completed the specialized program</strong></div>
                     <div class="course-title">{{ $course_title }}</div>
-                    <div class="course-subtitle">(Course)</div>
+                    <div class="course-subtitle">(Trade Training Masterclass)</div>
                     <div class="certificate-description">
-                        Completion of this program signifies dedication, perseverance, and the successful mastery of the
-                        required learning objectives. We applaud your commitment to excellence and continued growth.
+                        Completion of this program signifies professional dedication, rigorous practical study, and verified competency in international trade operations with Fira Link Academy. Art of Excellence!!
                     </div>
                 </div>
 
@@ -235,9 +235,9 @@
 
                 <div class="certificate-footer">
                     <div class="signature-block">
-                        <div class="signature-line"></div>
+                        <div class="signature-line" style="border-top-color: #6D1A95;"></div>
                         <div class="signature-name">{{ $instructor_name }}</div>
-                        <div class="signature-role">Course Instructor</div>
+                        <div class="signature-role">Lead Trade Trainer / Instructor</div>
                     </div>
                     <div class="certificate-number">
                         Certificate No: {{ $certificate_number }}

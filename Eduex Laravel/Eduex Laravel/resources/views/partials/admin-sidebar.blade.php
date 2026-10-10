@@ -15,7 +15,7 @@
 
             <li class="dropdown {{ request()->routeIs('admin.courses.*') ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-book"></i>
-                    <span>Courses</span></a>
+                    <span>Courses / Trade Training</span></a>
                 <ul class="dropdown-menu">
                     <li class="{{ request()->routeIs('admin.courses.*') ? 'active' : '' }}"><a class="nav-link"
                             href="{{ route('admin.courses.index') }}">All Courses</a></li>
@@ -49,30 +49,30 @@
                             href="{{ route('admin.blog-categories.index') }}">Blog
                             Categories</a></li>
                     <li class="{{ request()->routeIs('admin.course-categories.*') ? 'active' : '' }}"><a
-                            class="nav-link" href="{{ route('admin.course-categories.index') }}">Course
+                            class="nav-link" href="{{ route('admin.course-categories.index') }}">Trade &amp; Business
                             Categories</a></li>
                 </ul>
             </li>
 
             <li class="dropdown {{ request()->routeIs('admin.instructors.*') ? 'active' : '' }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-user-tie"></i>
-                    <span>Instructors</span></a>
+                    <span>Trainers / Instructors</span></a>
                 <ul class="dropdown-menu">
                     <li
                         class="{{ request()->routeIs('admin.instructors.index') && !request()->has('status') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('admin.instructors.index') }}">All Instructors</a>
+                        <a class="nav-link" href="{{ route('admin.instructors.index') }}">All Trainers</a>
                     </li>
                     <li
                         class="{{ request()->routeIs('admin.instructors.pending') || (request()->routeIs('admin.instructors.index') && request('status') == 'pending') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('admin.instructors.pending') }}">Pending
-                            Instructors</a>
+                            Trainers</a>
                     </li>
                 </ul>
             </li>
 
             <li class="{{ request()->routeIs('admin.students.*') ? 'active' : '' }}">
                 <a href="{{ route('admin.students.index') }}" class="nav-link"><i class="fas fa-user-graduate"></i>
-                    <span>Students</span></a>
+                    <span>Learners / Students</span></a>
             </li>
 
             <li class="dropdown {{ request()->routeIs('admin.enrollments.*') ? 'active' : '' }}">
@@ -117,7 +117,7 @@
 
             <li class="{{ request()->routeIs('admin.certificates.*') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('admin.certificates.index') }}">
-                    <i class="fas fa-certificate"></i> <span>Certificates</span>
+                    <i class="fas fa-certificate"></i> <span>Course Completion Certificates</span>
                 </a>
             </li>
 
