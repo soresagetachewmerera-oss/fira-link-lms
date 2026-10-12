@@ -1,4 +1,5 @@
 @echo off
+title Fira Link LMS - Mobile App Launcher
 echo ========================================================
 echo          STARTING FIRA LINK LMS (EMULATOR + APP)
 echo ========================================================
@@ -7,21 +8,31 @@ echo.
 set ANDROID_HOME=D:\tools\android-sdk
 set ANDROID_USER_HOME=D:\tools\.android
 set ANDROID_AVD_HOME=D:\tools\.android\avd
-set ANDROID_I_WANT_MY_TCG=yes
 set PATH=C:\Users\sora\dev\flutter\bin;D:\tools\android-sdk\platform-tools;D:\tools\android-sdk\emulator;%PATH%
 
-echo [1/3] Launching Android Emulator (Pixel_7_API_34)...
-start "" "D:\tools\android-sdk\emulator\emulator.exe" -avd Pixel_7_API_34 -accel off
+echo [1/3] Checking connected devices or launching Android Emulator (Pixel_7_API_34)...
+adb devices | findstr /R "device$" >nul 2>&1
+if %errorlevel% equ 0 (
+    echo [OK] An Android device or emulator is already connected!
+    goto ready_to_run
+)
 
-echo [2/3] Waiting for emulator device to be ready...
-"D:\tools\android-sdk\platform-tools\adb.exe" wait-for-device
+echo Starting emulator Pixel_7_API_34...
+start "" "D:\tools\android-sdk\emulator\emulator.exe" -avd Pixel_7_API_34
 
-echo Forwarding backend port 8000 to emulator...
-"D:\tools\android-sdk\platform-tools\adb.exe" reverse tcp:8000 tcp:8000
+echo [2/3] Waiting for Android device/emulator to boot...
+echo (If this is the first boot or VT-x is disabled, please ensure Virtualization is Enabled in BIOS)
+adb wait-for-device
+
+:ready_to_run
+echo.
+echo Forwarding backend port 8000 to device...
+adb reverse tcp:8000 tcp:8000 2>nul
 
 echo.
 echo [3/3] Starting Flutter application...
 cd /d "%~dp0"
-flutter run -d emulator-5554
+flutter run
 
 pause
+
