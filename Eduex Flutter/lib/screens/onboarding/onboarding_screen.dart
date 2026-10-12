@@ -16,27 +16,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<_OnboardingContent> _pages = const [
     _OnboardingContent(
-      titleLeading: 'Discover',
-      titleAccent: ' courses',
-      titleTrailing: '\nthat fit your goals',
+      titleLeading: 'Master Ethiopian',
+      titleAccent: ' export & trade',
+      titleTrailing: '\nwith industry excellence',
       description:
-          'Browse thousands of courses across multiple categories. From programming to design, find the perfect course to advance your career.',
+          'Explore certified training in Ethiopian coffee sourcing, export documentation, international logistics, and global market expansion.',
       illustration: _IllustrationType.discover,
     ),
     _OnboardingContent(
-      titleLeading: 'Learn at your',
-      titleAccent: ' own pace',
-      titleTrailing: '\nwith expert guidance',
+      titleLeading: 'Learn with top',
+      titleAccent: ' trade mentors',
+      titleTrailing: '\nand sector specialists',
       description:
-          'Access high-quality video lessons, interactive content, and expert instructors. Learn whenever and wherever you want.',
+          'Gain real-world practical mastery directly from seasoned Ethiopian export consultants and international trade directors.',
       illustration: _IllustrationType.learn,
     ),
     _OnboardingContent(
-      titleLeading: 'Track your',
-      titleAccent: ' progress',
-      titleTrailing: '\nand unlock achievements',
+      titleLeading: 'Scale into',
+      titleAccent: ' global markets',
+      titleTrailing: '\nand lead your industry',
       description:
-          'Monitor your learning journey with AI-powered insights, personalized recommendations, and celebrate milestones as you grow.',
+          'Connect with international trade opportunities, streamline customs compliance, and achieve the Art of Excellence with Fira Link.',
       illustration: _IllustrationType.track,
     ),
   ];

@@ -1,0 +1,8 @@
+[2026-10-10 08:20:57] local.ERROR: Class "App\Models\Setting" not found {"exception":"[object] (Error(code: 0): Class \"App\\Models\\Setting\" not found at C:/Users/sora/fira-link-lms/Eduex Laravel/Eduex Laravel/audit_assets.php:8)
+[stacktrace]
+#0 {main}
+"} 
+[2026-10-10 08:21:29] local.ERROR: strlen(): Argument #1 ($string) must be of type string, array given {"exception":"[object] (TypeError(code: 0): strlen(): Argument #1 ($string) must be of type string, array given at C:/Users/sora/fira-link-lms/Eduex Laravel/Eduex Laravel/audit_assets.php:14)
+[stacktrace]
+#0 {main}
+"} 

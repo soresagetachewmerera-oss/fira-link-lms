@@ -4,8 +4,14 @@ echo          STARTING FIRA LINK LMS (EMULATOR + APP)
 echo ========================================================
 echo.
 
+set ANDROID_HOME=D:\tools\android-sdk
+set ANDROID_USER_HOME=D:\tools\.android
+set ANDROID_AVD_HOME=D:\tools\.android\avd
+set ANDROID_I_WANT_MY_TCG=yes
+set PATH=C:\Users\sora\dev\flutter\bin;D:\tools\android-sdk\platform-tools;D:\tools\android-sdk\emulator;%PATH%
+
 echo [1/3] Launching Android Emulator (Pixel_7_API_34)...
-start "" "D:\tools\android-sdk\emulator\emulator.exe" -avd Pixel_7_API_34
+start "" "D:\tools\android-sdk\emulator\emulator.exe" -avd Pixel_7_API_34 -accel off
 
 echo [2/3] Waiting for emulator device to be ready...
 "D:\tools\android-sdk\platform-tools\adb.exe" wait-for-device
