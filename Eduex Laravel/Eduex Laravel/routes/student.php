@@ -26,6 +26,12 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisterController::class, 'register']);
 });
 
+// Phone OTP verification routes (accessible by both pending guest and logged-in unverified users)
+Route::get('/verify-phone', [\App\Http\Controllers\Auth\PhoneVerificationController::class, 'notice'])->name('verification.phone.notice');
+Route::post('/verify-phone', [\App\Http\Controllers\Auth\PhoneVerificationController::class, 'verify'])->name('verification.phone.verify');
+Route::post('/verify-phone/resend', [\App\Http\Controllers\Auth\PhoneVerificationController::class, 'resend'])->name('verification.phone.resend');
+Route::post('/verify-phone/change', [\App\Http\Controllers\Auth\PhoneVerificationController::class, 'changePhone'])->name('verification.phone.change');
+
 // Authenticated student routes
 Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
     // Dashboard routes
@@ -116,6 +122,20 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
         Route::get('/{conversation}', [ChatController::class, 'show'])->name('show');
         Route::post('/{conversation}/send', [ChatController::class, 'sendMessage'])->name('send');
         Route::get('/{conversation}/poll', [ChatController::class, 'poll'])->name('poll');
+    });
+
+    // Fira Coffee Export Toolkit
+    Route::prefix('coffee-toolkit')->name('coffee-toolkit.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Student\CoffeeToolkitWebController::class, 'index'])->name('index');
+        Route::get('/calculator', [\App\Http\Controllers\Student\CoffeeToolkitWebController::class, 'calculator'])->name('calculator');
+        Route::post('/calculator', [\App\Http\Controllers\Student\CoffeeToolkitWebController::class, 'storeCalculation'])->name('calculator.store');
+        Route::get('/offer-generator', [\App\Http\Controllers\Student\CoffeeToolkitWebController::class, 'offerGenerator'])->name('offer-generator');
+        Route::post('/offer-generator', [\App\Http\Controllers\Student\CoffeeToolkitWebController::class, 'storeOffer'])->name('offer-generator.store');
+        Route::get('/offer-generator/{id}/pdf', [\App\Http\Controllers\Student\CoffeeToolkitWebController::class, 'downloadOfferPdf'])->name('offer-generator.pdf');
+        Route::get('/readiness', [\App\Http\Controllers\Student\CoffeeToolkitWebController::class, 'readiness'])->name('readiness');
+        Route::post('/readiness', [\App\Http\Controllers\Student\CoffeeToolkitWebController::class, 'storeAssessment'])->name('readiness.store');
+        Route::get('/market-intelligence', [\App\Http\Controllers\Student\CoffeeToolkitWebController::class, 'marketIntelligence'])->name('market-intelligence');
+        Route::get('/documents', [\App\Http\Controllers\Student\CoffeeToolkitWebController::class, 'documents'])->name('documents');
     });
 
 });

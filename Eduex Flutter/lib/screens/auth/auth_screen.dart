@@ -45,10 +45,10 @@ class _AuthScreenState extends State<AuthScreen>
             child: SingleChildScrollView(
               child: Column(
                 children: <Widget>[
-                  const SizedBox(height: 80),
+                  const SizedBox(height: 24),
                   // Header with logo and branding - centered
                   _HeaderSection(),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 16),
                   // Login card
                   _LoginCard(
                     tabController: _tabController,
@@ -185,9 +185,7 @@ class _LoginCard extends StatelessWidget {
           const SizedBox(height: 32),
           // Tab bar view with forms
           SizedBox(
-            height:
-                MediaQuery.of(context).size.height *
-                0.75, // Use 75% of screen height
+            height: 720,
             child: TabBarView(
               controller: tabController,
               children: <Widget>[
@@ -291,6 +289,30 @@ class _LoginFormState extends State<_LoginForm> {
         );
       }
     } else {
+      if (result['requires_phone_verification'] == true) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.info,
+          style: ToastificationStyle.fillColored,
+          title: const Text('Phone Verification Required'),
+          description: Text(result['message'] ?? 'Please verify your phone number via SMS OTP'),
+          alignment: Alignment.bottomCenter,
+          autoCloseDuration: const Duration(seconds: 4),
+        );
+
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => OtpVerificationScreen(
+              phone: result['phone'],
+              phoneMasked: result['phone_masked'],
+              email: email,
+              isRegistration: true,
+            ),
+          ),
+        );
+        return;
+      }
+
       toastification.show(
         context: context,
         type: ToastificationType.error,
@@ -514,6 +536,7 @@ class _SignUpFormState extends State<_SignUpForm> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
@@ -523,6 +546,7 @@ class _SignUpFormState extends State<_SignUpForm> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -531,23 +555,45 @@ class _SignUpFormState extends State<_SignUpForm> {
   Future<void> _handleSignUp() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final email = _emailController.text.trim();
+    final phone = _phoneController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
     // Basic validation
-    if (_firstNameController.text.isEmpty ||
-        _lastNameController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _passwordController.text.isEmpty ||
-        _confirmPasswordController.text.isEmpty) {
+    if (firstName.isEmpty ||
+        lastName.isEmpty ||
+        email.isEmpty ||
+        phone.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
       toastification.show(
         context: context,
         type: ToastificationType.warning,
         title: const Text('Invalid Input'),
-        description: const Text('Please fill all fields'),
+        description: const Text('Please fill all required fields, including your phone number'),
         autoCloseDuration: const Duration(seconds: 3),
       );
       return;
     }
 
-    if (_passwordController.text != _confirmPasswordController.text) {
+    // Ethiopian phone number validation regex
+    final phoneClean = phone.replaceAll(RegExp(r'[\s\-\(\)]'), '');
+    final ethPhoneRegex = RegExp(r'^(?:\+251|251|0)?([79]\d{8})$');
+    if (!ethPhoneRegex.hasMatch(phoneClean)) {
+      toastification.show(
+        context: context,
+        type: ToastificationType.warning,
+        title: const Text('Invalid Phone Number'),
+        description: const Text('Please enter a valid Ethiopian mobile number (e.g. 0911234567 or 0711234567)'),
+        autoCloseDuration: const Duration(seconds: 4),
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
       toastification.show(
         context: context,
         type: ToastificationType.warning,
@@ -559,11 +605,12 @@ class _SignUpFormState extends State<_SignUpForm> {
     }
 
     final userData = {
-      'first_name': _firstNameController.text.trim(),
-      'last_name': _lastNameController.text.trim(),
-      'email': _emailController.text.trim(),
-      'password': _passwordController.text,
-      'password_confirmation': _confirmPasswordController.text,
+      'first_name': firstName,
+      'last_name': lastName,
+      'email': email,
+      'phone': phoneClean,
+      'password': password,
+      'password_confirmation': confirmPassword,
       'terms': true, // Assuming terms are accepted by signing up
     };
 
@@ -572,22 +619,50 @@ class _SignUpFormState extends State<_SignUpForm> {
     if (!mounted) return;
 
     if (result['success']) {
-      toastification.show(
-        context: context,
-        type: ToastificationType.success,
-        title: const Text('Registration Successful'),
-        description: Text(result['message'] ?? 'Account created successfully'),
-        autoCloseDuration: const Duration(seconds: 3),
-      );
+      if (result['requires_phone_verification'] == true) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.info,
+          title: const Text('Verification Required'),
+          description: Text(result['message'] ?? 'SMS OTP code dispatched to your phone'),
+          autoCloseDuration: const Duration(seconds: 4),
+        );
 
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
-      );
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => OtpVerificationScreen(
+              phone: result['phone'] ?? phoneClean,
+              phoneMasked: result['phone_masked'],
+              email: email,
+              isRegistration: true,
+            ),
+          ),
+        );
+      } else {
+        toastification.show(
+          context: context,
+          type: ToastificationType.success,
+          title: const Text('Registration Successful'),
+          description: Text(result['message'] ?? 'Account created successfully'),
+          autoCloseDuration: const Duration(seconds: 3),
+        );
+
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        );
+      }
     } else {
       String errorMessage = result['message'] ?? 'Registration failed';
-      if (result['errors'] != null) {
-        // You might want to format errors better here
-        errorMessage = result['message'];
+      if (result['errors'] != null && result['errors'] is Map) {
+        final Map errors = result['errors'];
+        if (errors.isNotEmpty) {
+          final firstVal = errors.values.first;
+          if (firstVal is List && firstVal.isNotEmpty) {
+            errorMessage = firstVal.first.toString();
+          } else if (firstVal is String) {
+            errorMessage = firstVal;
+          }
+        }
       }
 
       toastification.show(
@@ -609,11 +684,140 @@ class _SignUpFormState extends State<_SignUpForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          // First Name & Last Name in a clean side-by-side row
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: TextField(
+                  controller: _firstNameController,
+                  decoration: InputDecoration(
+                    labelText: context.l10n.firstName,
+                    hintText: 'John',
+                    filled: true,
+                    fillColor: Theme.of(context).brightness == Brightness.dark
+                        ? AppTheme.surfaceDark.withValues(alpha: 0.5)
+                        : Colors.grey[50],
+                    labelStyle: TextStyle(
+                      color: AppTheme.getTextColor(context),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    hintStyle: TextStyle(
+                      color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
+                      fontSize: 15,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppTheme.getTextColor(context).withValues(alpha: 0.2),
+                        width: 1,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppTheme.getTextColor(context),
+                        width: 2,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 14,
+                    ),
+                  ),
+                  style: TextStyle(
+                    color: AppTheme.getTextColor(context),
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: _lastNameController,
+                  decoration: InputDecoration(
+                    labelText: context.l10n.lastName,
+                    hintText: 'Doe',
+                    filled: true,
+                    fillColor: Theme.of(context).brightness == Brightness.dark
+                        ? AppTheme.surfaceDark.withValues(alpha: 0.5)
+                        : Colors.grey[50],
+                    labelStyle: TextStyle(
+                      color: AppTheme.getTextColor(context),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    hintStyle: TextStyle(
+                      color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
+                      fontSize: 15,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppTheme.getTextColor(context).withValues(alpha: 0.2),
+                        width: 1,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppTheme.getTextColor(context),
+                        width: 2,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 14,
+                    ),
+                  ),
+                  style: TextStyle(
+                    color: AppTheme.getTextColor(context),
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // MANDATORY PHONE NUMBER FIELD - PROMINENT WITH ETHIOPIAN +251 BADGE
           TextField(
-            controller: _firstNameController,
+            controller: _phoneController,
+            keyboardType: TextInputType.phone,
             decoration: InputDecoration(
-              labelText: context.l10n.firstName,
-              hintText: 'John',
+              labelText: 'Phone Number (Required for SMS OTP) *',
+              hintText: '0911234567 or 0711234567',
+              helperText: 'SMS verification code will be sent to this phone',
+              helperMaxLines: 1,
+              prefixIcon: Padding(
+                padding: const EdgeInsets.only(left: 12, right: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.phone_android,
+                      size: 20,
+                      color: AppTheme.getTextColor(context),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppTheme.getTextColor(context).withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '+251',
+                        style: TextStyle(
+                          color: AppTheme.getTextColor(context),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               filled: true,
               fillColor: Theme.of(context).brightness == Brightness.dark
                   ? AppTheme.surfaceDark.withValues(alpha: 0.5)
@@ -621,16 +825,20 @@ class _SignUpFormState extends State<_SignUpForm> {
               labelStyle: TextStyle(
                 color: AppTheme.getTextColor(context),
                 fontSize: 14,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
               ),
               hintStyle: TextStyle(
                 color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
-                fontSize: 16,
+                fontSize: 15,
+              ),
+              helperStyle: TextStyle(
+                color: AppTheme.getTextColor(context).withValues(alpha: 0.6),
+                fontSize: 12,
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context).withValues(alpha: 0.2),
+                  color: AppTheme.getTextColor(context).withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -643,62 +851,21 @@ class _SignUpFormState extends State<_SignUpForm> {
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
-                vertical: 16,
+                vertical: 14,
               ),
             ),
             style: TextStyle(
               color: AppTheme.getTextColor(context),
               fontSize: 16,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
-          TextField(
-            controller: _lastNameController,
-            decoration: InputDecoration(
-              labelText: context.l10n.lastName,
-              hintText: 'Doe',
-              filled: true,
-              fillColor: Theme.of(context).brightness == Brightness.dark
-                  ? AppTheme.surfaceDark.withValues(alpha: 0.5)
-                  : Colors.grey[50],
-              labelStyle: TextStyle(
-                color: AppTheme.getTextColor(context),
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-              hintStyle: TextStyle(
-                color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
-                fontSize: 16,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context).withValues(alpha: 0.2),
-                  width: 1,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context),
-                  width: 2,
-                ),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
-              ),
-            ),
-            style: TextStyle(
-              color: AppTheme.getTextColor(context),
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 20),
-
+          // Email Field
           TextField(
             controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
             decoration: InputDecoration(
               labelText: context.l10n.email,
               hintText: 'john@mail.com',
@@ -713,7 +880,7 @@ class _SignUpFormState extends State<_SignUpForm> {
               ),
               hintStyle: TextStyle(
                 color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
-                fontSize: 16,
+                fontSize: 15,
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -731,15 +898,15 @@ class _SignUpFormState extends State<_SignUpForm> {
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
-                vertical: 16,
+                vertical: 14,
               ),
             ),
             style: TextStyle(
               color: AppTheme.getTextColor(context),
-              fontSize: 16,
+              fontSize: 15,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           TextField(
             controller: _passwordController,

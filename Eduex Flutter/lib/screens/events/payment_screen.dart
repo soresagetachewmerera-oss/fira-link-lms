@@ -35,7 +35,7 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  String _selectedPaymentMethod = 'card';
+  String _selectedPaymentMethod = 'chapa';
   bool _isLoading = false;
   final TextEditingController _cardNumberController = TextEditingController();
   final TextEditingController _expiryController = TextEditingController();
@@ -56,6 +56,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           'email': widget.attendeeData['email'],
           'seats': widget.quantity,
           'phone': widget.attendeeData['phone'],
+          'payment_method': 'chapa',
         },
       );
 
@@ -102,20 +103,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   final List<Map<String, dynamic>> _paymentMethods = <Map<String, dynamic>>[
     <String, dynamic>{
-      'id': 'card',
-      'name': 'Credit/Debit Card',
-      'icon': Icons.credit_card,
-    },
-    <String, dynamic>{
-      'id': 'paypal',
-      'name': 'PayPal',
-      'icon': Icons.account_balance_wallet,
-    },
-    <String, dynamic>{'id': 'apple', 'name': 'Apple Pay', 'icon': Icons.apple},
-    <String, dynamic>{
-      'id': 'google',
-      'name': 'Google Pay',
-      'icon': Icons.account_balance,
+      'id': 'chapa',
+      'name': 'Chapa (Telebirr, CBE Birr & Cards)',
+      'subtitle': 'Secure instant payment in ETB (Ethiopian Birr)',
+      'icon': Icons.payment,
     },
   ];
 
@@ -308,158 +299,40 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       ],
                     ),
                   ),
-                  // Card Details (if card selected)
-                  if (_selectedPaymentMethod == 'card') ...<Widget>[
-                    const SizedBox(height: 24),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.getPrimaryColor(context).withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppTheme.getPrimaryColor(context).withValues(alpha: 0.25),
+                        ),
+                      ),
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(
-                            'Card Details',
-                            style: TextStyle(
-                              color: AppTheme.getTextColor(context),
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                            ),
+                          Icon(
+                            Icons.verified_user_outlined,
+                            color: AppTheme.getPrimaryColor(context),
+                            size: 22,
                           ),
-                          const SizedBox(height: 12),
-                          TextField(
-                            controller: _cardHolderController,
-                            decoration: InputDecoration(
-                              labelText: 'Card Holder Name',
-                              hintText: 'John Doe',
-                              filled: true,
-                              fillColor: AppTheme.getCardColor(context),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppTheme.getMint100(context),
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppTheme.getMint100(context),
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppTheme.getPrimaryColor(context),
-                                  width: 2,
-                                ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Payment is securely processed via Chapa. You will be able to complete payment using Telebirr, CBE Birr, AwashBirr, or Debit/Credit Cards in Ethiopian Birr (ETB).',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppTheme.getTextColor(context),
+                                height: 1.4,
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          TextField(
-                            controller: _cardNumberController,
-                            decoration: InputDecoration(
-                              labelText: 'Card Number',
-                              hintText: '1234 5678 9012 3456',
-                              filled: true,
-                              fillColor: AppTheme.getCardColor(context),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppTheme.getMint100(context),
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppTheme.getMint100(context),
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppTheme.getPrimaryColor(context),
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            keyboardType: TextInputType.number,
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: TextField(
-                                  controller: _expiryController,
-                                  decoration: InputDecoration(
-                                    labelText: 'Expiry',
-                                    hintText: 'MM/YY',
-                                    filled: true,
-                                    fillColor: AppTheme.getCardColor(context),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(
-                                        color: AppTheme.getMint100(context),
-                                      ),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(
-                                        color: AppTheme.getMint100(context),
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(
-                                        color: AppTheme.getPrimaryColor(
-                                          context,
-                                        ),
-                                        width: 2,
-                                      ),
-                                    ),
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: TextField(
-                                  controller: _cvvController,
-                                  decoration: InputDecoration(
-                                    labelText: 'CVV',
-                                    hintText: '123',
-                                    filled: true,
-                                    fillColor: AppTheme.getCardColor(context),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(
-                                        color: AppTheme.getMint100(context),
-                                      ),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(
-                                        color: AppTheme.getMint100(context),
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(
-                                        color: AppTheme.getPrimaryColor(
-                                          context,
-                                        ),
-                                        width: 2,
-                                      ),
-                                    ),
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  obscureText: true,
-                                ),
-                              ),
-                            ],
                           ),
                         ],
                       ),
                     ),
-                  ],
+                  ),
                 ],
                 const SizedBox(height: 100), // Space for bottom button
               ],

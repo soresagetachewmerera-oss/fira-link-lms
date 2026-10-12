@@ -71,6 +71,24 @@ class RegisterController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
+        /** @var \App\Services\SmsEthiopiaService $smsService */
+        $smsService = app(\App\Services\SmsEthiopiaService::class);
+        $normalizedPhone = $smsService->normalizePhoneNumber($request->phone);
+
+        if (!$normalizedPhone || !$smsService->isValidEthiopianNumber($request->phone)) {
+            ToastMagic::warning('Please provide a valid Ethiopian mobile phone number.');
+            return back()->withErrors([
+                'phone' => 'Please provide a valid Ethiopian mobile phone number (e.g. 0911234567, 0711234567, or +251911234567).',
+            ])->withInput();
+        }
+
+        if (User::where('phone', $normalizedPhone)->exists()) {
+            ToastMagic::warning('This phone number is already registered.');
+            return back()->withErrors([
+                'phone' => 'This phone number is already registered to another account.',
+            ])->withInput();
+        }
+
         try {
             $user = new User([
                 'name' => $request->first_name . ' ' . $request->last_name,
@@ -78,7 +96,8 @@ class RegisterController extends Controller
                 'password' => Hash::make($request->password),
                 'role' => 'instructor',
                 'is_approved' => false,
-                'phone' => $request->phone,
+                'phone' => $normalizedPhone,
+                'phone_verified_at' => null,
                 'bio' => $request->bio,
                 'years_experience' => $request->years_experience,
                 'specialization' => $request->specialization,
@@ -103,26 +122,20 @@ class RegisterController extends Controller
                 ['preferences' => $this->notificationPreferenceService->defaultsForUser($user)]
             );
 
-            $emailPreferences = settings('email.preferences', []);
+            // Dispatch SMS OTP code
+            /** @var \App\Services\OtpService $otpService */
+            $otpService = app(\App\Services\OtpService::class);
+            $otpService->sendToPhone($normalizedPhone, 'registration', $user);
 
-            try {
-                if (!empty($emailPreferences['send_welcome_email'])) {
-                    Mail::to($user->email)->send(new WelcomeMail($user));
-                }
+            // Save pending verification context in session
+            session([
+                'pending_verification_user_id' => $user->id,
+                'pending_verification_phone'   => $normalizedPhone,
+                'pending_verification_role'    => 'instructor',
+            ]);
 
-                if (!empty($emailPreferences['notify_admin_new_registration'])) {
-                    $adminEmail = settings('contact.details.support_email', config('mail.from.address'));
-
-                    if ($adminEmail) {
-                        Mail::to($adminEmail)->send(new AdminNewRegistrationMail($user));
-                    }
-                }
-            } catch (\Throwable $e) {
-                \Log::error('Registration welcome email failed: ' . $e->getMessage());
-            }
-
-            ToastMagic::success('Your instructor application has been submitted successfully! We will review it and get back to you soon.');
-            return redirect()->route('login');
+            ToastMagic::info('Application submitted! Please verify your phone number using the SMS code sent.');
+            return redirect()->route('verification.phone.notice');
         } catch (\Exception $e) {
             ToastMagic::error('An error occurred during registration. Please try again.');
             return back()->withInput();

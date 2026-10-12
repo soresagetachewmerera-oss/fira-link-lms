@@ -25,7 +25,7 @@
                     </div>
                     <div class="d-flex align-items-center mt-2 mt-md-0">
                         <span class="badge mr-3 px-3 py-2" style="background: #ede9fe; color: #6d28d9; font-weight: 600; border-radius: 8px;">
-                            {{ $gateways->count() }} Gateways Configured
+                            Exclusive Gateway: Chapa (ETB)
                         </span>
                         <a href="{{ route('admin.settings.index') }}" class="btn btn-secondary" style="border-radius: 8px;">
                             <i class="fas fa-arrow-left mr-1"></i> Back to Settings
@@ -37,8 +37,8 @@
                         <div class="d-flex align-items-center">
                             <i class="fas fa-info-circle fa-lg mr-3" style="color: #7c3aed;"></i>
                             <div>
-                                <strong style="color: #0f172a;">Dynamic Gateway Settings:</strong>
-                                <span class="text-muted">Enabling or disabling gateways updates web checkout and mobile applications instantly. Sensitive credentials are securely stored and masked for administrative safety.</span>
+                                <strong style="color: #0f172a;">Standardized Payment Gateway:</strong>
+                                <span class="text-muted">Chapa is the sole enabled payment gateway for Fira Link Academy, processing transactions strictly in Ethiopian Birr (ETB) via Telebirr, CBE Birr, and Bank/Card transfers. All alternative payment methods are disabled.</span>
                             </div>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
                             @php($fields = $credentialFieldMap[$gateway->identifier] ?? array_keys($credentials))
                             @php($isChapa = $gateway->identifier === 'chapa')
 
-                            <div class="col-lg-6 mb-4">
+                            <div class="col-lg-8 mx-auto mb-4">
                                 <div class="card h-100 shadow-sm border" style="border-radius: 12px; transition: transform 0.2s, box-shadow 0.2s; border-color: {{ $gateway->is_enabled ? '#cbd5e1' : '#e2e8f0' }} !important; {{ $isChapa ? 'border-top: 4px solid #7c3aed !important;' : '' }}">
                                     <div class="card-header d-flex justify-content-between align-items-center py-3" style="background-color: {{ $isChapa ? '#faf5ff' : '#f8fafc' }}; border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom: 1px solid #f1f5f9;">
                                         <div class="d-flex align-items-center">

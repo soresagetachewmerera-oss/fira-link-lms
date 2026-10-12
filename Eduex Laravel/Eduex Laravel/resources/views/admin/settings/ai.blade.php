@@ -46,6 +46,15 @@
                                 default: {{ $defaultModel }}
                             </small>
                         </div>
+
+                        <div class="form-group">
+                            <label for="system_instruction">Custom System Instructions &amp; Trade Persona</label>
+                            <textarea name="system_instruction" id="system_instruction" class="form-control" rows="5"
+                                placeholder="Leave blank to use the built-in Fira AI Coffee Export &amp; Trade Persona">{{ $settings['system_instruction'] ?? '' }}</textarea>
+                            <small class="form-text text-muted">
+                                Optional: Override or customize the base instructions given to Fira AI for specialized trade, coffee export regulations, or Academy coaching.
+                            </small>
+                        </div>
                     </div>
 
                     <div class="card-footer text-right">

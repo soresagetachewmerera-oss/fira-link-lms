@@ -103,17 +103,17 @@
                             @if($plan->has_discount)
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="text-muted">{{ __('frontend.regular_price') }}</span>
-                                    <span class="text-decoration-line-through text-muted">{{ currency_symbol() }}{{ number_format($plan->price, 2) }}</span>
+                                    <span class="text-decoration-line-through text-muted">{{ currency_format($plan->price) }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="text-muted">{{ __('frontend.discount_savings') }}</span>
-                                    <span class="text-success font-weight-bold">-{{ currency_symbol() }}{{ number_format($plan->price - $plan->discount_price, 2) }}</span>
+                                    <span class="text-success font-weight-bold">-{{ currency_format($plan->price - $plan->discount_price) }}</span>
                                 </div>
                             @endif
 
                             <div class="d-flex justify-content-between align-items-center my-3 pt-2 border-top" style="border-color: #f1f5f9 !important;">
                                 <span class="fs-5 fw-bold text-dark">{{ __('frontend.total_amount') }}</span>
-                                <span class="display-6 fw-bold" style="color: #6C5CE7;">{{ currency_symbol() }}{{ number_format($plan->effective_price, 2) }}</span>
+                                <span class="display-6 fw-bold" style="color: #6C5CE7;">{{ currency_format($plan->effective_price) }}</span>
                             </div>
 
                             <button type="submit" id="submit-subscription-btn" class="theme-btn w-100 text-center justify-content-center mt-2" style="border-radius: 8px;">

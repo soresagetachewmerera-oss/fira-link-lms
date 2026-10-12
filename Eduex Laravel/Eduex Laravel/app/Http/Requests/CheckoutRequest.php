@@ -41,13 +41,8 @@ class CheckoutRequest extends FormRequest
         }
         
         $rules = [
-            'payment_method' => [$isFree ? 'nullable' : 'required', Rule::in(['razorpay', 'offline', 'stripe', 'paystack', 'flutterwave', 'paypal', 'sslcommerz', 'mollie', 'bkash', 'xpay', 'chapa'])],
+            'payment_method' => [$isFree ? 'nullable' : 'required', Rule::in(['chapa'])],
         ];
-
-        if ($paymentMethod === 'offline') {
-            $rules['transaction_id'] = ['required', 'string', 'max:255'];
-            $rules['receipt_file'] = ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'];
-        }
 
         return $rules;
     }
@@ -56,7 +51,7 @@ class CheckoutRequest extends FormRequest
     {
         return [
             'payment_method.required' => 'Please select a payment method.',
-            'payment_method.in' => 'Invalid payment method selected.',
+            'payment_method.in' => 'Invalid payment method. Only Chapa payments in ETB are supported on this platform.',
             'transaction_id.required' => 'Transaction ID is required for offline payments.',
             'receipt_file.required' => 'Receipt file is required for offline payments.',
             'receipt_file.mimes' => 'Receipt must be a PDF, JPG, JPEG, or PNG file.',

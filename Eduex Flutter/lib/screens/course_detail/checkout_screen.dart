@@ -32,7 +32,7 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   late Razorpay _razorpay;
-  String? _selectedPaymentMethod;
+  String? _selectedPaymentMethod = 'chapa';
   final TextEditingController _couponController = TextEditingController();
   int? _lastEnrollmentId;
   bool _isProcessing = false;

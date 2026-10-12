@@ -115,12 +115,7 @@
                             <div class="mhq-about-button">
                                     <a href="{{ $aboutSettings['cta_url'] ?? route('about') }}" class="theme-btn">
                                         {{ $aboutSettings['cta_label'] ?? 'Explore More' }}
-                                    <i class="fa-solid fa-arrow-up-right"></i>
-                                </a>
-                            </div>
-                            <div class="mhq-author-image">
-                                <img src="{{ asset('assets/front/img/home-1/about/client-01.png') }}" alt="author-img">
-                                <div class="content">
+                x`
                                         <h6>{{ $aboutSettings['author_name'] ?? 'Ronald Richards' }}</h6>
                                         <p>{{ $aboutSettings['author_title'] ?? 'Co-Founder' }}</p>
                                 </div>

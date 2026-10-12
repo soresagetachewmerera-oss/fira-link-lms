@@ -90,36 +90,18 @@
                         @if ($tour->price > 0)
                             <h3 class="fw-bold mb-3" style="font-size: 1.1rem;">Select Payment Method</h3>
                             <div class="row g-3 mb-4">
-                                @if ($chapaEnabled)
-                                    <div class="col-md-6">
-                                        <label class="card p-3 border rounded-3 cursor-pointer h-100 d-flex flex-row align-items-center gap-3" for="payChapa" style="cursor: pointer;">
-                                            <input type="radio" name="payment_method" id="payChapa" value="chapa" checked class="form-check-input mt-0">
+                                <div class="col-12">
+                                    <label class="card p-3 border rounded-3 cursor-pointer h-100 d-flex flex-row align-items-center gap-3 bg-light" for="payChapa" style="cursor: pointer; border-color: #6D1A95 !important;">
+                                        <input type="radio" name="payment_method" id="payChapa" value="chapa" checked class="form-check-input mt-0">
+                                        <div class="d-flex justify-content-between align-items-center w-100">
                                             <div>
-                                                <div class="fw-bold text-sm">Chapa Gateway</div>
-                                                <span class="text-xs text-muted">Telebirr, CBE Birr, &amp; Cards (Ethiopia)</span>
+                                                <div class="fw-bold text-sm text-dark">Chapa (Ethiopian Birr - ETB)</div>
+                                                <span class="text-xs text-muted">Pay securely with Telebirr, CBE Birr, AwashBirr, &amp; Debit/Credit Cards</span>
                                             </div>
-                                        </label>
-                                    </div>
-                                @endif
-
-                                @if ($offlineEnabled)
-                                    <div class="col-md-6">
-                                        <label class="card p-3 border rounded-3 cursor-pointer h-100 d-flex flex-row align-items-center gap-3" for="payOffline" style="cursor: pointer;">
-                                            <input type="radio" name="payment_method" id="payOffline" value="offline" {{ !$chapaEnabled ? 'checked' : '' }} class="form-check-input mt-0">
-                                            <div>
-                                                <div class="fw-bold text-sm">Bank Transfer / Offline</div>
-                                                <span class="text-xs text-muted">Manual wire to Fira Link accounts</span>
-                                            </div>
-                                        </label>
-                                    </div>
-                                @endif
-
-                                @if (!$chapaEnabled && !$offlineEnabled)
-                                    <div class="col-12">
-                                        <input type="hidden" name="payment_method" value="offline">
-                                        <div class="alert alert-info text-sm mb-0">Direct checkout will confirm your registration request.</div>
-                                    </div>
-                                @endif
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Instant Activation</span>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
                         @else
                             <input type="hidden" name="payment_method" value="free">

@@ -14,8 +14,7 @@ class SubscriptionCheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'payment_method' => 'required|string|in:stripe,razorpay,paystack,flutterwave,paypal,sslcommerz,mollie,bkash,xpay,chapa,offline',
-            'receipt_file' => 'nullable|required_if:payment_method,offline|file|mimes:jpeg,jpg,png,pdf|max:5120',
+            'payment_method' => 'required|string|in:chapa,free',
             'notes' => 'nullable|string|max:1000',
         ];
     }

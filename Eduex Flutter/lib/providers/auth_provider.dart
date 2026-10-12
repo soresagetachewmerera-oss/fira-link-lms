@@ -62,6 +62,16 @@ class AuthProvider with ChangeNotifier {
           'message': data['message'],
         };
       } else {
+        if (data['requires_phone_verification'] == true) {
+          return {
+            'success': false,
+            'requires_phone_verification': true,
+            'phone': data['phone'],
+            'phone_masked': data['phone_masked'],
+            'message': data['message'] ?? 'Please verify your phone number via SMS OTP',
+            'cooldown_seconds': data['cooldown_seconds'] ?? 60,
+          };
+        }
         return {
           'success': false,
           'message': data['message'] ?? 'Login failed',
@@ -127,9 +137,22 @@ class AuthProvider with ChangeNotifier {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 201) {
+        if (data['requires_phone_verification'] == true) {
+          return {
+            'success': true,
+            'requires_phone_verification': true,
+            'phone': data['phone'],
+            'phone_masked': data['phone_masked'],
+            'message': data['message'],
+            'cooldown_seconds': data['cooldown_seconds'] ?? 60,
+          };
+        }
+
         final token = data['token'];
-        _user = User.fromJson(data['user']);
-        await _authService.saveToken(token);
+        if (token != null && data['user'] != null) {
+          _user = User.fromJson(data['user']);
+          await _authService.saveToken(token);
+        }
         return {'success': true, 'message': data['message']};
       } else {
         return {
@@ -140,6 +163,88 @@ class AuthProvider with ChangeNotifier {
       }
     } catch (e) {
       return {'success': false, 'message': 'An error occurred: $e'};
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>> verifyRegistrationOtp(String phone, String code) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _authService.verifyRegistrationOtp(phone, code);
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        final token = data['token'];
+        if (token != null && data['user'] != null) {
+          _user = User.fromJson(data['user']);
+          await _authService.saveToken(token);
+        }
+        return {'success': true, 'message': data['message']};
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Invalid or expired OTP',
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'An error occurred: $e'};
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>> resendRegistrationOtp(String phone) async {
+    try {
+      final response = await _authService.resendRegistrationOtp(phone);
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'message': data['message'],
+          'cooldown_seconds': data['cooldown_seconds'] ?? 60,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Failed to resend OTP',
+          'cooldown_seconds': data['cooldown_seconds'],
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Error: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> changeRegistrationPhone(String oldPhone, String newPhone) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _authService.changeRegistrationPhone(oldPhone, newPhone);
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'message': data['message'],
+          'phone': data['phone'],
+          'phone_masked': data['phone_masked'],
+          'cooldown_seconds': data['cooldown_seconds'] ?? 60,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Failed to change phone number',
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Error: $e'};
     } finally {
       _isLoading = false;
       notifyListeners();

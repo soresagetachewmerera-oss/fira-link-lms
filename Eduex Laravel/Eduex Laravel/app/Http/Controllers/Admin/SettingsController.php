@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\SmsLog;
+use App\Models\SmsTemplate;
+use App\Services\SmsEthiopiaService;
 use App\Services\SettingsRepository;
 use App\Services\FileUploadService;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
@@ -91,6 +94,13 @@ class SettingsController extends Controller
                 'icon' => 'fas fa-shield-alt',
                 'route' => route('admin.settings.authentication'),
                 'badge' => null,
+            ],
+            [
+                'title' => 'SMS Ethiopia & OTP',
+                'description' => 'Configure official SMS Ethiopia API, OTP security, dynamic templates, and delivery logs.',
+                'icon' => 'fas fa-sms',
+                'route' => route('admin.settings.sms'),
+                'badge' => 'Active',
             ],
             [
                 'title' => 'SMTP Credentials',
@@ -801,10 +811,16 @@ class SettingsController extends Controller
      */
     public function updateAi(Request $request)
     {
+        $existing = $this->settings->get('ai.config', []);
         $data = $request->validate([
             'gemini_api_key' => ['nullable', 'string', 'max:255'],
             'gemini_model' => ['required', 'string', 'max:50'],
+            'system_instruction' => ['nullable', 'string', 'max:5000'],
         ]);
+
+        if (empty($data['gemini_api_key']) && !empty($existing['gemini_api_key'])) {
+            $data['gemini_api_key'] = $existing['gemini_api_key'];
+        }
 
         $this->settings->set('ai.config', $data, 'ai', 'array', true);
 
@@ -939,5 +955,166 @@ class SettingsController extends Controller
         ToastMagic::success('Live class configuration updated.');
 
         return back();
+    }
+
+    /**
+     * Display the SMS Ethiopia and OTP settings page.
+     */
+    public function smsSettings(Request $request)
+    {
+        $providerSettings = [
+            'enabled'   => (bool) $this->settings->get('sms.provider.enabled', env('SMS_ETHIOPIA_ENABLED', true)),
+            'api_url'   => (string) $this->settings->get('sms.provider.api_url', 'https://smsethiopia.com/api/sms/send'),
+            'api_key'   => (string) $this->settings->get('sms.provider.api_key', env('SMS_ETHIOPIA_API_KEY', '')),
+            'sender_id' => (string) $this->settings->get('sms.provider.sender_id', env('SMS_ETHIOPIA_SENDER_ID', 'FiraLink')),
+            'timeout'   => (int) $this->settings->get('sms.provider.timeout', 15),
+        ];
+
+        $otpSettings = [
+            'length'                    => (int) $this->settings->get('sms.otp.length', 6),
+            'expiry_minutes'            => (int) $this->settings->get('sms.otp.expiry_minutes', 10),
+            'resend_cooldown_seconds'   => (int) $this->settings->get('sms.otp.resend_cooldown_seconds', 60),
+            'max_attempts'              => (int) $this->settings->get('sms.otp.max_attempts', 5),
+            'enable_login'              => (bool) $this->settings->get('sms.otp.enable_login', true),
+            'enable_phone_verification' => (bool) $this->settings->get('sms.otp.enable_phone_verification', true),
+            'enable_password_reset'     => (bool) $this->settings->get('sms.otp.enable_password_reset', true),
+        ];
+
+        $templates = SmsTemplate::orderBy('id', 'asc')->get();
+
+        $query = SmsLog::with('user')->latest();
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('recipient', 'like', "%{$search}%")
+                  ->orWhere('recipient_masked', 'like', "%{$search}%")
+                  ->orWhere('template_key', 'like', "%{$search}%");
+            });
+        }
+        $logs = $query->paginate(15)->withQueryString();
+
+        return view('admin.settings.sms', compact('providerSettings', 'otpSettings', 'templates', 'logs'));
+    }
+
+    /**
+     * Update SMS Ethiopia Provider settings.
+     */
+    public function updateSmsProvider(Request $request)
+    {
+        $data = $request->validate([
+            'enabled'   => ['nullable', 'in:0,1,true,false,on,off'],
+            'api_url'   => ['required', 'url'],
+            'api_key'   => ['nullable', 'string', 'max:255'],
+            'sender_id' => ['nullable', 'string', 'max:20'],
+            'timeout'   => ['required', 'integer', 'min:5', 'max:60'],
+        ]);
+
+        $enabled = filter_var($request->input('enabled', false), FILTER_VALIDATE_BOOLEAN);
+
+        $payload = [
+            'enabled'   => $enabled,
+            'api_url'   => trim($data['api_url']),
+            'sender_id' => trim($data['sender_id'] ?? 'FiraLink'),
+            'timeout'   => (int) $data['timeout'],
+        ];
+
+        $currentKey = $this->settings->get('sms.provider.api_key', env('SMS_ETHIOPIA_API_KEY', ''));
+        $payload['api_key'] = !empty($data['api_key']) ? trim($data['api_key']) : $currentKey;
+
+        $this->settings->set('sms.provider', $payload, 'sms', 'array');
+
+        ToastMagic::success('SMS Ethiopia provider configuration saved.');
+        return back()->with('active_tab', 'provider');
+    }
+
+    /**
+     * Update OTP Security Parameters.
+     */
+    public function updateSmsOtp(Request $request)
+    {
+        $data = $request->validate([
+            'length'                    => ['required', 'integer', 'min:4', 'max:8'],
+            'expiry_minutes'            => ['required', 'integer', 'min:1', 'max:60'],
+            'resend_cooldown_seconds'   => ['required', 'integer', 'min:15', 'max:300'],
+            'max_attempts'              => ['required', 'integer', 'min:1', 'max:10'],
+            'enable_login'              => ['nullable', 'in:0,1,true,false,on,off'],
+            'enable_phone_verification' => ['nullable', 'in:0,1,true,false,on,off'],
+            'enable_password_reset'     => ['nullable', 'in:0,1,true,false,on,off'],
+        ]);
+
+        $payload = [
+            'length'                    => (int) $data['length'],
+            'expiry_minutes'            => (int) $data['expiry_minutes'],
+            'resend_cooldown_seconds'   => (int) $data['resend_cooldown_seconds'],
+            'max_attempts'              => (int) $data['max_attempts'],
+            'enable_login'              => filter_var($request->input('enable_login', false), FILTER_VALIDATE_BOOLEAN),
+            'enable_phone_verification' => filter_var($request->input('enable_phone_verification', false), FILTER_VALIDATE_BOOLEAN),
+            'enable_password_reset'     => filter_var($request->input('enable_password_reset', false), FILTER_VALIDATE_BOOLEAN),
+        ];
+
+        $this->settings->set('sms.otp', $payload, 'sms', 'array');
+
+        $this->settings->set('authentication.security.login_otp_enabled', $payload['enable_login'], 'authentication', 'boolean');
+        $this->settings->set('authentication.security.otp_expiry_minutes', $payload['expiry_minutes'], 'authentication', 'integer');
+
+        ToastMagic::success('OTP security parameters updated successfully.');
+        return back()->with('active_tab', 'otp');
+    }
+
+    /**
+     * Update dynamic notification template.
+     */
+    public function updateSmsTemplate(Request $request, $id)
+    {
+        $template = SmsTemplate::findOrFail($id);
+
+        $request->validate([
+            'content'    => ['required', 'string', 'max:500'],
+            'is_enabled' => ['nullable', 'in:0,1,true,false,on,off'],
+        ]);
+
+        $template->update([
+            'content'    => trim($request->content),
+            'is_enabled' => filter_var($request->input('is_enabled', false), FILTER_VALIDATE_BOOLEAN),
+        ]);
+
+        ToastMagic::success("Template '{$template->name}' updated successfully.");
+        return back()->with('active_tab', 'templates');
+    }
+
+    /**
+     * Send test SMS using configured SMS Ethiopia provider.
+     */
+    public function sendTestSms(Request $request)
+    {
+        $request->validate([
+            'phone'   => ['required', 'string', 'max:25'],
+            'message' => ['required', 'string', 'max:160'],
+        ]);
+
+        /** @var SmsEthiopiaService $smsService */
+        $smsService = app(SmsEthiopiaService::class);
+        $result = $smsService->send($request->phone, $request->message, 'admin_test');
+
+        if ($result['success'] ?? false) {
+            ToastMagic::success("Test SMS sent successfully to {$request->phone}.");
+        } else {
+            ToastMagic::error("Test SMS failed: " . ($result['message'] ?? 'Provider error.'));
+        }
+
+        return back()->with('active_tab', 'provider');
+    }
+
+    /**
+     * Clear SMS logs.
+     */
+    public function clearSmsLogs()
+    {
+        SmsLog::truncate();
+        ToastMagic::success('SMS audit logs cleared successfully.');
+        return back()->with('active_tab', 'logs');
     }
 }

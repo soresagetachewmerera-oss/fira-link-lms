@@ -33,6 +33,11 @@ import '../screens/chat/conversations_screen.dart';
 import '../screens/chat/chat_screen.dart';
 import '../screens/subscriptions/subscriptions_screen.dart';
 import '../screens/profile/my_subscription_screen.dart';
+import '../screens/coffee_toolkit/coffee_toolkit_hub_screen.dart';
+import '../screens/coffee_toolkit/coffee_profit_calculator_screen.dart';
+import '../screens/coffee_toolkit/coffee_offer_generator_screen.dart';
+import '../screens/coffee_toolkit/coffee_readiness_screen.dart';
+import '../screens/coffee_toolkit/coffee_market_screen.dart';
 
 class AppRouter {
   static const String onboarding = '/onboarding';
@@ -41,6 +46,11 @@ class AppRouter {
   static const String home = '/home';
   static const String profile = '/profile';
   static const String aiChat = '/ai-chat';
+  static const String coffeeToolkit = '/coffee-toolkit';
+  static const String coffeeCalculator = '/coffee-toolkit/calculator';
+  static const String coffeeOfferGenerator = '/coffee-toolkit/offer-generator';
+  static const String coffeeReadiness = '/coffee-toolkit/readiness';
+  static const String coffeeMarket = '/coffee-toolkit/market';
   static const String myCourses = '/my-courses';
   static const String myAssignments = '/my-assignments';
   static const String myQuizAttempts = '/my-quizzes';
@@ -84,6 +94,11 @@ class AppRouter {
     qaRoom,
     aiLearningPath,
     aiChat,
+    coffeeToolkit,
+    coffeeCalculator,
+    coffeeOfferGenerator,
+    coffeeReadiness,
+    coffeeMarket,
     messages,
     chatScreen,
     mySubscription,
@@ -174,6 +189,16 @@ class AppRouter {
         return const SubscriptionsScreen();
       case mySubscription:
         return const MySubscriptionScreen();
+      case coffeeToolkit:
+        return const CoffeeToolkitHubScreen();
+      case coffeeCalculator:
+        return const CoffeeProfitCalculatorScreen();
+      case coffeeOfferGenerator:
+        return const CoffeeOfferGeneratorScreen();
+      case coffeeReadiness:
+        return const CoffeeReadinessScreen();
+      case coffeeMarket:
+        return const CoffeeMarketScreen();
       default:
         // Default to onboarding or an error screen
         return const OnboardingScreen();

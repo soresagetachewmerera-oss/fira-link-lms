@@ -17,8 +17,8 @@ class SettingsProvider with ChangeNotifier {
   bool get isDarkMode => _isDarkMode;
   Locale get locale => _locale;
 
-  String get currencySymbol => _settings?.currency.symbol ?? '\$';
-  String get currencyCode => _settings?.currency.code ?? 'USD';
+  String get currencySymbol => _settings?.currency.symbol ?? 'ETB';
+  String get currencyCode => _settings?.currency.code ?? 'ETB';
   List<PaymentMethod> get paymentMethods => _settings?.paymentMethods ?? [];
 
   Future<void> loadSettings() async {
@@ -79,7 +79,9 @@ class SettingsProvider with ChangeNotifier {
 
   String formatPrice(dynamic price) {
     if (price == null) return '';
-    final double value = price is num ? price.toDouble() : 0.0;
-    return NumberFormat.currency(symbol: currencySymbol).format(value);
+    final double value = price is num ? price.toDouble() : (double.tryParse(price.toString()) ?? 0.0);
+    final String sym = currencySymbol.trim();
+    final String prefix = sym.isNotEmpty ? '$sym ' : 'ETB ';
+    return NumberFormat.currency(symbol: prefix, decimalDigits: 2).format(value);
   }
 }

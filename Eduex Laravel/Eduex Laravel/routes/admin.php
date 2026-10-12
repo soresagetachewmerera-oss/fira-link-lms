@@ -79,6 +79,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/settings/cron-setup', [SettingsController::class, 'updateCronSetup'])->name('settings.cron_setup.update');
     Route::get('/settings/live-class', [SettingsController::class, 'liveClassSettings'])->name('settings.live_class');
     Route::put('/settings/live-class', [SettingsController::class, 'updateLiveClassSettings'])->name('settings.live_class.update');
+
+    // SMS Ethiopia & OTP Settings
+    Route::get('/settings/sms', [SettingsController::class, 'smsSettings'])->name('settings.sms');
+    Route::put('/settings/sms/provider', [SettingsController::class, 'updateSmsProvider'])->name('settings.sms.provider.update');
+    Route::put('/settings/sms/otp', [SettingsController::class, 'updateSmsOtp'])->name('settings.sms.otp.update');
+    Route::put('/settings/sms/template/{id}', [SettingsController::class, 'updateSmsTemplate'])->name('settings.sms.template.update');
+    Route::post('/settings/sms/test', [SettingsController::class, 'sendTestSms'])->name('settings.sms.test');
+    Route::delete('/settings/sms/logs', [SettingsController::class, 'clearSmsLogs'])->name('settings.sms.logs.clear');
+
     Route::get('/settings/gateways', [PaymentGatewayController::class, 'index'])->name('settings.gateways.index');
     Route::put('/settings/gateways/{identifier}', [PaymentGatewayController::class, 'update'])->name('settings.gateways.update');
     Route::post('/settings/gateways/{identifier}/test', [PaymentGatewayController::class, 'testConnection'])->name('settings.gateways.test');

@@ -139,7 +139,7 @@ class SubscriptionController extends Controller
     {
         $request->validate([
             'plan_id'        => 'required|exists:subscription_plans,id',
-            'payment_method' => 'required|string',
+            'payment_method' => 'required|string|in:chapa,free',
         ]);
 
         $user = Auth::user();
@@ -541,6 +541,67 @@ class SubscriptionController extends Controller
                     'ends_at'         => $userSub?->ends_at?->toIso8601String(),
                 ],
             ]);
+        }
+
+        // Chapa mobile verification
+        if ($payment->payment_method === 'chapa' || $request->filled('tx_ref')) {
+            $txRef = $request->input('tx_ref') ?: $payment->chapa_tx_ref;
+            if (!$txRef) {
+                return response()->json(['success' => false, 'message' => 'Missing transaction reference.'], 400);
+            }
+            $credentials = $this->credentials('chapa');
+            $secretKey = $credentials['secret_key'] ?? null;
+            if (!$secretKey) {
+                return response()->json(['success' => false, 'message' => 'Chapa credentials not configured.'], 500);
+            }
+
+            try {
+                $ch = curl_init('https://api.chapa.co/v1/transaction/verify/' . $txRef);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Authorization: Bearer ' . $secretKey,
+                ]);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+                $resp = curl_exec($ch);
+                $curlError = curl_error($ch);
+                curl_close($ch);
+
+                if ($curlError) {
+                    return response()->json(['success' => false, 'message' => 'Chapa verify error: ' . $curlError], 500);
+                }
+
+                $verifyData = json_decode($resp, true) ?? [];
+                $vStatus = strtolower($verifyData['data']['status'] ?? $verifyData['status'] ?? '');
+
+                if ($vStatus === 'success') {
+                    $reference = $verifyData['data']['reference'] ?? $verifyData['reference'] ?? null;
+                    $payment->update([
+                        'chapa_reference' => $reference,
+                        'status'          => Payment::STATUS_COMPLETED,
+                    ]);
+                    $plan = SubscriptionPlan::findOrFail($payment->subscription_plan_id);
+                    $userSub = $this->subscriptionService->activateSubscription($user, $plan, $payment, UserSubscription::STATUS_ACTIVE);
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Chapa payment verified! Subscription activated.',
+                        'data'    => [
+                            'subscription_id' => $userSub->id,
+                            'plan_name'       => $plan->name,
+                            'ends_at'         => $userSub->ends_at?->toIso8601String(),
+                        ],
+                    ]);
+                } else {
+                    $payment->update(['status' => Payment::STATUS_FAILED]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Chapa payment was not successful (status: ' . ($vStatus ?: 'failed') . ').',
+                    ], 400);
+                }
+            } catch (\Exception $e) {
+                return response()->json(['success' => false, 'message' => 'Verification failed: ' . $e->getMessage()], 500);
+            }
         }
 
         // In-app gateway verification (e.g., Razorpay payment_id & signature)

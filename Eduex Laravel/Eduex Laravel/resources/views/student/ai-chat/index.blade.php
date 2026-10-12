@@ -170,6 +170,13 @@
             
             scrollToBottom();
             
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialPrompt = urlParams.get('prompt');
+            if (initialPrompt) {
+                messageInput.value = initialPrompt;
+                setTimeout(() => chatForm.dispatchEvent(new Event('submit')), 300);
+            }
+            
             chatForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
@@ -221,12 +228,30 @@
                     success: function(response) {
                         document.getElementById('typing-indicator').remove();
                         
+                        let actionCardHtml = '';
+                        if (response.action_card) {
+                            actionCardHtml = `
+                                <div class="card border-0 shadow-sm rounded-3 mt-2 p-3 text-start" style="background: #FAF5FF; border-left: 4px solid #6D1A95 !important; max-width: 420px;">
+                                    <div class="fw-bold small" style="color: #6D1A95;">
+                                        <i class="fa-solid fa-bolt me-1"></i> ${response.action_card.title}
+                                    </div>
+                                    <div class="text-muted" style="font-size: 11px; margin-top: 2px; margin-bottom: 8px;">
+                                        ${response.action_card.description}
+                                    </div>
+                                    <a href="${response.action_card.url}" class="btn btn-sm text-white px-3 py-1 rounded-pill fw-semibold" style="background: #6D1A95; font-size: 11px; width: fit-content;">
+                                        ${response.action_card.action_label} <i class="fa-solid fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            `;
+                        }
+
                         const aiHtml = `
                             <div class="chat-message ai-message">
                                 <div class="message-content">
                                     <div class="message-bubble bg-white shadow-sm text-dark" style="border-bottom-left-radius: 4px;">
                                         ${response.ai_message.message.replace(/\n/g, '<br>')}
                                     </div>
+                                    ${actionCardHtml}
                                     <div class="message-time text-muted small mt-1">Just now</div>
                                 </div>
                             </div>

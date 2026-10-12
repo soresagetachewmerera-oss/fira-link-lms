@@ -1150,7 +1150,17 @@ class CourseEnrollmentController extends Controller
 
             if ($student && !empty($student->phone)) {
                 try {
-                    app(\App\Services\SmsEthiopiaService::class)->sendEnrollmentNotification($enrollment);
+                    $smsService = app(\App\Services\SmsEthiopiaService::class);
+                    $smsService->sendEnrollmentNotification($enrollment);
+
+                    if ($enrollment->payment && $enrollment->payment->amount > 0) {
+                        $smsService->sendPaymentConfirmation(
+                            $student,
+                            $course?->title ?? 'Course',
+                            $enrollment->payment->amount,
+                            $enrollment->payment->transaction_id ?? (string) $enrollment->payment->id
+                        );
+                    }
                 } catch (\Exception $smsEx) {
                     \Log::error('Enrollment SMS failed: ' . $smsEx->getMessage());
                 }

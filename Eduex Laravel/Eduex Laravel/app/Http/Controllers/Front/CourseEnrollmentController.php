@@ -2707,7 +2707,7 @@ class CourseEnrollmentController extends Controller
 
             $reference = $verifyData['data']['reference'] ?? $verifyData['reference'] ?? null;
 
-            if ($verifiedStatus === 'success' || $status === 'success') {
+            if ($verifiedStatus === 'success') {
                 $payment->update([
                     'chapa_reference' => $reference,
                     'status'          => Payment::STATUS_COMPLETED,
@@ -2750,7 +2750,7 @@ class CourseEnrollmentController extends Controller
 
                 DB::commit();
 
-                ToastMagic::error('Chapa payment was not completed. Status: ' . $verifiedStatus);
+                ToastMagic::error('Chapa payment was not completed. Status: ' . ($verifiedStatus ?: 'failed'));
                 return redirect()->route('courses.show', $courseId);
             }
         } catch (\Exception $e) {
@@ -2772,6 +2772,7 @@ class CourseEnrollmentController extends Controller
         $secretKey = $credentials['secret_key'] ?? null;
         $webhookSecret = $credentials['webhook_secret'] ?? $secretKey;
 
+        $signatureValid = false;
         // Verify signature if webhook secret is configured
         if (!empty($webhookSecret) && !empty($signature)) {
             $expectedSignature = hash_hmac('sha256', $rawContent, $webhookSecret);
@@ -2781,6 +2782,7 @@ class CourseEnrollmentController extends Controller
                 ]);
                 return response()->json(['success' => false, 'message' => 'Invalid signature.'], 403);
             }
+            $signatureValid = true;
         }
 
         $payload = json_decode($rawContent, true) ?? $request->all();
@@ -2803,8 +2805,8 @@ class CourseEnrollmentController extends Controller
         $status = strtolower($payload['status'] ?? '');
         $reference = $payload['reference'] ?? null;
 
-        // Verify transaction server-side if not already verified
-        if ($status !== 'success' && !empty($secretKey)) {
+        // If signature was not verified or status is uncertain, always verify directly with Chapa API
+        if ((!$signatureValid || $status !== 'success') && !empty($secretKey)) {
             try {
                 $ch = curl_init('https://api.chapa.co/v1/transaction/verify/' . $txRef);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -2819,6 +2821,8 @@ class CourseEnrollmentController extends Controller
                 if ($vStatus === 'success') {
                     $status = 'success';
                     $reference = $verifyData['data']['reference'] ?? $reference;
+                } else {
+                    $status = 'failed';
                 }
             } catch (\Exception $e) {
                 // fall through
@@ -3139,7 +3143,17 @@ class CourseEnrollmentController extends Controller
 
             if ($student && !empty($student->phone)) {
                 try {
-                    app(\App\Services\SmsEthiopiaService::class)->sendEnrollmentNotification($enrollment);
+                    $smsService = app(\App\Services\SmsEthiopiaService::class);
+                    $smsService->sendEnrollmentNotification($enrollment);
+
+                    if ($enrollment->payment && $enrollment->payment->amount > 0) {
+                        $smsService->sendPaymentConfirmation(
+                            $student,
+                            $course?->title ?? 'Course',
+                            $enrollment->payment->amount,
+                            $enrollment->payment->transaction_id ?? (string) $enrollment->payment->id
+                        );
+                    }
                 } catch (\Exception $smsEx) {
                     \Log::error('Enrollment SMS failed: ' . $smsEx->getMessage());
                 }

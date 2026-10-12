@@ -75,12 +75,13 @@
                                             class="text-danger">*</span></label>
                                     <div class="instructor-form-clt">
                                         <input type="tel" name="phone" id="phone" value="{{ old('phone') }}"
-                                            placeholder="{{ __('instructor.enter_phone') }}"
+                                            placeholder="0911234567 or +251911234567"
                                             class="@error('phone') is-invalid @enderror" required autocomplete="tel">
                                     </div>
                                     @error('phone')
                                         <div class="invalid-feedback d-block mt-2">{{ $message }}</div>
                                     @enderror
+                                    <small class="text-muted d-block mt-1"><i class="fas fa-shield-alt text-primary"></i> SMS verification OTP will be sent to complete registration.</small>
                                 </div>
 
                                 <div class="col-lg-6 col-md-6 wow fadeInUp" data-wow-delay=".8s">

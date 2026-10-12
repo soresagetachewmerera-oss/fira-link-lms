@@ -144,7 +144,7 @@ class TourController extends Controller
             'schedule_date' => 'nullable|date',
             'departure_time' => 'nullable|string|max:50',
             'special_requests' => 'nullable|string|max:1000',
-            'payment_method' => 'required|string|in:chapa,offline,free',
+            'payment_method' => 'required|string|in:chapa,free',
         ]);
 
         $participants = (int)$validated['participants'];
@@ -174,7 +174,7 @@ class TourController extends Controller
                 'departure_time' => $validated['departure_time'] ?? $tour->departure_time,
                 'unit_price' => $unitPrice,
                 'total_amount' => $totalAmount,
-                'currency' => $tour->currency ?? 'ETB',
+                'currency' => 'ETB',
                 'status' => ($totalAmount <= 0) ? TourBooking::STATUS_CONFIRMED : TourBooking::STATUS_PENDING,
                 'payment_status' => ($totalAmount <= 0) ? TourBooking::PAYMENT_PAID : TourBooking::PAYMENT_PENDING,
                 'special_requests' => $validated['special_requests'] ?? null,
@@ -186,25 +186,6 @@ class TourController extends Controller
                 DB::commit();
                 return redirect()->route('tours.confirmation', ['reference' => $booking->reference])
                     ->with('success', 'Your tour booking has been confirmed successfully!');
-            }
-
-            // Handle Offline Payment
-            if ($validated['payment_method'] === 'offline') {
-                $payment = Payment::create([
-                    'user_id' => $user?->id,
-                    'tour_booking_id' => $booking->id,
-                    'payment_method' => Payment::PAYMENT_METHOD_OFFLINE,
-                    'amount' => $totalAmount,
-                    'status' => Payment::STATUS_PENDING,
-                    'transaction_id' => 'OFFLINE_' . $booking->reference,
-                    'notes' => 'Offline booking for tour: ' . $tour->title,
-                ]);
-
-                $booking->update(['payment_id' => $payment->id]);
-                DB::commit();
-
-                return redirect()->route('tours.confirmation', ['reference' => $booking->reference])
-                    ->with('success', 'Your booking request is registered. Please follow offline payment instructions.');
             }
 
             // Handle Chapa Gateway Payment

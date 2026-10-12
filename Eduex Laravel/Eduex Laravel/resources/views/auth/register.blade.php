@@ -64,6 +64,18 @@
                                     @enderror
                                 </div>
 
+                                <div class="col-lg-12 wow fadeInUp" data-wow-delay=".55s">
+                                    <div class="form-clt">
+                                        <input type="tel" name="phone" id="phone" value="{{ old('phone') }}"
+                                            placeholder="Ethiopian Phone Number (e.g. 0911234567 or +251911234567)" class="@error('phone') is-invalid @enderror" required
+                                            autocomplete="tel">
+                                    </div>
+                                    @error('phone')
+                                        <div class="invalid-feedback d-block mt-2">{{ $message }}</div>
+                                    @enderror
+                                    <small class="text-muted d-block mt-1"><i class="fas fa-shield-alt text-primary"></i> A verification code will be sent to this phone via SMS.</small>
+                                </div>
+
                                 <div class="col-lg-12 wow fadeInUp" data-wow-delay=".6s">
                                     <div class="form-clt position-relative">
                                         <input type="password" name="password" id="password" placeholder="{{ __('auth.your_password') }}"

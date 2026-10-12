@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="Fira Link Business Solution">
+    <meta name="author" content="mhquickdev">
     <meta name="description" content="{{ $metaDescription ?? site_name() . ' - ' . site_tagline() }}">
     <!-- ======== Page title ============ -->
     <title>{{ (!empty($pageTitle) && $pageTitle !== site_name()) ? $pageTitle . ' | ' . site_name() : site_name() . ' - ' . site_tagline() }}</title>

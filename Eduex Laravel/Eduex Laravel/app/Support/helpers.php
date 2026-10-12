@@ -32,7 +32,7 @@ if (!function_exists('currency_code')) {
      */
     function currency_code(): string
     {
-        return settings('platform.general.default_currency', config('app.currency', 'USD'));
+        return settings('platform.general.default_currency', config('app.currency', 'ETB'));
     }
 }
 
@@ -45,6 +45,7 @@ if (!function_exists('currency_symbol')) {
         $code = strtoupper($code ?? currency_code());
 
         $map = [
+            'ETB' => 'ETB',
             'USD' => '$',
             'EUR' => '€',
             'GBP' => '£',
@@ -90,7 +91,7 @@ if (!function_exists('currency_format')) {
         $symbol = currency_symbol($code);
 
         return match ($style) {
-            'symbol' => $sign . $symbol . $formatted,
+            'symbol' => $sign . ($symbol === '$' || $symbol === '€' || $symbol === '£' || $symbol === '¥' ? $symbol . $formatted : $symbol . ' ' . $formatted),
             'none' => $sign . $formatted,
             default => $sign . $code . ' ' . $formatted,
         };

@@ -50,10 +50,11 @@ class RegisterController extends Controller
 
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8|confirmed',
-            'terms' => 'required|accepted',
+            'last_name'  => 'required|string|max:255',
+            'email'      => 'required|email|unique:users,email',
+            'phone'      => 'required|string|min:9|max:20',
+            'password'   => 'required|min:8|confirmed',
+            'terms'      => 'required|accepted',
         ]);
 
         if ($validator->fails()) {
@@ -61,50 +62,56 @@ class RegisterController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
+        // Validate and normalize Ethiopian phone number via SMS Ethiopia service
+        /** @var \App\Services\SmsEthiopiaService $smsService */
+        $smsService = app(\App\Services\SmsEthiopiaService::class);
+        $normalizedPhone = $smsService->normalizePhoneNumber($request->phone);
+
+        if (!$normalizedPhone || !$smsService->isValidEthiopianNumber($request->phone)) {
+            ToastMagic::warning('Please provide a valid Ethiopian mobile phone number.');
+            return back()->withErrors([
+                'phone' => 'Please provide a valid Ethiopian mobile phone number (e.g. 0911234567, 0711234567, or +251911234567).',
+            ])->withInput();
+        }
+
+        // Prevent duplicate accounts with the same normalized phone
+        if (User::where('phone', $normalizedPhone)->exists()) {
+            ToastMagic::warning('This phone number is already registered.');
+            return back()->withErrors([
+                'phone' => 'This phone number is already registered to another account. Please sign in or use another number.',
+            ])->withInput();
+        }
+
         try {
             $user = User::create([
-                'name' => $request->first_name . ' ' . $request->last_name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => 'student',
-                'is_approved' => true,
+                'name'              => $request->first_name . ' ' . $request->last_name,
+                'email'             => $request->email,
+                'phone'             => $normalizedPhone,
+                'password'          => Hash::make($request->password),
+                'role'              => 'student',
+                'is_approved'       => true,
+                'phone_verified_at' => null, // Unverified until OTP confirmation
             ]);
-
 
             UserNotificationSetting::updateOrCreate(
                 ['user_id' => $user->id],
                 ['preferences' => $this->notificationPreferenceService->defaultsForUser($user)]
             );
 
-            $emailPreferences = settings('email.preferences', []);
+            // Send verification code via SMS Ethiopia
+            /** @var \App\Services\OtpService $otpService */
+            $otpService = app(\App\Services\OtpService::class);
+            $otpService->sendToPhone($normalizedPhone, 'registration', $user);
 
-            try {
-                if (!empty($emailPreferences['send_welcome_email'])) {
-                    Mail::to($user->email)->send(new WelcomeMail($user));
-                }
+            // Save pending verification context in session
+            session([
+                'pending_verification_user_id' => $user->id,
+                'pending_verification_phone'   => $normalizedPhone,
+                'pending_verification_role'    => 'student',
+            ]);
 
-                if (!empty($emailPreferences['notify_admin_new_registration'])) {
-                    $adminEmail = settings('contact.details.support_email', config('mail.from.address'));
-
-                    if ($adminEmail) {
-                        Mail::to($adminEmail)->send(new AdminNewRegistrationMail($user));
-                    }
-                }
-            } catch (\Throwable $e) {
-                \Log::error('Registration welcome email failed: ' . $e->getMessage());
-            }
-
-            if (settings('authentication.security.email_verification_required', false)) {
-                $user->sendEmailVerificationNotification();
-                ToastMagic::success('Registration successful! Please check your email to verify your account.');
-                return redirect()->route('login');
-            } else {
-                $user->markEmailAsVerified();
-                Auth::login($user);
-            }
-
-            ToastMagic::success('Registration successful! Welcome to ' . site_name() . '.');
-            return redirect()->route('student.dashboard');
+            ToastMagic::success('Registration initiated! Please enter the SMS code sent to your phone.');
+            return redirect()->route('verification.phone.notice');
         } catch (\Exception $e) {
             ToastMagic::error('An error occurred during registration. Please try again.');
             return back()->withInput();

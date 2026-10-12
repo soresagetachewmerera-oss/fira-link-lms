@@ -37,6 +37,15 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/login/otp/verify', [AuthController::class, 'verifyOtp']);
     Route::post('/login/otp/resend', [AuthController::class, 'resendOtp']);
+    // Registration SMS OTP Verification
+    Route::post('/register/verify', [AuthController::class, 'verifyRegistrationOtp']);
+    Route::post('/register/resend', [AuthController::class, 'resendRegistrationOtp']);
+    Route::post('/register/change-phone', [AuthController::class, 'changeRegistrationPhone']);
+    // SMS Ethiopia Phone Verification & Password Recovery
+    Route::post('/phone/verify/send', [AuthController::class, 'sendPhoneOtp']);
+    Route::post('/phone/verify/check', [AuthController::class, 'verifyPhoneOtp']);
+    Route::post('/password/forgot/otp', [AuthController::class, 'sendPasswordResetOtp']);
+    Route::post('/password/reset/otp', [AuthController::class, 'resetPasswordWithOtp']);
 });
 
 Route::get('/home', [HomeController::class, 'index']);
@@ -147,6 +156,21 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // AI Chat
     Route::get('/ai-chat', [AiChatController::class, 'index']);
     Route::post('/ai-chat/send', [AiChatController::class, 'sendMessage']);
+
+    // Coffee Export Toolkit API
+    Route::prefix('coffee-toolkit')->group(function () {
+        Route::get('/hub-summary', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'hubSummary']);
+        Route::post('/calculate', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'calculate']);
+        Route::post('/calculations', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'saveCalculation']);
+        Route::get('/calculations', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'getCalculations']);
+        Route::post('/offers', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'createOffer']);
+        Route::get('/offers', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'getOffers']);
+        Route::get('/offers/{id}', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'getOffer']);
+        Route::get('/offers/{id}/pdf', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'downloadOfferPdf']);
+        Route::post('/assess', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'assessReadiness']);
+        Route::get('/assessments', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'getAssessments']);
+        Route::get('/market-intelligence', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'getMarketIntelligence']);
+    });
 
     // Student ↔ Instructor Chat
     Route::prefix('messages')->group(function () {
