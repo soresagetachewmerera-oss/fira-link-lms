@@ -32,3 +32,9 @@ releases/
 storage/logs/*
 *.log
 
+
+# Database
+*.sqlite
+*.sqlite3
+*.sqlite.bak
+Eduex Laravel/Eduex Laravel/database/database.sqlite

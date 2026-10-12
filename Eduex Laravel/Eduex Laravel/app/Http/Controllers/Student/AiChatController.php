@@ -81,9 +81,52 @@ class AiChatController extends Controller
             'is_ai' => true,
         ]);
 
+        // Contextual action card detection
+        $actionCard = null;
+        $combinedText = strtolower($userMessageText . ' ' . $aiResponseText);
+
+        if (str_contains($combinedText, 'calculat') || str_contains($combinedText, 'profit') || str_contains($combinedText, 'margin') || str_contains($combinedText, 'break-even') || str_contains($combinedText, 'fob price')) {
+            $actionCard = [
+                'type' => 'calculator',
+                'title' => 'Coffee Export Profit Calculator',
+                'description' => 'Calculate deterministic export costs, net margins, and break-even FOB prices.',
+                'action_label' => 'Open Calculator',
+                'url' => route('student.coffee-toolkit.calculator'),
+                'route' => '/coffee-toolkit/calculator',
+            ];
+        } elseif (str_contains($combinedText, 'offer') || str_contains($combinedText, 'quotation') || str_contains($combinedText, 'spec sheet') || str_contains($combinedText, 'proforma')) {
+            $actionCard = [
+                'type' => 'offer',
+                'title' => 'Coffee Export Offer Generator',
+                'description' => 'Generate a formal Ethiopian export offer sheet with PDF download.',
+                'action_label' => 'Create Offer Sheet',
+                'url' => route('student.coffee-toolkit.offer-generator'),
+                'route' => '/coffee-toolkit/offer-generator',
+            ];
+        } elseif (str_contains($combinedText, 'readiness') || str_contains($combinedText, 'ready to export') || str_contains($combinedText, 'ecta license') || str_contains($combinedText, 'compliance')) {
+            $actionCard = [
+                'type' => 'readiness',
+                'title' => 'Export Readiness Assessment',
+                'description' => 'Evaluate your licensing, sourcing, quality, and logistics score.',
+                'action_label' => 'Take Assessment',
+                'url' => route('student.coffee-toolkit.readiness'),
+                'route' => '/coffee-toolkit/readiness',
+            ];
+        } elseif (str_contains($combinedText, 'differential') || str_contains($combinedText, 'arabica c') || str_contains($combinedText, 'market benchmark') || str_contains($combinedText, 'ecx price')) {
+            $actionCard = [
+                'type' => 'market',
+                'title' => 'Coffee Market Intelligence',
+                'description' => 'View ICE Arabica C benchmarks, Ethiopian differentials, and ECX price trends.',
+                'action_label' => 'View Market Intelligence',
+                'url' => route('student.coffee-toolkit.market-intelligence'),
+                'route' => '/coffee-toolkit/market-intelligence',
+            ];
+        }
+
         return response()->json([
             'user_message' => $userMessage,
             'ai_message' => $aiMessage,
+            'action_card' => $actionCard,
         ]);
     }
 }

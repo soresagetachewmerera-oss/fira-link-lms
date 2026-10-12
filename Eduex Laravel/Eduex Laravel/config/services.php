@@ -36,7 +36,7 @@ return [
     ],
 
     'sms_ethiopia' => [
-        'api_url'   => env('SMS_ETHIOPIA_API_URL', 'https://api.sms-ethiopia.com/v1/send'),
+        'api_url'   => env('SMS_ETHIOPIA_API_URL', 'https://smsethiopia.com/api/sms/send'),
         'api_key'   => env('SMS_ETHIOPIA_API_KEY', ''),
         'sender_id' => env('SMS_ETHIOPIA_SENDER_ID', 'FiraLink'),
         'enabled'   => env('SMS_ETHIOPIA_ENABLED', true),

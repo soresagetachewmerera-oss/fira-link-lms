@@ -9,6 +9,8 @@ import '../../models/ai_chat_message.dart';
 import '../../theme/app_theme.dart';
 import '../../l10n/app_localizations.dart';
 
+import '../../router/app_router.dart';
+
 class AiChatScreen extends StatefulWidget {
   const AiChatScreen({super.key});
 
@@ -19,6 +21,13 @@ class AiChatScreen extends StatefulWidget {
 class _AiChatScreenState extends State<AiChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+
+  final List<String> _quickPrompts = [
+    'Calculate 320 bags profit',
+    'ECTA export licensing steps',
+    'Addis-Djibouti corridor costs',
+    'EUDR farm traceability rules',
+  ];
 
   @override
   void initState() {
@@ -64,7 +73,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Nova - AI Assistant',
+              'Fira AI - Export Advisor',
               style: TextStyle(
                 color: AppTheme.getTextColor(context),
                 fontSize: 18,
@@ -140,8 +149,44 @@ class _AiChatScreenState extends State<AiChatScreen> {
               },
             ),
           ),
+          _buildPromptChips(),
           _buildInputArea(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPromptChips() {
+    return Container(
+      height: 38,
+      margin: const EdgeInsets.only(bottom: 6),
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        scrollDirection: Axis.horizontal,
+        itemCount: _quickPrompts.length,
+        separatorBuilder: (context, index) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final prompt = _quickPrompts[index];
+          return ActionChip(
+            label: Text(
+              prompt,
+              style: TextStyle(
+                fontSize: 11,
+                color: AppTheme.getTextColor(context),
+              ),
+            ),
+            backgroundColor: AppTheme.getCardColor(context),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: AppTheme.getTextColor(context).withValues(alpha: 0.1),
+              ),
+            ),
+            onPressed: () {
+              context.read<AiChatProvider>().sendMessage(prompt);
+            },
+          );
+        },
       ),
     );
   }
@@ -261,7 +306,7 @@ class _ChatBubble extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (isAi)
+            if (isAi) ...[
               MarkdownBody(
                 data: message.message,
                 styleSheet: MarkdownStyleSheet(
@@ -274,8 +319,9 @@ class _ChatBubble extends StatelessWidget {
                     fontFamily: 'monospace',
                   ),
                 ),
-              )
-            else
+              ),
+              _buildActionCard(context, message.message),
+            ] else
               Text(
                 message.message,
                 style: const TextStyle(color: Colors.white, fontSize: 14),
@@ -291,6 +337,105 @@ class _ChatBubble extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildActionCard(BuildContext context, String text) {
+    final lower = text.toLowerCase();
+    String? title;
+    String? label;
+    dynamic icon;
+    String? route;
+
+    if (lower.contains('calculat') ||
+        lower.contains('profit') ||
+        lower.contains('break-even') ||
+        lower.contains('margin')) {
+      title = 'Coffee Export Profit Calculator';
+      label = 'Open Calculator';
+      icon = HugeIcons.strokeRoundedCalculator;
+      route = AppRouter.coffeeCalculator;
+    } else if (lower.contains('offer') ||
+        lower.contains('quotation') ||
+        lower.contains('spec sheet') ||
+        lower.contains('proforma')) {
+      title = 'Coffee Export Offer Generator';
+      label = 'Create Offer Sheet';
+      icon = HugeIcons.strokeRoundedFile01;
+      route = AppRouter.coffeeOfferGenerator;
+    } else if (lower.contains('readiness') ||
+        lower.contains('ready to export') ||
+        lower.contains('compliance') ||
+        lower.contains('ecta license')) {
+      title = 'Export Readiness Assessment';
+      label = 'Take Assessment';
+      icon = HugeIcons.strokeRoundedSecurityCheck;
+      route = AppRouter.coffeeReadiness;
+    } else if (lower.contains('differential') ||
+        lower.contains('arabica c') ||
+        lower.contains('ecx price') ||
+        lower.contains('benchmark')) {
+      title = 'Coffee Market Intelligence';
+      label = 'View Market Benchmarks';
+      icon = HugeIcons.strokeRoundedChartLineData01;
+      route = AppRouter.coffeeMarket;
+    }
+
+    if (route == null) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFAF5FF),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: const Color(0xFF6D1A95).withValues(alpha: 0.2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              HugeIcon(icon: icon, size: 16, color: const Color(0xFF6D1A95)),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  title!,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E1B4B),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            width: double.infinity,
+            height: 28,
+            child: ElevatedButton(
+              onPressed: () => Navigator.of(context).pushNamed(route!),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6D1A95),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                label!,
+                style:
+                    const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -72,6 +72,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'approval_reason',
         'rejection_reason',
         'balance',
+        'phone_verified_at',
     ];
 
     /**
@@ -93,10 +94,29 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'phone_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_approved' => 'boolean',
             'balance' => 'decimal:2',
         ];
+    }
+
+    /**
+     * Determine if the user has verified their phone number.
+     */
+    public function hasVerifiedPhone(): bool
+    {
+        return !is_null($this->phone_verified_at);
+    }
+
+    /**
+     * Mark the user's phone number as verified.
+     */
+    public function markPhoneAsVerified(): bool
+    {
+        return $this->forceFill([
+            'phone_verified_at' => $this->freshTimestamp(),
+        ])->save();
     }
 
     protected $appends = [

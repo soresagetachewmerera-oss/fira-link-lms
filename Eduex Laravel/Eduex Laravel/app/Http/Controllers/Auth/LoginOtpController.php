@@ -65,8 +65,9 @@ class LoginOtpController extends Controller
      */
     public function verify(Request $request)
     {
+        $otpLength = (int) settings('sms.otp.length', 6);
         $request->validate([
-            'code' => ['required', 'digits:6'],
+            'code' => ['required', 'string', "digits:{$otpLength}"],
         ]);
 
         $userId = $request->session()->get('otp_login_user_id');

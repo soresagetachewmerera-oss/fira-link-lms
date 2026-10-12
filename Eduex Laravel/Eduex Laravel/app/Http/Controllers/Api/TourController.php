@@ -133,7 +133,7 @@ class TourController extends Controller
             'schedule_date' => 'nullable|date',
             'departure_time' => 'nullable|string|max:50',
             'special_requests' => 'nullable|string|max:1000',
-            'payment_method' => 'nullable|string|in:chapa,offline,free,card',
+            'payment_method' => 'nullable|string|in:chapa,free',
         ]);
 
         $participants = (int)($validated['participants'] ?? 1);

@@ -65,9 +65,10 @@ class SubscriptionProvider extends ChangeNotifier {
     return result;
   }
 
-  Future<bool> verifyPayment(int paymentId, {String? paymentIntentId, String? razorpayPaymentId}) async {
+  Future<bool> verifyPayment(int paymentId, {String? txRef, String? paymentIntentId, String? razorpayPaymentId}) async {
     final success = await _service.verifySubscriptionPayment(
       paymentId: paymentId,
+      txRef: txRef,
       paymentIntentId: paymentIntentId,
       razorpayPaymentId: razorpayPaymentId,
     );

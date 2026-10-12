@@ -18,3 +18,9 @@ storage/framework/views/*
 !storage/framework/cache/.gitignore
 !storage/framework/sessions/.gitignore
 !storage/framework/views/.gitignore
+
+# Database
+*.sqlite
+*.sqlite3
+*.sqlite.bak
+database/database.sqlite

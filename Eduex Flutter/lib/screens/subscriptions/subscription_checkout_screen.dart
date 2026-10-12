@@ -88,6 +88,7 @@ class _SubscriptionCheckoutScreenState extends State<SubscriptionCheckoutScreen>
       final data = res['data'] ?? {};
       final String checkoutUrl = data['checkout_url'] ?? data['authorization_url'] ?? data['approve_url'] ?? '';
       final int? paymentId = data['payment_id'];
+      final String? txRef = data['tx_ref']?.toString();
 
       // Native Razorpay Flow
       if (method == 'razorpay') {
@@ -101,7 +102,7 @@ class _SubscriptionCheckoutScreenState extends State<SubscriptionCheckoutScreen>
         return;
       }
 
-      // Webview gateway flow (Paystack, SSLCommerz, bKash, XPay, PayPal, Mollie, Flutterwave)
+      // Webview gateway flow (Chapa)
       if (checkoutUrl.isNotEmpty) {
         final resultUrl = await Navigator.push<String>(
           context,
@@ -132,7 +133,7 @@ class _SubscriptionCheckoutScreenState extends State<SubscriptionCheckoutScreen>
         }
 
         if (paymentId != null) {
-          final isSuccess = await provider.verifyPayment(paymentId);
+          final isSuccess = await provider.verifyPayment(paymentId, txRef: txRef);
           if (!mounted) return;
           if (isSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -310,6 +311,9 @@ class _SubscriptionCheckoutScreenState extends State<SubscriptionCheckoutScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final methods = settingsProvider.settings?.paymentMethods.where((m) => m.isEnabled).toList() ?? [];
+    if (_selectedMethod == null) {
+      _selectedMethod = 'chapa';
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -357,21 +361,10 @@ class _SubscriptionCheckoutScreenState extends State<SubscriptionCheckoutScreen>
             const SizedBox(height: 24),
 
             // Select Payment Method
-            const Text('Select Payment Method', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text('Payment Method', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
 
-            if (methods.isEmpty)
-              _buildMethodOption('offline', 'Offline / Bank Transfer', HugeIcons.strokeRoundedBank)
-            else
-              ...methods.map((m) {
-                dynamic icon = HugeIcons.strokeRoundedCreditCard;
-                if (m.identifier == 'razorpay') icon = HugeIcons.strokeRoundedWallet01;
-                if (m.identifier == 'sslcommerz') icon = HugeIcons.strokeRoundedSecurityCheck;
-                if (m.identifier == 'bkash') icon = HugeIcons.strokeRoundedSmartPhone01;
-                if (m.identifier == 'chapa') icon = HugeIcons.strokeRoundedWallet02;
-                if (m.identifier == 'offline') icon = HugeIcons.strokeRoundedBank;
-                return _buildMethodOption(m.identifier, m.name, icon);
-              }),
+            _buildMethodOption('chapa', 'Chapa (Telebirr, CBE Birr & Cards)', HugeIcons.strokeRoundedWallet02),
 
             const SizedBox(height: 32),
 

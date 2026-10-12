@@ -104,6 +104,24 @@ class LoginController extends Controller
             ])->onlyInput('email');
         }
 
+        // Mandatory Phone Verification check
+        if ($user->role !== 'admin' && !$user->hasVerifiedPhone()) {
+            if ($user->phone) {
+                /** @var \App\Services\OtpService $otpService */
+                $otpService = app(\App\Services\OtpService::class);
+                $otpService->sendToPhone($user->phone, 'registration', $user);
+            }
+
+            session([
+                'pending_verification_user_id' => $user->id,
+                'pending_verification_phone'   => $user->phone,
+                'pending_verification_role'    => $user->role,
+            ]);
+
+            ToastMagic::warning('Your phone number must be verified to access your account. Please enter the verification code sent to your phone.');
+            return redirect()->route('verification.phone.notice');
+        }
+
         if ($this->otpService->enabled()) {
             $this->otpService->send($user);
 

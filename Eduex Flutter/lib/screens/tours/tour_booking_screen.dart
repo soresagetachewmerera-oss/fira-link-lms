@@ -247,20 +247,12 @@ class _TourBookingScreenState extends State<TourBookingScreen> {
               // Payment Method Choice
               if (widget.tour.price > 0) ...[
                 const Text('Payment Method', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 8),
                 RadioListTile<String>(
                   value: 'chapa',
                   groupValue: _selectedPaymentMethod,
-                  onChanged: (v) => setState(() => _selectedPaymentMethod = v!),
+                  onChanged: (v) => setState(() => _selectedPaymentMethod = 'chapa'),
                   title: const Text('Chapa (Telebirr, CBE Birr & Cards)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Instant secure payment in Ethiopia', style: TextStyle(fontSize: 11)),
-                ),
-                RadioListTile<String>(
-                  value: 'offline',
-                  groupValue: _selectedPaymentMethod,
-                  onChanged: (v) => setState(() => _selectedPaymentMethod = v!),
-                  title: const Text('Bank Transfer / Offline', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Pay manually at bank and provide receipt', style: TextStyle(fontSize: 11)),
+                  subtitle: const Text('Instant secure payment in ETB (Ethiopian Birr)', style: TextStyle(fontSize: 11)),
                 ),
                 const SizedBox(height: 16),
               ],

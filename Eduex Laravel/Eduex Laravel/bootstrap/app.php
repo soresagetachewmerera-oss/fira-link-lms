@@ -16,11 +16,17 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
             'approved.instructor' => \App\Http\Middleware\CheckApprovedInstructor::class,
             'setup.complete' => \App\Http\Middleware\EnsureSetupComplete::class,
+            'phone.verified' => \App\Http\Middleware\EnsurePhoneIsVerified::class,
         ]);
 
         $middleware->web(append: [
             \App\Http\Middleware\EnsureSetupComplete::class,
             \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\EnsurePhoneIsVerified::class,
+        ]);
+
+        $middleware->api(append: [
+            \App\Http\Middleware\EnsurePhoneIsVerified::class,
         ]);
         
         // Exclude payment callback routes from CSRF verification

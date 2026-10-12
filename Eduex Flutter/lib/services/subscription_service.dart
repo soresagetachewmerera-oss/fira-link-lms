@@ -100,6 +100,7 @@ class SubscriptionService {
 
   Future<bool> verifySubscriptionPayment({
     required int paymentId,
+    String? txRef,
     String? paymentIntentId,
     String? razorpayPaymentId,
   }) async {
@@ -116,6 +117,7 @@ class SubscriptionService {
       },
       body: jsonEncode({
         'payment_id': paymentId,
+        if (txRef != null) 'tx_ref': txRef,
         if (paymentIntentId != null) 'payment_intent_id': paymentIntentId,
         if (razorpayPaymentId != null) 'razorpay_payment_id': razorpayPaymentId,
       }),

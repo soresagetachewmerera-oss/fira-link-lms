@@ -21,19 +21,11 @@ class PaymentGatewayController extends Controller
 {
     public function index(): View
     {
-        $gateways = PaymentGatewaySetting::orderBy('type')->orderBy('name')->get();
+        // Chapa is the exclusive configurable gateway for the platform
+        $gateways = PaymentGatewaySetting::where('identifier', 'chapa')->get();
 
         $credentialFieldMap = [
-            'razorpay' => ['key', 'secret'],
-            'stripe' => ['key', 'secret'],
-            'paystack' => ['public_key', 'secret_key'],
-            'flutterwave' => ['public_key', 'secret_key'],
-            'paypal' => ['client_id', 'client_secret', 'mode'],
-            'sslcommerz' => ['store_id', 'store_password', 'mode'],
-            'mollie' => ['api_key'],
-            'bkash'  => ['app_key', 'app_secret', 'username', 'password', 'mode'],
-            'xpay'   => ['store_id', 'api_key', 'mode'],
-            'chapa'  => ['public_key', 'secret_key', 'webhook_secret', 'mode'],
+            'chapa' => ['public_key', 'secret_key', 'webhook_secret', 'mode'],
         ];
 
         return view('admin.settings.gateways.index', compact('gateways', 'credentialFieldMap'));
@@ -41,7 +33,12 @@ class PaymentGatewayController extends Controller
 
     public function update(Request $request, string $identifier): RedirectResponse
     {
-        $gateway = PaymentGatewaySetting::where('identifier', $identifier)->firstOrFail();
+        if (strtolower($identifier) !== 'chapa') {
+            ToastMagic::error('Only Chapa payment gateway can be configured on this platform.');
+            return redirect()->route('admin.settings.gateways.index');
+        }
+
+        $gateway = PaymentGatewaySetting::where('identifier', 'chapa')->firstOrFail();
 
         $validated = $request->validate([
             'is_enabled' => ['nullable', 'boolean'],

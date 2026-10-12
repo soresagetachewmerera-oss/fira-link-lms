@@ -46,26 +46,48 @@ class AuthController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
+                'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        /** @var \App\Services\SmsEthiopiaService $smsService */
+        $smsService = app(\App\Services\SmsEthiopiaService::class);
+        $normalizedPhone = $smsService->normalizePhoneNumber($request->phone);
+
+        if (!$normalizedPhone || !$smsService->isValidEthiopianNumber($request->phone)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please provide a valid Ethiopian mobile phone number (e.g. 0911234567, 0711234567, or +251911234567).',
+                'errors'  => ['phone' => ['Invalid Ethiopian phone number format.']],
+            ], 422);
+        }
+
+        if (User::where('phone', $normalizedPhone)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This phone number is already registered to another account.',
+                'errors'  => ['phone' => ['Phone number is already taken.']],
             ], 422);
         }
 
         try {
             $user = new User([
-                'name' => $request->first_name . ' ' . $request->last_name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => 'instructor',
-                'is_approved' => false,
-                'phone' => $request->phone,
-                'bio' => $request->bio,
-                'years_experience' => $request->years_experience,
-                'specialization' => $request->specialization,
+                'name'              => $request->first_name . ' ' . $request->last_name,
+                'email'             => $request->email,
+                'password'          => Hash::make($request->password),
+                'role'              => 'instructor',
+                'is_approved'       => false,
+                'phone'             => $normalizedPhone,
+                'phone_verified_at' => null,
+                'bio'               => $request->bio,
+                'years_experience'  => $request->years_experience,
+                'specialization'    => $request->specialization,
                 'previous_experience' => $request->previous_experience,
-                'highest_degree' => $request->highest_degree,
-                'field_of_study' => $request->field_of_study,
-                'certifications' => $request->certifications,
+                'highest_degree'    => $request->highest_degree,
+                'field_of_study'    => $request->field_of_study,
+                'certifications'    => $request->certifications,
             ]);
 
             if ($request->hasFile('profile_photo')) {
@@ -103,9 +125,17 @@ class AuthController extends Controller
                 \Log::error('Registration email failed: ' . $e->getMessage());
             }
 
+            // Dispatch SMS OTP code
+            $otpResult = $this->otpService->sendToPhone($normalizedPhone, 'registration', $user);
+
             return response()->json([
-                'message' => 'Your instructor application has been submitted successfully! We will review it and get back to you soon.',
-                'user' => $user,
+                'success'                     => true,
+                'requires_phone_verification' => true,
+                'message'                     => 'Your instructor application has been submitted! Please verify your phone number using the SMS code sent.',
+                'phone'                       => $normalizedPhone,
+                'phone_masked'                => \App\Models\SmsLog::maskPhone($normalizedPhone),
+                'cooldown_seconds'            => $otpResult['cooldown_seconds'] ?? 60,
+                'user'                        => $user,
             ], 201);
 
         } catch (\Exception $e) {
@@ -173,7 +203,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'code' => 'required|digits:6',
+            'code' => 'required|string|min:4|max:8',
         ]);
 
         $user = User::where('email', $request->email)->first();

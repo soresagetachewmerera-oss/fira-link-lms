@@ -40,24 +40,33 @@ class PaymentGatewayService
 
     public function onlineGateways(): Collection
     {
-        return $this->all()->where('type', 'online')->where('is_enabled', true);
+        // Chapa is the exclusive platform payment gateway
+        return $this->all()
+            ->where('identifier', 'chapa')
+            ->where('is_enabled', true);
     }
 
     public function offlineGateway(): ?PaymentGatewaySetting
     {
-        return $this->all()->firstWhere('identifier', 'offline');
+        // Offline payments are completely disabled in favor of Chapa
+        return null;
     }
 
     public function offlineInstructions(): ?string
     {
-        return optional($this->offlineGateway())->offline_instructions;
+        return null;
     }
 
     public function isEnabled(string $identifier): bool
     {
-        $gateway = $this->gateway($identifier);
+        // Only Chapa is permitted as an active gateway
+        if (strtolower($identifier) !== 'chapa') {
+            return false;
+        }
 
-        return $gateway ? $gateway->is_enabled : false;
+        $gateway = $this->gateway('chapa');
+
+        return $gateway ? (bool) $gateway->is_enabled : false;
     }
 
     public function gateway(string $identifier): ?PaymentGatewaySetting

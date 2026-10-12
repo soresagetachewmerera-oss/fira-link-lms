@@ -81,6 +81,17 @@ class PaymentGatewaySettingSeeder extends Seeder
                 'credentials' => null,
                 'offline_instructions' => "Please complete your payment via bank transfer and upload the receipt. Our finance team will verify within 24 hours.",
             ],
+            [
+                'identifier' => 'chapa',
+                'name' => 'Chapa',
+                'type' => 'online',
+                'credentials' => [
+                    'public_key' => env('CHAPA_PUBLIC_KEY'),
+                    'secret_key' => env('CHAPA_SECRET_KEY'),
+                    'webhook_secret' => env('CHAPA_WEBHOOK_SECRET'),
+                    'mode' => env('CHAPA_MODE', 'sandbox'),
+                ],
+            ],
         ];
 
         foreach ($gateways as $gateway) {
@@ -90,7 +101,7 @@ class PaymentGatewaySettingSeeder extends Seeder
                     'name' => $gateway['name'],
                     'type' => $gateway['type'],
                     'credentials' => $gateway['credentials'] ?? null,
-                    'is_enabled' => true,
+                    'is_enabled' => $gateway['identifier'] === 'chapa',
                     'offline_instructions' => $gateway['offline_instructions'] ?? null,
                 ]
             );

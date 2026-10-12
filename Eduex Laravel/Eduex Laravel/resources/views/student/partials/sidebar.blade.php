@@ -29,6 +29,21 @@
                 </a>
             </li>
             <li>
+                <a href="{{ route('student.coffee-toolkit.index') }}"
+                    class="{{ request()->routeIs('student.coffee-toolkit.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-mug-hot"></i>
+                    <span>Coffee Export Toolkit</span>
+                    <span class="badge rounded-pill ms-auto" style="background: #6D1A95; color: #fff; font-size: 10px; padding: 3px 7px;">PRO</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('student.ai-chat.index') }}"
+                    class="{{ request()->routeIs('student.ai-chat.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>Fira AI Advisor</span>
+                </a>
+            </li>
+            <li>
                 <a href="{{ route('student.community.index') }}"
                     class="{{ request()->routeIs('student.community.*') ? 'active' : '' }}">
                     <i class="fa-solid fa-users"></i>
