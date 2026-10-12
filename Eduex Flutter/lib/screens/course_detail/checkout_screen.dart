@@ -163,7 +163,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final int amount = data['amount'] ?? 0;
       final String currency = data['currency']?.toString() ?? 'INR';
       final String orderId = data['order_id']?.toString() ?? '';
-      final String name = data['name']?.toString() ?? 'Eduex';
+      final String name = data['name']?.toString() ?? 'Fira Link Academy';
       final String description = data['description']?.toString() ?? '';
 
       final prefillMap = data['prefill'] as Map<String, dynamic>? ?? {};
@@ -258,7 +258,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: clientSecret,
-          merchantDisplayName: 'EduEx',
+          merchantDisplayName: 'Fira Link Academy',
           style: Theme.of(context).brightness == Brightness.dark
               ? ThemeMode.dark
               : ThemeMode.light,

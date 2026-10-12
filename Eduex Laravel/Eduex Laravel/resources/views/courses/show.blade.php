@@ -65,7 +65,7 @@
                                 <h3 class="wow fadeInUp" data-wow-delay=".3s">
                                     {{ $course->title }}
                                     @if ($course->is_live_course)
-                                        <span class="badge bg-danger ms-2" style="font-size: 14px; vertical-align: middle;">
+                                        <span class="badge bg-danger ms-2" style="font-size: 11px; vertical-align: middle; font-weight: 600;">
                                             <i class="fas fa-broadcast-tower me-1"></i> {{ __('frontend.live') }}
                                         </span>
                                     @endif

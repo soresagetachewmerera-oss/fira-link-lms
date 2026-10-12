@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Front\CoursesController;
 use App\Http\Controllers\Front\CourseEnrollmentController;
 use App\Http\Controllers\Front\EventController;
+use App\Http\Controllers\Front\TourController;
 use App\Http\Controllers\Front\EventBookingVerificationController;
 use App\Http\Controllers\Front\ReviewController;
 use App\Http\Controllers\Front\BlogController;
@@ -94,10 +95,20 @@ Route::post('/payment/chapa/webhook', [CourseEnrollmentController::class, 'chapa
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
 Route::get('/events/bookings/verify/{reference}', EventBookingVerificationController::class)->name('events.bookings.verify');
 
+// Tours routes
+Route::get('/tours', [TourController::class, 'index'])->name('tours.index');
+Route::get('/tours/{slug}', [TourController::class, 'show'])->name('tours.show');
+Route::get('/tours/{slug}/book', [TourController::class, 'book'])->name('tours.book');
+Route::post('/tours/{slug}/book', [TourController::class, 'processBooking'])->name('tours.book.process');
+Route::match(['get', 'post'], '/tours/payment/chapa/callback', [TourController::class, 'chapaCallback'])->name('tours.chapa.callback');
+Route::get('/tours/booking/confirmation/{reference}', [TourController::class, 'confirmation'])->name('tours.confirmation');
+
 // Event bookings routes
 Route::middleware('auth')->group(function () {
     Route::get('/events/{slug}/book', [EventController::class, 'book'])->name('events.book');
     Route::post('/events/{slug}/book', [EventController::class, 'storeBooking'])->name('events.book.store');
+    Route::get('/student/tours', [TourController::class, 'myBookings'])->name('student.tours');
+    Route::post('/student/tours/{reference}/cancel', [TourController::class, 'cancelBooking'])->name('student.tours.cancel');
 });
 Route::get('/events/{slug}', [EventController::class, 'show'])->name('events.show');
 

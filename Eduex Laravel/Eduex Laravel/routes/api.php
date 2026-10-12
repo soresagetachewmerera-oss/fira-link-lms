@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\InstructorController;
 use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\TourController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\CourseEnrollmentController;
@@ -51,6 +52,9 @@ Route::get('/instructors', [InstructorController::class, 'index']);
 Route::get('/instructors/{id}', [InstructorController::class, 'show']);
 Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{id}', [EventController::class, 'show']);
+Route::get('/tours', [TourController::class, 'index']);
+Route::get('/tours/{id}', [TourController::class, 'show']);
+Route::post('/tours/{id}/book', [TourController::class, 'book']);
 Route::get('/certificates/download/signed/{id}', [CertificateController::class, 'downloadSigned'])->name('api.certificates.download.signed')->middleware('signed');
 
 // Subscription Plans (Public)
@@ -93,6 +97,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/events/{id}/book', [EventController::class, 'book']);
     Route::get('/user/bookings', [EventController::class, 'myBookings']);
     Route::get('/user/bookings/{id}', [EventController::class, 'showBooking']);
+    Route::get('/user/tour-bookings', [TourController::class, 'myBookings']);
+    Route::get('/user/tour-bookings/{id}', [TourController::class, 'showBooking']);
+    Route::post('/user/tour-bookings/{id}/cancel', [TourController::class, 'cancelBooking']);
     Route::post('/payments/razorpay/verify', [CourseEnrollmentController::class, 'razorpayVerify']);
     Route::post('/payments/sslcommerz/verify', [CourseEnrollmentController::class, 'sslcommerzVerify']);
     Route::post('/payments/stripe/verify', [CourseEnrollmentController::class, 'stripeVerify']);

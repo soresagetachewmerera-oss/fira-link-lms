@@ -294,7 +294,15 @@ class User extends Authenticatable implements MustVerifyEmail
         if (!$activeSub) {
             return false;
         }
-
         return $activeSub->includesBundle($bundleId);
     }
+
+    /**
+     * Get tour bookings made by the user.
+     */
+    public function tourBookings(): HasMany
+    {
+        return $this->hasMany(TourBooking::class);
+    }
 }
+

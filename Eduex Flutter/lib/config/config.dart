@@ -10,16 +10,16 @@ class AppConfig {
   const AppConfig._();
 
   /// Global app title
-  static const String appTitle = 'Fira Link';
+  static const String appTitle = 'Fira Link Academy';
 
   /// App version
   static const String appVersion = '2.0.0';
 
   /// Support email
-  static const String supportEmail = 'support@example.com';
+  static const String supportEmail = 'support@firalink.com';
 
   /// Support phone number
-  static const String supportPhone = '+1234567890';
+  static const String supportPhone = '+251 911 000 000';
 
   /// Base URL of the backend (auto-routes to 10.0.2.2 on Android, 127.0.0.1 on Web/Desktop)
   static String get baseUrl {

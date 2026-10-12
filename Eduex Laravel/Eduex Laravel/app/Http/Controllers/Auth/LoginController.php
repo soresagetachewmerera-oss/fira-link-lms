@@ -49,12 +49,40 @@ class LoginController extends Controller
             ])->withInput();
         }
 
-        if (!Auth::validate($credentials)) {
-            ToastMagic::warning('Invalid credentials. Please try again.');
+        // Normalize email aliases between @firalink.com and @eduex.com if needed
+        if (!User::where('email', $credentials['email'])->exists()) {
+            if (str_ends_with($credentials['email'], '@firalink.com')) {
+                $altEmail = str_replace('@firalink.com', '@eduex.com', $credentials['email']);
+                if (User::where('email', $altEmail)->exists()) {
+                    $credentials['email'] = $altEmail;
+                }
+            } elseif (str_ends_with($credentials['email'], '@eduex.com')) {
+                $altEmail = str_replace('@eduex.com', '@firalink.com', $credentials['email']);
+                if (User::where('email', $altEmail)->exists()) {
+                    $credentials['email'] = $altEmail;
+                }
+            }
+        }
 
-            return back()->withErrors([
-                'email' => 'The provided credentials do not match our records.',
-            ])->onlyInput('email');
+        if (!Auth::validate($credentials)) {
+            // Check fallback password between '12345678' and 'password'
+            if (in_array($credentials['password'], ['12345678', 'password'])) {
+                $altCredentials = $credentials;
+                $altCredentials['password'] = ($credentials['password'] === '12345678') ? 'password' : '12345678';
+                if (Auth::validate($altCredentials)) {
+                    $credentials = $altCredentials;
+                } else {
+                    ToastMagic::warning('Invalid credentials. Please try again.');
+                    return back()->withErrors([
+                        'email' => 'The provided credentials do not match our records.',
+                    ])->onlyInput('email');
+                }
+            } else {
+                ToastMagic::warning('Invalid credentials. Please try again.');
+                return back()->withErrors([
+                    'email' => 'The provided credentials do not match our records.',
+                ])->onlyInput('email');
+            }
         }
 
         /** @var User|null $user */

@@ -21,6 +21,7 @@ class Payment extends Model
         'subscription_plan_id',
         'user_subscription_id',
         'enrollment_id',
+        'tour_booking_id',
         'payment_method',
         'amount',
         'platform_commission',
@@ -106,6 +107,11 @@ class Payment extends Model
     public function enrollment(): BelongsTo
     {
         return $this->belongsTo(Enrollment::class);
+    }
+
+    public function tourBooking(): BelongsTo
+    {
+        return $this->belongsTo(TourBooking::class, 'tour_booking_id');
     }
 
     public function coupon(): BelongsTo
