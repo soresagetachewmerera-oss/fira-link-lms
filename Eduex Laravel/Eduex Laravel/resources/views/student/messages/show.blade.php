@@ -18,7 +18,7 @@
                                     @if($conversation->instructor->profile_photo)
                                         <img src="{{ asset('storage/' . $conversation->instructor->profile_photo) }}" alt="" style="width:100%;height:100%;object-fit:cover;">
                                     @else
-                                        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--theme-light,#eefdf3);color:var(--theme,#008D5E);font-weight:700;font-size:16px;">
+                                        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--theme-light,#FAF5FF);color:var(--theme,#6D1A95);font-weight:700;font-size:16px;">
                                             {{ strtoupper(substr($conversation->instructor->name, 0, 1)) }}
                                         </div>
                                     @endif
@@ -89,7 +89,7 @@
         .user-message .message-content { align-items: flex-end; }
         .other-message .message-content { align-items: flex-start; }
         .message-bubble { padding: 12px 18px; border-radius: 16px; font-size: 14px; line-height: 1.6; word-break: break-word; }
-        .user-message .message-bubble { border-bottom-right-radius: 4px; background-color: var(--theme, #008D5E); color: white; }
+        .user-message .message-bubble { border-bottom-right-radius: 4px; background-color: var(--theme, #6D1A95); color: white; }
         .other-message .message-bubble { border-bottom-left-radius: 4px; background: white; color: #1e293b; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
         .attachment-item { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(255,255,255,0.15); border-radius: 8px; font-size: 13px; margin-top: 6px; }
         .other-message .attachment-item { background: #f1f5f9; }

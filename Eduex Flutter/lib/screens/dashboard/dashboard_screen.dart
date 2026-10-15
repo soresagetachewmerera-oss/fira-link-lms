@@ -9,7 +9,6 @@ import '../../theme/app_theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../course_access/course_access_screen.dart';
 import '../../router/app_router.dart';
-import '../../providers/subscription_provider.dart';
 import '../../widgets/live_class_banner.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -33,14 +32,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       context,
       listen: false,
     );
-    final subscriptionProvider = Provider.of<SubscriptionProvider>(
-      context,
-      listen: false,
-    );
-    await Future.wait([
-      dashboardProvider.loadDashboardData(),
-      subscriptionProvider.fetchUserSubscription(),
-    ]);
+    await dashboardProvider.loadDashboardData();
   }
 
   @override
@@ -136,7 +128,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               margin: const EdgeInsets.only(bottom: 24),
                             ),
                           ],
-                          _buildSubscriptionBanner(context),
                           // Stats Cards - Horizontal Scroll
                           SizedBox(
                             height: 140,
@@ -279,104 +270,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
         );
-      },
-    );
-  }
-
-  Widget _buildSubscriptionBanner(BuildContext context) {
-    return Consumer<SubscriptionProvider>(
-      builder: (context, subProvider, _) {
-        final activeSub = subProvider.activeSubscription;
-
-        if (subProvider.hasActiveSubscription && activeSub != null) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 20),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppTheme.primary, const Color(0xFF5B21B6)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: [
-                const CircleAvatar(
-                  backgroundColor: Colors.amber,
-                  child: HugeIcon(icon: HugeIcons.strokeRoundedCrown, color: Colors.white, size: 20),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Active: ${activeSub.planName}',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        activeSub.isLifetime
-                            ? 'Lifetime Unlimited Access'
-                            : 'Expires in ${activeSub.remainingDays} days',
-                        style: const TextStyle(color: Colors.white70, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, AppRouter.mySubscription),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white.withValues(alpha: 0.2),
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                  child: const Text('Manage', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                ),
-              ],
-            ),
-          );
-        } else {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 20),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.indigo.shade600, Colors.purple.shade700],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: [
-                const HugeIcon(icon: HugeIcons.strokeRoundedCrown, color: Colors.amber, size: 28),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text('Unlock Unlimited Learning', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
-                      SizedBox(height: 2),
-                      Text('Subscribe to access all top-rated courses.', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                    ],
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, AppRouter.subscriptions),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber,
-                    foregroundColor: Colors.black,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                  child: const Text('Explore', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                ),
-              ],
-            ),
-          );
-        }
       },
     );
   }

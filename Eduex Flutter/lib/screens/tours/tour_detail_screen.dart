@@ -137,7 +137,7 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
               height: 220,
               width: double.infinity,
               color: Colors.grey.shade200,
-              child: tour.featuredImage != null
+              child: (tour.featuredImage != null && tour.featuredImage!.isNotEmpty)
                   ? Image.network(
                       tour.featuredImage!,
                       fit: BoxFit.cover,

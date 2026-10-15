@@ -430,32 +430,157 @@
     }
 
     /* Admin & Primary Overrides */
-    .bg-primary { background-color: {{ $primaryColor }} !important; }
-    .text-primary, .text-primary-all *, .text-primary-all *:before, .text-primary-all *:after { color: {{ $primaryColor }} !important; }
-    .btn-primary { background-color: {{ $primaryColor }} !important; border-color: {{ $primaryColor }} !important; }
-    .btn-primary:hover, .btn-primary:focus, .btn-primary:active { background-color: {{ $secondaryColor }} !important; border-color: {{ $secondaryColor }} !important; }
+    .bg-primary, .bg-theme { background-color: var(--theme) !important; }
+    .text-primary, .text-theme, .text-primary-all *, .text-primary-all *:before, .text-primary-all *:after { color: var(--theme) !important; }
+    .border-theme, .border-primary { border-color: var(--theme) !important; }
+    .btn-primary { background-color: var(--theme) !important; border-color: var(--theme) !important; color: #ffffff !important; }
+    .btn-primary:hover, .btn-primary:focus, .btn-primary:active { background-color: var(--theme-2) !important; border-color: var(--theme-2) !important; color: #ffffff !important; }
+    .btn-outline-primary { color: var(--theme) !important; border-color: var(--theme) !important; background: transparent !important; }
+    .btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active { background-color: var(--theme) !important; border-color: var(--theme) !important; color: #ffffff !important; }
     
-    .nav-pills .nav-item .nav-link.active {
-        background-color: {{ $primaryColor }};
+    /* Global Theme Button Standardization */
+    .theme-btn {
+        background-color: var(--theme) !important;
+        color: #ffffff !important;
+        border: 1px solid var(--theme) !important;
+        transition: all 0.25s ease !important;
     }
-    .custom-control-input:checked ~ .custom-control-label::before {
-        background-color: {{ $primaryColor }} !important;
-        border-color: {{ $primaryColor }} !important;
+    .theme-btn:hover {
+        background-color: var(--theme-2) !important;
+        border-color: var(--theme-2) !important;
+        color: #ffffff !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(109, 26, 149, 0.25) !important;
+    }
+    .theme-btn i, .theme-btn .icon {
+        background-color: #ffffff !important;
+        color: var(--theme) !important;
+    }
+    .theme-btn.style-2 {
+        background: transparent !important;
+        border: 2px solid var(--theme) !important;
+        color: var(--theme) !important;
+    }
+    .theme-btn.style-2:hover {
+        background: var(--theme) !important;
+        border-color: var(--theme) !important;
+        color: #ffffff !important;
+    }
+    .theme-btn.style-2:hover i {
+        background-color: #ffffff !important;
+        color: var(--theme) !important;
+    }
+
+    /* Logo Proportions & Aspect Ratio Standardization */
+    .header-logo, .footer-logo, .offcanvas__logo {
+        display: flex !important;
+        align-items: center !important;
+    }
+    .header-1 .logo-shape {
+        display: none !important;
+    }
+    .header-1 .header-logo {
+        display: flex !important;
+        align-items: center !important;
+        height: 100% !important;
+    }
+    .header-logo img,
+    .header-1 .header-logo img,
+    .offcanvas__logo img {
+        height: 44px !important;
+        max-height: 44px !important;
+        width: auto !important;
+        max-width: 180px !important;
+        object-fit: contain !important;
+        margin: 0 !important;
+    }
+    .footer-logo img {
+        height: 42px !important;
+        max-height: 42px !important;
+        width: auto !important;
+        max-width: 170px !important;
+        object-fit: contain !important;
+    }
+    .login-logo img,
+    .register-logo img,
+    .auth-logo img {
+        height: 56px !important;
+        max-height: 56px !important;
+        width: auto !important;
+        max-width: 200px !important;
+        object-fit: contain !important;
+        display: block !important;
+        margin: 0 auto 16px auto !important;
+    }
+
+    /* Form Inputs Focus */
+    .form-control:focus, .form-select:focus {
+        border-color: var(--theme) !important;
+        box-shadow: 0 0 0 3px rgba(109, 26, 149, 0.15) !important;
+        outline: none !important;
+    }
+
+    /* Navigation & Tabs Active States */
+    .nav-pills .nav-item .nav-link.active,
+    .nav-pills .nav-link.active {
+        background-color: var(--theme) !important;
+        color: #ffffff !important;
     }
     .page-item.active .page-link {
-        background-color: {{ $primaryColor }};
-        border-color: {{ $primaryColor }};
+        background-color: var(--theme) !important;
+        border-color: var(--theme) !important;
+        color: #ffffff !important;
     }
+
+    /* Student & Instructor Dashboard Nav */
+    .dashboard-sidebar .dashboard-nav li a.active,
+    .dashboard-sidebar .dashboard-nav li a:hover {
+        color: var(--theme) !important;
+    }
+    .dashboard-sidebar .dashboard-nav li a.active {
+        background-color: #FAF5FF !important;
+        border-left: 3px solid var(--theme) !important;
+        font-weight: 700 !important;
+    }
+    .dashboard-sidebar .dashboard-profile .status-badge {
+        background: #FAF5FF !important;
+        color: var(--theme) !important;
+        border: 1px solid rgba(109, 26, 149, 0.2) !important;
+        border-radius: 20px !important;
+        font-weight: 600 !important;
+        font-size: 11px !important;
+        padding: 3px 10px !important;
+    }
+
+    /* Badges & Light Purple Highlights */
+    .bg-theme-light {
+        background-color: #FAF5FF !important;
+        color: var(--theme) !important;
+    }
+
+    /* Admin Sidebar Active States */
     .main-sidebar .sidebar-menu li.active a {
-        color: {{ $primaryColor }};
+        color: var(--theme) !important;
     }
     .main-sidebar .sidebar-menu li.active a i {
-        color: {{ $primaryColor }};
+        color: var(--theme) !important;
     }
     .main-sidebar .sidebar-menu li ul.dropdown-menu li.active > a {
-        color: {{ $primaryColor }};
+        color: var(--theme) !important;
     }
     .main-sidebar .sidebar-menu li a:hover {
-        color: {{ $primaryColor }};
+        color: var(--theme) !important;
+    }
+
+    /* Logo Sizing & Aspect Ratio Guards */
+    .header-logo img,
+    .header-logo2 img,
+    .footer-logo img,
+    .logo img {
+        max-height: 44px !important;
+        width: auto !important;
+        max-width: 100% !important;
+        object-fit: contain !important;
+        display: inline-block;
     }
 </style>

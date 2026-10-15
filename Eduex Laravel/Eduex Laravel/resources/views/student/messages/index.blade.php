@@ -24,14 +24,14 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ $tab === 'inbox' ? 'active' : '' }}"
                                    href="{{ route('student.messages.index') }}"
-                                   style="{{ $tab === 'inbox' ? 'background-color: var(--theme, #008D5E); color: white;' : 'background: #f1f5f9; color: #475569;' }} border-radius: 10px; padding: 8px 20px; font-weight: 600;">
+                                   style="{{ $tab === 'inbox' ? 'background-color: var(--theme, #6D1A95); color: white;' : 'background: #f1f5f9; color: #475569;' }} border-radius: 10px; padding: 8px 20px; font-weight: 600;">
                                     Inbox
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {{ $tab === 'requests' ? 'active' : '' }}"
                                    href="{{ route('student.messages.requests') }}"
-                                   style="{{ $tab === 'requests' ? 'background-color: var(--theme, #008D5E); color: white;' : 'background: #f1f5f9; color: #475569;' }} border-radius: 10px; padding: 8px 20px; font-weight: 600;">
+                                   style="{{ $tab === 'requests' ? 'background-color: var(--theme, #6D1A95); color: white;' : 'background: #f1f5f9; color: #475569;' }} border-radius: 10px; padding: 8px 20px; font-weight: 600;">
                                     Sent Requests
                                 </a>
                             </li>
@@ -48,7 +48,7 @@
                                             @if($conv->instructor->profile_photo)
                                                 <img src="{{ asset('storage/' . $conv->instructor->profile_photo) }}" alt="" style="width:100%;height:100%;object-fit:cover;">
                                             @else
-                                                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--theme-light, #eefdf3);color:var(--theme, #008D5E);font-weight:700;font-size:18px;">
+                                                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--theme-light, #FAF5FF);color:var(--theme, #6D1A95);font-weight:700;font-size:18px;">
                                                     {{ strtoupper(substr($conv->instructor->name, 0, 1)) }}
                                                 </div>
                                             @endif
@@ -76,7 +76,7 @@
                                         </div>
                                         <!-- Unread badge -->
                                         @if(isset($conv->unread_count) && $conv->unread_count > 0)
-                                            <span class="badge rounded-pill" style="background: var(--theme, #008D5E); font-size: 11px; padding: 5px 10px;">
+                                            <span class="badge rounded-pill" style="background: var(--theme, #6D1A95); font-size: 11px; padding: 5px 10px;">
                                                 {{ $conv->unread_count }}
                                             </span>
                                         @endif
@@ -147,7 +147,7 @@
                         data.forEach(function(inst) {
                             const avatar = inst.profile_photo
                                 ? `<img src="/storage/${inst.profile_photo}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`
-                                : `<div style="width:36px;height:36px;border-radius:50%;background:var(--theme-light,#eefdf3);color:var(--theme,#008D5E);display:flex;align-items:center;justify-content:center;font-weight:700;">${inst.name.charAt(0).toUpperCase()}</div>`;
+                                : `<div style="width:36px;height:36px;border-radius:50%;background:var(--theme-light,#FAF5FF);color:var(--theme,#6D1A95);display:flex;align-items:center;justify-content:center;font-weight:700;">${inst.name.charAt(0).toUpperCase()}</div>`;
                             html += `<div class="d-flex align-items-center gap-2 p-2 rounded instructor-option" style="cursor:pointer;border-radius:10px;" data-id="${inst.id}" data-name="${inst.name}">
                                 ${avatar}
                                 <div><strong>${inst.name}</strong><br><small class="text-muted">${inst.specialization || 'Instructor'}</small></div>

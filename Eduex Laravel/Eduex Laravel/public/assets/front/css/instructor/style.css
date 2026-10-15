@@ -69,7 +69,7 @@ Instructor Pages Styles
 
 .dashboard-profile .status-badge {
     display: inline-block;
-    background: rgba(0, 79, 68, 0.1);
+    background: rgba(109, 26, 149, 0.1);
     color: var(--theme);
     padding: 6px 16px;
     border-radius: 30px;
@@ -100,7 +100,7 @@ Instructor Pages Styles
 .dashboard-menu-toggle:hover {
     background: var(--theme-2);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 79, 68, 0.3);
+    box-shadow: 0 4px 12px rgba(109, 26, 149, 0.3);
 }
 
 .dashboard-menu-toggle i {
@@ -150,7 +150,7 @@ Instructor Pages Styles
 }
 
 .stat-icon--theme {
-    background: rgba(0, 79, 68, 0.1);
+    background: rgba(109, 26, 149, 0.1);
     color: var(--theme);
 }
 
@@ -211,14 +211,14 @@ Instructor Pages Styles
 }
 
 .support-card {
-    background: rgba(0, 79, 68, 0.05);
+    background: rgba(109, 26, 149, 0.05);
     padding: 20px;
     border-radius: 12px;
     margin-bottom: 15px;
 }
 
 .promotion-card {
-    background: rgba(255, 167, 41, 0.05);
+    background: rgba(109, 26, 149, 0.05);
     padding: 20px;
     border-radius: 12px;
 }
@@ -282,7 +282,7 @@ Instructor Pages Styles
 
 .dashboard-nav a:hover,
 .dashboard-nav a.active {
-    background: rgba(0, 79, 68, 0.05);
+    background: rgba(109, 26, 149, 0.05);
     border-left-color: var(--theme);
     color: var(--theme);
 }
@@ -315,7 +315,7 @@ Instructor Pages Styles
 
 .stat-card-minimal:hover {
     border-color: var(--theme);
-    box-shadow: 0 2px 12px rgba(0, 79, 68, 0.1);
+    box-shadow: 0 2px 12px rgba(109, 26, 149, 0.1);
     transform: translateY(-2px);
 }
 
@@ -417,7 +417,7 @@ Instructor Pages Styles
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 79, 68, 0.1);
+    background: rgba(109, 26, 149, 0.1);
     color: var(--theme);
     font-size: 18px;
     flex-shrink: 0;
@@ -599,7 +599,7 @@ Instructor Pages Styles
     .dashboard-nav a.active {
         border-left: none;
         border-bottom-color: var(--theme);
-        background: rgba(0, 79, 68, 0.08);
+        background: rgba(109, 26, 149, 0.08);
     }
 }
 
@@ -679,7 +679,7 @@ Instructor Pages Styles
     right: 0;
     bottom: 0;
     background: linear-gradient(135deg,
-            rgba(0, 79, 68, 0.02) 0%,
+            rgba(109, 26, 149, 0.02) 0%,
             rgba(254, 252, 232, 0.03) 50%,
             rgba(236, 253, 245, 0.02) 100%);
     pointer-events: none;
@@ -923,7 +923,7 @@ Instructor Pages Styles
 
 .filter-btn:hover {
     color: var(--theme);
-    background: rgba(0, 79, 68, 0.05);
+    background: rgba(109, 26, 149, 0.05);
 }
 
 .filter-btn.active {
@@ -949,7 +949,7 @@ Instructor Pages Styles
 .table-search .search-input:focus {
     outline: none;
     border-color: var(--theme);
-    box-shadow: 0 0 0 3px rgba(0, 79, 68, 0.1);
+    box-shadow: 0 0 0 3px rgba(109, 26, 149, 0.1);
 }
 
 .table-search i {
@@ -978,12 +978,12 @@ Instructor Pages Styles
 }
 
 .students-table-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(0, 79, 68, 0.3);
+    background: rgba(109, 26, 149, 0.3);
     border-radius: 4px;
 }
 
 .students-table-wrapper::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 79, 68, 0.5);
+    background: rgba(109, 26, 149, 0.5);
 }
 
 .students-table {
@@ -996,7 +996,7 @@ Instructor Pages Styles
 }
 
 .students-table thead {
-    background: rgba(0, 79, 68, 0.05);
+    background: rgba(109, 26, 149, 0.05);
 }
 
 .students-table thead th {
@@ -1017,7 +1017,7 @@ Instructor Pages Styles
 }
 
 .students-table tbody tr:hover {
-    background: rgba(0, 79, 68, 0.03);
+    background: rgba(109, 26, 149, 0.03);
 }
 
 .students-table tbody td {
@@ -1129,7 +1129,7 @@ Instructor Pages Styles
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    background: rgba(0, 79, 68, 0.1);
+    background: rgba(109, 26, 149, 0.1);
     color: var(--theme);
     display: flex;
     align-items: center;
@@ -1217,7 +1217,7 @@ Instructor Pages Styles
 }
 
 .pagination-number:hover:not(.active) {
-    background: rgba(0, 79, 68, 0.1);
+    background: rgba(109, 26, 149, 0.1);
     border-color: var(--theme);
     color: var(--theme);
 }
@@ -1247,7 +1247,7 @@ Instructor Pages Styles
 }
 
 .student-card:hover {
-    box-shadow: 0 8px 25px rgba(0, 79, 68, 0.12);
+    box-shadow: 0 8px 25px rgba(109, 26, 149, 0.12);
     transform: translateY(-4px);
     border-color: var(--theme);
 }
@@ -1380,7 +1380,7 @@ Instructor Pages Styles
     width: 40px;
     height: 40px;
     border-radius: 10px;
-    background: rgba(0, 79, 68, 0.1);
+    background: rgba(109, 26, 149, 0.1);
     color: var(--theme);
     display: flex;
     align-items: center;
@@ -1746,7 +1746,7 @@ Instructor Pages Styles
 }
 
 .back-btn:hover {
-    background: rgba(0, 79, 68, 0.05);
+    background: rgba(109, 26, 149, 0.05);
     border-color: var(--theme);
     color: var(--theme);
     transform: translateX(-3px);
@@ -1785,7 +1785,7 @@ Instructor Pages Styles
     border-radius: 50%;
     object-fit: cover;
     border: 4px solid var(--theme);
-    box-shadow: 0 4px 15px rgba(0, 79, 68, 0.2);
+    box-shadow: 0 4px 15px rgba(109, 26, 149, 0.2);
 }
 
 .status-badge-large {
@@ -1877,7 +1877,7 @@ Instructor Pages Styles
 }
 
 .student-course-card:hover {
-    box-shadow: 0 8px 25px rgba(0, 79, 68, 0.12);
+    box-shadow: 0 8px 25px rgba(109, 26, 149, 0.12);
     transform: translateY(-2px);
     border-color: var(--theme);
 }
@@ -1993,7 +1993,7 @@ Instructor Pages Styles
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--theme) 0%, rgba(0, 79, 68, 0.8) 100%);
+    background: linear-gradient(90deg, var(--theme) 0%, rgba(109, 26, 149, 0.8) 100%);
     border-radius: 10px;
     transition: width 0.3s ease;
 }
@@ -2164,7 +2164,7 @@ Instructor Pages Styles
 }
 
 .top-course-item:hover {
-    box-shadow: 0 4px 15px rgba(0, 79, 68, 0.1);
+    box-shadow: 0 4px 15px rgba(109, 26, 149, 0.1);
     transform: translateY(-2px);
     border-color: var(--theme);
 }
@@ -2179,7 +2179,7 @@ Instructor Pages Styles
     justify-content: center;
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, var(--theme) 0%, rgba(0, 79, 68, 0.8) 100%);
+    background: linear-gradient(135deg, var(--theme) 0%, rgba(109, 26, 149, 0.8) 100%);
     color: var(--white);
     border-radius: 10px;
     font-size: 18px;
@@ -2233,7 +2233,7 @@ Instructor Pages Styles
 
 .progress-fill-small {
     height: 100%;
-    background: linear-gradient(90deg, var(--theme) 0%, rgba(0, 79, 68, 0.8) 100%);
+    background: linear-gradient(90deg, var(--theme) 0%, rgba(109, 26, 149, 0.8) 100%);
     border-radius: 6px;
     transition: width 0.3s ease;
 }
@@ -2446,7 +2446,7 @@ Instructor Pages Styles
 
 .reviews-filters .filter-btn:hover {
     color: var(--theme);
-    background: rgba(0, 79, 68, 0.05);
+    background: rgba(109, 26, 149, 0.05);
 }
 
 .reviews-filters .filter-btn.active {
@@ -2470,7 +2470,7 @@ Instructor Pages Styles
 }
 
 .review-card:hover {
-    box-shadow: 0 8px 25px rgba(0, 79, 68, 0.12);
+    box-shadow: 0 8px 25px rgba(109, 26, 149, 0.12);
     transform: translateY(-2px);
     border-color: var(--theme);
 }
@@ -2579,8 +2579,8 @@ Instructor Pages Styles
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    background: rgba(0, 79, 68, 0.05);
-    border: 1px solid rgba(0, 79, 68, 0.1);
+    background: rgba(109, 26, 149, 0.05);
+    border: 1px solid rgba(109, 26, 149, 0.1);
     border-radius: 8px;
     color: var(--theme);
     font-size: 14px;
@@ -2590,7 +2590,7 @@ Instructor Pages Styles
 }
 
 .helpful-btn:hover {
-    background: rgba(0, 79, 68, 0.1);
+    background: rgba(109, 26, 149, 0.1);
     border-color: var(--theme);
     transform: translateY(-2px);
 }
@@ -2623,7 +2623,7 @@ Instructor Pages Styles
     background: var(--theme);
     color: var(--white);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 79, 68, 0.3);
+    box-shadow: 0 4px 12px rgba(109, 26, 149, 0.3);
 }
 
 .reply-btn i {
@@ -2664,7 +2664,7 @@ Instructor Pages Styles
 .reply-textarea:focus {
     outline: none;
     border-color: var(--theme);
-    box-shadow: 0 0 0 3px rgba(0, 79, 68, 0.1);
+    box-shadow: 0 0 0 3px rgba(109, 26, 149, 0.1);
 }
 
 .reply-textarea::placeholder {
@@ -2711,10 +2711,10 @@ Instructor Pages Styles
 }
 
 .submit-reply-btn:hover {
-    background: rgba(0, 79, 68, 0.9);
-    border-color: rgba(0, 79, 68, 0.9);
+    background: rgba(109, 26, 149, 0.9);
+    border-color: rgba(109, 26, 149, 0.9);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 79, 68, 0.3);
+    box-shadow: 0 4px 12px rgba(109, 26, 149, 0.3);
 }
 
 .submit-reply-btn i {
@@ -2758,13 +2758,13 @@ Instructor Pages Styles
 .reply-item {
     margin-bottom: 20px;
     padding: 20px;
-    background: rgba(0, 79, 68, 0.02);
+    background: rgba(109, 26, 149, 0.02);
     border-radius: 12px;
     border-left: 3px solid rgba(108, 112, 111, 0.2);
 }
 
 .reply-item.instructor-reply {
-    background: rgba(0, 79, 68, 0.05);
+    background: rgba(109, 26, 149, 0.05);
     border-left-color: var(--theme);
 }
 
@@ -2944,7 +2944,7 @@ Instructor Pages Styles
 .form-control:focus {
     outline: none;
     border-color: var(--theme);
-    box-shadow: 0 0 0 3px rgba(0, 79, 68, 0.1);
+    box-shadow: 0 0 0 3px rgba(109, 26, 149, 0.1);
 }
 
 .form-control::placeholder {
@@ -2989,7 +2989,7 @@ input[type="datetime-local"] {
 input[type="datetime-local"]:focus {
     outline: none;
     border-color: var(--theme);
-    box-shadow: 0 0 0 3px rgba(0, 79, 68, 0.1);
+    box-shadow: 0 0 0 3px rgba(109, 26, 149, 0.1);
 }
 
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
@@ -3026,8 +3026,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     position: absolute;
     right: 8px;
     padding: 6px 12px;
-    background: rgba(0, 79, 68, 0.05);
-    border: 1px solid rgba(0, 79, 68, 0.1);
+    background: rgba(109, 26, 149, 0.05);
+    border: 1px solid rgba(109, 26, 149, 0.1);
     border-radius: 6px;
     color: var(--theme);
     font-size: 12px;
@@ -3037,7 +3037,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .btn-max:hover {
-    background: rgba(0, 79, 68, 0.1);
+    background: rgba(109, 26, 149, 0.1);
     border-color: var(--theme);
 }
 
@@ -3186,7 +3186,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 79, 68, 0.85);
+    background: rgba(109, 26, 149, 0.85);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -3277,7 +3277,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 
 .setting-item:hover {
     border-color: var(--theme);
-    box-shadow: 0 2px 8px rgba(0, 79, 68, 0.1);
+    box-shadow: 0 2px 8px rgba(109, 26, 149, 0.1);
 }
 
 .setting-info {
@@ -3552,7 +3552,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 .progress-step.active {
     opacity: 1;
     color: var(--theme);
-    background: rgba(0, 79, 68, 0.05);
+    background: rgba(109, 26, 149, 0.05);
 }
 
 .progress-step .step-number {
@@ -3613,9 +3613,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .btn-publish:hover {
-    background: rgba(0, 79, 68, 0.9);
+    background: rgba(109, 26, 149, 0.9);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 79, 68, 0.3);
+    box-shadow: 0 4px 12px rgba(109, 26, 149, 0.3);
 }
 
 /* Builder Steps */
@@ -3677,7 +3677,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .toolbar-btn:hover {
-    background: rgba(0, 79, 68, 0.1);
+    background: rgba(109, 26, 149, 0.1);
     color: var(--theme);
 }
 
@@ -3816,7 +3816,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 .image-preview:hover,
 .video-preview:hover {
     border-color: var(--theme);
-    background: rgba(0, 79, 68, 0.02);
+    background: rgba(109, 26, 149, 0.02);
 }
 
 .image-preview img {
@@ -4009,7 +4009,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .topic-action-btn:hover {
-    background: rgba(0, 79, 68, 0.1);
+    background: rgba(109, 26, 149, 0.1);
     color: var(--theme);
 }
 
@@ -4031,8 +4031,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 
 .btn-add-content {
     padding: 8px 16px;
-    background: rgba(0, 79, 68, 0.05);
-    border: 1px solid rgba(0, 79, 68, 0.2);
+    background: rgba(109, 26, 149, 0.05);
+    border: 1px solid rgba(109, 26, 149, 0.2);
     border-radius: 6px;
     color: var(--theme);
     font-size: 13px;
@@ -4045,7 +4045,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .btn-add-content:hover {
-    background: rgba(0, 79, 68, 0.1);
+    background: rgba(109, 26, 149, 0.1);
     border-color: var(--theme);
 }
 
@@ -4100,7 +4100,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     outline: none;
     background: var(--white);
     border-color: var(--theme);
-    box-shadow: 0 0 0 2px rgba(0, 79, 68, 0.1);
+    box-shadow: 0 0 0 2px rgba(109, 26, 149, 0.1);
 }
 
 .content-item-options {
@@ -4170,7 +4170,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 .file-upload-dropzone:hover,
 .video-upload-dropzone:hover {
     border-color: var(--theme);
-    background: rgba(0, 79, 68, 0.05);
+    background: rgba(109, 26, 149, 0.05);
 }
 
 .file-upload-dropzone i,
@@ -4270,7 +4270,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .btn-ok:hover {
-    background: rgba(0, 79, 68, 0.9);
+    background: rgba(109, 26, 149, 0.9);
 }
 
 .btn-import {
@@ -4301,9 +4301,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .btn-add-topic:hover {
-    background: rgba(0, 79, 68, 0.9);
+    background: rgba(109, 26, 149, 0.9);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 79, 68, 0.3);
+    box-shadow: 0 4px 12px rgba(109, 26, 149, 0.3);
 }
 
 /* Additional Settings */
@@ -4353,9 +4353,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .btn-next:hover {
-    background: rgba(0, 79, 68, 0.9);
+    background: rgba(109, 26, 149, 0.9);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 79, 68, 0.3);
+    box-shadow: 0 4px 12px rgba(109, 26, 149, 0.3);
 }
 
 /* Responsive Styles for Course Builder */
@@ -4462,7 +4462,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 .filter-select select:focus {
     outline: none;
     border-color: var(--theme);
-    box-shadow: 0 0 0 3px rgba(0, 79, 68, 0.1);
+    box-shadow: 0 0 0 3px rgba(109, 26, 149, 0.1);
 }
 
 .filter-select i {
@@ -4496,9 +4496,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .filter-submit-btn:hover {
-    background: rgba(0, 79, 68, 0.9);
+    background: rgba(109, 26, 149, 0.9);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 79, 68, 0.3);
+    box-shadow: 0 4px 12px rgba(109, 26, 149, 0.3);
 }
 
 .filter-reset-btn {
@@ -4522,7 +4522,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     border-radius: 16px;
     padding: 24px;
     border: 1px solid rgba(108, 112, 111, 0.12);
-    box-shadow: 0 6px 20px rgba(0, 79, 68, 0.08);
+    box-shadow: 0 6px 20px rgba(109, 26, 149, 0.08);
     display: flex;
     flex-direction: column;
     gap: 18px;
@@ -4535,7 +4535,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(0, 79, 68, 0.05), rgba(255, 167, 41, 0.05));
+    background: linear-gradient(135deg, rgba(109, 26, 149, 0.05), rgba(109, 26, 149, 0.05));
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
@@ -4544,7 +4544,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 .assignment-card:hover {
     transform: translateY(-4px);
     border-color: var(--theme);
-    box-shadow: 0 12px 28px rgba(0, 79, 68, 0.12);
+    box-shadow: 0 12px 28px rgba(109, 26, 149, 0.12);
 }
 
 .assignment-card:hover::before {
@@ -4564,7 +4564,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 79, 68, 0.12);
+    background: rgba(109, 26, 149, 0.12);
     color: var(--theme);
     font-size: 20px;
     flex-shrink: 0;
@@ -4600,7 +4600,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .assignment-stat {
-    background: rgba(0, 79, 68, 0.05);
+    background: rgba(109, 26, 149, 0.05);
     border-radius: 12px;
     padding: 12px;
     text-align: center;
@@ -4635,7 +4635,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     border-radius: 10px;
     font-size: 13px;
     font-weight: 600;
-    background: rgba(0, 79, 68, 0.08);
+    background: rgba(109, 26, 149, 0.08);
     color: var(--theme);
     text-decoration: none;
     transition: all 0.3s ease;
@@ -4699,7 +4699,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .overview-stat.pending {
-    background: rgba(255, 167, 41, 0.12);
+    background: rgba(109, 26, 149, 0.12);
     color: #d97706;
 }
 
@@ -4760,7 +4760,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 .filter-search .search-input:focus {
     outline: none;
     border-color: var(--theme);
-    box-shadow: 0 0 0 3px rgba(0, 79, 68, 0.1);
+    box-shadow: 0 0 0 3px rgba(109, 26, 149, 0.1);
 }
 
 .filter-search i {
@@ -4819,7 +4819,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     height: 70px;
     border-radius: 18px;
     overflow: hidden;
-    border: 3px solid rgba(0, 79, 68, 0.1);
+    border: 3px solid rgba(109, 26, 149, 0.1);
     flex-shrink: 0;
 }
 
@@ -4872,7 +4872,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .submission-text {
-    background: rgba(0, 79, 68, 0.05);
+    background: rgba(109, 26, 149, 0.05);
     border-radius: 12px;
     padding: 18px;
     color: var(--text);
@@ -4939,7 +4939,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    background: rgba(0, 79, 68, 0.08);
+    background: rgba(109, 26, 149, 0.08);
     color: var(--theme);
     display: flex;
     align-items: center;
@@ -5013,7 +5013,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 .grading-form textarea:focus {
     outline: none;
     border-color: var(--theme);
-    box-shadow: 0 0 0 3px rgba(0, 79, 68, 0.1);
+    box-shadow: 0 0 0 3px rgba(109, 26, 149, 0.1);
 }
 
 .form-error {
@@ -5043,13 +5043,13 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .grading-form-actions .primary-btn:hover {
-    background: rgba(0, 79, 68, 0.9);
+    background: rgba(109, 26, 149, 0.9);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 79, 68, 0.3);
+    box-shadow: 0 4px 12px rgba(109, 26, 149, 0.3);
 }
 
 .status-badge-table.pending {
-    background: rgba(255, 167, 41, 0.15);
+    background: rgba(109, 26, 149, 0.15);
     color: #d97706;
 }
 

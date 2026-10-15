@@ -31,14 +31,14 @@
 
     <h4 class="mb-2">
         <a href="{{ route('student.community.show', $question->id) }}"
-            style="text-decoration: none; color: #002b24; transition: color 0.3s;"
-            onmouseover="this.style.color='var(--theme)'" onmouseout="this.style.color='#002b24'">
+            style="text-decoration: none; color: #000000; transition: color 0.3s;"
+            onmouseover="this.style.color='var(--theme)'" onmouseout="this.style.color='#000000'">
             {{ $question->title }}
         </a>
     </h4>
 
     <p class="mb-4 text-muted"
-        style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+        style="display: -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
         {{ strip_tags($question->description) }}
     </p>
 
@@ -46,7 +46,7 @@
         @if($question->tags)
             @foreach($question->tags as $tag)
                 <span class="tag-chip"
-                    style="background: #f1f7f6; color: #004f44; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600;">
+                    style="background: #FAF5FF; color: #6D1A95; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600;">
                     #{{ $tag }}
                 </span>
             @endforeach

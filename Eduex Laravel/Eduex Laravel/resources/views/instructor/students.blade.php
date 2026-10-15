@@ -69,7 +69,7 @@
 
     .table-search .search-input:focus {
         border-color: var(--theme);
-        box-shadow: 0 0 0 4px rgba(0, 79, 68, 0.05);
+        box-shadow: 0 0 0 4px rgba(109, 26, 149, 0.1);
         outline: none;
     }
 

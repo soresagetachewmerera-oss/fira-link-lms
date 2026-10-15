@@ -1,8 +1,5 @@
         <!-- Header Section Start -->
         <header id="header-sticky" class="header-1">
-            <div class="logo-shape">
-                <img src="{{ asset('assets/front/img/inner/logo-shape.png') }}" alt="img">
-            </div>
             <div class="container-fluid">
                 <div class="mega-menu-wrapper">
                     <div class="header-main">

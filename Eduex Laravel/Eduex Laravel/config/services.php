@@ -42,4 +42,9 @@ return [
         'enabled'   => env('SMS_ETHIOPIA_ENABLED', true),
     ],
 
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'model'   => env('GEMINI_MODEL', 'gemini-3-flash-preview'),
+    ],
+
 ];

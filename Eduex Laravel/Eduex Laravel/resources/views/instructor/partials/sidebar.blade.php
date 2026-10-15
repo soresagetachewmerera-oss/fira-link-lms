@@ -3,7 +3,7 @@
 <aside class="dashboard-sidebar">
     <div class="dashboard-profile">
         <div class="dashboard-profile-image">
-            <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="{{ $user->name }}">
+            <img src="{{ $user->profile_photo ? asset('storage/' . $user->profile_photo) : asset('assets/front/img/home-1/courses/client-01.png') }}" alt="{{ $user->name }}">
         </div>
         <h4>{{ $user->name }}</h4>
         <p>{{ __('instructor.senior_instructor') }}</p>
@@ -82,6 +82,14 @@
                 </a>
             </li>
             <li>
+                <a href="{{ route('ai-chat.public') }}"
+                    class="{{ request()->routeIs('ai-chat.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-robot" style="color: #6D1A95;"></i>
+                    <span>Fira AI Assistant</span>
+                    <span class="badge rounded-pill ms-auto" style="background: #6D1A95; color: #fff; font-size: 10px; padding: 3px 7px;">AI</span>
+                </a>
+            </li>
+            <li>
                 <a href="{{ route('instructor.analytics') }}"
                     class="{{ request()->routeIs('instructor.analytics') ? 'active' : '' }}">
                     <i class="fa-solid fa-chart-line"></i>
@@ -107,13 +115,6 @@
                     class="{{ request()->routeIs('instructor.earnings') || request()->routeIs('instructor.withdrawals') ? 'active' : '' }}">
                     <i class="fa-solid fa-wallet"></i>
                     <span>{{ __('instructor.earnings') }}</span>
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('instructor.subscription-sales') }}"
-                    class="{{ request()->routeIs('instructor.subscription-sales') ? 'active' : '' }}">
-                    <i class="fa-solid fa-repeat"></i>
-                    <span>Subscription Sales</span>
                 </a>
             </li>
             <li>

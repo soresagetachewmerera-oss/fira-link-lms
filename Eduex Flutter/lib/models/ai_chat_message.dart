@@ -15,14 +15,12 @@ class AiChatMessage {
 
   factory AiChatMessage.fromJson(Map<String, dynamic> json) {
     return AiChatMessage(
-      id: json['id'] is int ? json['id'] : int.parse(json['id'].toString()),
-      userId: json['user_id'] is int
-          ? json['user_id']
-          : int.parse(json['user_id'].toString()),
-      message: json['message'] ?? '',
+      id: (json['id'] as num?)?.toInt() ?? int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      userId: (json['user_id'] as num?)?.toInt() ?? int.tryParse(json['user_id']?.toString() ?? '0') ?? 0,
+      message: json['message']?.toString() ?? '',
       isAi: json['is_ai'] == 1 || json['is_ai'] == true,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
+          ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now()
           : DateTime.now(),
     );
   }

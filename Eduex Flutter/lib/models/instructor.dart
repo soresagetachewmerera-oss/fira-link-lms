@@ -1,3 +1,4 @@
+import '../config/config.dart';
 import 'course.dart';
 
 class Instructor {
@@ -30,10 +31,13 @@ class Instructor {
   });
 
   factory Instructor.fromJson(Map<String, dynamic> json) {
+    final rawImage = json['image'] ?? json['profile_photo'];
     return Instructor(
       id: (json['id'] as num?)?.toInt() ?? 0,
       name: json['name'] ?? '',
-      image: json['image'] ?? json['profile_photo'],
+      image: rawImage != null && rawImage.toString().trim().isNotEmpty
+          ? AppConfig.getImageUrl(rawImage.toString())
+          : null,
       bio: json['bio'],
       professionalTitle: json['professional_title'] ?? json['specialization'],
       coursesCount: (json['courses_count'] as num?)?.toInt(),

@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 
 import 'package:hugeicons/hugeicons.dart';
+import '../../config/config.dart';
 import '../../router/app_router.dart';
 import '../../services/student_course_service.dart';
 import '../../theme/app_theme.dart';
@@ -174,23 +175,37 @@ class _CourseAccessScreenState extends State<CourseAccessScreen> {
   }
 
   void _initializeVideoPlayer(Map<String, dynamic> videoData) {
-    if (videoData['is_youtube'] == true && videoData['video_id'] != null) {
-      _youtubePlayerController = YoutubePlayerController(
-        initialVideoId: videoData['video_id'],
-        flags: const YoutubePlayerFlags(autoPlay: true, mute: false),
-      );
-      setState(() {
-        _isVideoLoading = false;
-      });
+    final rawUrl = videoData['url']?.toString();
+    final resolvedUrl = rawUrl != null && rawUrl.isNotEmpty
+        ? AppConfig.getVideoUrl(rawUrl)
+        : null;
+    final isYoutube = videoData['is_youtube'] == true ||
+        (resolvedUrl != null &&
+            (resolvedUrl.toLowerCase().contains('youtube.com') ||
+                resolvedUrl.toLowerCase().contains('youtu.be')));
+
+    if (isYoutube) {
+      final videoId = videoData['video_id']?.toString() ??
+          (resolvedUrl != null ? YoutubePlayer.convertUrlToId(resolvedUrl) : null);
+      if (videoId != null && videoId.isNotEmpty) {
+        _youtubePlayerController = YoutubePlayerController(
+          initialVideoId: videoId,
+          flags: const YoutubePlayerFlags(autoPlay: true, mute: false),
+        );
+        setState(() {
+          _isVideoLoading = false;
+        });
+        return;
+      }
     } else if (videoData['is_vimeo'] == true && videoData['video_id'] != null) {
       setState(() {
         _vimeoVideoId = videoData['video_id'];
         _isVideoLoading = false;
       });
-    } else if (videoData['url'] != null) {
-      // debugPrint('Initializing video with URL: ${videoData['url']}');
+      return;
+    } else if (resolvedUrl != null && resolvedUrl.isNotEmpty) {
       _videoPlayerController = VideoPlayerController.networkUrl(
-        Uri.parse(videoData['url']),
+        Uri.parse(resolvedUrl),
       );
       _videoPlayerController!
           .initialize()
@@ -225,9 +240,8 @@ class _CourseAccessScreenState extends State<CourseAccessScreen> {
           .catchError((error) {
             setState(() {
               _isVideoLoading = false;
-              _error = 'Failed to load video: $error. URL: ${videoData['url']}';
+              _error = 'Failed to load video: $error. URL: $resolvedUrl';
             });
-            // debugPrint('Video initialization error: $error');
           });
     } else {
       setState(() {

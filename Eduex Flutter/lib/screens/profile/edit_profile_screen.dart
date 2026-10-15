@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:image_picker/image_picker.dart';
@@ -26,6 +27,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _phoneController;
   late TextEditingController _bioController;
 
+  Uint8List? _localPhotoBytes;
   bool _isLoading = false;
 
   @override
@@ -52,12 +54,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1600,
+        maxHeight: 1600,
+        imageQuality: 85,
+      );
       if (image != null) {
-        setState(() => _isLoading = true);
+        final bytes = await image.readAsBytes();
+        setState(() {
+          _localPhotoBytes = bytes;
+          _isLoading = true;
+        });
 
-        // Upload photo
-        await _profileService.uploadProfilePhoto(image.path);
+        // Upload photo via bytes across Web and Mobile
+        await _profileService.uploadProfilePhotoBytes(
+          bytes: bytes,
+          filename: image.name,
+        );
 
         // Refresh user data
         await authProvider.loadUser();
@@ -361,10 +375,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _getProfileImage(BuildContext context) {
+    if (_localPhotoBytes != null) {
+      return Image.memory(
+        _localPhotoBytes!,
+        fit: BoxFit.cover,
+      );
+    }
     final user = Provider.of<AuthProvider>(context).user;
-    if (user?.profilePhotoUrl != null) {
+    if (user?.profilePhotoUrl != null && user!.profilePhotoUrl!.isNotEmpty) {
       return Image.network(
-        user!.profilePhotoUrl!,
+        user.profilePhotoUrl!,
+        key: ValueKey(user.profilePhoto),
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
           return Image.asset(

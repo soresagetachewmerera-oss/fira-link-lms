@@ -43,7 +43,7 @@
 
                     @elseif ($lc['status'] === 'scheduled')
                         {{-- Scheduled / Upcoming --}}
-                        <div style="background: linear-gradient(135deg, #004f44 0%, #007a6a 100%); border-radius: 16px; padding: 30px; color: #fff; margin-bottom: 25px; position: relative; overflow: hidden;">
+                        <div style="background: linear-gradient(135deg, #6D1A95 0%, #50126F 100%); border-radius: 16px; padding: 30px; color: #fff; margin-bottom: 25px; position: relative; overflow: hidden;">
                             <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.08);"></div>
                             <div style="position: relative; z-index: 1;">
                                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
@@ -62,7 +62,7 @@
                                 <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                                     @if ($lc['minutes_until'] <= 30 && $lc['minutes_until'] > 0)
                                         <a href="{{ $lc['join_url'] }}" target="_blank" rel="noopener"
-                                           style="display: inline-flex; align-items: center; gap: 8px; background: #fff; color: #004f44; padding: 10px 24px; border-radius: 10px; font-weight: 700; text-decoration: none;">
+                                           style="display: inline-flex; align-items: center; gap: 8px; background: #fff; color: #6D1A95; padding: 10px 24px; border-radius: 10px; font-weight: 700; text-decoration: none;">
                                             <i class="fas fa-video"></i> Join Early
                                         </a>
                                     @endif
@@ -88,8 +88,8 @@
                         {{-- Ended – show recording if available, otherwise info banner --}}
                         @if ($videoData['url'])
                             {{-- Recording available – render the normal video player below --}}
-                            <div style="background: #f1f7f6; border-radius: 12px; padding: 15px 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                                <i class="fas fa-video" style="color: #004f44;"></i>
+                            <div style="background: #FAF5FF; border-radius: 12px; padding: 15px 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-video" style="color: #6D1A95;"></i>
                                 <span style="font-size: 14px; color: #333;">
                                     <strong>Live session ended.</strong> Watch the recording below.
                                 </span>

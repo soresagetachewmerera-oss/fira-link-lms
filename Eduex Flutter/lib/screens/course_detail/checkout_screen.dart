@@ -18,6 +18,7 @@ import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../models/course.dart';
 import '../../services/course_service.dart';
+import '../../widgets/course_thumbnail_image.dart';
 import 'enrollment_success_screen.dart';
 import '../auth/auth_screen.dart';
 
@@ -864,15 +865,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     try {
       final courseService = CourseService();
+      final methodToSend = _finalPrice > 0 ? (_selectedPaymentMethod ?? 'chapa') : 'free';
       final response = widget.isBundle 
           ? await courseService.enrollBundle(
               widget.course.id,
-              _selectedPaymentMethod!,
+              methodToSend,
               confirmDuplicate: true,
             )
           : await courseService.enrollCourse(
               widget.course.id,
-              _finalPrice > 0 ? _selectedPaymentMethod! : 'free',
+              methodToSend,
               couponCode: _appliedCouponCode,
             );
 
@@ -1364,15 +1366,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                       ),
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(12),
-                                        child: widget.course.thumbnail != null
-                                            ? Image.network(
-                                                widget.course.thumbnail!,
-                                                fit: BoxFit.cover,
-                                              )
-                                            : Image.asset(
-                                                'assets/img/courses/course5.jpg',
-                                                fit: BoxFit.cover,
-                                              ),
+                                        child: CourseThumbnailImage(
+                                          imageUrl: widget.course.thumbnail,
+                                          courseId: widget.course.id,
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 16),

@@ -18,10 +18,9 @@ class Payment extends Model
     protected $fillable = [
         'user_id',
         'bundle_id',
-        'subscription_plan_id',
-        'user_subscription_id',
         'enrollment_id',
         'tour_booking_id',
+        'event_booking_id',
         'payment_method',
         'amount',
         'platform_commission',
@@ -114,6 +113,11 @@ class Payment extends Model
         return $this->belongsTo(TourBooking::class, 'tour_booking_id');
     }
 
+    public function eventBooking(): BelongsTo
+    {
+        return $this->belongsTo(EventBooking::class, 'event_booking_id');
+    }
+
     public function coupon(): BelongsTo
     {
         return $this->belongsTo(Coupon::class);
@@ -122,16 +126,6 @@ class Payment extends Model
     public function bundle(): BelongsTo
     {
         return $this->belongsTo(Bundle::class);
-    }
-
-    public function subscriptionPlan(): BelongsTo
-    {
-        return $this->belongsTo(SubscriptionPlan::class, 'subscription_plan_id');
-    }
-
-    public function userSubscription(): BelongsTo
-    {
-        return $this->belongsTo(UserSubscription::class, 'user_subscription_id');
     }
 
     public function user(): BelongsTo

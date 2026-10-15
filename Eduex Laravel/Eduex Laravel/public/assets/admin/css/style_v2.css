@@ -5,8 +5,8 @@ Admin Dashboard V2 Styles
 */
 
 :root {
-    --v2-primary: #004F44;
-    --v2-secondary: #FFA729;
+    --v2-primary: #6D1A95;
+    --v2-secondary: #000000;
     --v2-text: #27282C;
     --v2-header: #141519;
     --v2-bg: #F0F4F5;
@@ -196,7 +196,7 @@ Admin Dashboard V2 Styles
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 79, 68, 0.05);
+    background: rgba(109, 26, 149, 0.08);
     color: var(--v2-primary);
 }
 
@@ -236,7 +236,7 @@ Admin Dashboard V2 Styles
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 79, 68, 0.1);
+    background: rgba(109, 26, 149, 0.1);
     color: var(--v2-primary);
     font-weight: 700;
     font-size: 12px;
@@ -326,7 +326,7 @@ Admin Dashboard V2 Styles
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    background: rgba(0, 79, 68, 0.05);
+    background: rgba(109, 26, 149, 0.08);
     color: var(--v2-primary);
     display: flex;
     align-items: center;
@@ -389,7 +389,7 @@ Admin Dashboard V2 Styles
 }
 
 .status-badge-v2.completed { background: rgba(16, 185, 129, 0.1); color: var(--v2-success); }
-.status-badge-v2.pending { background: rgba(255, 167, 41, 0.1); color: var(--v2-secondary); }
+.status-badge-v2.pending { background: rgba(109, 26, 149, 0.1); color: var(--v2-primary); }
 
 /* Custom Filters */
 .filter-group-v2 {
@@ -478,7 +478,7 @@ Admin Dashboard V2 Styles
 }
 
 .students-table thead {
-    background: rgba(0, 79, 68, 0.05);
+    background: rgba(109, 26, 149, 0.05);
 }
 
 .students-table thead th {
@@ -502,7 +502,7 @@ Admin Dashboard V2 Styles
 }
 
 .students-table tbody tr:hover {
-    background: rgba(0, 79, 68, 0.03);
+    background: rgba(109, 26, 149, 0.03);
 }
 
 .students-table tbody td {
@@ -519,7 +519,7 @@ Admin Dashboard V2 Styles
     gap: 6px;
     padding: 4px 10px;
     border-radius: 6px;
-    background: rgba(0, 79, 68, 0.08);
+    background: rgba(109, 26, 149, 0.08);
     color: var(--theme);
     font-size: 12px;
     font-weight: 600;
@@ -604,7 +604,7 @@ Admin Dashboard V2 Styles
 
 .stat-card-minimal:hover {
     border-color: var(--theme);
-    box-shadow: 0 2px 12px rgba(0, 79, 68, 0.1);
+    box-shadow: 0 2px 12px rgba(109, 26, 149, 0.15);
     transform: translateY(-2px);
 }
 
@@ -678,7 +678,7 @@ Admin Dashboard V2 Styles
 }
 
 .top-course-item:hover {
-    box-shadow: 0 4px 15px rgba(0, 79, 68, 0.1);
+    box-shadow: 0 4px 15px rgba(109, 26, 149, 0.15);
     transform: translateY(-2px);
     border-color: var(--theme);
 }

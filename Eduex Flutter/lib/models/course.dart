@@ -1,3 +1,4 @@
+import '../config/config.dart';
 import 'course_detail.dart';
 import 'instructor.dart';
 
@@ -57,11 +58,15 @@ class Course {
   });
 
   factory Course.fromJson(Map<String, dynamic> json) {
+    final rawThumbnail = json['thumbnail']?.toString() ?? json['featured_image']?.toString();
+    final rawVideo = json['intro_video']?.toString();
+    final rawVideoUrl = json['intro_video_url']?.toString();
+
     return Course(
       id: _parseInt(json['id']),
       title: json['title']?.toString() ?? '',
       slug: json['slug']?.toString(),
-      thumbnail: json['thumbnail']?.toString(),
+      thumbnail: AppConfig.getImageUrl(rawThumbnail),
       price: _parseDouble(json['price'] ?? json['price_avg']),
       discountedPrice: _parseDouble(json['discounted_price']),
       rating: _parseDouble(json['rating']),
@@ -92,8 +97,10 @@ class Course {
       studentsCount: json['students_count'] != null
           ? _parseInt(json['students_count'])
           : null,
-      introVideo: json['intro_video']?.toString(),
-      introVideoUrl: json['intro_video_url']?.toString(),
+      introVideo: rawVideo,
+      introVideoUrl: rawVideoUrl != null && rawVideoUrl.isNotEmpty
+          ? AppConfig.getVideoUrl(rawVideoUrl)
+          : (rawVideo != null ? AppConfig.getVideoUrl(rawVideo) : null),
       isLiveCourse: json['is_live_course'] == 1 || json['is_live_course'] == true,
     );
   }

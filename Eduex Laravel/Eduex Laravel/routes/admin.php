@@ -37,8 +37,6 @@ use App\Http\Controllers\Admin\CustomPageController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\CouponController;
-use App\Http\Controllers\Admin\SubscriptionPlanController;
-use App\Http\Controllers\Admin\UserSubscriptionController;
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -273,13 +271,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Coupons
     Route::resource('coupons', CouponController::class);
-
-    // Subscriptions & Package Plans
-    Route::resource('subscription-plans', SubscriptionPlanController::class);
-    Route::post('subscription-plans/{plan}/toggle-status', [SubscriptionPlanController::class, 'toggleStatus'])->name('subscription-plans.toggle-status');
-    Route::get('subscriptions', [UserSubscriptionController::class, 'index'])->name('subscriptions.index');
-    Route::post('subscriptions/assign', [UserSubscriptionController::class, 'assign'])->name('subscriptions.assign');
-    Route::post('subscriptions/approve-offline/{paymentId}', [UserSubscriptionController::class, 'approveOffline'])->name('subscriptions.approve-offline');
 
     // System Updater
     Route::get('/updater', [\App\Http\Controllers\Admin\UpdaterController::class, 'index'])->name('updater.index');

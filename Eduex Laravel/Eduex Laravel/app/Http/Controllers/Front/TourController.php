@@ -159,6 +159,19 @@ class TourController extends Controller
         $reference = TourBooking::generateReference();
         $user = Auth::user();
 
+        // Enforce payment: paid tours cannot be booked as free
+        if ($totalAmount > 0 && $validated['payment_method'] === 'free') {
+            return back()->withInput()->with('error', 'This tour requires payment of ' . number_format($totalAmount, 2) . ' ETB. You cannot book a paid expedition as free.');
+        }
+
+        if ($totalAmount > 0 && $validated['payment_method'] !== 'chapa') {
+            return back()->withInput()->with('error', 'Please select a valid payment method to proceed with your booking.');
+        }
+
+        if ($totalAmount <= 0) {
+            $validated['payment_method'] = 'free';
+        }
+
         DB::beginTransaction();
         try {
             $booking = TourBooking::create([
@@ -214,8 +227,7 @@ class TourController extends Controller
                 throw new \Exception('Chapa did not return a valid checkout URL.');
             }
 
-            DB::commit();
-            return redirect()->route('tours.confirmation', ['reference' => $booking->reference]);
+            throw new \Exception('Invalid payment method for paid tour.');
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('Tour booking error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
@@ -233,6 +245,12 @@ class TourController extends Controller
             throw new \RuntimeException('Chapa credentials (secret_key) are not configured.');
         }
 
+        $rawTourDesc = 'Tour ' . ($tour->title ?? 'Booking');
+        $customTourDesc = substr(preg_replace('/[^a-zA-Z0-9\-_ .]/', '', $rawTourDesc), 0, 50);
+        if (empty($customTourDesc)) {
+            $customTourDesc = 'Tour Booking';
+        }
+
         $payload = [
             'amount' => number_format($amount, 2, '.', ''),
             'currency' => $tour->currency ?? 'ETB',
@@ -243,8 +261,8 @@ class TourController extends Controller
             'callback_url' => route('tours.chapa.callback'),
             'return_url' => route('tours.chapa.callback', ['tx_ref' => $txRef]),
             'customization' => [
-                'title' => 'Fira Link Tour Booking',
-                'description' => 'Tour: ' . Str::limit($tour->title, 40),
+                'title' => 'Fira Link Tour',
+                'description' => $customTourDesc,
             ],
         ];
 

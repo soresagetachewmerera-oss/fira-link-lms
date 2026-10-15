@@ -110,7 +110,7 @@
                     {{-- Live Class Banner --}}
                     @if ($upcomingLiveClass)
                         <div class="wow fadeInUp" style="margin-top: 30px;">
-                            <div style="background: {{ $upcomingLiveClass->is_currently_live ? 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)' : 'linear-gradient(135deg, #004f44 0%, #007a6a 100%)' }}; border-radius: 20px; padding: 30px 35px; color: #fff; position: relative; overflow: hidden;">
+                            <div style="background: {{ $upcomingLiveClass->is_currently_live ? 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)' : 'linear-gradient(135deg, #6D1A95 0%, #50126F 100%)' }}; border-radius: 20px; padding: 30px 35px; color: #fff; position: relative; overflow: hidden;">
                                 {{-- Decorative circles --}}
                                 <div style="position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.08);"></div>
                                 <div style="position: absolute; bottom: -20px; right: 60px; width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.05);"></div>
@@ -150,7 +150,7 @@
                                             </a>
                                         @elseif ($upcomingLiveClass->minutes_until <= 30 && $upcomingLiveClass->minutes_until > 0)
                                             <a href="{{ $upcomingLiveClass->join_url }}" target="_blank" rel="noopener"
-                                               style="display: inline-flex; align-items: center; gap: 8px; background: #fff; color: #004f44; padding: 12px 28px; border-radius: 12px; font-weight: 700; font-size: 15px; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+                                               style="display: inline-flex; align-items: center; gap: 8px; background: #fff; color: #6D1A95; padding: 12px 28px; border-radius: 12px; font-weight: 700; font-size: 15px; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
                                                 <i class="fas fa-video"></i> Join Early
                                             </a>
                                         @else
@@ -261,21 +261,21 @@
                         </div>
                         <div class="col-lg-6 mb-4 wow fadeInUp" data-wow-delay=".2s">
                             <div class="dashboard-content-section h-100" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
-                                <h3 style="font-size: 22px; font-weight: 800; color: #002b24; margin-bottom: 25px; display: flex; align-items: center; gap: 12px;">
-                                    <i class="fa-solid fa-bullhorn" style="color: #004f44; font-size: 24px;"></i>
+                                <h3 style="font-size: 22px; font-weight: 800; color: #000000; margin-bottom: 25px; display: flex; align-items: center; gap: 12px;">
+                                    <i class="fa-solid fa-bullhorn" style="color: #6D1A95; font-size: 24px;"></i>
                                     {{ __('student.announcements') }}
                                 </h3>
                                 
-                                <div class="announcement-item" style="background: #f1f7f6; padding: 25px; border-radius: 16px; margin-bottom: 15px;">
-                                    <h5 style="font-size: 18px; color: #004f44; margin-bottom: 12px; font-weight: 800;">{{ __('student.welcome_announcement', ['platform_name' => site_name()]) }}</h5>
-                                    <p style="font-size: 15px; color: #444; margin: 0; line-height: 1.6;">
+                                <div class="announcement-item" style="background: #FAF5FF; padding: 25px; border-radius: 16px; margin-bottom: 15px; border-left: 4px solid #6D1A95;">
+                                    <h5 style="font-size: 18px; color: #6D1A95; margin-bottom: 12px; font-weight: 800;">{{ __('student.welcome_announcement', ['platform_name' => site_name()]) }}</h5>
+                                    <p style="font-size: 15px; color: #334155; margin: 0; line-height: 1.6;">
                                         {{ __('student.welcome_announcement_text') }}
                                     </p>
                                 </div>
                                 
-                                <div class="announcement-item" style="background: #fff8f0; padding: 25px; border-radius: 16px;">
-                                    <h5 style="font-size: 18px; color: #ff9d00; margin-bottom: 12px; font-weight: 800;">{{ __('student.new_courses') }}</h5>
-                                    <p style="font-size: 15px; color: #444; margin: 0; line-height: 1.6;">
+                                <div class="announcement-item" style="background: #F8FAFC; padding: 25px; border-radius: 16px; border-left: 4px solid #64748B;">
+                                    <h5 style="font-size: 18px; color: #000000; margin-bottom: 12px; font-weight: 800;">{{ __('student.new_courses') }}</h5>
+                                    <p style="font-size: 15px; color: #334155; margin: 0; line-height: 1.6;">
                                         {{ __('student.new_courses_text') }}
                                     </p>
                                 </div>

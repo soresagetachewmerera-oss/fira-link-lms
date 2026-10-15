@@ -4,13 +4,20 @@
             <?php $siteName = site_name(); ?>
             <a href="{{ route('admin.dashboard') }}">
                 <img src="{{ branding_asset(['primary_logo_path', 'logos.primary'], 'assets/front/img/logo/white-logo.svg') }}"
-                    alt="{{ $siteName }} logo" class="img-fluid mt-3" style="max-height: 40px;">
+                    alt="{{ $siteName }} logo" class="img-fluid mt-3" style="height: 40px; max-height: 40px; width: auto; max-width: 180px; object-fit: contain;">
             </a>
         </div>
         <ul class="sidebar-menu">
             <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <a href="{{ route('admin.dashboard') }}" class="nav-link"><i
                         class="fas fa-home"></i><span>Dashboard</span></a>
+            </li>
+
+            <li>
+                <a href="{{ route('ai-chat.public') }}" class="nav-link" target="_blank">
+                    <i class="fas fa-robot" style="color: #6D1A95;"></i><span>Fira AI Assistant</span>
+                    <span class="badge rounded-pill ml-2" style="background: #6D1A95; color: #fff; font-size: 10px; padding: 3px 8px;">LIVE</span>
+                </a>
             </li>
 
             <li class="dropdown {{ request()->routeIs('admin.courses.*') ? 'active' : '' }}">
@@ -214,19 +221,6 @@
                 <a class="nav-link" href="{{ route('admin.withdrawals.index') }}">
                     <i class="fas fa-money-bill"></i> <span>Payout Requests</span>
                 </a>
-            </li>
-
-            <li class="dropdown {{ request()->routeIs('admin.subscription-plans.*') || request()->routeIs('admin.subscriptions.*') ? 'active' : '' }}">
-                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-id-card"></i>
-                    <span>Subscriptions</span></a>
-                <ul class="dropdown-menu">
-                    <li class="{{ request()->routeIs('admin.subscription-plans.*') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('admin.subscription-plans.index') }}">Package Plans</a>
-                    </li>
-                    <li class="{{ request()->routeIs('admin.subscriptions.*') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('admin.subscriptions.index') }}">User Subscriptions</a>
-                    </li>
-                </ul>
             </li>
 
             <li class="{{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">

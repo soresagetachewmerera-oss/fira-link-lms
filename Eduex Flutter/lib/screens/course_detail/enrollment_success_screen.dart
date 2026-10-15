@@ -1,3 +1,4 @@
+import '../../widgets/course_thumbnail_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
@@ -260,15 +261,13 @@ class EnrollmentSuccessScreen extends StatelessWidget {
                                         ),
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(12),
-                                          child: course?.thumbnail != null
-                                              ? Image.network(
-                                                  course!.thumbnail!,
-                                                  fit: BoxFit.cover,
-                                                )
-                                              : Image.asset(
-                                                  'assets/img/courses/course5.jpg',
-                                                  fit: BoxFit.cover,
-                                                ),
+                                          child: CourseThumbnailImage(
+                                            imageUrl: course?.thumbnail,
+                                            courseId: course?.id,
+                                            width: 80,
+                                            height: 80,
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(width: 16),
@@ -488,15 +487,13 @@ class _BundleCourseRow extends StatelessWidget {
         // Thumbnail
         ClipRRect(
           borderRadius: BorderRadius.circular(10),
-          child: course.thumbnail != null
-              ? Image.network(
-                  course.thumbnail!,
-                  width: 64,
-                  height: 52,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, e, st) => _placeholder(),
-                )
-              : _placeholder(),
+          child: CourseThumbnailImage(
+            imageUrl: course.thumbnail,
+            courseId: course.id,
+            width: 80,
+            height: 80,
+            fit: BoxFit.cover,
+          ),
         ),
         const SizedBox(width: 14),
         // Info
@@ -558,20 +555,6 @@ class _BundleCourseRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _placeholder() {
-    return Container(
-      width: 64,
-      height: 52,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFF6B35), Color(0xFFFF4500)],
-        ),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: const Icon(Icons.play_circle_outline, color: Colors.white, size: 24),
     );
   }
 }

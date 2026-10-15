@@ -72,10 +72,4 @@ class Bundle extends Model
     {
         return $this->thumbnail;
     }
-
-    public function subscriptionPlans(): BelongsToMany
-    {
-        return $this->belongsToMany(SubscriptionPlan::class, 'subscription_plan_bundles', 'bundle_id', 'subscription_plan_id')
-            ->withTimestamps();
-    }
 }

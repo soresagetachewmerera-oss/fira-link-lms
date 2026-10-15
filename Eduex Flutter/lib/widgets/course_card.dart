@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/settings_provider.dart';
 import '../screens/course_detail/course_detail_screen.dart';
 import 'package:provider/provider.dart';
+import 'course_thumbnail_image.dart';
 
 class CourseCard extends StatelessWidget {
   const CourseCard({super.key, required this.course, this.width, this.height});
@@ -43,19 +44,10 @@ class CourseCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: <Widget>[
-                  Container(
-                    color: AppTheme.mint200,
-                    child: course.thumbnail != null
-                        ? Image.network(
-                            course.thumbnail!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(
-                                  color: AppTheme.getSoftGray150(context),
-                                  child: const Center(child: Icon(Icons.error)),
-                                ),
-                          )
-                        : Container(color: AppTheme.getSoftGray150(context)),
+                  CourseThumbnailImage(
+                    imageUrl: course.thumbnail,
+                    courseId: course.id,
+                    fit: BoxFit.cover,
                   ),
                   if (course.isLiveCourse)
                     Positioned(

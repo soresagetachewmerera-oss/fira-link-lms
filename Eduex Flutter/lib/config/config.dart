@@ -21,13 +21,23 @@ class AppConfig {
   /// Support phone number
   static const String supportPhone = '+251 911 000 000';
 
-  /// Base URL of the backend (auto-routes to 10.0.2.2 on Android, 127.0.0.1 on Web/Desktop)
+  /// Base URL of the backend (auto-detected on Web/LAN, 10.0.2.2 on Android emulator)
   static String get baseUrl {
-    if (kIsWeb) return 'http://127.0.0.1:8000';
+    if (kIsWeb) {
+      final host = Uri.base.host;
+      if (host.contains('fira-link.com')) {
+        return 'https://lms.fira-link.com';
+      }
+      if (host.isNotEmpty) {
+        final scheme = Uri.base.scheme.isNotEmpty ? Uri.base.scheme : 'http';
+        return '$scheme://$host:8000';
+      }
+      return 'http://127.0.0.1:8000';
+    }
     try {
       if (Platform.isAndroid) return 'http://10.0.2.2:8000';
     } catch (_) {}
-    return 'http://127.0.0.1:8000';
+    return 'http://192.168.0.111:8000';
   }
 
   /// API Base URL
@@ -50,8 +60,36 @@ class AppConfig {
 
   /// Helper to get full image URL
   static String getImageUrl(String? path) {
-    if (path == null || path.isEmpty) return '';
-    if (path.startsWith('http')) return path;
-    return '$baseUrl/storage/$path';
+    if (path == null || path.trim().isEmpty) return '';
+    final trimmed = path.trim();
+    // Normalize any port 8000 or loopback URL (localhost, 127.0.0.1, or LAN IP) to current baseUrl
+    final uri = Uri.tryParse(trimmed);
+    if (uri != null && (uri.host == '127.0.0.1' || uri.host == 'localhost' || (uri.hasPort && uri.port == 8000))) {
+      return '$baseUrl${uri.path}';
+    }
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    final clean = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
+    if (clean.startsWith('storage/')) {
+      return '$baseUrl/$clean';
+    }
+    return '$baseUrl/storage/$clean';
+  }
+
+  /// Helper to get video URL
+  static String getVideoUrl(String? path) {
+    if (path == null || path.trim().isEmpty) return '';
+    final trimmed = path.trim();
+    final uri = Uri.tryParse(trimmed);
+    if (uri != null && uri.hasPort && uri.port == 8000) {
+      return '$baseUrl${uri.path}${uri.hasQuery ? '?${uri.query}' : ''}';
+    }
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    final clean = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
+    return '$baseUrl/api/video/stream?path=${Uri.encodeComponent(clean)}';
   }
 }
+

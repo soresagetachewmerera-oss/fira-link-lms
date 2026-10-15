@@ -62,24 +62,20 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Skip for admin routes — admin area stays in the default locale
+        // Admin area can resolve admin locale or default
         if ($request->is('admin/*') || $request->routeIs('admin.*')) {
+            $locale = $this->resolveLocale($request);
+            App::setLocale($locale);
+            View::share('currentLocale', $locale);
+            View::share('availableLocales', self::getSupportedLocales());
             return $next($request);
         }
 
-        // Priority: query param > session > user preference > default
-        $locale = $this->resolveLocale($request);
-
-        // Persist the choice in the session
-        if ($request->has('lang')) {
-            session()->put('locale', $locale);
-        }
-
+        // The public website strictly displays English only
+        $locale = 'en';
         App::setLocale($locale);
-
-        // Share locale info with all views for the language switcher
-        View::share('currentLocale', $locale);
-        View::share('availableLocales', self::getSupportedLocales());
+        View::share('currentLocale', 'en');
+        View::share('availableLocales', []);
 
         return $next($request);
     }

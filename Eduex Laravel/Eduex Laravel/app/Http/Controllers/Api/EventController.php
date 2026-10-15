@@ -68,34 +68,81 @@ class EventController extends Controller
             ], 422);
         }
 
+        $unitPrice = (float)($event->price ?? 0);
+        $totalAmount = $unitPrice * $seats;
+        $paymentMethod = $data['payment_method'] ?? ($totalAmount > 0 ? 'chapa' : 'free');
+
+        // Strictly prevent booking paid event as free
+        if ($totalAmount > 0 && $paymentMethod === 'free') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This event requires a paid ticket of ' . number_format($totalAmount, 2) . ' ' . ($event->currency ?? 'ETB') . '. Free reservations are not permitted for paid events.',
+            ], 422);
+        }
+
+        if ($totalAmount > 0 && $paymentMethod !== 'chapa') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please select a valid payment method (e.g. Chapa) to book this event.',
+            ], 422);
+        }
+
         DB::beginTransaction();
         try {
             $booking = $event->bookings()->create([
                 'user_id' => $user->id,
                 'reference' => $this->generateReference(),
-                'status' => EventBooking::STATUS_PENDING,
+                'status' => ($totalAmount <= 0) ? EventBooking::STATUS_CONFIRMED : EventBooking::STATUS_PENDING,
+                'payment_status' => ($totalAmount <= 0) ? EventBooking::PAYMENT_PAID : EventBooking::PAYMENT_PENDING,
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
                 'phone' => $data['phone'] ?? null,
                 'seats' => $seats,
+                'unit_price' => $unitPrice,
+                'total_amount' => $totalAmount,
+                'currency' => $event->currency ?? 'ETB',
                 'contact_method' => $data['contact_method'] ?? null,
                 'notes' => $data['notes'] ?? null,
                 'booked_at' => now(),
             ]);
 
+            // Handle Free Event
+            if ($totalAmount <= 0) {
+                DB::commit();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Free event reservation confirmed successfully!',
+                    'booking' => $booking,
+                ]);
+            }
+
+            // Create pending payment for paid event
+            $txRef = 'CHAPA_EVENT_API_' . $booking->id . '_' . time();
+            $payment = \App\Models\Payment::create([
+                'user_id' => $user->id,
+                'event_booking_id' => $booking->id,
+                'payment_method' => \App\Models\Payment::PAYMENT_METHOD_CHAPA,
+                'amount' => $totalAmount,
+                'status' => \App\Models\Payment::STATUS_PENDING,
+                'chapa_tx_ref' => $txRef,
+            ]);
+
+            $booking->update(['payment_id' => $payment->id]);
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Your booking has been received!',
-                'booking' => $booking
+                'message' => 'Event reservation created. Payment required to confirm.',
+                'payment_required' => true,
+                'checkout_url' => route('events.confirmation', ['reference' => $booking->reference]),
+                'booking' => $booking,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Something went wrong while processing your booking.'
+                'message' => 'Something went wrong while processing your booking: ' . $e->getMessage()
             ], 500);
         }
     }

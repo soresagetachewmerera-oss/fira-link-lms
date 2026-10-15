@@ -675,77 +675,10 @@ class CourseEnrollmentController extends Controller
             'razorpay_order_id'  => 'required|string',
             'razorpay_payment_id'=> 'required|string',
             'razorpay_signature' => 'required|string',
-            // enrollment_id is optional – not present for subscription payments
-            'enrollment_id'      => 'nullable|exists:enrollments,id',
+            'enrollment_id'      => 'required|exists:enrollments,id',
         ]);
 
-        // ── SUBSCRIPTION PAYMENT PATH ──────────────────────────────────────────
-        // Detect by looking up the razorpay_order_id in the payments table
-        $subscriptionPayment = Payment::where('razorpay_order_id', $request->razorpay_order_id)
-            ->whereNotNull('subscription_plan_id')
-            ->with(['subscriptionPlan', 'user'])
-            ->first();
-
-        if ($subscriptionPayment) {
-            $isValid = $this->verifyRazorpaySignature(
-                $request->razorpay_order_id,
-                $request->razorpay_payment_id,
-                $request->razorpay_signature
-            );
-
-            DB::beginTransaction();
-            try {
-                if ($isValid) {
-                    $subscriptionPayment->update([
-                        'razorpay_payment_id' => $request->razorpay_payment_id,
-                        'razorpay_signature'  => $request->razorpay_signature,
-                        'status'              => Payment::STATUS_COMPLETED,
-                    ]);
-
-                    $user = $subscriptionPayment->user;
-                    $plan = $subscriptionPayment->subscriptionPlan;
-
-                    // Re-login in case cross-site POST stripped the session cookie
-                    if ($user && !Auth::check()) {
-                        Auth::login($user, true);
-                    }
-
-                    // Activate the subscription (deactivates any previous active subscription)
-                    app(\App\Services\SubscriptionService::class)->activateSubscription(
-                        $user,
-                        $plan,
-                        $subscriptionPayment,
-                        \App\Models\UserSubscription::STATUS_ACTIVE
-                    );
-
-                    DB::commit();
-
-                    ToastMagic::success('Payment successful! Your subscription to "' . $plan->name . '" is now active.');
-                    return redirect()->route('student.subscription');
-                } else {
-                    $subscriptionPayment->update(['status' => Payment::STATUS_FAILED]);
-                    DB::commit();
-
-                    ToastMagic::error('Payment verification failed. Please contact support.');
-                    return redirect()->route('subscriptions.index');
-                }
-            } catch (\Exception $e) {
-                DB::rollBack();
-                \Illuminate\Support\Facades\Log::error('Razorpay subscription callback error', [
-                    'error'            => $e->getMessage(),
-                    'razorpay_order_id'=> $request->razorpay_order_id,
-                ]);
-                ToastMagic::error('An error occurred processing your subscription payment. Please contact support.');
-                return redirect()->route('subscriptions.index');
-            }
-        }
-
-        // ── COURSE ENROLLMENT PAYMENT PATH (existing logic) ───────────────────
-        if (!$request->enrollment_id) {
-            ToastMagic::error('Invalid payment callback. No enrollment found.');
-            return redirect()->route('courses');
-        }
-
+        // ── COURSE ENROLLMENT PAYMENT PATH ───────────────────────────────────
         $enrollment = Enrollment::with('payment')->findOrFail($request->enrollment_id);
 
         if (!$enrollment->payment || $enrollment->payment->razorpay_order_id !== $request->razorpay_order_id) {
@@ -2561,6 +2494,17 @@ class CourseEnrollmentController extends Controller
         $firstName = $nameParts[0] ?? 'Student';
         $lastName  = $nameParts[1] ?? 'User';
 
+        $customTitle = substr(preg_replace('/[^a-zA-Z0-9\-_ .]/', '', config('app.name', 'Fira Link')), 0, 16);
+        if (empty($customTitle)) {
+            $customTitle = 'Fira Link';
+        }
+
+        $rawDesc = 'Enrollment ' . ($course->title ?? 'Course');
+        $customDesc = substr(preg_replace('/[^a-zA-Z0-9\-_ .]/', '', $rawDesc), 0, 50);
+        if (empty($customDesc)) {
+            $customDesc = 'Course Enrollment';
+        }
+
         $payload = [
             'amount'       => number_format($amount, 2, '.', ''),
             'currency'     => 'ETB',
@@ -2572,8 +2516,8 @@ class CourseEnrollmentController extends Controller
             'callback_url' => route('payment.chapa.callback'),
             'return_url'   => route('payment.chapa.callback', ['tx_ref' => $txRef]),
             'customization' => [
-                'title'       => config('app.name', 'Fira Link'),
-                'description' => 'Course Enrollment: ' . ($course->title ?? 'Course'),
+                'title'       => $customTitle,
+                'description' => $customDesc,
             ],
         ];
 
@@ -2598,11 +2542,24 @@ class CourseEnrollmentController extends Controller
             throw new \Exception('Chapa initialize session cURL error: ' . $curlError);
         }
 
-        if ($httpCode !== 200 && $httpCode !== 201) {
-            throw new \Exception('Failed to create Chapa checkout session. HTTP ' . $httpCode . '. Response: ' . substr($response, 0, 300));
-        }
-
         $responseData = json_decode($response, true);
+
+        if ($httpCode !== 200 && $httpCode !== 201) {
+            $errorDetails = '';
+            if (is_array($responseData)) {
+                if (is_array($responseData['message'] ?? null)) {
+                    $flattened = [];
+                    array_walk_recursive($responseData['message'], function ($val) use (&$flattened) {
+                        $flattened[] = $val;
+                    });
+                    $errorDetails = implode(' ', $flattened);
+                } elseif (is_string($responseData['message'] ?? null)) {
+                    $errorDetails = $responseData['message'];
+                }
+            }
+            $errMsg = $errorDetails ?: substr($response, 0, 300);
+            throw new \Exception('Failed to create Chapa checkout session (HTTP ' . $httpCode . '): ' . $errMsg);
+        }
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \Exception('Invalid JSON response from Chapa API.');

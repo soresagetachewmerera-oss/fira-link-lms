@@ -45,13 +45,15 @@ class ProfileController extends Controller
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
             'phone' => ['nullable', 'string', 'max:30'],
-            'profile_photo' => ['nullable', 'image', 'max:2048'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,gif', 'max:10240'],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,gif', 'max:10240'],
             'password' => ['nullable', 'confirmed', 'min:8'],
         ]);
 
-        if ($request->hasFile('profile_photo')) {
+        $photoFile = $request->file('profile_photo') ?? $request->file('avatar');
+        if ($photoFile) {
             $newPhotoPath = $this->fileUploadService->uploadProfilePhoto(
-                $request->file('profile_photo'),
+                $photoFile,
                 'admins/photos'
             );
 

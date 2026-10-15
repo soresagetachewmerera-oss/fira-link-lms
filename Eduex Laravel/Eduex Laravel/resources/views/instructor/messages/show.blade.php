@@ -23,7 +23,7 @@
                                             alt="" style="width:100%;height:100%;object-fit:cover;">
                                     @else
                                         <div
-                                            style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--theme-light,#eefdf3);color:var(--theme,#008D5E);font-weight:700;font-size:16px;">
+                                            style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--theme-light,#FAF5FF);color:var(--theme,#6D1A95);font-weight:700;font-size:16px;">
                                             {{ strtoupper(substr($conversation->student->name, 0, 1)) }}
                                         </div>
                                     @endif
@@ -187,7 +187,7 @@
 
             .user-message .message-bubble {
                 border-bottom-right-radius: 4px;
-                background-color: var(--theme, #008D5E);
+                background-color: var(--theme, #6D1A95);
                 color: white;
             }
 

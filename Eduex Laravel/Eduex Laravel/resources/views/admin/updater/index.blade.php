@@ -34,7 +34,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <!-- Versions Comparison Card -->
-            <div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #004F44, #002D27); color: white;">
+            <div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #6D1A95, #3B0764); color: white;">
                 <div class="card-body p-4 p-md-5 relative">
                     <div class="d-flex align-items-center justify-content-between mb-4">
                         <div>

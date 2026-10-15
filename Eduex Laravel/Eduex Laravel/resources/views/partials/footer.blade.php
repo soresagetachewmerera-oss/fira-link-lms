@@ -50,6 +50,7 @@
                                 <li><a href="{{ url('/blog') }}">{{ __('frontend.blog') }}</a></li>
                             @endforelse
                             <li><a href="{{ route('verify-certificate') }}">{{ __('frontend.verify_certificate') ?? 'Verify Certificate' }}</a></li>
+                            <li><a href="{{ route('ai-chat.public') }}" onclick="if(window.FiraAI){event.preventDefault();window.FiraAI.open();}" style="color: #C084FC; font-weight: 600;"><i class="fa-solid fa-robot me-1"></i> Fira AI Assistant (Free)</a></li>
                         </ul>
                     </div>
                 </div>

@@ -14,7 +14,8 @@ class ProfileService extends BaseService {
       Uri.parse('${BaseService.baseUrl}/user/profile'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
       },
       body: jsonEncode({
         'name': name,
@@ -27,7 +28,8 @@ class ProfileService extends BaseService {
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to update profile: ${response.body}');
+      final body = jsonDecode(response.body);
+      throw Exception(body['message'] ?? 'Failed to update profile');
     }
   }
 
@@ -41,7 +43,8 @@ class ProfileService extends BaseService {
       Uri.parse('${BaseService.baseUrl}/user/password'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
       },
       body: jsonEncode({
         'current_password': currentPassword,
@@ -83,13 +86,50 @@ class ProfileService extends BaseService {
     }
   }
 
+  Future<String> uploadProfilePhotoBytes({
+    required List<int> bytes,
+    required String filename,
+  }) async {
+    final token = await getToken();
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('${BaseService.baseUrl}/user/profile-photo'),
+    );
+    if (token != null && token.isNotEmpty) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+    request.headers['Accept'] = 'application/json';
+    request.files.add(http.MultipartFile.fromBytes(
+      'photo',
+      bytes,
+      filename: filename,
+    ));
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
+      return body['photo_url'] ?? '';
+    } else {
+      try {
+        final body = jsonDecode(response.body);
+        throw Exception(body['message'] ?? 'Failed to upload photo');
+      } catch (_) {
+        throw Exception('Failed to upload photo: ${response.statusCode}');
+      }
+    }
+  }
+
   Future<String> uploadProfilePhoto(String filePath) async {
     final token = await getToken();
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('${BaseService.baseUrl}/user/profile-photo'),
     );
-    request.headers['Authorization'] = 'Bearer $token';
+    if (token != null && token.isNotEmpty) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
     request.headers['Accept'] = 'application/json';
     request.files.add(await http.MultipartFile.fromPath('photo', filePath));
 
@@ -98,9 +138,14 @@ class ProfileService extends BaseService {
 
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body);
-      return body['photo_url'];
+      return body['photo_url'] ?? '';
     } else {
-      throw Exception('Failed to upload photo: ${response.body}');
+      try {
+        final body = jsonDecode(response.body);
+        throw Exception(body['message'] ?? 'Failed to upload photo');
+      } catch (_) {
+        throw Exception('Failed to upload photo: ${response.statusCode}');
+      }
     }
   }
 }

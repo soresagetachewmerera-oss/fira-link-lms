@@ -1,3 +1,4 @@
+import '../config/config.dart';
 import 'course.dart';
 import 'live_class.dart';
 
@@ -135,13 +136,16 @@ class Lesson {
   });
 
   factory Lesson.fromJson(Map<String, dynamic> json) {
+    final rawVideoUrl = json['video_url']?.toString();
     return Lesson(
       id: (json['id'] as num?)?.toInt() ?? 0,
       title: json['title'] ?? '',
       duration: (json['duration'] as num?)?.toInt(),
       isPreview: json['is_preview'] == 1 || json['is_preview'] == true,
       videoType: json['video_type'],
-      videoUrl: json['video_url'],
+      videoUrl: rawVideoUrl != null && rawVideoUrl.isNotEmpty
+          ? AppConfig.getVideoUrl(rawVideoUrl)
+          : null,
       videoPath: json['video_path'],
       isLive: json['is_live'] == 1 || json['is_live'] == true,
       liveClass: json['live_class'] != null ? LiveClass.fromJson(json['live_class']) : null,
@@ -255,10 +259,13 @@ class ReviewUser {
   ReviewUser({required this.id, required this.name, this.profilePhoto});
 
   factory ReviewUser.fromJson(Map<String, dynamic> json) {
+    final rawPhoto = json['profile_photo']?.toString();
     return ReviewUser(
       id: (json['id'] as num?)?.toInt() ?? 0,
       name: json['name'] ?? '',
-      profilePhoto: json['profile_photo'],
+      profilePhoto: rawPhoto != null && rawPhoto.isNotEmpty
+          ? AppConfig.getImageUrl(rawPhoto)
+          : null,
     );
   }
 

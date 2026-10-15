@@ -6,22 +6,28 @@ class AiChatService extends BaseService {
   Future<http.Response> getChatHistory() async {
     final token = await getToken();
     final url = Uri.parse('${BaseService.baseUrl}/ai-chat');
-    return await http.get(
-      url,
-      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
-    );
+    final headers = <String, String>{
+      'Accept': 'application/json',
+    };
+    if (token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    return await http.get(url, headers: headers);
   }
 
   Future<http.Response> sendMessage(String message) async {
     final token = await getToken();
     final url = Uri.parse('${BaseService.baseUrl}/ai-chat/send');
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    if (token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
     return await http.post(
       url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      headers: headers,
       body: jsonEncode({'message': message}),
     );
   }

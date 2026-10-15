@@ -17,9 +17,9 @@
 
     <div class="custom-dropdown-menu shadow-lg" id="customNotifMenu">
         <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background: white;">
-            <h6 class="m-0" style="font-weight: 800; color: #002b24;">Notifications</h6>
+            <h6 class="m-0" style="font-weight: 800; color: #000000;">Notifications</h6>
             @if($unreadCount > 0)
-                <a href="{{ route($notifRoutePrefix . '.notifications.readAll') }}" class="text-decoration-none small" style="color: #004f44; font-weight: 700;">Mark all read</a>
+                <a href="{{ route($notifRoutePrefix . '.notifications.readAll') }}" class="text-decoration-none small" style="color: #6D1A95; font-weight: 700;">Mark all read</a>
             @endif
         </div>
         <div class="notif-scroll-area">
@@ -29,9 +29,9 @@
                     $isUnread = !$notification->read_at;
                     $notifType = $notification->data['type'] ?? '';
                     
-                    // Minimal logic for dropdown
-                    $bgColor = $isUnread ? '#fffaf3' : '#fff';
-                    $accentColor = $isUnread ? '#ff6b00' : '#333';
+                    // Dropdown styling
+                    $bgColor = $isUnread ? '#FAF5FF' : '#fff';
+                    $accentColor = $isUnread ? '#6D1A95' : '#1e293b';
                     $iconClass = 'fa-bell';
                     
                     if ($notifType == 'course') {
@@ -42,10 +42,10 @@
                 ?>
 
                 <div class="notif-item p-3 {{ $isUnread ? 'is-unread-item' : '' }}"
-                    style="background: {{ $bgColor }}; border-bottom: 1px solid rgba(0,0,0,0.03); border-left: {{ $isUnread ? '3px solid #ff6b00' : 'none' }}; transition: all 0.2s ease;">
+                    style="background: {{ $bgColor }}; border-bottom: 1px solid rgba(0,0,0,0.03); border-left: {{ $isUnread ? '3px solid #6D1A95' : 'none' }}; transition: all 0.2s ease;">
                     <div class="d-flex align-items-start gap-3">
                         <div class="notif-icon-small" style="background: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-shrink: 0;">
-                            <i class="fa-solid {{ $iconClass }}" style="color: {{ $isUnread ? '#ff6b00' : '#888' }}; font-size: 13px;"></i>
+                            <i class="fa-solid {{ $iconClass }}" style="color: {{ $isUnread ? '#6D1A95' : '#888' }}; font-size: 13px;"></i>
                         </div>
                         <div class="flex-grow-1 overflow-hidden">
                             <p class="mb-1 fw-bold" style="color: {{ $accentColor }}; font-size: 14px;">
@@ -58,7 +58,7 @@
                                 </small>
                                 <a href="{{ route($notifRoutePrefix . '.notifications.read', $notification->id) }}"
                                     class="fw-bold text-decoration-none"
-                                    style="font-size: 11px; color: {{ $isUnread ? '#ff6b00' : '#004f44' }}">
+                                    style="font-size: 11px; color: {{ $isUnread ? '#6D1A95' : '#475569' }}">
                                     View <i class="fa-solid fa-arrow-right fa-xs ms-1"></i>
                                 </a>
                             </div>
@@ -75,7 +75,7 @@
         </div>
         <div class="p-3 text-center bg-white border-top">
             <a href="{{ route($notifRoutePrefix . '.notifications.index') }}" class="small fw-bold text-decoration-none"
-                style="color: #004f44; font-size: 13px;">View All Notifications</a>
+                style="color: #6D1A95; font-size: 13px;">View All Notifications</a>
         </div>
     </div>
 </div>
@@ -114,7 +114,7 @@
     }
     
     .mark-read-dropdown:hover {
-        color: #ff6b00 !important;
+        color: #6D1A95 !important;
     }
 </style>
 

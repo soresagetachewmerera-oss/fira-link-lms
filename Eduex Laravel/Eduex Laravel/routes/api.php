@@ -32,6 +32,14 @@ Route::get('/settings', [SettingController::class, 'index']);
 Route::get('/settings/pages', [CustomPageController::class, 'index']);
 Route::get('/settings/pages/{slug}', [CustomPageController::class, 'show']);
 
+// Fira AI (Powered by Google Gemini AI) - Open with optional Sanctum token
+Route::get('/fira-ai/status', [AiChatController::class, 'status']);
+Route::get('/fira-ai', [AiChatController::class, 'index']);
+Route::post('/fira-ai/send', [AiChatController::class, 'sendMessage']);
+Route::match(['GET', 'POST'], '/fira-ai/test', [AiChatController::class, 'testConnection']);
+Route::get('/ai-chat', [AiChatController::class, 'index']);
+Route::post('/ai-chat/send', [AiChatController::class, 'sendMessage']);
+
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
@@ -66,8 +74,6 @@ Route::get('/tours/{id}', [TourController::class, 'show']);
 Route::post('/tours/{id}/book', [TourController::class, 'book']);
 Route::get('/certificates/download/signed/{id}', [CertificateController::class, 'downloadSigned'])->name('api.certificates.download.signed')->middleware('signed');
 
-// Subscription Plans (Public)
-Route::get('/subscription-plans', [\App\Http\Controllers\Api\SubscriptionController::class, 'plans']);
 
 // Certificate Verification (Public)
 Route::post('/verify-certificate', [ApiCertificateVerificationController::class, 'verify']);
@@ -126,11 +132,6 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('/user/payments', [App\Http\Controllers\Api\PaymentController::class, 'index']);
     Route::get('/user/payments/{id}/receipt', [App\Http\Controllers\Api\PaymentController::class, 'downloadReceipt']);
 
-    // Subscriptions
-    Route::get('/user/subscription', [\App\Http\Controllers\Api\SubscriptionController::class, 'userSubscription']);
-    Route::post('/subscriptions/checkout', [\App\Http\Controllers\Api\SubscriptionController::class, 'checkout']);
-    Route::post('/subscriptions/verify', [\App\Http\Controllers\Api\SubscriptionController::class, 'verify']);
-    Route::post('/subscriptions/enroll-course/{courseId}', [\App\Http\Controllers\Api\SubscriptionController::class, 'enrollCourse']);
 
     // Course Learning & Progress
     Route::get('/user/courses/{course}/learn', [StudentCourseController::class, 'show']);
@@ -152,10 +153,6 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/community/questions/{id}/answers', [CommunityController::class, 'storeAnswer']);
     Route::post('/community/answers/{id}/accept', [CommunityController::class, 'markAnswerAccepted']);
     Route::post('/community/vote/{type}/{id}', [CommunityController::class, 'vote']);
-
-    // AI Chat
-    Route::get('/ai-chat', [AiChatController::class, 'index']);
-    Route::post('/ai-chat/send', [AiChatController::class, 'sendMessage']);
 
     // Coffee Export Toolkit API
     Route::prefix('coffee-toolkit')->group(function () {
@@ -281,7 +278,6 @@ Route::prefix('instructor')->group(function () {
 
         // Earnings & Withdrawals
         Route::get('/earnings', [\App\Http\Controllers\Api\Instructor\EarningsController::class, 'index']);
-        Route::get('/subscription-sales', [\App\Http\Controllers\Api\Instructor\EarningsController::class, 'subscriptionSales']);
         Route::get('/withdrawals', [\App\Http\Controllers\Api\Instructor\EarningsController::class, 'withdrawals']);
         Route::post('/withdrawals', [\App\Http\Controllers\Api\Instructor\EarningsController::class, 'storeWithdrawal']);
 

@@ -148,6 +148,23 @@ class TourController extends Controller
 
         $unitPrice = (float)$tour->price;
         $totalAmount = $unitPrice * $participants;
+        $paymentMethod = $validated['payment_method'] ?? ($totalAmount > 0 ? 'chapa' : 'free');
+
+        // Strictly prevent booking paid tour as free
+        if ($totalAmount > 0 && $paymentMethod === 'free') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This tour requires payment of ' . number_format($totalAmount, 2) . ' ' . ($tour->currency ?? 'ETB') . '. Free reservations are not permitted for paid expeditions.',
+            ], 422);
+        }
+
+        if ($totalAmount > 0 && $paymentMethod !== 'chapa') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please select a valid payment method (e.g. Chapa) to book this paid expedition.',
+            ], 422);
+        }
+
         $reference = TourBooking::generateReference();
 
         DB::beginTransaction();
@@ -172,11 +189,44 @@ class TourController extends Controller
                 'booked_at' => now(),
             ]);
 
+            // Handle Free Tour
+            if ($totalAmount <= 0) {
+                DB::commit();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Free tour booking confirmed successfully!',
+                    'booking' => [
+                        'id' => $booking->id,
+                        'reference' => $booking->reference,
+                        'tour_title' => $tour->title,
+                        'participants' => $booking->participants,
+                        'total_amount' => $booking->total_amount,
+                        'currency' => $booking->currency,
+                        'status' => $booking->status,
+                        'payment_status' => $booking->payment_status,
+                    ],
+                ]);
+            }
+
+            // Create pending payment record for paid tour
+            $txRef = 'CHAPA_TOUR_API_' . $booking->id . '_' . time();
+            $payment = Payment::create([
+                'user_id' => $user?->id,
+                'tour_booking_id' => $booking->id,
+                'payment_method' => Payment::PAYMENT_METHOD_CHAPA,
+                'amount' => $totalAmount,
+                'status' => Payment::STATUS_PENDING,
+                'chapa_tx_ref' => $txRef,
+            ]);
+
+            $booking->update(['payment_id' => $payment->id]);
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Tour booking registered successfully!',
+                'message' => 'Tour reservation created. Payment required to confirm.',
+                'payment_required' => true,
+                'checkout_url' => route('tours.confirmation', ['reference' => $booking->reference]),
                 'booking' => [
                     'id' => $booking->id,
                     'reference' => $booking->reference,

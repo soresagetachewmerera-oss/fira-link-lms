@@ -1,0 +1,2729 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<!--<< Header Area >>-->
+
+<head>
+    <!-- ========== Meta Tags ========== -->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="mhquickdev">
+    <meta name="description" content="Join Fira Link to access premium online courses, expert instructors, and immersive learning experiences tailored to every stage of your education.">
+    <!-- ======== Page title ============ -->
+    <title>Fira Link | Fira Link Business Solution</title>
+
+    
+    <!--<< Favcion >>-->
+        <link rel="icon" type="image/png" href="/storage/branding/favicons/fira_link_favicon.png">
+    <!--<< Fonts >>-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!--<< CSS Styles >>-->
+            <link rel="stylesheet" href="http://127.0.0.1:8000/assets/front/css/bootstrap.min.css">
+        <link rel="stylesheet" href="http://127.0.0.1:8000/assets/front/css/all.min.css">
+        <link rel="stylesheet" href="http://127.0.0.1:8000/assets/front/css/animate.css">
+        <link rel="stylesheet" href="http://127.0.0.1:8000/assets/front/css/magnific-popup.css">
+        <link rel="stylesheet" href="http://127.0.0.1:8000/assets/front/css/meanmenu.css">
+        <link rel="stylesheet" href="http://127.0.0.1:8000/assets/front/css/swiper-bundle.min.css">
+        <link rel="stylesheet" href="http://127.0.0.1:8000/assets/front/css/nice-select.css">
+        <link rel="stylesheet" href="http://127.0.0.1:8000/assets/front/css/main.css">
+    
+    <link rel="stylesheet" href="http://127.0.0.1:8000/packages/devrabiul/laravel-toaster-magic/css/laravel-toaster-magic.css">
+
+        <style>
+    /* ==========================================================================
+       FIRA LINK LMS — PROFESSIONAL TYPOGRAPHY & DESIGN SYSTEM
+       ========================================================================== */
+    :root {
+        --theme: #6D1A95;
+        --theme-2: #000000;
+        --v2-primary: #6D1A95;
+        --v2-secondary: #000000;
+
+        /* Typography Font Tokens */
+        --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        --font-family-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+        /* Standardized Type Scale */
+        --text-xs: 0.75rem;     /* 12px */
+        --text-sm: 0.8125rem;   /* 13px */
+        --text-base: 0.9375rem; /* 15px */
+        --text-md: 1rem;        /* 16px */
+        --text-lg: 1.125rem;    /* 18px */
+        --text-xl: 1.25rem;     /* 20px */
+        --text-2xl: 1.5rem;     /* 24px */
+        --text-3xl: 1.75rem;    /* 28px */
+        --text-4xl: 2.125rem;   /* 34px */
+    }
+
+    /* Global Body Typography */
+    body, html, input, button, select, textarea {
+        font-family: var(--font-family-base) !important;
+        font-size: 15px;
+        line-height: 1.6;
+        color: #334155;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Professional Headings Hierarchy */
+    h1, .h1 {
+        font-family: var(--font-family-heading) !important;
+        font-size: 34px !important;
+        font-weight: 700 !important;
+        line-height: 1.25 !important;
+        letter-spacing: -0.025em !important;
+        color: #0f172a !important;
+    }
+
+    h2, .h2 {
+        font-family: var(--font-family-heading) !important;
+        font-size: 26px !important;
+        font-weight: 700 !important;
+        line-height: 1.3 !important;
+        letter-spacing: -0.02em !important;
+        color: #0f172a !important;
+    }
+
+    h3, .h3 {
+        font-family: var(--font-family-heading) !important;
+        font-size: 20px !important;
+        font-weight: 600 !important;
+        line-height: 1.35 !important;
+        letter-spacing: -0.015em !important;
+        color: #0f172a !important;
+    }
+
+    h4, .h4 {
+        font-family: var(--font-family-heading) !important;
+        font-size: 17px !important;
+        font-weight: 600 !important;
+        line-height: 1.4 !important;
+        letter-spacing: -0.01em !important;
+        color: #0f172a !important;
+    }
+
+    h5, .h5 {
+        font-family: var(--font-family-heading) !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        line-height: 1.4 !important;
+        color: #0f172a !important;
+    }
+
+    h6, .h6 {
+        font-family: var(--font-family-heading) !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        line-height: 1.4 !important;
+        color: #334155 !important;
+    }
+
+    /* Hero Section Refinement */
+    .mhq-hero-1 .mhq-hero-content h1,
+    .mhq-hero-2 .mhq-hero-content h1 {
+        font-size: 40px !important;
+        font-weight: 700 !important;
+        line-height: 1.2 !important;
+        letter-spacing: -0.03em !important;
+        color: #0f172a !important;
+        margin-top: 12px !important;
+        margin-bottom: 14px !important;
+    }
+
+    .mhq-hero-1 .mhq-hero-content span,
+    .mhq-hero-2 .mhq-hero-content span {
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.06em !important;
+        padding: 5px 14px !important;
+        border-radius: 20px !important;
+    }
+
+    .mhq-hero-1 .mhq-hero-content p,
+    .mhq-hero-2 .mhq-hero-content p {
+        font-size: 15.5px !important;
+        line-height: 1.65 !important;
+        color: #475569 !important;
+    }
+
+    /* Breadcrumbs & Page Headers */
+    .breadcrumb-wrapper .page-heading h1 {
+        font-size: 30px !important;
+        font-weight: 700 !important;
+        line-height: 1.25 !important;
+        letter-spacing: -0.02em !important;
+    }
+
+    .breadcrumb-wrapper .page-heading .breadcrumb-items {
+        margin-top: 14px !important;
+        gap: 8px !important;
+    }
+
+    .breadcrumb-wrapper .page-heading .breadcrumb-items li {
+        font-size: 13px !important;
+        font-weight: 500 !important;
+    }
+
+    /* Section Headings & Badges */
+    .section-title {
+        margin-bottom: 24px !important;
+    }
+
+    .section-title h6 {
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.06em !important;
+        padding: 5px 14px !important;
+        border-radius: 20px !important;
+        margin-bottom: 10px !important;
+        line-height: 1.2 !important;
+    }
+
+    .section-title h2 {
+        font-size: 26px !important;
+        font-weight: 700 !important;
+        line-height: 1.3 !important;
+        letter-spacing: -0.02em !important;
+    }
+
+    .section-title p {
+        font-size: 14.5px !important;
+        color: #64748b !important;
+        line-height: 1.6 !important;
+    }
+
+    /* Course Cards (Catalog & Homepage) — Compact & Balanced */
+    .mhq-courses-box-items {
+        border-radius: 14px !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03) !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        overflow: hidden !important;
+    }
+
+    .mhq-courses-box-items:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.06), 0 10px 20px -3px rgba(0,0,0,0.08) !important;
+    }
+
+    .mhq-courses-box-items .mhq-courses-content {
+        padding: 18px 20px !important;
+    }
+
+    .mhq-courses-box-items .mhq-courses-content h3,
+    .mhq-courses-box-items .mhq-courses-content h3 a {
+        font-size: 15.5px !important;
+        font-weight: 600 !important;
+        line-height: 1.4 !important;
+        letter-spacing: -0.01em !important;
+        color: #0f172a !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        min-height: 43px !important;
+        max-height: 43px !important;
+        margin-top: 6px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .mhq-courses-box-items .mhq-courses-content h3 a:hover {
+        color: var(--theme) !important;
+    }
+
+    .mhq-courses-box-items .mhq-courses-content p {
+        font-size: 13px !important;
+        line-height: 1.5 !important;
+        color: #64748b !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        min-height: 39px !important;
+        max-height: 39px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .mhq-courses-box-items .mhq-courses-content .post-date {
+        margin-top: 10px !important;
+        margin-bottom: 12px !important;
+        padding-bottom: 10px !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        gap: 16px !important;
+    }
+
+    .mhq-courses-box-items .mhq-courses-content .post-date li {
+        font-size: 12.5px !important;
+        color: #64748b !important;
+        font-weight: 500 !important;
+        gap: 6px !important;
+    }
+
+    .mhq-courses-box-items .mhq-courses-content .post-date li .icon {
+        width: 26px !important;
+        height: 26px !important;
+        line-height: 26px !important;
+        font-size: 11px !important;
+        background: #f8fafc !important;
+        color: var(--theme) !important;
+    }
+
+    /* Course Card Price & Instructor Row */
+    .mhq-courses-box-items .mhq-courses-content .client-info-area {
+        margin-top: 4px !important;
+        align-items: center !important;
+    }
+
+    .mhq-courses-box-items .mhq-courses-content .client-info-area .client-info {
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        color: #334155 !important;
+        gap: 8px !important;
+    }
+
+    .mhq-courses-box-items .mhq-courses-content .client-info-area .client-info .img img {
+        width: 28px !important;
+        height: 28px !important;
+        border-radius: 50% !important;
+    }
+
+    .mhq-courses-box-items .mhq-courses-content .client-info-area h2 {
+        font-size: 17px !important;
+        font-weight: 700 !important;
+        line-height: 1.2 !important;
+        color: var(--theme) !important;
+        margin: 0 !important;
+        letter-spacing: -0.01em !important;
+    }
+
+    .mhq-courses-image .post-box {
+        font-size: 11px !important;
+        padding: 4px 10px !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        letter-spacing: 0.03em !important;
+        text-transform: uppercase !important;
+    }
+
+    /* Course Details Page Typography */
+    .mhq-courses-details-area .mhq-courses-details-wrapper .mhq-left-content h3 {
+        font-size: 24px !important;
+        font-weight: 700 !important;
+        line-height: 1.35 !important;
+        letter-spacing: -0.02em !important;
+        color: #0f172a !important;
+        margin-top: 14px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .mhq-courses-details-area .mhq-courses-details-wrapper .mhq-left-content .list-date {
+        gap: 16px !important;
+    }
+
+    .mhq-courses-details-area .mhq-courses-details-wrapper .mhq-left-content .list-date li {
+        font-size: 13px !important;
+        font-weight: 500 !important;
+    }
+
+    .mhq-courses-details-area .mhq-courses-details-wrapper .mhq-left-content .list-date li h6 {
+        font-size: 12px !important;
+        padding: 4px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+    }
+
+    .mhq-courses-details-area .mhq-courses-details-wrapper .courses-details-content .nav {
+        margin-bottom: 30px !important;
+        padding: 6px 16px !important;
+        gap: 32px !important;
+        border-radius: 10px !important;
+    }
+
+    .mhq-courses-details-area .mhq-courses-details-wrapper .courses-details-content .nav .nav-item .nav-link {
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        padding: 8px 12px !important;
+    }
+
+    .mhq-courses-details-area .mhq-courses-details-wrapper .courses-details-content .description-content h3,
+    .mhq-courses-details-area .mhq-courses-details-wrapper .courses-details-content .course-curriculum-items h3 {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.015em !important;
+        margin-bottom: 16px !important;
+        color: #0f172a !important;
+    }
+
+    .mhq-courses-details-area .mhq-courses-details-wrapper .courses-details-content .description-content p,
+    .mhq-courses-details-area .mhq-courses-details-wrapper .courses-details-content .description-content .list-item li {
+        font-size: 14.5px !important;
+        line-height: 1.65 !important;
+        color: #334155 !important;
+    }
+
+    /* Course Sidebar Widget & Pricing */
+    .course-details-info li,
+    .widget-course-info li {
+        font-size: 13.5px !important;
+        padding: 10px 0 !important;
+    }
+
+    .theme-btn.bg-color-4 {
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        padding: 10px 18px !important;
+        border-radius: 8px !important;
+        letter-spacing: -0.01em !important;
+    }
+
+    /* Buttons & Interactive Elements */
+    .theme-btn, .btn-primary, .btn-secondary {
+        font-size: 13.5px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.01em !important;
+        border-radius: 8px !important;
+    }
+
+    .theme-btn {
+        padding: 12px 24px !important;
+    }
+
+    .badge {
+        font-size: 11.5px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.02em !important;
+        padding: 4px 8px !important;
+    }
+
+    /* Dashboard & Admin Typography Balancing */
+    .card-title {
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        color: #0f172a !important;
+    }
+
+    .card-header h4 {
+        font-size: 16px !important;
+        font-weight: 600 !important;
+    }
+
+    .table th {
+        font-size: 11.5px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.04em !important;
+        color: #64748b !important;
+    }
+
+    .table td {
+        font-size: 13.5px !important;
+        color: #334155 !important;
+    }
+
+    /* Forms & Inputs */
+    .form-label, label {
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        color: #334155 !important;
+        margin-bottom: 6px !important;
+    }
+
+    .form-control, .form-select {
+        font-size: 14px !important;
+        line-height: 1.5 !important;
+        border-radius: 8px !important;
+    }
+
+    /* Responsive Type Adjustments */
+    @media (max-width: 991px) {
+        h1, .h1 { font-size: 28px !important; }
+        h2, .h2 { font-size: 22px !important; }
+        .mhq-hero-1 .mhq-hero-content h1,
+        .mhq-hero-2 .mhq-hero-content h1 { font-size: 30px !important; }
+        .breadcrumb-wrapper .page-heading h1 { font-size: 24px !important; }
+    }
+
+    @media (max-width: 575px) {
+        h1, .h1 { font-size: 24px !important; }
+        h2, .h2 { font-size: 20px !important; }
+        .mhq-hero-1 .mhq-hero-content h1,
+        .mhq-hero-2 .mhq-hero-content h1 { font-size: 24px !important; }
+        .breadcrumb-wrapper .page-heading h1 { font-size: 20px !important; }
+        .mhq-courses-box-items .mhq-courses-content h3,
+        .mhq-courses-box-items .mhq-courses-content h3 a { font-size: 14.5px !important; }
+        .mhq-courses-box-items .mhq-courses-content .client-info-area h2 { font-size: 16px !important; }
+    }
+
+    /* Admin & Primary Overrides */
+    .bg-primary, .bg-theme { background-color: var(--theme) !important; }
+    .text-primary, .text-theme, .text-primary-all *, .text-primary-all *:before, .text-primary-all *:after { color: var(--theme) !important; }
+    .border-theme, .border-primary { border-color: var(--theme) !important; }
+    .btn-primary { background-color: var(--theme) !important; border-color: var(--theme) !important; color: #ffffff !important; }
+    .btn-primary:hover, .btn-primary:focus, .btn-primary:active { background-color: var(--theme-2) !important; border-color: var(--theme-2) !important; color: #ffffff !important; }
+    .btn-outline-primary { color: var(--theme) !important; border-color: var(--theme) !important; background: transparent !important; }
+    .btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active { background-color: var(--theme) !important; border-color: var(--theme) !important; color: #ffffff !important; }
+    
+    /* Global Theme Button Standardization */
+    .theme-btn {
+        background-color: var(--theme) !important;
+        color: #ffffff !important;
+        border: 1px solid var(--theme) !important;
+        transition: all 0.25s ease !important;
+    }
+    .theme-btn:hover {
+        background-color: var(--theme-2) !important;
+        border-color: var(--theme-2) !important;
+        color: #ffffff !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(109, 26, 149, 0.25) !important;
+    }
+    .theme-btn i, .theme-btn .icon {
+        background-color: #ffffff !important;
+        color: var(--theme) !important;
+    }
+    .theme-btn.style-2 {
+        background: transparent !important;
+        border: 2px solid var(--theme) !important;
+        color: var(--theme) !important;
+    }
+    .theme-btn.style-2:hover {
+        background: var(--theme) !important;
+        border-color: var(--theme) !important;
+        color: #ffffff !important;
+    }
+    .theme-btn.style-2:hover i {
+        background-color: #ffffff !important;
+        color: var(--theme) !important;
+    }
+
+    /* Logo Proportions & Aspect Ratio Standardization */
+    .header-logo, .footer-logo, .offcanvas__logo {
+        display: flex !important;
+        align-items: center !important;
+    }
+    .header-1 .logo-shape {
+        display: none !important;
+    }
+    .header-1 .header-logo {
+        display: flex !important;
+        align-items: center !important;
+        height: 100% !important;
+    }
+    .header-logo img,
+    .header-1 .header-logo img,
+    .offcanvas__logo img {
+        height: 44px !important;
+        max-height: 44px !important;
+        width: auto !important;
+        max-width: 180px !important;
+        object-fit: contain !important;
+        margin: 0 !important;
+    }
+    .footer-logo img {
+        height: 42px !important;
+        max-height: 42px !important;
+        width: auto !important;
+        max-width: 170px !important;
+        object-fit: contain !important;
+    }
+    .login-logo img,
+    .register-logo img,
+    .auth-logo img {
+        height: 56px !important;
+        max-height: 56px !important;
+        width: auto !important;
+        max-width: 200px !important;
+        object-fit: contain !important;
+        display: block !important;
+        margin: 0 auto 16px auto !important;
+    }
+
+    /* Form Inputs Focus */
+    .form-control:focus, .form-select:focus {
+        border-color: var(--theme) !important;
+        box-shadow: 0 0 0 3px rgba(109, 26, 149, 0.15) !important;
+        outline: none !important;
+    }
+
+    /* Navigation & Tabs Active States */
+    .nav-pills .nav-item .nav-link.active,
+    .nav-pills .nav-link.active {
+        background-color: var(--theme) !important;
+        color: #ffffff !important;
+    }
+    .page-item.active .page-link {
+        background-color: var(--theme) !important;
+        border-color: var(--theme) !important;
+        color: #ffffff !important;
+    }
+
+    /* Student & Instructor Dashboard Nav */
+    .dashboard-sidebar .dashboard-nav li a.active,
+    .dashboard-sidebar .dashboard-nav li a:hover {
+        color: var(--theme) !important;
+    }
+    .dashboard-sidebar .dashboard-nav li a.active {
+        background-color: #FAF5FF !important;
+        border-left: 3px solid var(--theme) !important;
+        font-weight: 700 !important;
+    }
+    .dashboard-sidebar .dashboard-profile .status-badge {
+        background: #FAF5FF !important;
+        color: var(--theme) !important;
+        border: 1px solid rgba(109, 26, 149, 0.2) !important;
+        border-radius: 20px !important;
+        font-weight: 600 !important;
+        font-size: 11px !important;
+        padding: 3px 10px !important;
+    }
+
+    /* Badges & Light Purple Highlights */
+    .bg-theme-light {
+        background-color: #FAF5FF !important;
+        color: var(--theme) !important;
+    }
+
+    /* Admin Sidebar Active States */
+    .main-sidebar .sidebar-menu li.active a {
+        color: var(--theme) !important;
+    }
+    .main-sidebar .sidebar-menu li.active a i {
+        color: var(--theme) !important;
+    }
+    .main-sidebar .sidebar-menu li ul.dropdown-menu li.active > a {
+        color: var(--theme) !important;
+    }
+    .main-sidebar .sidebar-menu li a:hover {
+        color: var(--theme) !important;
+    }
+
+    /* Logo Sizing & Aspect Ratio Guards */
+    .header-logo img,
+    .header-logo2 img,
+    .footer-logo img,
+    .logo img {
+        max-height: 44px !important;
+        width: auto !important;
+        max-width: 100% !important;
+        object-fit: contain !important;
+        display: inline-block;
+    }
+</style>
+
+    
+    </head>
+
+<body>
+    <!-- GT Back To Top Start -->
+    <button id="back-top" class="back-to-top show">
+        <i class="fa-regular fa-arrow-up"></i>
+    </button>
+
+    <!-- GT MouseCursor Start -->
+    <div class="mouseCursor cursor-outer"></div>
+    <div class="mouseCursor cursor-inner"></div>
+
+            <!-- Offcanvas Area Start -->
+<div class="fix-area">
+    <div class="offcanvas__info">
+        <div class="offcanvas__wrapper">
+            <div class="offcanvas__content">
+                <div class="offcanvas__top mb-5 d-flex justify-content-between align-items-center">
+                    <div class="offcanvas__logo">
+                        <a href="http://127.0.0.1:8000">
+                            <img src="/storage/branding/logos/fira_link_logo_dark.png" alt="Fira Link Business Solution logo">
+                        </a>
+                    </div>
+                    <div class="offcanvas__close">
+                        <button>
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <h3 class="offcanvas-title">Welcome!</h3>
+                <p>Art of Excellence!!</p>
+
+                <nav class="mobile-menu fix mt-3">
+                    <ul class="d-none" data-fallback-menu>
+                                                    <li><a href="http://127.0.0.1:8000">Home</a></li>
+                                                    <li><a href="http://127.0.0.1:8000/courses">Courses</a></li>
+                                                    <li><a href="http://127.0.0.1:8000/events">Events</a></li>
+                                                    <li><a href="http://127.0.0.1:8000/about">About Us</a></li>
+                                                    <li><a href="http://127.0.0.1:8000/blog">Blog</a></li>
+                                                    <li><a href="http://127.0.0.1:8000/contact">Contact Us</a></li>
+                                            </ul>
+                </nav>
+                
+                <div class="offcanvas__contact">
+                    <h3>Information</h3>
+                    <ul class="contact-list">
+                                                    <li><span>Address:</span> Bole Sub-City, Addis Ababa, Ethiopia</li>
+                                                                            <li><span>Call Us:</span> <a
+                                    href="tel:+251911123456">+251 911 123456</a>
+                            </li>
+                                                                            <li><span>Email:</span> <a
+                                    href="mailto:info@firalink.com">info@firalink.com</a></li>
+                                            </ul>
+                </div>
+                                    <a href="http://127.0.0.1:8000/login" class="theme-btn">
+                        Login
+                        <i class="fa-solid fa-arrow-up-right"></i>
+                    </a>
+                            </div>
+        </div>
+    </div>
+</div>
+<div class="offcanvas__overlay"></div>
+        <!-- Header Top Section Start -->
+<div class="header-top-section">
+    <div class="container-fluid">
+        <div class="header-top-wrapper">
+            <ul>
+                                    <li>
+                        <i class="fa-solid fa-phone-plus"></i>
+                        <a href="tel:+251911123456">+251 911 123456</a>
+                    </li>
+                
+                                    <li>
+                        <i class="fa-solid fa-envelopes"></i>
+                        <a href="mailto:info@firalink.com">info@firalink.com</a>
+                    </li>
+                
+                                    <li>
+                        <i class="fa-solid fa-location-dot"></i>
+                        Bole Sub-City, Addis Ababa, Ethiopia
+                    </li>
+                            </ul>
+
+            <div class="header-top-right d-flex align-items-center">
+                            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Header Section Start -->
+        <header id="header-sticky" class="header-1">
+            <div class="container-fluid">
+                <div class="mega-menu-wrapper">
+                    <div class="header-main">
+                        <div class="logo">
+                                                        <a href="http://127.0.0.1:8000" class="header-logo">
+                                <img src="/storage/branding/logos/fira_link_logo_dark.png"
+                                    alt="Fira Link Business Solution logo">
+                            </a>
+                            <a href="http://127.0.0.1:8000" class="header-logo2">
+                                <img src="/storage/branding/logos/fira_link_logo.png"
+                                    alt="Fira Link Business Solution logo">
+                            </a>
+                        </div>
+                        <div class="header-right-items">
+                            <div class="mean__menu-wrapper">
+                                <div class="main-menu">
+                                    <nav id="mobile-menu">
+                                        <ul>
+                                                                                                                                        <li class="" data-nav-index="0-0">
+        <a href="http://127.0.0.1:8000" target="_self" class="border-none">
+            Home
+                    </a>
+            </li>
+        <li class="" data-nav-index="0-1">
+        <a href="http://127.0.0.1:8000/courses" target="_self" class="border-none">
+            Courses
+                    </a>
+            </li>
+        <li class="" data-nav-index="0-2">
+        <a href="http://127.0.0.1:8000/events" target="_self" class="border-none">
+            Events
+                    </a>
+            </li>
+        <li class="" data-nav-index="0-3">
+        <a href="http://127.0.0.1:8000/about" target="_self" class="border-none">
+            About Us
+                    </a>
+            </li>
+        <li class="" data-nav-index="0-4">
+        <a href="http://127.0.0.1:8000/blog" target="_self" class="border-none">
+            Blog
+                    </a>
+            </li>
+        <li class="" data-nav-index="0-5">
+        <a href="http://127.0.0.1:8000/contact" target="_self" class="border-none">
+            Contact Us
+                    </a>
+            </li>
+                                                                                    </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                            <div class="header-right d-flex justify-content-end align-items-center">
+                                <a href="#" class="main-header__search search-toggler">
+                                    <i class="fa-regular fa-magnifying-glass"></i>
+                                </a>
+
+                                                                    <a href="http://127.0.0.1:8000/login" class="theme-btn">
+                                        Login
+                                        <i class="fa-solid fa-arrow-up-right"></i>
+                                    </a>
+                                
+                                <div class="header__hamburger d-xl-none my-auto">
+                                    <div class="sidebar__toggle">
+                                        <i class="fas fa-bars"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Search Section Start -->
+<div class="search-popup">
+    <div class="search-popup__overlay search-toggler"></div>
+    <div class="search-popup__content">
+        <form role="search" method="get" class="search-popup__form" action="http://127.0.0.1:8000/courses">
+            <input type="text" id="search" name="search" placeholder="Search Here...">
+            <button type="submit" aria-label="search submit" class="search-btn">
+                <span><i class="fa-regular fa-magnifying-glass"></i></span>
+            </button>
+        </form>
+    </div>
+</div>
+    
+    
+    <main>
+        <!-- Hero Section Start -->
+    <section class="mhq-hero-section fix mhq-hero-1 bg-cover"
+        style="background-image: url('http://127.0.0.1:8000/assets/front/img/home-1/hero/hero-bg.jpg');">
+    <div class="hero-shape-1 float-bob-x">
+        <img src="http://127.0.0.1:8000/assets/front/img/home-1/hero/shape-01.png" alt="img">
+    </div>
+    <div class="hero-shape-2 float-bob-y">
+        <img src="http://127.0.0.1:8000/assets/front/img/home-1/hero/shape-02.png" alt="img">
+    </div>
+    <div class="hero-shape-3 float-bob-y">
+        <img src="http://127.0.0.1:8000/assets/front/img/home-1/hero/shape-03.png" alt="img">
+    </div>
+    <div class="hero-shape-4 float-bob-x">
+        <img src="http://127.0.0.1:8000/assets/front/img/home-1/hero/shape-04.png" alt="img">
+    </div>
+    <div class="hero-shape-5 float-bob-y">
+        <img src="http://127.0.0.1:8000/assets/front/img/home-1/hero/shape-05.png" alt="img">
+    </div>
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-6">
+                <div class="mhq-hero-content">
+                    <span class="wow fadeInUp">Learn without limits</span>
+                    <h1 class="wow fadeInUp" data-wow-delay=".2s">Skill up with courses designed by experts</h1>
+                    <p class="wow fadeInUp" data-wow-delay=".4s">
+                        Build a learning plan that fits your day-to-day life. Explore immersive classes, guided projects, and live sessions to keep your skills sharp.
+                    </p>
+                    <a href="http://127.0.0.1:8000/courses" class="theme-btn wow fadeInUp" data-wow-delay=".6s">
+                        Explore Courses
+                        <i class="fa-solid fa-arrow-up-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="mhq-right-items">
+                    <div class="client-counter-box float-bob-x">
+                        <div class="content">
+                            <h3><span class="count">3</span>+</h3>
+                            <p>Students</p>
+                        </div>
+                        <div class="image">
+                            <img src="http://127.0.0.1:8000/assets/front/img/home-1/hero/client-img.png" alt="img">
+                        </div>
+                    </div>
+                    <div class="counter-box float-bob-y">
+                        <h3><span class="count">5</span>+</h3>
+                        <p>Courses Published</p>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-5 col-sm-5 col-md-5 col-6">
+                            <div class="mhq-hero-image style-2">
+                                    <img src="http://127.0.0.1:8000/assets/front/img/home-1/hero/hero-01.png" alt="img"
+                                        class="wow img-custom-anim-left">
+                            </div>
+                        </div>
+                        <div class="col-lg-7 col-sm-7 col-md-7 col-6">
+                            <div class="mhq-hero-imag-2">
+                                    <img src="http://127.0.0.1:8000/assets/front/img/home-1/hero/hero-02.png" alt="img"
+                                        class="wow img-custom-anim-right">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section Start -->
+<section class="mhq-about-section section-padding">
+    <div class="container">
+        <div class="mhq-about-wrapper">
+            <div class="row align-items-center">
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay=".3s">
+                    <div class="mhq-about-image">
+                        <img src="http://127.0.0.1:8000/assets/front/img/home-1/about/about-01.png" alt="img">
+                        <div class="mhq-about-image-2 float-bob-x">
+                            <img src="http://127.0.0.1:8000/assets/front/img/home-1/about/about-02.png" alt="img">
+                        </div>
+                        <div class="mhq-about-image-3 float-bob-y">
+                            <img src="http://127.0.0.1:8000/assets/front/img/home-1/about/about-03.png" alt="img">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="mhq-about-content">
+                        <div class="section-title mb-0">
+                                <h6 class="wow fadeInUp">About Fira Link Academy</h6>
+                            <h2 class="wow fadeInUp" data-wow-delay=".2s">
+                                    Empowering Ethiopian Businesses for Global Trade &amp; Export Mastery
+                            </h2>
+                        </div>
+                        <p class="about-text wow fadeInUp" data-wow-delay=".3s">
+                                Fira Link Business Solution is Ethiopia’s premier import-export training and business development hub. We train entrepreneurs, agricultural exporters, and business leaders with world-class skills, compliance mastery, and international market access.
+                        </p>
+                        <div class="mhq-counter-area">
+                            <div class="mhq-counter-item wow fadeInUp" data-wow-delay=".4s">
+                                <h2><span class="count">5</span>+</h2>
+                                <p>Courses Available</p>
+                            </div>
+                            <div class="mhq-counter-item wow fadeInUp" data-wow-delay=".5s">
+                                <h2><span class="count">6</span>+</h2>
+                                <p>Enrollments Completed</p>
+                            </div>
+                            <div class="mhq-counter-item border-none wow fadeInUp" data-wow-delay=".6s">
+                                <h2><span class="count">1</span>+</h2>
+                                <p>Expert Instructors</p>
+                            </div>
+                        </div>
+                        <div class="mhq-about-author wow fadeInUp" data-wow-delay=".9s">
+                            <div class="mhq-about-button">
+                                <a href="http://127.0.0.1:8000/courses" class="theme-btn">
+                                    Explore Programs
+                                    <i class="fa-solid fa-arrow-up-right"></i>
+                                </a>
+                            </div>
+                            <div class="mhq-author-image">
+                                <img src="http://127.0.0.1:8000/assets/front/img/home-1/about/client-01.png" alt="author-img">
+                                <div class="content">
+                                    <h6>Fira Link Leadership</h6>
+                                    <p>Managing Director &amp; Global Trade Specialist</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Top Category Section Start -->
+    <section class="mhq-top-category-section section-padding bg-cover"
+        style="background-image: url('http://127.0.0.1:8000/assets/front/img/home-1/category/category-bg.jpg');">
+    <div class="category-shape-1 float-bob-x">
+        <img src="http://127.0.0.1:8000/assets/front/img/home-1/category/shape-01.png" alt="img">
+    </div>
+    <div class="container">
+        <div class="section-title text-center">
+            <h6 class="wow fadeInUp style-2">Trade Categories</h6>
+            <h2 class="wow fadeInUp text-white" data-wow-delay=".2s">Practical Import-Export &amp; Trade Masterclasses</h2>
+        </div>
+        <div class="swiper mhq-top-category-slider">
+            <div class="swiper-wrapper">
+                                    <div class="swiper-slide">
+                        <div class="mhq-category-box-items">
+                            <div class="mhq-icon">
+                                    <span class="mhq-category-icon"><i class="fas fa-ship"></i></span>
+                            </div>
+                            <div class="mhq-content">
+                                <h3>Import &amp; Export</h3>
+                                <p>Comprehensive masterclasses covering global commodity trade, agricultural supply chains, Ethiopian coffee sour...</p>
+                                    <a href="http://127.0.0.1:8000/courses?category=import-export"
+                                        class="theme-btn">
+                                    05 Trade Training
+                                    <i class="fa-solid fa-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="swiper-slide">
+                        <div class="mhq-category-box-items">
+                            <div class="mhq-icon">
+                                    <span class="mhq-category-icon"><i class="fas fa-code"></i></span>
+                            </div>
+                            <div class="mhq-content">
+                                <h3>Development</h3>
+                                <p>Coding, web, and software engineering programs for all skill levels.</p>
+                                    <a href="http://127.0.0.1:8000/courses?category=development"
+                                        class="theme-btn">
+                                    00 Trade Training
+                                    <i class="fa-solid fa-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="swiper-slide">
+                        <div class="mhq-category-box-items">
+                            <div class="mhq-icon">
+                                    <span class="mhq-category-icon"><i class="fas fa-pencil-ruler"></i></span>
+                            </div>
+                            <div class="mhq-content">
+                                <h3>Design</h3>
+                                <p>UI/UX, graphic design, and creative direction courses.</p>
+                                    <a href="http://127.0.0.1:8000/courses?category=design"
+                                        class="theme-btn">
+                                    00 Trade Training
+                                    <i class="fa-solid fa-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="swiper-slide">
+                        <div class="mhq-category-box-items">
+                            <div class="mhq-icon">
+                                    <span class="mhq-category-icon"><i class="fas fa-briefcase"></i></span>
+                            </div>
+                            <div class="mhq-content">
+                                <h3>Business</h3>
+                                <p>Entrepreneurship, marketing, and leadership training.</p>
+                                    <a href="http://127.0.0.1:8000/courses?category=business"
+                                        class="theme-btn">
+                                    00 Trade Training
+                                    <i class="fa-solid fa-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                    <div class="swiper-slide">
+                        <div class="mhq-category-box-items">
+                            <div class="mhq-icon">
+                                    <span class="mhq-category-icon"><i class="fas fa-chalkboard-teacher"></i></span>
+                            </div>
+                            <div class="mhq-content">
+                                <h3>Education &amp; Teaching</h3>
+                                <p>Instructional design, pedagogy, and classroom strategies.</p>
+                                    <a href="http://127.0.0.1:8000/courses?category=education-teaching"
+                                        class="theme-btn">
+                                    00 Trade Training
+                                    <i class="fa-solid fa-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                            </div>
+            <div class="array-button mt-5">
+                <button class="array-prev"><i class="fa-solid fa-chevron-left"></i></button>
+                <button class="array-next"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Courses Section Start -->
+<section class="mhq-courses-section section-padding fix">
+    <div class="container">
+        <div class="section-title-area align-items-end">
+            <div class="section-title">
+                <h6 class="wow fadeInUp">Featured Trade Training</h6>
+                <h2 class="wow fadeInUp" data-wow-delay=".2s">Explore Trade Masterclasses</h2>
+            </div>
+                <a href="http://127.0.0.1:8000/courses" class="theme-btn wow fadeInUp" data-wow-delay=".4s">
+                    Explore All Trade Training
+                    <i class="fa-solid fa-arrow-up-right"></i>
+                </a>
+        </div>
+            <div class="row g-4">
+                                                        <div class="col-xl-4 col-lg-6 col-md-6 wow fadeInUp" data-wow-delay="0.0s">
+                        <div class="mhq-courses-box-items">
+                            <div class="mhq-courses-image">
+                                <img src="/storage/courses/images/course-1-ethiopian-coffee-sourcing.jpg" alt="Mastering Ethiopian Coffee Sourcing, Origins &amp; Supply Chain Excellence">
+                                <span class="post-box">
+                                    Import &amp; Export
+                                </span>
+                                                            </div>
+                            <div class="mhq-courses-content">
+                                                                <h3><a href="http://127.0.0.1:8000/courses/1">Mastering Ethiopian Coffee Sourcing, Origins &amp; Supply Chain Excellence</a></h3>
+                                <p>Welcome to the definitive masterclass on Ethiopian Coffee Sourcing and Supply Chain Engineering.
+Ethiopia is t...</p>
+                                <ul class="post-date">
+                                    <li>
+                                        <div class="icon">
+                                            <i class="fa-regular fa-user"></i>
+                                        </div>
+                                        2 Students
+                                    </li>
+                                    <li>
+                                        <div class="icon">
+                                            <i class="fa-regular fa-clock"></i>
+                                        </div>
+                                        Beginner
+                                    </li>
+                                </ul>
+                                <div class="client-info-area">
+                                    <div class="client-info">
+                                        <div class="img">
+                                            <img src="http://127.0.0.1:8000/assets/front/img/home-1/courses/client-01.png"
+                                                alt="Dawit Alemu (Export Specialist)">
+                                        </div>
+                                        Dawit Alemu (Export Specialist)
+                                    </div>
+                                    <h2>Free
+                                    </h2>
+                                </div>
+                                <a href="http://127.0.0.1:8000/courses/1" class="theme-btn">
+                                    View Course
+                                    <i class="fa-solid fa-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                                        <div class="col-xl-4 col-lg-6 col-md-6 wow fadeInUp" data-wow-delay="0.2s">
+                        <div class="mhq-courses-box-items">
+                            <div class="mhq-courses-image">
+                                <img src="/storage/courses/images/course-2-green-coffee-grading-cupping.jpg" alt="Green Coffee Quality Grading, Cupping Protocols &amp; Specialty Certification (SCA &amp; Q-Grader Standards)">
+                                <span class="post-box">
+                                    Import &amp; Export
+                                </span>
+                                                            </div>
+                            <div class="mhq-courses-content">
+                                                                <h3><a href="http://127.0.0.1:8000/courses/2">Green Coffee Quality Grading, Cupping Protocols &amp; Specialty Certification (SCA &amp; Q-Grader Standards)</a></h3>
+                                <p>Welcome to the premier professional masterclass on Green Coffee Physical Grading, Sensory Cupping Protocols, a...</p>
+                                <ul class="post-date">
+                                    <li>
+                                        <div class="icon">
+                                            <i class="fa-regular fa-user"></i>
+                                        </div>
+                                        1 Students
+                                    </li>
+                                    <li>
+                                        <div class="icon">
+                                            <i class="fa-regular fa-clock"></i>
+                                        </div>
+                                        Intermediate
+                                    </li>
+                                </ul>
+                                <div class="client-info-area">
+                                    <div class="client-info">
+                                        <div class="img">
+                                            <img src="http://127.0.0.1:8000/assets/front/img/home-1/courses/client-01.png"
+                                                alt="Dawit Alemu (Export Specialist)">
+                                        </div>
+                                        Dawit Alemu (Export Specialist)
+                                    </div>
+                                    <h2>ETB 950.00
+                                    </h2>
+                                </div>
+                                <a href="http://127.0.0.1:8000/courses/2" class="theme-btn">
+                                    View Course
+                                    <i class="fa-solid fa-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                                        <div class="col-xl-4 col-lg-6 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
+                        <div class="mhq-courses-box-items">
+                            <div class="mhq-courses-image">
+                                <img src="/storage/courses/images/course-3-coffee-export-documentation.jpg" alt="Coffee Export Documentation, Customs Clearance &amp; International Regulatory Compliance">
+                                <span class="post-box">
+                                    Import &amp; Export
+                                </span>
+                                                            </div>
+                            <div class="mhq-courses-content">
+                                                                <h3><a href="http://127.0.0.1:8000/courses/3">Coffee Export Documentation, Customs Clearance &amp; International Regulatory Compliance</a></h3>
+                                <p>The most comprehensive, practical operational course on Ethiopian Coffee Export Documentation, Government Regu...</p>
+                                <ul class="post-date">
+                                    <li>
+                                        <div class="icon">
+                                            <i class="fa-regular fa-user"></i>
+                                        </div>
+                                        1 Students
+                                    </li>
+                                    <li>
+                                        <div class="icon">
+                                            <i class="fa-regular fa-clock"></i>
+                                        </div>
+                                        Advanced
+                                    </li>
+                                </ul>
+                                <div class="client-info-area">
+                                    <div class="client-info">
+                                        <div class="img">
+                                            <img src="http://127.0.0.1:8000/assets/front/img/home-1/courses/client-01.png"
+                                                alt="Dawit Alemu (Export Specialist)">
+                                        </div>
+                                        Dawit Alemu (Export Specialist)
+                                    </div>
+                                    <h2>ETB 1,400.00
+                                    </h2>
+                                </div>
+                                <a href="http://127.0.0.1:8000/courses/3" class="theme-btn">
+                                    View Course
+                                    <i class="fa-solid fa-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                                        <div class="col-xl-4 col-lg-6 col-md-6 wow fadeInUp" data-wow-delay="0.0s">
+                        <div class="mhq-courses-box-items">
+                            <div class="mhq-courses-image">
+                                <img src="/storage/courses/images/course-4-international-logistics-freight.jpg" alt="International Logistics, Sea Freight, Incoterms &amp; Marine Insurance for Coffee Exporters">
+                                <span class="post-box">
+                                    Import &amp; Export
+                                </span>
+                                                            </div>
+                            <div class="mhq-courses-content">
+                                                                <h3><a href="http://127.0.0.1:8000/courses/4">International Logistics, Sea Freight, Incoterms &amp; Marine Insurance for Coffee Exporters</a></h3>
+                                <p>A complete, highly practical masterclass on international multimodal logistics, ocean container freight, Incot...</p>
+                                <ul class="post-date">
+                                    <li>
+                                        <div class="icon">
+                                            <i class="fa-regular fa-user"></i>
+                                        </div>
+                                        2 Students
+                                    </li>
+                                    <li>
+                                        <div class="icon">
+                                            <i class="fa-regular fa-clock"></i>
+                                        </div>
+                                        Intermediate
+                                    </li>
+                                </ul>
+                                <div class="client-info-area">
+                                    <div class="client-info">
+                                        <div class="img">
+                                            <img src="http://127.0.0.1:8000/assets/front/img/home-1/courses/client-01.png"
+                                                alt="Dawit Alemu (Export Specialist)">
+                                        </div>
+                                        Dawit Alemu (Export Specialist)
+                                    </div>
+                                    <h2>Free
+                                    </h2>
+                                </div>
+                                <a href="http://127.0.0.1:8000/courses/4" class="theme-btn">
+                                    View Course
+                                    <i class="fa-solid fa-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                                        <div class="col-xl-4 col-lg-6 col-md-6 wow fadeInUp" data-wow-delay="0.2s">
+                        <div class="mhq-courses-box-items">
+                            <div class="mhq-courses-image">
+                                <img src="/storage/courses/images/course-5-global-coffee-market-buyers.jpg" alt="Global Coffee Market Development: Finding International Buyers, Pricing &amp; Payment Risk Management">
+                                <span class="post-box">
+                                    Import &amp; Export
+                                </span>
+                                                            </div>
+                            <div class="mhq-courses-content">
+                                                                <h3><a href="http://127.0.0.1:8000/courses/5">Global Coffee Market Development: Finding International Buyers, Pricing &amp; Payment Risk Management</a></h3>
+                                <p>The premier executive masterclass on international green coffee sales, buyer acquisition, global market expans...</p>
+                                <ul class="post-date">
+                                    <li>
+                                        <div class="icon">
+                                            <i class="fa-regular fa-user"></i>
+                                        </div>
+                                        0 Students
+                                    </li>
+                                    <li>
+                                        <div class="icon">
+                                            <i class="fa-regular fa-clock"></i>
+                                        </div>
+                                        Advanced
+                                    </li>
+                                </ul>
+                                <div class="client-info-area">
+                                    <div class="client-info">
+                                        <div class="img">
+                                            <img src="http://127.0.0.1:8000/assets/front/img/home-1/courses/client-01.png"
+                                                alt="Dawit Alemu (Export Specialist)">
+                                        </div>
+                                        Dawit Alemu (Export Specialist)
+                                    </div>
+                                    <h2>ETB 1,650.00
+                                    </h2>
+                                </div>
+                                <a href="http://127.0.0.1:8000/courses/5" class="theme-btn">
+                                    View Course
+                                    <i class="fa-solid fa-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+    </div>
+</section>
+
+<!-- Bundles Section Start -->
+<section class="mhq-courses-section section-padding fix bg-light">
+    <div class="container">
+        <div class="section-title-area align-items-end">
+            <div class="section-title">
+                <h6 class="wow fadeInUp">Exclusive Bundles</h6>
+                <h2 class="wow fadeInUp" data-wow-delay=".2s">Unlock Complete Learning Paths</h2>
+            </div>
+            <div class="wow fadeInUp" data-wow-delay=".3s">
+                <a href="http://127.0.0.1:8000/bundles" class="theme-btn">
+                    View All Bundles <i class="fa-solid fa-arrow-up-right"></i>
+                </a>
+            </div>
+        </div>
+        <div class="row g-4">
+                           <!-- Hide section if no bundles exist -->
+                    </div>
+    </div>
+</section>
+
+<!-- Discount Section Start -->
+    <section class="mhq-discount-section parallaxie section-padding fix bg-cover"
+        style="background-image: url('http://127.0.0.1:8000/assets/front/img/home-1/discount/bg-img.jpg');">
+    <div class="container">
+        <div class="discount-box-items">
+                <h2 class="wow fadeInUp">
+                    Act Fast: 50% Off for the First 50 Students!</h2>
+            <p class="wow fadeInUp" data-wow-delay=".2s">
+                    The ability to learn at my own pace was a game-changer for me. The flexible schedule allowed me to balance my studies with work and personal life, making it possible.
+            </p>
+            <div class="btn-box wow fadeInUp" data-wow-delay=".4s">
+                                            <a href="http://127.0.0.1:8000/register" class="theme-btn">
+                            Become a Student
+                    <i class="fa-solid fa-arrow-up-right"></i>
+                </a>
+                                                                <a href="http://127.0.0.1:8000/become-instructor"
+                            class="theme-btn style-2">
+                            Become a Teacher
+                    <i class="fa-solid fa-arrow-up-right"></i>
+                </a>
+                                </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us Section Start -->
+<section class="mhq-why-choose-us-section section-padding fix">
+    <div class="container">
+        <div class="mhq-choose-us-wrapper">
+            <div class="row g-4">
+                <div class="col-xl-6">
+                    <div class="mhq-choose-us-content">
+                        <div class="section-title mb-0">
+                                <h6 class="wow fadeInUp">Why Choose Us</h6>
+                                <h2 class="wow fadeInUp" data-wow-delay=".2s">
+                                    Learning That Aligns With Your Personal Goals.
+                                </h2>
+                        </div>
+                        <p class="choose-text wow fadeInUp" data-wow-delay=".4s">
+                                Unlock your full potential with education tailored to your personal aspirations. Learn, grow, and achieve success.
+                        </p>
+                                                    <div class="mhq-choose-icon">
+                                                                    <div class="mhq-icon-items wow fadeInUp"
+                                        data-wow-delay=".6s">
+                                <div class="icon">
+                                            <i class="fa-solid fa-lightbulb"></i>
+                                </div>
+                                <div class="content">
+                                            <h4>Early Learning</h4>
+                                            <p>Engaging programs that nurture curiosity and confidence from the start.</p>
+                                </div>
+                            </div>
+                                                                    <div class="mhq-icon-items wow fadeInUp"
+                                        data-wow-delay=".7s">
+                                <div class="icon">
+                                            <i class="fa-solid fa-paintbrush"></i>
+                                </div>
+                                <div class="content">
+                                            <h4>Art &amp; Creativity</h4>
+                                            <p>Hands-on workshops designed to inspire design thinking and innovation.</p>
+                                </div>
+                            </div>
+                                                        </div>
+                        <div class="mhq-choose-icon">
+                                                                    <div class="mhq-icon-items wow fadeInUp"
+                                        data-wow-delay=".8s">
+                                        <div class="icon">
+                                            <i class="fa-solid fa-brain"></i>
+                                </div>
+                                <div class="content">
+                                            <h4>Brain Training</h4>
+                                            <p>Structured lessons that strengthen problem solving and critical thinking.</p>
+                                </div>
+                            </div>
+                                                                    <div class="mhq-icon-items wow fadeInUp"
+                                        data-wow-delay=".9s">
+                                        <div class="icon">
+                                            <i class="fa-solid fa-music"></i>
+                                </div>
+                                <div class="content">
+                                            <h4>Music Area</h4>
+                                            <p>Collaborative sessions that blend creativity with technical mastery.</p>
+                                </div>
+                            </div>
+                                                                                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6 wow fadeInUp" data-wow-delay=".4s">
+                    <div class="mhq-choose-image">
+                        <img src="http://127.0.0.1:8000/assets/front/img/home-1/choose-us/choose-1.png" alt="img">
+                        <div class="mhq-counter-item float-bob-x">
+                                <h2><span class="count">92</span>+</h2>
+                                <p>Customizable Courses.</p>
+                        </div>
+                        <div class="mhq-choose-image-2 float-bob-y">
+                            <img src="http://127.0.0.1:8000/assets/front/img/home-1/choose-us/choose-2.png" alt="img">
+                        </div>
+                        <div class="mhq-choose-image-3 float-bob-x">
+                            <img src="http://127.0.0.1:8000/assets/front/img/home-1/choose-us/choose-3.png" alt="img">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section Start -->
+    <section class="mhq-team-section section-padding bg-cover"
+        style="background-image: url('http://127.0.0.1:8000/assets/front/img/home-1/team/team-bg.jpg');">
+    <div class="container">
+        <div class="section-title text-center">
+            <h6 class="wow fadeInUp">Trainer</h6>
+            <h2 class="wow fadeInUp" data-wow-delay=".2s">Specialized Trade Trainers</h2>
+        </div>
+            <div class="row g-4">
+                                                        <div class="col-xl-3 col-lg-4 col-md-6 wow fadeInUp"
+                        >
+                <div class="mhq-team-box-items">
+                    <div class="mhq-image">
+                                <img src="http://127.0.0.1:8000/assets/front/img/home-1/team/team-01.jpg" alt="Dawit Alemu (Export Specialist)">
+                        <div class="mhq-content">
+                                    <h4><a
+                                            href="http://127.0.0.1:8000/instructors/2">Dawit Alemu (Export Specialist)</a>
+                                    </h4>
+                                    <p>Ethiopian Coffee Export &amp; International Trade Logistics</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        </div>
+    </div>
+</section>
+
+<!-- Testimonial Section Start -->
+<section class="mhq-testimonial-section section-padding fix">
+    <div class="container">
+        <div class="section-title-area">
+            <div class="section-title">
+                    <h6 class="wow fadeInUp">Students Reviews</h6>
+                    <h2 class="wow fadeInUp" data-wow-delay=".2s">
+                        What learners say about our platform</h2>
+            </div>
+            <div class="mhq-testimonial-author-items wow fadeInUp" data-wow-delay=".4s">
+                <div class="mhq-testimonial-author">
+                    <div class="icon">
+                            <i class="fa-solid fa-star text-warning"></i>
+                    </div>
+                    <div class="content">
+                            <h3>0.0</h3>
+                            <p>Average Rating</p>
+                    </div>
+                </div>
+                <div class="testimonial-btn">
+                                                <a href="http://127.0.0.1:8000/testimonials" class="theme-btn">
+                            All Testimonials
+                        <i class="fa-solid fa-arrow-up-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="swiper mhq-testimonial-slider">
+            <div class="swiper-wrapper">
+                                    <div class="swiper-slide">
+                            <div class="mhq-testimonial-box-items text-center">
+                                <h4>No reviews available yet.</h4>
+                        </div>
+                            </div>
+                                </div>
+        </div>
+    </div>
+</section>
+
+<!-- News Section Start -->
+<section class="mhq-news-section1 section-padding section-bg">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-4 col-lg-6 mb-3 mt-xl-0">
+                <div class="mhq-news-content">
+                    <div class="section-title">
+                            <h6 class="wow fadeInUp">Our Blogs</h6>
+                            <h2 class="wow fadeInUp" data-wow-delay=".2s">
+                                Insights from instructors &amp; industry experts</h2>
+                    </div>
+                        <p class="news-text wow fadeInUp" data-wow-delay=".4s">
+                            Stay updated with the latest learning guides, course launches, and trends from across the Eduex community.
+                        </p>
+                    <div class="array-button mt-4 justify-content-start">
+                        <button class="array-prev"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="array-next"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-8">
+                <div class="swiper mhq-news-slider">
+                    <div class="swiper-wrapper">
+                                                    <div class="swiper-slide">
+                            <div class="mhq-news-box-items">
+                                <div class="mhq-image">
+                                            <img src="http://127.0.0.1:8000/assets/front/img/inner/news/news-05.jpg" alt="Fostering Creativity in Early Childhood Education">
+                                    <span class="post-box">
+                                                Education
+                                    </span>
+                                </div>
+                                <div class="mhq-content">
+                                    <ul class="list-box">
+                                        <li>
+                                            <i class="fa-solid fa-calendar-days"></i>
+                                                    02 Oct, 2026
+                                        </li>
+                                        <li>
+                                            <i class="fa-regular fa-message-minus"></i>
+                                                    03
+                                                    Comments
+                                        </li>
+                                    </ul>
+                                            <h3><a
+                                                    href="http://127.0.0.1:8000/blog/fostering-creativity-in-early-childhood-education">Fostering Creativity in Early Childhood Education</a>
+                                            </h3>
+                                            <p>Explore how the “Beyond the Screen” marketplace reimagines digital product experiences for young learners and educators...</p>
+                                            <a href="http://127.0.0.1:8000/blog/fostering-creativity-in-early-childhood-education" class="theme-btn">
+                                        View Details
+                                        <i class="fa-solid fa-arrow-up-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                                                    <div class="swiper-slide">
+                            <div class="mhq-news-box-items">
+                                <div class="mhq-image">
+                                            <img src="http://127.0.0.1:8000/assets/front/img/inner/news/news-06.jpg" alt="Simple Home Upgrades That Boost Property Value">
+                                    <span class="post-box">
+                                                Lifestyle
+                                    </span>
+                                </div>
+                                <div class="mhq-content">
+                                    <ul class="list-box">
+                                        <li>
+                                            <i class="fa-solid fa-calendar-days"></i>
+                                                    25 Sep, 2026
+                                        </li>
+                                        <li>
+                                            <i class="fa-regular fa-message-minus"></i>
+                                                    00
+                                                    Comments
+                                        </li>
+                                    </ul>
+                                            <h3><a
+                                                    href="http://127.0.0.1:8000/blog/simple-home-upgrades-that-boost-property-value">Simple Home Upgrades That Boost Property Value</a>
+                                            </h3>
+                                            <p>Strategic updates can transform any living space. These approachable upgrades deliver real value without overwhelming bu...</p>
+                                            <a href="http://127.0.0.1:8000/blog/simple-home-upgrades-that-boost-property-value" class="theme-btn">
+                                        View Details
+                                        <i class="fa-solid fa-arrow-up-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                                                    <div class="swiper-slide">
+                            <div class="mhq-news-box-items">
+                                <div class="mhq-image">
+                                            <img src="http://127.0.0.1:8000/assets/front/img/inner/news/news-07.jpg" alt="Working Together for Student Best Practices">
+                                    <span class="post-box">
+                                                Education
+                                    </span>
+                                </div>
+                                <div class="mhq-content">
+                                    <ul class="list-box">
+                                        <li>
+                                            <i class="fa-solid fa-calendar-days"></i>
+                                                    18 Sep, 2026
+                                        </li>
+                                        <li>
+                                            <i class="fa-regular fa-message-minus"></i>
+                                                    00
+                                                    Comments
+                                        </li>
+                                    </ul>
+                                            <h3><a
+                                                    href="http://127.0.0.1:8000/blog/working-together-for-student-best-practices">Working Together for Student Best Practices</a>
+                                            </h3>
+                                            <p>Collaboration between families and educators forms the backbone of student success. Discover frameworks that make partne...</p>
+                                            <a href="http://127.0.0.1:8000/blog/working-together-for-student-best-practices" class="theme-btn">
+                                        View Details
+                                        <i class="fa-solid fa-arrow-up-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                                                    <div class="swiper-slide">
+                            <div class="mhq-news-box-items">
+                                <div class="mhq-image">
+                                            <img src="http://127.0.0.1:8000/assets/front/img/inner/news/news-03.jpg" alt="Building Resilience and Empathy in the Classroom">
+                                    <span class="post-box">
+                                                Teaching
+                                    </span>
+                                </div>
+                                <div class="mhq-content">
+                                    <ul class="list-box">
+                                        <li>
+                                            <i class="fa-solid fa-calendar-days"></i>
+                                                    11 Sep, 2026
+                                        </li>
+                                        <li>
+                                            <i class="fa-regular fa-message-minus"></i>
+                                                    00
+                                                    Comments
+                                        </li>
+                                    </ul>
+                                            <h3><a
+                                                    href="http://127.0.0.1:8000/blog/building-resilience-and-empathy-in-the-classroom">Building Resilience and Empathy in the Classroom</a>
+                                            </h3>
+                                            <p>Emotional intelligence underpins academic excellence. Explore classroom rituals that strengthen empathy and resilience.</p>
+                                            <a href="http://127.0.0.1:8000/blog/building-resilience-and-empathy-in-the-classroom" class="theme-btn">
+                                        View Details
+                                        <i class="fa-solid fa-arrow-up-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                                                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Cta Section Start -->
+<section class="mhq-cta-new-section section-padding fix">
+    <div class="container">
+            <div class="mhq-cta-new-wrapper bg-cover"
+                style="background-image: url('http://127.0.0.1:8000/assets/front/img/home-1/cta/cta-bg.jpg');">
+            <div class="mhq-cta-shape-1 float-bob-x">
+                <img src="http://127.0.0.1:8000/assets/front/img/home-1/cta/shape-01.png" alt="img">
+            </div>
+            <div class="mhq-cta-shape-2 float-bob-x">
+                <img src="http://127.0.0.1:8000/assets/front/img/home-1/cta/shape-02.png" alt="img">
+            </div>
+            <div class="mhq-cta-shape-3 float-bob-y">
+                <img src="http://127.0.0.1:8000/assets/front/img/home-1/cta/shape-03.png" alt="img">
+            </div>
+            <h2 class="wow fadeInUp" data-wow-delay=".3s">
+                    Join our newsletter, spam-free.
+            </h2>
+                <p class="wow fadeInUp mb-4" data-wow-delay=".4s">
+                    Get curated learning tips, course launches, and exclusive offers delivered to your inbox.
+                </p>
+                <form action="http://127.0.0.1:8000/newsletter/subscribe" method="POST" class="wow fadeInUp" data-wow-delay=".5s"
+                      id="newsletterSubscribeForm">
+                    <input type="hidden" name="_token" value="EHCU5kDdIqbvtpSQWpHYBflRrR8a7Bc5IwaNCvzv" autocomplete="off">                    <input type="email" name="email" id="newsletter-email"
+                        placeholder="Enter your email" required>
+                    <button type="submit" class="theme-btn" id="newsletterSubmitBtn">
+                        Subscribe Now
+                </button>
+            </form>
+                <div id="newsletterFeedback" class="mt-3"></div>
+        </div>
+    </div>
+</section>
+    </main>
+
+            <div class="marquee-section">
+        <div class="mycustom-marque theme-green-bg-1">
+            <div class="scrolling-wrap">
+                                    <div class="comm">
+                                                    <div class="cmn-textslide text-color-2">
+                                <img src="http://127.0.0.1:8000/assets/front/img/home-1/icon1.png" alt="marquee icon">
+                                Education &amp; University
+                            </div>
+                                                    <div class="cmn-textslide text-color-2">
+                                <img src="http://127.0.0.1:8000/assets/front/img/home-1/icon1.png" alt="marquee icon">
+                                Online Education
+                            </div>
+                                                    <div class="cmn-textslide text-color-2">
+                                <img src="http://127.0.0.1:8000/assets/front/img/home-1/icon1.png" alt="marquee icon">
+                                230+ Quality Courses
+                            </div>
+                                                    <div class="cmn-textslide text-color-2">
+                                <img src="http://127.0.0.1:8000/assets/front/img/home-1/icon1.png" alt="marquee icon">
+                                Experienced Instructors
+                            </div>
+                                                    <div class="cmn-textslide text-color-2">
+                                <img src="http://127.0.0.1:8000/assets/front/img/home-1/icon1.png" alt="marquee icon">
+                                25% Extra Coupon Bonus
+                            </div>
+                                            </div>
+                            </div>
+        </div>
+    </div>
+<!-- Footer Section Start -->
+<footer class="mhq-footer-section fix footer-bg-2 mt-0">
+    <div class="container">
+        <div class="mhq-footer-wrapper style-2">
+            <div class="row justify-content-between">
+                <div class="col-xl-3 col-lg-4 col-lg-4 col-md-8 wow fadeInUp" data-wow-delay=".2s">
+                    <div class="mhq-footer-widget-items">
+                        <div class="mhq-widget-head">
+                                                        <a href="http://127.0.0.1:8000" class="footer-logo">
+                                <img src="/storage/branding/logos/fira_link_logo_dark.png"
+                                    alt="Fira Link Business Solution logo">
+                            </a>
+                        </div>
+                        <div class="mhq-footer-content">
+                            <p>
+                                Fira Link Business Solution is Ethiopia’s premier import-export training and business development hub, dedicated to building global trade capabilities and empowering entrepreneurs.
+                            </p>
+                                                    </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-4 col-lg-4 col-md-4 wow fadeInUp" data-wow-delay=".4s">
+                    <div class="mhq-footer-widget-items ml-40">
+                        <div class="mhq-widget-head">
+                            <h3>Quick Links</h3>
+                        </div>
+                        <ul class="list-items">
+                                                                                        <li><a href="http://127.0.0.1:8000/pages/privacy-policy"
+                                        target="_self">Privacy Policy</a></li>
+                                                                                            <li><a href="http://127.0.0.1:8000/pages/terms-and-conditions"
+                                        target="_self">Terms &amp; Conditions</a></li>
+                                                                                            <li><a href="http://127.0.0.1:8000/pages/gdpr-compliance"
+                                        target="_self">GDPR Compliance</a></li>
+                                                                                            <li><a href="http://127.0.0.1:8000/faq"
+                                        target="_self">FAQs</a></li>
+                                                                                            <li><a href="http://127.0.0.1:8000/testimonials"
+                                        target="_self">Testimonials</a></li>
+                                                                                        <li><a href="http://127.0.0.1:8000/verify-certificate">Verify Certificate</a></li>
+                            <li><a href="http://127.0.0.1:8000/ai-chat" onclick="if(window.FiraAI){event.preventDefault();window.FiraAI.open();}" style="color: #C084FC; font-weight: 600;"><i class="fa-solid fa-robot me-1"></i> Fira AI Assistant (Free)</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-4 col-md-6 ps-lg-5 wow fadeInUp" data-wow-delay=".6s">
+                    <div class="mhq-footer-widget-items">
+                        <div class="mhq-widget-head">
+                            <h3>Resources</h3>
+                        </div>
+                        <ul class="list-items">
+                                                                                        <li><a href="http://127.0.0.1:8000/courses"
+                                        target="_self">Courses</a></li>
+                                                                                            <li><a href="http://127.0.0.1:8000/about"
+                                        target="_self">About Us</a></li>
+                                                                                            <li><a href="http://127.0.0.1:8000/blog"
+                                        target="_self">Blog</a></li>
+                                                                                            <li><a href="http://127.0.0.1:8000/events"
+                                        target="_self">Events</a></li>
+                                                                                            <li><a href="http://127.0.0.1:8000/contact"
+                                        target="_self">Contact Us</a></li>
+                                                                                    </ul>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-4 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay=".8s">
+                    <div class="mhq-footer-widget-items">
+                        <div class="mhq-widget-head">
+                            <h3>Contact Us</h3>
+                        </div>
+                        <ul class="contact-info">
+                                                            <li>Bole Sub-City, Addis Ababa, Ethiopia</li>
+                                                                                        <li>
+                                    <a href="mailto:info@firalink.com"
+                                        class="link">info@firalink.com</a>
+                                </li>
+                                                                                        <li>
+                                    <a
+                                        href="tel:+251911123456">+251 911 123456</a>
+                                </li>
+                                                                                        <li><span class="text-muted">Hours:</span> Mon - Sat: 8:30am - 5:30pm (EAT)</li>
+                                                    </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mhq-footer-bottom style-2 footer-bg-2 wow fadeInUp" data-wow-delay=".9s">
+        <div class="container">
+            <div class="mhq-footer-bottom-wrapper justify-content-end">
+                <p class="text-color-2">
+                    © 2026 Fira Link Business Solution. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+</footer>
+    
+    <!-- ==========================================================================
+     FIRA AI FLOATING CHATBOT WIDGET — PRODUCTION-READY POPUP EXPERIENCE
+     ========================================================================== -->
+<div id="fira-ai-widget-root" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    
+    <!-- Floating Launcher Button -->
+    <button id="fira-ai-launcher" 
+            type="button" 
+            aria-label="Open Fira AI Assistant" 
+            aria-haspopup="dialog" 
+            aria-expanded="false" 
+            title="Chat with Fira AI Assistant">
+        <div class="fira-launcher-icon">
+            <i class="fa-solid fa-robot"></i>
+            <span class="fira-status-dot"></span>
+        </div>
+        <span class="fira-launcher-text">Ask Fira AI</span>
+        <span class="fira-launcher-badge">FREE</span>
+    </button>
+
+    <!-- Floating Chat Popup Panel -->
+    <div id="fira-ai-panel" 
+         role="dialog" 
+         aria-modal="false" 
+         aria-labelledby="fira-ai-panel-title" 
+         style="display: none;">
+        
+        <!-- Panel Header -->
+        <div class="fira-panel-header">
+            <div class="d-flex align-items-center gap-2">
+                <div class="fira-header-avatar">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div>
+                    <h6 id="fira-ai-panel-title" class="mb-0 text-white fw-bold">Fira AI Assistant</h6>
+                    <span class="fira-header-status">
+                        <span class="fira-live-dot"></span> Online &bull; Trade &amp; Course Advisor
+                    </span>
+                </div>
+            </div>
+            <div class="fira-header-actions d-flex align-items-center gap-1">
+                <button type="button" id="fira-ai-clear-btn" class="fira-btn-icon" title="Clear conversation" aria-label="Clear conversation">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+                <button type="button" id="fira-ai-minimize-btn" class="fira-btn-icon" title="Minimize chat" aria-label="Minimize chat">
+                    <i class="fa-solid fa-minus"></i>
+                </button>
+                <button type="button" id="fira-ai-close-btn" class="fira-btn-icon" title="Close chat" aria-label="Close chat">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel Messages Area -->
+        <div id="fira-ai-messages-body" class="fira-panel-body">
+            <div id="fira-ai-messages-container" class="fira-messages-flow">
+                
+                <!-- Welcome Bot Message -->
+                <div class="fira-msg-row bot-row">
+                    <div class="fira-msg-avatar">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div class="fira-msg-bubble bot-bubble">
+                        <p class="mb-2">
+                            👋 <strong>Welcome to Fira Link Academy!</strong> I am your 24/7 AI trade advisor.
+                        </p>
+                        <p class="mb-2">
+                            Ask me about Ethiopian specialty coffee, ECTA export licensing, Incoterms, container freight, or our training programs.
+                        </p>
+                        <div class="fira-quick-prompts-label">Try asking:</div>
+                        <div class="fira-quick-prompts-wrap">
+                            <button type="button" class="fira-quick-pill" data-prompt="Calculate profit for 320 bags of Sidama specialty coffee export">
+                                ☕ 320 Bags Sidama Profit
+                            </button>
+                            <button type="button" class="fira-quick-pill" data-prompt="What are the step-by-step requirements for an ECTA export license?">
+                                📜 ECTA Export License
+                            </button>
+                            <button type="button" class="fira-quick-pill" data-prompt="Explain Addis to Djibouti container freight logistics and transit times">
+                                🚆 Addis-to-Djibouti Logistics
+                            </button>
+                            <button type="button" class="fira-quick-pill" data-prompt="How does EUDR deforestation compliance impact Ethiopian coffee exports?">
+                                🛡️ EUDR Compliance Rules
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Typing Indicator (Hidden by default) -->
+            <div id="fira-ai-typing-indicator" class="fira-msg-row bot-row" style="display: none;">
+                <div class="fira-msg-avatar">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="fira-msg-bubble bot-bubble fira-typing-bubble">
+                    <span class="fira-typing-dot"></span>
+                    <span class="fira-typing-dot"></span>
+                    <span class="fira-typing-dot"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Footer / Input Form -->
+        <div class="fira-panel-footer">
+            <form id="fira-ai-chat-form" class="fira-input-form" autocomplete="off">
+                <input type="text" 
+                       id="fira-ai-input-field" 
+                       class="fira-input-control" 
+                       placeholder="Ask Fira AI anything..." 
+                       aria-label="Ask Fira AI anything" 
+                       maxlength="1000" 
+                       required>
+                <button type="submit" 
+                        id="fira-ai-submit-btn" 
+                        class="fira-submit-button" 
+                        aria-label="Send message" 
+                        title="Send message">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+            <div class="fira-footer-subtext">
+                <span>Free &bull; Google Gemini AI</span>
+                <span>Press Enter to send</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Widget Styles -->
+<style>
+    /* Launcher Button */
+    #fira-ai-launcher {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 10400;
+        background: linear-gradient(135deg, #6D1A95 0%, #50126F 100%);
+        color: #ffffff;
+        border: 2px solid rgba(255, 255, 255, 0.25);
+        border-radius: 50px;
+        padding: 10px 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        box-shadow: 0 10px 28px rgba(109, 26, 149, 0.45);
+        transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
+        outline: none;
+    }
+    #fira-ai-launcher:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 14px 34px rgba(109, 26, 149, 0.6);
+        background: linear-gradient(135deg, #7c1ea8 0%, #5c147e 100%);
+    }
+    #fira-ai-launcher:focus-visible {
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 0 0 6px #6D1A95;
+    }
+    .fira-launcher-icon {
+        width: 30px;
+        height: 30px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        font-size: 14px;
+    }
+    .fira-status-dot {
+        position: absolute;
+        top: -1px;
+        right: -1px;
+        width: 8px;
+        height: 8px;
+        background: #10B981;
+        border: 1.5px solid #ffffff;
+        border-radius: 50%;
+    }
+    .fira-launcher-text {
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.2px;
+        color: #ffffff;
+    }
+    .fira-launcher-badge {
+        background: #ffffff;
+        color: #6D1A95;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+    }
+
+    /* Chat Panel Container */
+    #fira-ai-panel {
+        position: fixed;
+        bottom: 86px;
+        right: 24px;
+        width: 400px;
+        max-width: calc(100vw - 32px);
+        height: 580px;
+        max-height: calc(100vh - 110px);
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(109, 26, 149, 0.12);
+        z-index: 10500;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: firaPanelIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes firaPanelIn {
+        from { opacity: 0; transform: translateY(18px) scale(0.96); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Panel Header */
+    .fira-panel-header {
+        background: linear-gradient(135deg, #6D1A95 0%, #50126F 100%);
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #ffffff;
+        flex-shrink: 0;
+    }
+    .fira-header-avatar {
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.18);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+    .fira-header-status {
+        font-size: 11.5px;
+        color: rgba(255, 255, 255, 0.85);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 1px;
+    }
+    .fira-live-dot {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        background: #34D399;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #34D399;
+    }
+    .fira-btn-icon {
+        background: rgba(255, 255, 255, 0.15);
+        border: none;
+        color: #ffffff;
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.15s ease;
+    }
+    .fira-btn-icon:hover {
+        background: rgba(255, 255, 255, 0.28);
+        transform: scale(1.06);
+    }
+
+    /* Panel Messages Body */
+    .fira-panel-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+        background: #F8FAFC;
+        display: flex;
+        flex-direction: column;
+        scroll-behavior: smooth;
+    }
+    .fira-messages-flow {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    /* Message Rows */
+    .fira-msg-row {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        max-width: 90%;
+    }
+    .fira-msg-row.bot-row {
+        align-self: flex-start;
+    }
+    .fira-msg-row.user-row {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+    }
+
+    .fira-msg-avatar {
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        background: #6D1A95;
+        color: #ffffff;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        margin-top: 2px;
+    }
+
+    .fira-msg-bubble {
+        padding: 12px 14px;
+        border-radius: 14px;
+        font-size: 13.5px;
+        line-height: 1.55;
+        position: relative;
+        word-break: break-word;
+    }
+    .bot-bubble {
+        background: #ffffff;
+        color: #1E293B;
+        border: 1px solid #E2E8F0;
+        border-top-left-radius: 3px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+    .user-bubble {
+        background: #6D1A95;
+        color: #ffffff;
+        border-top-right-radius: 3px;
+        box-shadow: 0 2px 8px rgba(109, 26, 149, 0.25);
+    }
+
+    /* Quick Prompts inside Welcome */
+    .fira-quick-prompts-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748B;
+        margin-top: 10px;
+        margin-bottom: 6px;
+    }
+    .fira-quick-prompts-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .fira-quick-pill {
+        background: #FAF5FF;
+        border: 1px solid rgba(109, 26, 149, 0.2);
+        color: #6D1A95;
+        padding: 6px 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .fira-quick-pill:hover {
+        background: #6D1A95;
+        color: #ffffff;
+        border-color: #6D1A95;
+        transform: translateX(3px);
+    }
+
+    /* Action Card in AI reply */
+    .fira-action-card {
+        background: #FAF5FF;
+        border-left: 3px solid #6D1A95;
+        padding: 10px 12px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+    .fira-action-card-title {
+        font-weight: 700;
+        font-size: 12px;
+        color: #6D1A95;
+    }
+    .fira-action-card-desc {
+        font-size: 11.5px;
+        color: #475569;
+        margin-top: 2px;
+        margin-bottom: 6px;
+    }
+    .fira-action-card-btn {
+        display: inline-block;
+        background: #6D1A95;
+        color: #ffffff !important;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+        text-decoration: none;
+    }
+
+    /* Typing Dots */
+    .fira-typing-bubble {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 10px 14px;
+    }
+    .fira-typing-dot {
+        width: 6px;
+        height: 6px;
+        background: #6D1A95;
+        border-radius: 50%;
+        animation: firaDotPulse 1.2s infinite ease-in-out both;
+    }
+    .fira-typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .fira-typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes firaDotPulse {
+        0%, 80%, 100% { transform: scale(0.4); opacity: 0.4; }
+        40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Panel Footer */
+    .fira-panel-footer {
+        padding: 12px 14px;
+        background: #ffffff;
+        border-top: 1px solid #E2E8F0;
+        flex-shrink: 0;
+    }
+    .fira-input-form {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    .fira-input-control {
+        flex: 1;
+        background: #F1F5F9;
+        border: 1px solid #E2E8F0;
+        border-radius: 24px;
+        padding: 10px 16px;
+        font-size: 13.5px;
+        color: #0F172A;
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .fira-input-control:focus {
+        border-color: #6D1A95;
+        box-shadow: 0 0 0 3px rgba(109, 26, 149, 0.12);
+        background: #ffffff;
+    }
+    .fira-submit-button {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        background: #6D1A95;
+        border: none;
+        border-radius: 50%;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.15s ease;
+    }
+    .fira-submit-button:hover:not(:disabled) {
+        background: #50126F;
+        transform: scale(1.05);
+    }
+    .fira-submit-button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+    .fira-footer-subtext {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 10.5px;
+        color: #94A3B8;
+        margin-top: 6px;
+        padding: 0 4px;
+    }
+
+    /* Mobile Responsive Viewport (<= 576px) */
+    @media (max-width: 576px) {
+        #fira-ai-launcher {
+            bottom: 16px;
+            right: 16px;
+            padding: 8px 14px;
+        }
+        .fira-launcher-text {
+            font-size: 13px;
+        }
+        #fira-ai-panel {
+            position: fixed !important;
+            inset: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            max-width: none !important;
+            max-height: none !important;
+            border-radius: 0 !important;
+            bottom: 0 !important;
+            right: 0 !important;
+            left: 0 !important;
+            top: 0 !important;
+            z-index: 10600 !important;
+        }
+        .fira-panel-footer {
+            padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+        }
+    }
+</style>
+
+<!-- Widget Logic & Session State Handling -->
+<script>
+(function() {
+    'use strict';
+
+    const STORAGE_KEY = 'fira_ai_chat_history_v2';
+    const STATE_KEY = 'fira_ai_chat_is_open';
+
+    let isSending = false;
+
+    document.addEventListener('DOMContentLoaded', initFiraChat);
+
+    function initFiraChat() {
+        const launcher = document.getElementById('fira-ai-launcher');
+        const panel = document.getElementById('fira-ai-panel');
+        const closeBtn = document.getElementById('fira-ai-close-btn');
+        const minimizeBtn = document.getElementById('fira-ai-minimize-btn');
+        const clearBtn = document.getElementById('fira-ai-clear-btn');
+        const form = document.getElementById('fira-ai-chat-form');
+        const input = document.getElementById('fira-ai-input-field');
+        const submitBtn = document.getElementById('fira-ai-submit-btn');
+        const messagesContainer = document.getElementById('fira-ai-messages-container');
+        const messagesBody = document.getElementById('fira-ai-messages-body');
+        const typingIndicator = document.getElementById('fira-ai-typing-indicator');
+
+        if (!launcher || !panel) return;
+
+        // 1. Rehydrate chat state and messages from sessionStorage
+        rehydrateHistory();
+
+        // 2. Open / Close controls
+        launcher.addEventListener('click', openChat);
+        minimizeBtn.addEventListener('click', closeChat);
+        closeBtn.addEventListener('click', closeChat);
+
+        // Escape key to close
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && panel.style.display !== 'none') {
+                closeChat();
+            }
+        });
+
+        // 3. Clear conversation button
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function() {
+                if (confirm('Clear chat history?')) {
+                    sessionStorage.removeItem(STORAGE_KEY);
+                    // Reset to initial welcome
+                    resetToWelcome();
+                }
+            });
+        }
+
+        // 4. Quick Prompts Delegate
+        document.addEventListener('click', function(e) {
+            const pill = e.target.closest('.fira-quick-pill');
+            if (pill && input) {
+                const prompt = pill.getAttribute('data-prompt');
+                if (prompt) {
+                    input.value = prompt;
+                    sendMessage(prompt);
+                }
+            }
+        });
+
+        // 5. Form Submit handler
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = input.value.trim();
+            if (!message || isSending) return;
+            sendMessage(message);
+        });
+
+        function openChat() {
+            panel.style.display = 'flex';
+            launcher.setAttribute('aria-expanded', 'true');
+            sessionStorage.setItem(STATE_KEY, 'true');
+            scrollToBottom();
+            setTimeout(() => {
+                input.focus();
+            }, 100);
+        }
+
+        function closeChat() {
+            panel.style.display = 'none';
+            launcher.setAttribute('aria-expanded', 'false');
+            sessionStorage.setItem(STATE_KEY, 'false');
+            launcher.focus();
+        }
+
+        // Global API hook
+        window.FiraAI = {
+            open: openChat,
+            close: closeChat
+        };
+
+        function scrollToBottom() {
+            setTimeout(() => {
+                messagesBody.scrollTop = messagesBody.scrollHeight;
+            }, 30);
+        }
+
+        function sendMessage(text) {
+            if (isSending) return;
+            isSending = true;
+
+            // Render User Bubble
+            renderUserBubble(text);
+            saveMessageToHistory('user', text);
+
+            input.value = '';
+            input.disabled = true;
+            submitBtn.disabled = true;
+
+            // Show typing indicator
+            typingIndicator.style.display = 'flex';
+            scrollToBottom();
+
+            // Send to AI endpoint
+            fetch("http://127.0.0.1:8000/ai-chat/send", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-CSRF-TOKEN": "EHCU5kDdIqbvtpSQWpHYBflRrR8a7Bc5IwaNCvzv"
+                },
+                body: JSON.stringify({ message: text })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.json();
+            })
+            .then(data => {
+                typingIndicator.style.display = 'none';
+                const reply = (data.ai_message && data.ai_message.message) ? data.ai_message.message : (data.message || 'Thank you for your question.');
+                renderBotBubble(reply, data.action_card);
+                saveMessageToHistory('bot', reply, data.action_card);
+            })
+            .catch(err => {
+                typingIndicator.style.display = 'none';
+                renderErrorBubble("I encountered an issue reaching the server. Please check your network connection and try again.");
+            })
+            .finally(() => {
+                isSending = false;
+                input.disabled = false;
+                submitBtn.disabled = false;
+                input.focus();
+                scrollToBottom();
+            });
+        }
+
+        function renderUserBubble(text) {
+            const html = `
+                <div class="fira-msg-row user-row">
+                    <div class="fira-msg-bubble user-bubble">
+                        ${escapeHtml(text).replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `;
+            messagesContainer.insertAdjacentHTML('beforeend', html);
+            scrollToBottom();
+        }
+
+        function renderBotBubble(text, actionCard) {
+            let cardHtml = '';
+            if (actionCard && actionCard.title) {
+                cardHtml = `
+                    <div class="fira-action-card">
+                        <div class="fira-action-card-title">${escapeHtml(actionCard.title)}</div>
+                        ${actionCard.description ? `<div class="fira-action-card-desc">${escapeHtml(actionCard.description)}</div>` : ''}
+                        ${actionCard.url ? `<a href="${actionCard.url}" class="fira-action-card-btn">${escapeHtml(actionCard.action_label || 'View Details')} &rarr;</a>` : ''}
+                    </div>
+                `;
+            }
+
+            const html = `
+                <div class="fira-msg-row bot-row">
+                    <div class="fira-msg-avatar">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div class="fira-msg-bubble bot-bubble">
+                        ${formatMarkdown(text)}
+                        ${cardHtml}
+                    </div>
+                </div>
+            `;
+            messagesContainer.insertAdjacentHTML('beforeend', html);
+            scrollToBottom();
+        }
+
+        function renderErrorBubble(errorText) {
+            const html = `
+                <div class="fira-msg-row bot-row">
+                    <div class="fira-msg-avatar" style="background: #EF4444;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div class="fira-msg-bubble bot-bubble" style="border-color: #FECACA; color: #DC2626;">
+                        ${escapeHtml(errorText)}
+                    </div>
+                </div>
+            `;
+            messagesContainer.insertAdjacentHTML('beforeend', html);
+            scrollToBottom();
+        }
+
+        function saveMessageToHistory(role, text, actionCard) {
+            try {
+                let history = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]');
+                history.push({ role: role, text: text, actionCard: actionCard || null, time: Date.now() });
+                if (history.length > 40) history = history.slice(-40);
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+            } catch(e) {}
+        }
+
+        function rehydrateHistory() {
+            try {
+                const history = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]');
+                if (history.length > 0) {
+                    history.forEach(item => {
+                        if (item.role === 'user') {
+                            renderUserBubble(item.text);
+                        } else if (item.role === 'bot') {
+                            renderBotBubble(item.text, item.actionCard);
+                        }
+                    });
+                }
+
+                // If user had left chat open before navigating
+                const wasOpen = sessionStorage.getItem(STATE_KEY) === 'true';
+                if (wasOpen && window.innerWidth > 576) {
+                    openChat();
+                }
+            } catch(e) {}
+        }
+
+        function resetToWelcome() {
+            const welcomeHtml = `
+                <div class="fira-msg-row bot-row">
+                    <div class="fira-msg-avatar">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div class="fira-msg-bubble bot-bubble">
+                        <p class="mb-2">
+                            👋 <strong>Welcome to Fira Link Academy!</strong> I am your 24/7 AI trade advisor.
+                        </p>
+                        <p class="mb-2">
+                            Ask me about Ethiopian specialty coffee, ECTA export licensing, Incoterms, container freight, or our training programs.
+                        </p>
+                        <div class="fira-quick-prompts-label">Try asking:</div>
+                        <div class="fira-quick-prompts-wrap">
+                            <button type="button" class="fira-quick-pill" data-prompt="Calculate profit for 320 bags of Sidama specialty coffee export">
+                                ☕ 320 Bags Sidama Profit
+                            </button>
+                            <button type="button" class="fira-quick-pill" data-prompt="What are the step-by-step requirements for an ECTA export license?">
+                                📜 ECTA Export License
+                            </button>
+                            <button type="button" class="fira-quick-pill" data-prompt="Explain Addis to Djibouti container freight logistics and transit times">
+                                🚆 Addis-to-Djibouti Logistics
+                            </button>
+                            <button type="button" class="fira-quick-pill" data-prompt="How does EUDR deforestation compliance impact Ethiopian coffee exports?">
+                                🛡️ EUDR Compliance Rules
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            messagesContainer.innerHTML = welcomeHtml;
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function formatMarkdown(text) {
+            let str = escapeHtml(text);
+            // Bold **text**
+            str = str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Bullet points * or -
+            str = str.replace(/(?:^|\n)[*-] (.*?)(?=\n|$)/g, '<br>&bull; $1');
+            // Numbered lists
+            str = str.replace(/(?:^|\n)(\d+)\. (.*?)(?=\n|$)/g, '<br><strong>$1.</strong> $2');
+            // Line breaks
+            str = str.replace(/\n\n/g, '<br><br>');
+            str = str.replace(/\n/g, '<br>');
+            return str;
+        }
+    }
+})();
+</script>
+
+    <div class="js-cookie-consent cookie-consent" style="
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #101828;
+    color: #f8fafc;
+    padding: 18px 22px;
+    border-radius: 16px;
+    box-shadow: 0 25px 45px rgba(15, 23, 42, 0.25);
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    max-width: 1000px;
+    width: calc(100% - 40px);
+    z-index: 9999;
+">
+    <div class="cookie-consent__message" style="font-size: 15px; line-height: 1.6;">
+        We use cookies to personalise content and improve your experience. Read more in our <a href="http://127.0.0.1:8000/privacy-policy" style="color:#38bdf8;text-decoration:underline;">Privacy Policy</a>.
+    </div>
+    <button class="js-cookie-consent-agree cookie-consent__agree"
+        style="
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            border-radius: 999px;
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease;
+        "
+        onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 12px 30px rgba(14, 165, 233, 0.35)';"
+        onmouseout="this.style.transform=''; this.style.boxShadow='';"
+    >
+        Accept &amp; Continue
+    </button>
+</div>
+
+    <script>
+
+        window.laravelCookieConsent = (function () {
+
+            const COOKIE_VALUE = 1;
+            const COOKIE_DOMAIN = '127.0.0.1';
+
+            function consentWithCookies() {
+                setCookie('laravel_cookie_consent', COOKIE_VALUE, 7300);
+                hideCookieDialog();
+            }
+
+            function cookieExists(name) {
+                return (document.cookie.split('; ').indexOf(name + '=' + COOKIE_VALUE) !== -1);
+            }
+
+            function hideCookieDialog() {
+                const dialogs = document.getElementsByClassName('js-cookie-consent');
+
+                for (let i = 0; i < dialogs.length; ++i) {
+                    dialogs[i].style.display = 'none';
+                }
+            }
+
+            function setCookie(name, value, expirationInDays) {
+                const date = new Date();
+                date.setTime(date.getTime() + (expirationInDays * 24 * 60 * 60 * 1000));
+                document.cookie = name + '=' + value
+                    + ';expires=' + date.toUTCString()
+                    + ';domain=' + COOKIE_DOMAIN
+                    + ';path=/'
+                    + ';samesite=lax';
+            }
+
+            if (cookieExists('laravel_cookie_consent')) {
+                hideCookieDialog();
+            }
+
+            const buttons = document.getElementsByClassName('js-cookie-consent-agree');
+
+            for (let i = 0; i < buttons.length; ++i) {
+                buttons[i].addEventListener('click', consentWithCookies);
+            }
+
+            return {
+                consentWithCookies: consentWithCookies,
+                hideCookieDialog: hideCookieDialog
+            };
+        })();
+    </script>
+
+
+    <!--<< All JS Plugins >>-->
+            <script src="http://127.0.0.1:8000/assets/front/js/jquery-3.7.1.min.js"></script>
+        <script src="http://127.0.0.1:8000/assets/front/js/viewport.jquery.js"></script>
+        <script src="http://127.0.0.1:8000/assets/front/js/bootstrap.bundle.min.js"></script>
+        <script src="http://127.0.0.1:8000/assets/front/js/jquery.nice-select.min.js"></script>
+        <script src="http://127.0.0.1:8000/assets/front/js/jquery.waypoints.js"></script>
+        <script src="http://127.0.0.1:8000/assets/front/js/jquery.counterup.min.js"></script>
+        <script src="http://127.0.0.1:8000/assets/front/js/swiper-bundle.min.js"></script>
+        <script src="http://127.0.0.1:8000/assets/front/js/jquery.meanmenu.min.js"></script>
+        <script src="http://127.0.0.1:8000/assets/front/js/parallaxie.js"></script>
+        <script src="http://127.0.0.1:8000/assets/front/js/jquery.magnific-popup.min.js"></script>
+        <script src="http://127.0.0.1:8000/assets/front/js/wow.min.js"></script>
+        <script src="http://127.0.0.1:8000/assets/front/js/main.js"></script>
+        <script src="http://127.0.0.1:8000/assets/front/js/sweetalert2@11.js"></script>
+        <script src="http://127.0.0.1:8000/packages/devrabiul/laravel-toaster-magic/js/laravel-toaster-magic.js"></script><script type="text/javascript">window.toastMagicConfig = {"closeButton":true,"positionClass":"toast-top-end","preventDuplicates":false,"showDuration":"300","timeOut":"5000","theme":"default","gradient_enable":false,"color_mode":false};document.addEventListener("DOMContentLoaded", function() {var toastContainer = document.querySelector(".toast-container");if (toastContainer) {toastContainer.classList.remove("toast-top-start");toastContainer.classList.remove("toast-top-end");toastContainer.classList.remove("toast-top-center");toastContainer.classList.remove("toast-bottom-start");toastContainer.classList.remove("toast-bottom-end");toastContainer.classList.remove("toast-bottom-center");toastContainer.classList.add("toast-top-end");}});</script>
+
+    
+    
+        <script>
+        $(function () {
+            const form = $('#newsletterSubscribeForm');
+            const submitBtn = $('#newsletterSubmitBtn');
+            const defaultBtnLabel = submitBtn.text();
+            const feedback = $('#newsletterFeedback');
+
+            form.on('submit', function (event) {
+                event.preventDefault();
+                feedback.removeClass('text-success text-danger').text('');
+
+                submitBtn.prop('disabled', true).text('Subscribing...');
+
+                $.ajax({
+                    url: form.attr('action'),
+                    method: 'POST',
+                    data: form.serialize(),
+                    success: function (response) {
+                        form[0].reset();
+                        feedback.addClass('text-success').text(response.message || 'Subscribed successfully!');
+                    },
+                    error: function (xhr) {
+                        let message = 'Something went wrong. Please try again later.';
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
+                            message = Object.values(errors)[0][0] || message;
+                        }
+                        feedback.addClass('text-danger').text(message);
+                    },
+                    complete: function () {
+                        submitBtn.prop('disabled', false).text(defaultBtnLabel);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
+

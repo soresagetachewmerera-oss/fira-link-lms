@@ -81,7 +81,7 @@
                             <div class="alert alert-info">
                                 <h6 class="alert-heading font-weight-bold mb-2"><i class="fas fa-info-circle mr-1"></i> Key System Rules:</h6>
                                 <ul class="mb-0 pl-3">
-                                    <li>Commission applies to all paid course sales, bundle sales, and subscription plan purchases.</li>
+                                    <li>Commission applies to all paid course sales and bundle sales.</li>
                                     <li>For offline payments, commission & instructor earnings are processed once the payment is approved by admin.</li>
                                     <li>Instructor earnings are credited directly to their wallet balance automatically upon payment completion.</li>
                                 </ul>
@@ -105,11 +105,11 @@
                         <h4><i class="fas fa-calculator mr-2 text-primary"></i> How Revenue Distribution Works (With Examples)</h4>
                     </div>
                     <div class="card-body">
-                        <p class="text-muted">Below is a breakdown of how the platform automatically distributes earnings across single courses, course bundles, and subscription plans based on your set commission rate.</p>
+                        <p class="text-muted">Below is a breakdown of how the platform automatically distributes earnings across single courses and course bundles based on your set commission rate.</p>
 
                         <div class="row">
                             <!-- Example 1: Direct Course Sale -->
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <div class="p-3 border rounded bg-light h-100">
                                     <h6 class="font-weight-bold text-dark"><i class="fas fa-book mr-1 text-info"></i> 1. Single Course Sale</h6>
                                     <p class="small text-muted mb-2">When a student buys an individual course:</p>
@@ -126,7 +126,7 @@
                             </div>
 
                             <!-- Example 2: Bundle Course Sale -->
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <div class="p-3 border rounded bg-light h-100">
                                     <h6 class="font-weight-bold text-dark"><i class="fas fa-boxes mr-1 text-warning"></i> 2. Bundle Course Sale</h6>
                                     <p class="small text-muted mb-2">When a student purchases a course bundle:</p>
@@ -141,30 +141,10 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Example 3: Subscription Plan Sale -->
-                            <div class="col-md-4 mb-3">
-                                <div class="p-3 border rounded bg-light h-100">
-                                    <h6 class="font-weight-bold text-dark"><i class="fas fa-sync-alt mr-1 text-primary"></i> 3. Subscription Plan Purchase</h6>
-                                    <p class="small text-muted mb-2">When a student purchases a Subscription Plan:</p>
-                                    <ul class="small pl-3 mb-0">
-                                        <li>Platform commission is deducted from subscription total.</li>
-                                        <li>Net instructor pool is divided equally across all included courses & bundles in that plan.</li>
-                                        <li>Full breakdown is logged in DB notes for audit.</li>
-                                    </ul>
-                                    <div class="mt-2 p-2 bg-white rounded border small">
-                                        <span class="d-block font-weight-bold text-success">Example ($100 Plan, 2 Courses + 1 Bundle):</span>
-                                        • Platform: <strong>$20</strong> | Pool: <strong>$80</strong> ($26.66 / item)<br>
-                                        • Course 1 (Inst A): <strong>$26.66</strong><br>
-                                        • Course 2 (Inst B): <strong>$26.66</strong><br>
-                                        • Bundle (Inst C): <strong>$26.66</strong>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="alert alert-secondary mb-0 small">
-                            <i class="fas fa-shield-alt mr-1"></i> <strong>Auditability & Tracking:</strong> Instructors can inspect their exact subscription payout breakdown anytime under their <strong>Subscription Sales</strong> dashboard menu. All transaction shares are processed inside transactional database blocks to guarantee 100% mathematical precision with zero revenue leak.
+                            <i class="fas fa-shield-alt mr-1"></i> <strong>Auditability & Tracking:</strong> Instructors can inspect their earnings anytime under their <strong>Earnings</strong> dashboard menu. All transaction shares are processed inside transactional database blocks to guarantee 100% mathematical precision with zero revenue leak.
                         </div>
                     </div>
                 </div>

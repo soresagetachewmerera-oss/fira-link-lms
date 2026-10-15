@@ -21,14 +21,14 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ $tab === 'inbox' ? 'active' : '' }}"
                                    href="{{ route('instructor.messages.index') }}"
-                                   style="{{ $tab === 'inbox' ? 'background-color: var(--theme, #008D5E); color: white;' : 'background: #f1f5f9; color: #475569;' }} border-radius: 10px; padding: 8px 20px; font-weight: 600;">
+                                   style="{{ $tab === 'inbox' ? 'background-color: var(--theme, #6D1A95); color: white;' : 'background: #f1f5f9; color: #475569;' }} border-radius: 10px; padding: 8px 20px; font-weight: 600;">
                                     Inbox
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {{ $tab === 'requests' ? 'active' : '' }}"
                                    href="{{ route('instructor.messages.requests') }}"
-                                   style="{{ $tab === 'requests' ? 'background-color: var(--theme, #008D5E); color: white;' : 'background: #f1f5f9; color: #475569;' }} border-radius: 10px; padding: 8px 20px; font-weight: 600;">
+                                   style="{{ $tab === 'requests' ? 'background-color: var(--theme, #6D1A95); color: white;' : 'background: #f1f5f9; color: #475569;' }} border-radius: 10px; padding: 8px 20px; font-weight: 600;">
                                     Requests
                                     @if(isset($requestCount) && $requestCount > 0)
                                         <span class="badge bg-danger ms-1" style="font-size: 10px;">{{ $requestCount }}</span>
@@ -48,7 +48,7 @@
                                                 @if($conv->student->profile_photo)
                                                     <img src="{{ asset('storage/' . $conv->student->profile_photo) }}" alt="" style="width:100%;height:100%;object-fit:cover;">
                                                 @else
-                                                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--theme-light,#eefdf3);color:var(--theme,#008D5E);font-weight:700;font-size:18px;">
+                                                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--theme-light,#FAF5FF);color:var(--theme,#6D1A95);font-weight:700;font-size:18px;">
                                                         {{ strtoupper(substr($conv->student->name, 0, 1)) }}
                                                     </div>
                                                 @endif
@@ -85,7 +85,7 @@
                                                 </button>
                                             @endif
                                             @if(isset($conv->unread_count) && $conv->unread_count > 0)
-                                                <span class="badge rounded-pill" style="background: var(--theme, #008D5E); font-size: 11px; padding: 5px 10px;">
+                                                <span class="badge rounded-pill" style="background: var(--theme, #6D1A95); font-size: 11px; padding: 5px 10px;">
                                                     {{ $conv->unread_count }}
                                                 </span>
                                             @endif

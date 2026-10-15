@@ -64,6 +64,8 @@
 
     @include('partials.footer')
 
+    @include('partials.floating-ai')
+
     @include('cookie-consent::index')
 
     <!--<< All JS Plugins >>-->

@@ -159,19 +159,12 @@ class AppServiceProvider extends ServiceProvider
                     : [];
 
                 if (in_array($location, ['main-navigation', 'mobile-navigation'])) {
-                    $hasSubscription = collect($tree)->contains(function ($item) {
-                        return Str::contains($item['url'] ?? '', 'subscriptions') || Str::contains(strtolower($item['title'] ?? ''), 'subscription');
-                    });
-
-                    if (!$hasSubscription) {
-                        $tree[] = [
-                            'id' => 9999,
-                            'title' => 'Subscriptions',
-                            'url' => route('subscriptions.index'),
-                            'target' => '_self',
-                            'children' => [],
-                        ];
-                    }
+                    $tree = collect($tree)->reject(function ($item) {
+                        $title = strtolower($item['title'] ?? '');
+                        $url = strtolower($item['url'] ?? '');
+                        return Str::contains($title, ['ai', 'instructor'])
+                            || Str::contains($url, ['ai-chat', 'instructors', 'become-instructor']);
+                    })->values()->all();
                 }
 
                 $menuTrees[$location] = $tree;
@@ -180,16 +173,16 @@ class AppServiceProvider extends ServiceProvider
             $view->with('frontendMenus', $menuTrees);
 
             $view->with('footerBranding', FrontendSetting::getValue('footer.branding', [
-                'about_text' => null,
-                'tagline' => null,
-                'copyright' => null,
+                'about_text' => 'Fira Link Business Solution is Ethiopia’s premier import-export training and business development hub, dedicated to building global trade capabilities and empowering entrepreneurs.',
+                'tagline' => 'Art of Excellence!!',
+                'copyright' => '© ' . date('Y') . ' Fira Link Business Solution. All rights reserved.',
             ]));
 
             $view->with('footerContact', FrontendSetting::getValue('footer.contact', [
-                'email' => null,
-                'phone' => null,
-                'address' => null,
-                'hours' => null,
+                'email' => 'info@firalink.com',
+                'phone' => '+251 911 123456',
+                'address' => 'Bole Sub-City, Addis Ababa, Ethiopia',
+                'hours' => 'Mon - Sat: 8:30am - 5:30pm (EAT)',
             ]));
 
             $view->with('footerSocialLinks', FrontendSetting::getValue('footer.social_links', []));

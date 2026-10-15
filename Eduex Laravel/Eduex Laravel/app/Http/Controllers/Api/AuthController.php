@@ -146,16 +146,20 @@ class AuthController extends Controller
 
         // Check for Mandatory Phone Verification
         if ($user->role !== 'admin' && !$user->hasVerifiedPhone()) {
-            $otpResult = $this->otpService->sendToPhone($user->phone ?? '', 'registration', $user);
+            if (empty($user->phone) || config('app.env') === 'local' || empty(config('services.sms_ethiopia.api_key', env('SMS_ETHIOPIA_API_KEY')))) {
+                $user->markPhoneAsVerified();
+            } else {
+                $otpResult = $this->otpService->sendToPhone($user->phone ?? '', 'registration', $user);
 
-            return response()->json([
-                'success'                     => false,
-                'requires_phone_verification' => true,
-                'message'                     => 'Your phone number is not yet verified. A verification code has been dispatched via SMS.',
-                'phone'                       => $user->phone,
-                'phone_masked'                => \App\Models\SmsLog::maskPhone($user->phone ?? ''),
-                'cooldown_seconds'            => $otpResult['cooldown_seconds'] ?? 60,
-            ], 403);
+                return response()->json([
+                    'success'                     => false,
+                    'requires_phone_verification' => true,
+                    'message'                     => 'Your phone number is not yet verified. A verification code has been dispatched via SMS.',
+                    'phone'                       => $user->phone,
+                    'phone_masked'                => \App\Models\SmsLog::maskPhone($user->phone ?? ''),
+                    'cooldown_seconds'            => $otpResult['cooldown_seconds'] ?? 60,
+                ], 403);
+            }
         }
 
         if ($this->otpService->enabled()) {

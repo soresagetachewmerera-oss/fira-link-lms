@@ -1,3 +1,5 @@
+import '../config/config.dart';
+
 class Tour {
   final int id;
   final String title;
@@ -58,6 +60,10 @@ class Tour {
   });
 
   factory Tour.fromJson(Map<String, dynamic> json) {
+    final rawImage = json['featured_image']?.toString();
+    final rawGallery = json['gallery'] as List<dynamic>?;
+    final parsedGallery = rawGallery?.map((item) => AppConfig.getImageUrl(item?.toString())).toList();
+
     return Tour(
       id: json['id'] as int,
       title: json['title'] ?? '',
@@ -77,8 +83,8 @@ class Tour {
       currency: json['currency'] ?? 'ETB',
       category: json['category'],
       difficultyLevel: json['difficulty_level'] ?? 'Moderate',
-      featuredImage: json['featured_image'],
-      gallery: json['gallery'] as List<dynamic>?,
+      featuredImage: AppConfig.getImageUrl(rawImage),
+      gallery: parsedGallery,
       itinerary: json['itinerary'] as List<dynamic>?,
       includedServices: json['included_services'] as List<dynamic>?,
       exclusions: json['exclusions'] as List<dynamic>?,
@@ -89,3 +95,4 @@ class Tour {
     );
   }
 }
+

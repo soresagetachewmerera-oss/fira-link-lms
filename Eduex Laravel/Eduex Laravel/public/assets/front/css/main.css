@@ -53,17 +53,17 @@ CSS Table of Contents Ends Here
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap");
 :root {
-  --body: #0F1F1F;
-  --black: #000;
-  --white: #fff;
-  --theme: #004F44;
-  --theme-2: #FFA729;
-  --header: #141519;
-  --text: #27282C;
-  --border: #49515b4d;
-  --bg: #F0F4F5;
-  --bg-2: #004F44;
-  --box-shadow: 0px 4px 25px 0px rgba(0, 0, 0, 0.06);
+  --body: #0F172A;
+  --black: #000000;
+  --white: #FFFFFF;
+  --theme: #6D1A95;
+  --theme-2: #50126F;
+  --header: #0F172A;
+  --text: #334155;
+  --border: #E2E8F0;
+  --bg: #F8FAFC;
+  --bg-2: #0F051D;
+  --box-shadow: 0px 4px 20px 0px rgba(109, 26, 149, 0.08);
 }
 
 /* 01.3 Buttons */
@@ -78,23 +78,24 @@ CSS Table of Contents Ends Here
   text-align: center;
   border-radius: 30px;
   background: var(--theme);
-  font-family: "Poppins", sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--white);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   line-height: 1;
-  padding: 6px 6px 6px 32px;
-  letter-spacing: -0.18px;
+  padding: 6px 6px 6px 28px;
+  letter-spacing: -0.15px;
+  transition: all 0.3s ease;
 }
 .theme-btn i {
   margin-left: 10px;
-  transition: all 0.4s ease-in-out;
-  width: 44px;
-  height: 44px;
-  line-height: 44px;
+  transition: all 0.3s ease-in-out;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
   border-radius: 50%;
-  background-color: var(--theme-2);
-  color: var(--header);
+  background-color: rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
 }
 .theme-btn::before {
   content: "";
@@ -105,19 +106,19 @@ CSS Table of Contents Ends Here
   width: 0;
   background-color: var(--theme-2);
   z-index: -1;
-  transition: all 0.4s ease-out;
+  transition: all 0.3s ease-out;
   border-radius: inherit;
 }
 .theme-btn:hover {
-  color: var(--header);
-  box-shadow: none;
+  color: #FFFFFF;
+  box-shadow: 0 6px 20px rgba(109, 26, 149, 0.3);
 }
 .theme-btn:hover::before {
   width: 100%;
 }
 .theme-btn:hover i {
-  background-color: var(--theme);
-  color: var(--white);
+  background-color: #FFFFFF;
+  color: var(--theme);
 }
 @media (max-width: 575px) {
   .theme-btn {
@@ -831,8 +832,26 @@ span {
 
 /* 02.2 Header */
 
-a.header-logo2 img, a.footer-logo img, .header-1 .header-logo img{
-  width: 100px !important;
+a.header-logo img,
+a.header-logo2 img,
+.header-1 .header-logo img,
+.header-1 .header-logo2 img {
+  height: 44px !important;
+  max-height: 44px !important;
+  width: auto !important;
+  max-width: 180px !important;
+  object-fit: contain !important;
+  display: block;
+}
+
+a.footer-logo img,
+.footer-logo img {
+  height: 46px !important;
+  max-height: 46px !important;
+  width: auto !important;
+  max-width: 180px !important;
+  object-fit: contain !important;
+  display: block;
 }
 @media (max-width: 1199px) {
   .menu-thumb {
@@ -1082,29 +1101,14 @@ a.header-logo2 img, a.footer-logo img, .header-1 .header-logo img{
   /* z-index: 99999; */
 }
 .header-1 .logo-shape {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  z-index: -1;
-}
-@media (max-width: 1399px) {
-  .header-1 .logo-shape {
-    display: none;
-  }
-}
-@media (max-width: 1399px) {
-  .header-1 .header-logo2 {
-    display: none;
-  }
+  display: none !important;
 }
 .header-1 .header-logo {
-  display: none;
+  display: flex !important;
+  align-items: center;
 }
-@media (max-width: 1399px) {
-  .header-1 .header-logo {
-    display: block;
-  }
+.header-1 .header-logo2 {
+  display: none !important;
 }
 .header-1 .container-fluid {
   padding: 0 100px;
@@ -1703,7 +1707,7 @@ a.header-logo2 img, a.footer-logo img, .header-1 .header-logo img{
   padding: 10px 28px;
   line-height: 1;
   border-radius: 30px;
-  background: rgba(0, 79, 68, 0.1);
+  background: rgba(109, 26, 149, 0.1);
 }
 .mhq-hero-1 .mhq-hero-content h1 {
   color: var(--header);
@@ -2107,7 +2111,7 @@ a.header-logo2 img, a.footer-logo img, .header-1 .header-logo img{
 .mhq-hero-3 .mhq-hero-content span {
   color: var(--theme);
   border-radius: 30px;
-  background: rgba(0, 79, 68, 0.1);
+  background: rgba(109, 26, 149, 0.1);
   padding: 12px 24px;
   font-weight: 500;
   display: inline-block;
@@ -2181,7 +2185,7 @@ a.header-logo2 img, a.footer-logo img, .header-1 .header-logo img{
 .mhq-about-wrapper .mhq-about-image img {
   width: 100%;
   height: 100%;
-  border: 15px solid rgba(0, 79, 68, 0.1);
+  border: 15px solid rgba(109, 26, 149, 0.1);
   border-radius: 50%;
 }
 .mhq-about-wrapper .mhq-about-image .mhq-about-image-2 {
@@ -2774,7 +2778,7 @@ a.header-logo2 img, a.footer-logo img, .header-1 .header-logo img{
   line-height: 90px;
   text-align: center;
   border-radius: 50%;
-  background: rgba(0, 79, 68, 0.15);
+  background: rgba(109, 26, 149, 0.12);
 }
 @media (max-width: 1399px) {
   .mhq-choose-us-wrapper .mhq-choose-us-content .mhq-choose-icon .mhq-icon-items .icon {
@@ -2788,7 +2792,7 @@ a.header-logo2 img, a.footer-logo img, .header-1 .header-logo img{
   }
 }
 .mhq-choose-us-wrapper .mhq-choose-us-content .mhq-choose-icon .mhq-icon-items .icon.style-2 {
-  background: rgba(255, 167, 41, 0.15);
+  background: rgba(109, 26, 149, 0.08);
 }
 .mhq-choose-us-wrapper .mhq-choose-us-content .mhq-choose-icon .mhq-icon-items .content p {
   font-size: 16px;
@@ -2822,7 +2826,7 @@ a.header-logo2 img, a.footer-logo img, .header-1 .header-logo img{
 .mhq-choose-us-wrapper .mhq-choose-image img {
   width: 100%;
   height: 100%;
-  border: 15px solid rgba(0, 79, 68, 0.1);
+  border: 15px solid rgba(109, 26, 149, 0.1);
   border-radius: 50%;
 }
 .mhq-choose-us-wrapper .mhq-choose-image .mhq-counter-item {
@@ -7342,7 +7346,7 @@ event-countdown {
 .section-title h6 {
   color: var(--theme);
   border-radius: 30px;
-  background: rgba(0, 79, 68, 0.1);
+  background: rgba(109, 26, 149, 0.1);
   padding: 10px 24px;
   font-size: 20px;
   font-weight: 500;
@@ -8567,8 +8571,13 @@ Authentication Pages (Login & Register)
 
 .login-logo img,
 .register-logo img {
-  max-width: 200px;
-  height: auto;
+  height: 56px !important;
+  max-height: 56px !important;
+  width: auto !important;
+  max-width: 200px !important;
+  object-fit: contain !important;
+  margin: 0 auto 16px auto !important;
+  display: block !important;
 }
 
 

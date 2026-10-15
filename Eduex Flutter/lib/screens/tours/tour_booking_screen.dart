@@ -128,8 +128,12 @@ class _TourBookingScreenState extends State<TourBookingScreen> {
                         width: 70,
                         height: 55,
                         color: Colors.grey.shade200,
-                        child: widget.tour.featuredImage != null
-                            ? Image.network(widget.tour.featuredImage!, fit: BoxFit.cover)
+                        child: (widget.tour.featuredImage != null && widget.tour.featuredImage!.isNotEmpty)
+                            ? Image.network(
+                                widget.tour.featuredImage!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const Icon(Icons.image, size: 24),
+                              )
                             : const Icon(Icons.image, size: 24),
                       ),
                     ),

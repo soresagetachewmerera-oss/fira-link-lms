@@ -49,6 +49,12 @@ class Event extends Model
         'metadata' => 'array',
     ];
 
+    protected $appends = [
+        'featured_image_url',
+        'is_free',
+        'currency',
+    ];
+
     public function highlights(): HasMany
     {
         return $this->hasMany(EventHighlight::class)->orderBy('position');
@@ -85,10 +91,24 @@ class Event extends Model
         return max($this->total_seats - $booked, 0);
     }
 
+    public function isFree(): bool
+    {
+        return is_null($this->price) || (float)$this->price <= 0;
+    }
+
+    public function getCurrencyAttribute(): string
+    {
+        return $this->metadata['currency'] ?? 'ETB';
+    }
+
     public function getFeaturedImageUrlAttribute(): ?string
     {
         if ($this->featured_image) {
-            return asset('storage/' . $this->featured_image);
+            if (str_starts_with($this->featured_image, 'http://') || str_starts_with($this->featured_image, 'https://')) {
+                return $this->featured_image;
+            }
+            $host = request()->hasHeader('Host') ? request()->getSchemeAndHttpHost() : config('app.url');
+            return rtrim($host, '/') . '/storage/' . ltrim($this->featured_image, '/');
         }
 
         return null;

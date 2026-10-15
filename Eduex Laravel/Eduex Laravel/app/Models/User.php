@@ -122,7 +122,19 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $appends = [
         'courses_count',
         'average_rating',
+        'profile_photo_url',
     ];
+
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        if (empty($this->profile_photo)) {
+            return asset('assets/front/img/home-1/courses/client-01.png');
+        }
+        if (str_starts_with($this->profile_photo, 'http://') || str_starts_with($this->profile_photo, 'https://')) {
+            return $this->profile_photo;
+        }
+        return asset('storage/' . ltrim($this->profile_photo, '/'));
+    }
 
     public function getCoursesCountAttribute()
     {
@@ -263,58 +275,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function instructorConversations(): HasMany
     {
         return $this->hasMany(Conversation::class, 'instructor_id');
-    }
-
-    /**
-     * Get all subscriptions for the user.
-     */
-    public function subscriptions(): HasMany
-    {
-        return $this->hasMany(UserSubscription::class);
-    }
-
-    /**
-     * Get active subscription for the user.
-     */
-    public function activeSubscription(): ?UserSubscription
-    {
-        /** @var UserSubscription|null $subscription */
-        $subscription = $this->subscriptions()
-            ->with(['plan.courses', 'plan.bundles'])
-            ->where('status', UserSubscription::STATUS_ACTIVE)
-            ->where(function ($query) {
-                $query->whereNull('ends_at')
-                    ->orWhere('ends_at', '>', now());
-            })
-            ->latest('id')
-            ->first();
-
-        return $subscription;
-    }
-
-    /**
-     * Check if user has access to a specific course via an active subscription.
-     */
-    public function hasAccessToCourseViaSubscription(int $courseId): bool
-    {
-        $activeSub = $this->activeSubscription();
-        if (!$activeSub) {
-            return false;
-        }
-
-        return $activeSub->includesCourse($courseId);
-    }
-
-    /**
-     * Check if user has access to a specific bundle via an active subscription.
-     */
-    public function hasAccessToBundleViaSubscription(int $bundleId): bool
-    {
-        $activeSub = $this->activeSubscription();
-        if (!$activeSub) {
-            return false;
-        }
-        return $activeSub->includesBundle($bundleId);
     }
 
     /**

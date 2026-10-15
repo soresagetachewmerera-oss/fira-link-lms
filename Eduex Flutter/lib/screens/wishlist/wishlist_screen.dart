@@ -8,6 +8,7 @@ import '../../models/course.dart';
 import '../../providers/wishlist_provider.dart';
 import '../course_detail/course_detail_screen.dart';
 import '../../providers/settings_provider.dart';
+import '../../widgets/course_thumbnail_image.dart';
 
 class WishlistScreen extends StatefulWidget {
   const WishlistScreen({super.key});
@@ -194,18 +195,13 @@ class _WishlistScreenState extends State<WishlistScreen> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-                      child: course.thumbnail != null
-                          ? Image.network(
-                              course.thumbnail!,
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                            )
-                          : Container(
-                              width: 100,
-                              height: 100,
-                              color: Colors.grey[300],
-                            ),
+                      child: CourseThumbnailImage(
+                        imageUrl: course.thumbnail,
+                        courseId: course.id,
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ],
                 ),

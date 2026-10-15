@@ -264,7 +264,7 @@
                     line-height: 90px;
                     text-align: center;
                     border-radius: 50%;
-                    background: rgba(0, 79, 68, 0.15);
+                    background: rgba(109, 26, 149, 0.12);
 
                     @include breakpoint (max-xxl){
                        max-width: 83px;
@@ -278,7 +278,7 @@
                     }
 
                     &.style-2 {
-                        background: rgba(255, 167, 41, 0.15);
+                        background: rgba(109, 26, 149, 0.08);
                     }
 
                 }
@@ -316,7 +316,7 @@
 
         img {
             @include imgw;
-            border: 15px solid rgba(0, 79, 68, 0.10);
+            border: 15px solid rgba(109, 26, 149, 0.10);
             border-radius: 50%;
         }
 

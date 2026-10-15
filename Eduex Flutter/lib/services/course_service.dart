@@ -132,6 +132,7 @@ class CourseService extends BaseService {
           url,
           headers: await getHeaders(),
           body: jsonEncode({
+            'type': 'bundle',
             'payment_method': paymentMethod,
             'transaction_id': transactionId,
             'confirm_duplicate': confirmDuplicate,

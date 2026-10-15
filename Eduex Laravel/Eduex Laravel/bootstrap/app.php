@@ -12,6 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
+
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
             'approved.instructor' => \App\Http\Middleware\CheckApprovedInstructor::class,
@@ -29,13 +31,14 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\EnsurePhoneIsVerified::class,
         ]);
         
-        // Exclude payment callback routes from CSRF verification
+        // Exclude payment callback routes and public AI chat from CSRF verification
         $middleware->validateCsrfTokens(except: [
             'payment/razorpay/callback',
             'payment/sslcommerz/callback',
             'payment/mollie/callback',
             'payment/chapa/callback',
             'payment/chapa/webhook',
+            'ai-chat/send',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

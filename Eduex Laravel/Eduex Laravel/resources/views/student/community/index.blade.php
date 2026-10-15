@@ -102,13 +102,13 @@
         }
 
         .custom-pills .nav-link.active {
-            background: #f1f7f6;
+            background: #FAF5FF;
             color: var(--theme);
         }
 
         .custom-pills .nav-link:hover:not(.active) {
             background: #f9f9f9;
-            color: #002b24;
+            color: #000000;
         }
 
         .pagination {

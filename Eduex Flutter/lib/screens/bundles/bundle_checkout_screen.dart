@@ -20,10 +20,11 @@ class _BundleCheckoutScreenState extends State<BundleCheckoutScreen> {
     setState(() { _isProcessing = true; });
     try {
       final courseService = CourseService();
+      final isFree = (widget.bundle.price ?? 0) <= 0;
+      final method = isFree ? 'free' : 'chapa';
       final response = await courseService.enrollBundle(
         widget.bundle.id,
-        'offline',
-        transactionId: 'TEST-TX-${DateTime.now().millisecondsSinceEpoch}',
+        method,
       );
 
       if (!mounted) return;
@@ -48,8 +49,7 @@ class _BundleCheckoutScreenState extends State<BundleCheckoutScreen> {
             if (proceed == true) {
                 final confirmResponse = await courseService.enrollBundle(
                     widget.bundle.id,
-                    'offline',
-                    transactionId: 'TEST-TX-${DateTime.now().millisecondsSinceEpoch}',
+                    method,
                     confirmDuplicate: true,
                 );
 
@@ -93,7 +93,7 @@ class _BundleCheckoutScreenState extends State<BundleCheckoutScreen> {
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
                     onPressed: _enrollOffline,
-                    child: const Text('Pay with Offline Payment'),
+                    child: const Text('Proceed to Payment'),
                   )
           ],
         ),

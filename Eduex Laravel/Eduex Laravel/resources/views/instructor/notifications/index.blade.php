@@ -15,7 +15,7 @@
                                 <i class="fa-solid fa-bell me-3 text-theme" style="font-size: 24px;"></i>Notifications
                             </h3>
                             <a href="{{ route('instructor.notifications.readAll') }}" class="theme-btn"
-                                style="padding: 10px 25px; border-radius: 8px; font-weight: 700; background-color: #004f44; color: white;">Mark
+                                style="padding: 10px 25px; border-radius: 8px; font-weight: 700; background-color: #6D1A95; color: white;">Mark
                                 All Read</a>
                         </div>
 
@@ -30,14 +30,14 @@
                                     $iconClass = 'fa-bell';
 
                                     if ($isUnread) {
-                                        $bgColor = '#fffaf3';
-                                        $accentColor = '#ff6b00';
+                                        $bgColor = '#FAF5FF';
+                                        $accentColor = '#6D1A95';
 
                                         if ($notifType == 'course') {
                                             $iconClass = 'fa-graduation-cap';
                                         } elseif ($notifType == 'author' || $notifType == 'instructor') {
                                             $iconClass = 'fa-user-tie';
-                                            $accentColor = '#ff6b00';
+                                            $accentColor = '#6D1A95';
                                         } elseif ($notifType == 'student') {
                                             $iconClass = 'fa-user-graduate';
                                         }
@@ -55,12 +55,12 @@
                                             <div class="notif-icon-circle"
                                                 style="background: #fff; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); flex-shrink: 0;">
                                                 <i class="fa-solid {{ $iconClass }}"
-                                                    style="color: {{ $isUnread ? '#ff6b00' : '#888' }}; font-size: 18px;"></i>
+                                                    style="color: {{ $isUnread ? '#6D1A95' : '#888' }}; font-size: 18px;"></i>
                                             </div>
                                             <div class="flex-grow-1">
                                                 <div class="d-flex align-items-center gap-2 mb-2">
                                                     <h5
-                                                        style="font-size: 17px; color: {{ $isUnread ? '#ff6b00' : '#333' }}; margin: 0; font-weight: 800;">
+                                                        style="font-size: 17px; color: {{ $isUnread ? '#6D1A95' : '#333' }}; margin: 0; font-weight: 800;">
                                                         {{ $notification->data['title'] ?? 'Notification' }}
                                                     </h5>
                                                     @if($isUnread)
@@ -131,13 +131,13 @@
                     }
 
                     .btn-view-details:hover {
-                        background: #f8f9fa !important;
-                        border-color: #333 !important;
-                        color: #000 !important;
+                        background: #FAF5FF !important;
+                        border-color: #6D1A95 !important;
+                        color: #6D1A95 !important;
                     }
 
                     .dashboard-content-section h3 i {
-                        background: rgba(0, 79, 68, 0.1);
+                        background: rgba(109, 26, 149, 0.1);
                         width: 50px;
                         height: 50px;
                         display: inline-flex;
@@ -162,9 +162,9 @@
                     }
 
                     .custom-pagination-wrapper .page-item.active .page-link {
-                        background: #004f44;
+                        background: #6D1A95;
                         color: #fff;
-                        border-color: #004f44;
+                        border-color: #6D1A95;
                     }
 
                     .custom-pagination-wrapper .page-item:not(.active) .page-link:hover {

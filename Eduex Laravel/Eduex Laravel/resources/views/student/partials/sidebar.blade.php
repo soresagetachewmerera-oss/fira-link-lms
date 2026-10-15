@@ -116,13 +116,6 @@
                 </a>
             </li>
             <li>
-                <a href="{{ route('student.subscription') }}"
-                    class="{{ request()->routeIs('student.subscription') ? 'active' : '' }}">
-                    <i class="fa-solid fa-id-card"></i>
-                    <span>{{ __('student.my_subscription') }}</span>
-                </a>
-            </li>
-            <li>
                 <a href="{{ route('student.settings') }}"
                     class="{{ request()->routeIs('student.settings') ? 'active' : '' }}">
                     <i class="fa-solid fa-gear"></i>

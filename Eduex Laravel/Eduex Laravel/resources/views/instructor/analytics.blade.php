@@ -319,13 +319,13 @@
                             datasets: [{
                                 label: 'Revenue ({{ $analytics['revenue']['currency'] }})',
                                 data: @json($analytics['revenue']['data']),
-                                borderColor: '#004F44',
-                                backgroundColor: 'rgba(0, 79, 68, 0.1)',
+                                borderColor: '#6D1A95',
+                                backgroundColor: 'rgba(109, 26, 149, 0.08)',
                                 borderWidth: 3,
                                 fill: true,
                                 tension: 0.4,
                                 pointRadius: 4,
-                                pointBackgroundColor: '#004F44',
+                                pointBackgroundColor: '#6D1A95',
                                 pointBorderColor: '#fff',
                                 pointBorderWidth: 2
                             }]
@@ -374,8 +374,8 @@
                             datasets: [{
                                 label: 'Enrollments',
                                 data: @json($analytics['enrollments']['data']),
-                                backgroundColor: 'rgba(0, 79, 68, 0.8)',
-                                borderColor: '#004F44',
+                                backgroundColor: '#6D1A95',
+                                borderColor: '#50126F',
                                 borderWidth: 2,
                                 borderRadius: 6
                             }]

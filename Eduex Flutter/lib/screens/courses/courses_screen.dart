@@ -12,6 +12,7 @@ import '../../models/course.dart';
 import '../../models/category.dart';
 import '../../services/course_service.dart';
 import '../course_detail/course_detail_screen.dart';
+import '../../widgets/course_thumbnail_image.dart';
 import 'courses_skeletons.dart';
 
 class CoursesScreen extends StatefulWidget {
@@ -405,11 +406,10 @@ class _CourseCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: <Widget>[
-                  Container(
-                    color: AppTheme.mint200,
-                    child: course.thumbnail != null
-                        ? Image.network(course.thumbnail!, fit: BoxFit.cover)
-                        : Container(color: Colors.grey[300]),
+                  CourseThumbnailImage(
+                    imageUrl: course.thumbnail,
+                    courseId: course.id,
+                    fit: BoxFit.cover,
                   ),
                   if (course.isLiveCourse)
                     Positioned(

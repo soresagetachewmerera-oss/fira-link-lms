@@ -36,7 +36,7 @@
                                     <span style="width: 10px; height: 10px; border-radius: 50%; background: #dc3545; animation: liveDot 1.5s infinite;"></span>
                                 </span>
                             @elseif($item['type'] === 'lesson' && ($item['is_live'] ?? false))
-                                <i class="fas fa-broadcast-tower" style="color: #007a6a; font-size: 12px;"></i>
+                                <i class="fas fa-broadcast-tower" style="color: #6D1A95; font-size: 12px;"></i>
                             @elseif($item['type'] === 'lesson')
                                 <i class="fas fa-play"></i>
                             @elseif($item['type'] === 'quiz')

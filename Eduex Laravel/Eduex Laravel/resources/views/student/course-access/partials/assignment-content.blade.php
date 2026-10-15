@@ -96,7 +96,7 @@
                     @if (!empty($submissionData['can_resubmit']))
                         <div class="assignment-form-resubmit mb-4">
                             <div class="assignment-form mb-3"
-                                style="background: rgba(0, 79, 68, 0.05); padding: 20px; border-radius: 12px;">
+                                style="background: #FAF5FF; border: 1px solid rgba(109, 26, 149, 0.12); padding: 20px; border-radius: 12px;">
                                 <h5 style="margin-bottom: 10px; color: var(--header);">{{ __('student.ready_to_try_again') }}</h5>
                                 <p style="margin: 0; color: var(--text);">{{ __('student.resubmit_desc') }}</p>
                             </div>

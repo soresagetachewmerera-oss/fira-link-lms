@@ -19,7 +19,8 @@
                     </div>
                 </div>
                 <h3 class="offcanvas-title">{{ __('frontend.welcome') }}</h3>
-                <p>{{ $footerBranding['tagline'] ?? 'Explore courses, events and latest updates.' }}</p>
+                <p>{{ $footerBranding['tagline'] ?? 'Empowering businesses with trade and learning intelligence.' }}</p>
+
                 <nav class="mobile-menu fix mt-3">
                     <ul class="d-none" data-fallback-menu>
                         @foreach ($mobileMenu as $item)
@@ -34,19 +35,6 @@
                                 <i class="{{ $social['icon'] ?? 'fab fa-link' }}"></i>
                             </a>
                         @endforeach
-                    </div>
-                @endif
-
-                {{-- Mobile Language Switcher --}}
-                @if (!empty($availableLocales) && count($availableLocales) > 1)
-                    <div class="mobile-language-switcher mt-3 mb-4">
-                        <select onchange="window.location.href=this.value" class="w-100" style="appearance: auto; -webkit-appearance: auto; padding: 10px 20px; background: #f8f9fa; border-radius: 12px; border: 1px solid var(--border); color: var(--header); font-size: 14px; font-weight: bold; cursor: pointer; outline: none;">
-                            @foreach ($availableLocales as $code => $meta)
-                                <option value="{{ request()->fullUrlWithQuery(['lang' => $code]) }}" {{ $code === $currentLocale ? 'selected' : '' }}>
-                                    {{ $meta['flag'] }} {{ $meta['native'] }}
-                                </option>
-                            @endforeach
-                        </select>
                     </div>
                 @endif
 

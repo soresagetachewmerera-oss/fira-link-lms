@@ -140,7 +140,7 @@
                 </div>
             </div>
             <div class="stat-card-minimal">
-                <div class="stat-icon-minimal stat-icon-2" style="background: #ffa729;">
+                <div class="stat-icon-minimal stat-icon-2" style="background: #6D1A95;">
                     <i class="fas fa-dollar-sign"></i>
                 </div>
                 <div class="stat-content-minimal">
@@ -360,10 +360,10 @@
                         datasets: [{
                             label: 'Revenue',
                             data: analyticsData.thirty_days.revenue,
-                            borderColor: '#004F44',
-                            backgroundColor: 'rgba(0, 79, 68, 0.05)',
+                            borderColor: '#6D1A95',
+                            backgroundColor: 'rgba(109, 26, 149, 0.08)',
                             borderWidth: 3,
-                            pointBackgroundColor: '#004F44',
+                            pointBackgroundColor: '#6D1A95',
                             pointRadius: 4,
                             tension: 0.4,
                             fill: true
@@ -393,8 +393,8 @@
                         datasets: [{
                             label: 'Enrollments',
                             data: analyticsData.last_12_months.enrollments,
-                            backgroundColor: '#FFA729',
-                            borderRadius: 4
+                            backgroundColor: '#6D1A95',
+                            borderRadius: 6
                         }]
                     },
                     options: {

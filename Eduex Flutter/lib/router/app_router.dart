@@ -31,8 +31,6 @@ import '../screens/community/qa_room_screen.dart';
 import '../screens/ai_learning_path/ai_learning_path_screen.dart';
 import '../screens/chat/conversations_screen.dart';
 import '../screens/chat/chat_screen.dart';
-import '../screens/subscriptions/subscriptions_screen.dart';
-import '../screens/profile/my_subscription_screen.dart';
 import '../screens/coffee_toolkit/coffee_toolkit_hub_screen.dart';
 import '../screens/coffee_toolkit/coffee_profit_calculator_screen.dart';
 import '../screens/coffee_toolkit/coffee_offer_generator_screen.dart';
@@ -73,8 +71,6 @@ class AppRouter {
   static const String notificationSettings = '/notification-settings';
   static const String messages = '/messages';
   static const String chatScreen = '/messages/chat';
-  static const String subscriptions = '/subscriptions';
-  static const String mySubscription = '/my-subscription';
 
   // List of routes that require authentication
   static final List<String> _protectedRoutes = [
@@ -101,7 +97,6 @@ class AppRouter {
     coffeeMarket,
     messages,
     chatScreen,
-    mySubscription,
   ];
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
@@ -185,10 +180,6 @@ class AppRouter {
         );
       case notificationSettings:
         return const NotificationSettingsScreen();
-      case subscriptions:
-        return const SubscriptionsScreen();
-      case mySubscription:
-        return const MySubscriptionScreen();
       case coffeeToolkit:
         return const CoffeeToolkitHubScreen();
       case coffeeCalculator:

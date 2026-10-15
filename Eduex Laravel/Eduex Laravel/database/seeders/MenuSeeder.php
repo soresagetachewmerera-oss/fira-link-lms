@@ -36,7 +36,6 @@ class MenuSeeder extends Seeder
         $mainItems = [
             ['title' => 'Home', 'url' => url('/')],
             ['title' => 'Courses', 'url' => url('/courses')],
-            ['title' => 'Subscriptions', 'url' => url('/subscriptions')],
             ['title' => 'Events', 'url' => url('/events')],
             ['title' => 'About Us', 'url' => url('/about')],
             ['title' => 'Instructor', 'url' => url('/instructors')],

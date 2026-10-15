@@ -53,13 +53,38 @@ class SettingsController extends Controller
     {
         $user = $this->currentUser();
 
+        // 1. Check if this is a Password Change request (passwordForm)
+        if ($request->filled('password') || $request->filled('current_password')) {
+            $validator = Validator::make($request->all(), [
+                'current_password' => 'required',
+                'password' => 'required|min:8|confirmed',
+            ]);
+
+            if ($validator->fails()) {
+                ToastMagic::warning('Please correct the password validation errors and try again.');
+                return back()->withErrors($validator)->withInput();
+            }
+
+            if (!Hash::check($request->current_password, $user->password)) {
+                ToastMagic::error('Current password is incorrect.');
+                return back()->withInput();
+            }
+
+            $user->password = Hash::make($request->password);
+            $user->save();
+
+            ToastMagic::success('Your password has been updated successfully!');
+            return redirect()->route('student.settings');
+        }
+
+        // 2. Profile Information Update (profileForm)
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:20',
-            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
-            'current_password' => 'nullable|required_with:password',
-            'password' => 'nullable|min:8|confirmed',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:10240',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:10240',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -70,24 +95,17 @@ class SettingsController extends Controller
         try {
             $user->name = $request->name;
             $user->email = $request->email;
-            if ($request->filled('phone')) {
+            if ($request->has('phone')) {
                 $user->phone = $request->phone;
             }
 
-            if ($request->hasFile('profile_photo')) {
+            $photoFile = $request->file('profile_photo') ?? $request->file('avatar') ?? $request->file('photo');
+            if ($photoFile) {
                 if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
                     Storage::disk('public')->delete($user->profile_photo);
                 }
                 
-                $user->profile_photo = $this->fileUploadService->uploadProfilePhoto($request->file('profile_photo'));
-            }
-
-            if ($request->filled('password')) {
-                if (!Hash::check($request->current_password, $user->password)) {
-                    ToastMagic::error('Current password is incorrect.');
-                    return back()->withInput();
-                }
-                $user->password = Hash::make($request->password);
+                $user->profile_photo = $this->fileUploadService->uploadProfilePhoto($photoFile, 'profile-photos');
             }
 
             $user->save();
@@ -95,7 +113,7 @@ class SettingsController extends Controller
             ToastMagic::success('Your profile has been updated successfully!');
             return redirect()->route('student.settings');
         } catch (\Exception $e) {
-            ToastMagic::error('An error occurred while updating your profile. Please try again.');
+            ToastMagic::error('An error occurred while updating your profile: ' . $e->getMessage());
             return back()->withInput();
         }
     }

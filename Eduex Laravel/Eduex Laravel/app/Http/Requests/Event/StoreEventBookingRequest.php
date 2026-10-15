@@ -26,6 +26,7 @@ class StoreEventBookingRequest extends FormRequest
             'email' => ['required', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'seats' => ['required', 'integer', 'min:1'],
+            'payment_method' => ['nullable', 'string', 'in:chapa,free'],
             'contact_method' => ['nullable', 'string', 'max:50'],
             'notes' => ['nullable', 'string', 'max:2000'],
         ];

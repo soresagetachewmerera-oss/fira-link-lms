@@ -10,7 +10,6 @@ import '../providers/ai_chat_provider.dart';
 import '../providers/chat_provider.dart';
 import '../providers/course_discussion_provider.dart';
 
-import '../providers/subscription_provider.dart';
 import '../providers/coffee_toolkit_provider.dart';
 
 class AppProviders {
@@ -24,7 +23,6 @@ class AppProviders {
       ChangeNotifierProvider(create: (_) => AiChatProvider()),
       ChangeNotifierProvider(create: (_) => ChatProvider()),
       ChangeNotifierProvider(create: (_) => CourseDiscussionProvider()),
-      ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
       ChangeNotifierProvider(create: (_) => CoffeeToolkitProvider()),
     ];
   }

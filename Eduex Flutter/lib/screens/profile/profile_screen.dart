@@ -279,6 +279,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     user!.profilePhoto!.isNotEmpty)
                                 ? Image.network(
                                     AppConfig.getImageUrl(user.profilePhoto),
+                                    key: ValueKey(user.profilePhoto),
                                     fit: BoxFit.cover,
                                     width: 80,
                                     height: 80,
@@ -532,8 +533,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: <Widget>[
                         _MenuItem(
                           icon: HugeIcons.strokeRoundedAiChat02,
-                          title: 'Nova - AI Assistant',
-                          subtitle: 'Chat with our AI powered assistant',
+                          title: 'Fira AI - Assistant',
+                          subtitle: 'Chat with Fira AI powered by Google Gemini',
                           onTap: () {
                             Navigator.of(context).pushNamed(AppRouter.aiChat);
                           },
@@ -618,22 +619,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     child: Column(
                       children: <Widget>[
-                        _MenuItem(
-                          icon: HugeIcons.strokeRoundedCrown,
-                          title: 'Subscription Plans',
-                          subtitle: 'View and upgrade your learning membership',
-                          onTap: () {
-                            Navigator.of(context).pushNamed(AppRouter.subscriptions);
-                          },
-                        ),
-                        _MenuItem(
-                          icon: HugeIcons.strokeRoundedCheckmarkBadge01,
-                          title: 'My Subscription',
-                          subtitle: 'View active plan & included courses',
-                          onTap: () {
-                            Navigator.of(context).pushNamed(AppRouter.mySubscription);
-                          },
-                        ),
                         _MenuItemWithCustomIcon(
                           icon: Icons.payment,
                           title: context.l10n.payments,

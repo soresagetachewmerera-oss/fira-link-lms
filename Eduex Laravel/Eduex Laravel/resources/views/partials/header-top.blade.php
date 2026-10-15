@@ -53,19 +53,6 @@
                         @endforeach
                     </div>
                 @endif
-
-                {{-- Language Switcher Dropdown --}}
-                @if (!empty($availableLocales) && count($availableLocales) > 1)
-                    <div class="ms-4 position-relative d-flex align-items-center">
-                        <select onchange="window.location.href=this.value" style="appearance: auto; -webkit-appearance: auto; background: transparent; border: 1px solid rgba(0,0,0,0.1); border-radius: 30px; padding: 4px 12px; color: var(--text); font-size: 13px; font-weight: bold; cursor: pointer; min-width: 120px;">
-                            @foreach ($availableLocales as $code => $meta)
-                                <option value="{{ request()->fullUrlWithQuery(['lang' => $code]) }}" {{ $code === $currentLocale ? 'selected' : '' }} style="color: #333;">
-                                    {{ $meta['flag'] }} {{ $meta['native'] }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                @endif
             </div>
         </div>
     </div>

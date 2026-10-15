@@ -16,7 +16,7 @@
                         </a>
                         
                         <div class="d-flex justify-content-between align-items-start flex-wrap gap-4">
-                            <h2 style="font-weight: 800; color: #002b24; max-width: 800px;">{{ $question->title }}</h2>
+                            <h2 style="font-weight: 800; color: #000000; max-width: 800px;">{{ $question->title }}</h2>
                             <button class="theme-btn" data-bs-toggle="modal" data-bs-target="#askQuestionModal">{{ __('student.ask_question') }}</button>
                         </div>
                         <div class="d-flex align-items-center gap-4 mt-3 flex-wrap text-muted" style="font-size: 14px; font-weight: 500;">
@@ -33,7 +33,7 @@
                                 <button class="vote-btn {{ ($question->votes->where('user_id', Auth::id())->first()?->vote == 1) ? 'active' : '' }}" onclick="handleVote('question', {{ $question->id }}, 1, this)">
                                     <i class="fa-solid fa-caret-up" style="font-size: 32px;"></i>
                                 </button>
-                                <span class="vote-count" style="font-size: 20px; font-weight: 800; color: #002b24;">{{ $question->votes_sum_vote ?? 0 }}</span>
+                                <span class="vote-count" style="font-size: 20px; font-weight: 800; color: #000000;">{{ $question->votes_sum_vote ?? 0 }}</span>
                                 <button class="vote-btn {{ ($question->votes->where('user_id', Auth::id())->first()?->vote == -1) ? 'active' : '' }}" onclick="handleVote('question', {{ $question->id }}, -1, this)">
                                     <i class="fa-solid fa-caret-down" style="font-size: 32px;"></i>
                                 </button>
@@ -47,7 +47,7 @@
 
                                 <div class="d-flex flex-wrap gap-2 mb-4">
                                     @foreach($question->tags as $tag)
-                                        <span class="tag-chip" style="background: #f1f7f6; color: #004f44; padding: 6px 16px; border-radius: 12px; font-size: 13px; font-weight: 700;">
+                                        <span class="tag-chip" style="background: #FAF5FF; color: #6D1A95; padding: 6px 16px; border-radius: 12px; font-size: 13px; font-weight: 700;">
                                             #{{ $tag }}
                                         </span>
                                     @endforeach
@@ -57,14 +57,14 @@
                                     <div class="p-3" style="background: #fcfcfc; border-radius: 12px; min-width: 200px; border: 1px solid #f0f0f0;">
                                         <div class="text-muted mb-2" style="font-size: 12px; font-weight: 600;">{{ __('student.asked') }} {{ $question->created_at->format('M d, Y') }}</div>
                                         <div class="d-flex align-items-center gap-3">
-                                            <div style="width: 35px; height: 35px; border-radius: 50%; background: #f0f7f6; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--theme);">
+                                            <div style="width: 35px; height: 35px; border-radius: 50%; background: #FAF5FF; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--theme);">
                                                 @if($question->user->profile_photo)
                                                     <img src="{{ asset('storage/' . $question->user->profile_photo) }}" alt="" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                                                 @else
                                                     {{ strtoupper(substr($question->user->name, 0, 1)) }}
                                                 @endif
                                             </div>
-                                            <div style="font-weight: 700; color: #002b24;">{{ $question->user->name }}</div>
+                                            <div style="font-weight: 700; color: #000000;">{{ $question->user->name }}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -72,7 +72,7 @@
 
                             <!-- Answers Section -->
                             <div class="answers-area mt-5">
-                                <h3 class="mb-4 wow fadeInUp" style="font-weight: 800; color: #002b24;">{{ $question->answers_count }} {{ __('student.answers') }}</h3>
+                                <h3 class="mb-4 wow fadeInUp" style="font-weight: 800; color: #000000;">{{ $question->answers_count }} {{ __('student.answers') }}</h3>
                                 
                                 @foreach($question->answers as $answer)
                                     <div class="row mb-5 wow fadeInUp">
@@ -81,13 +81,13 @@
                                                 <button class="vote-btn {{ ($answer->votes->where('user_id', Auth::id())->first()?->vote == 1) ? 'active' : '' }}" onclick="handleVote('answer', {{ $answer->id }}, 1, this)">
                                                     <i class="fa-solid fa-caret-up" style="font-size: 28px;"></i>
                                                 </button>
-                                                <span class="vote-count" style="font-size: 18px; font-weight: 800; color: #002b24;">{{ $answer->votes_sum_vote ?? 0 }}</span>
+                                                <span class="vote-count" style="font-size: 18px; font-weight: 800; color: #000000;">{{ $answer->votes_sum_vote ?? 0 }}</span>
                                                 <button class="vote-btn {{ ($answer->votes->where('user_id', Auth::id())->first()?->vote == -1) ? 'active' : '' }}" onclick="handleVote('answer', {{ $answer->id }}, -1, this)">
                                                     <i class="fa-solid fa-caret-down" style="font-size: 28px;"></i>
                                                 </button>
 
                                                 @if($answer->is_accepted)
-                                                    <div class="mt-3 text-success" title="Accepted Answer">
+                                                    <div class="mt-3 text-theme" title="Accepted Answer">
                                                         <i class="fa-solid fa-check-circle" style="font-size: 30px;"></i>
                                                     </div>
                                                 @elseif($question->user_id == Auth::id())
@@ -114,14 +114,14 @@
                                                     <div class="p-3" style="background: #fdfdfd; border-radius: 12px; min-width: 180px; border: 1px solid #f5f5f5;">
                                                         <div class="text-muted mb-2" style="font-size: 11px; font-weight: 600;">Answered {{ $answer->created_at->diffForHumans() }}</div>
                                                         <div class="d-flex align-items-center gap-2">
-                                                            <div style="width: 30px; height: 30px; border-radius: 50%; background: #f0f7f6; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--theme); font-size: 12px;">
+                                                            <div style="width: 30px; height: 30px; border-radius: 50%; background: #FAF5FF; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--theme); font-size: 12px;">
                                                                 @if($answer->user->profile_photo)
                                                                     <img src="{{ asset('storage/' . $answer->user->profile_photo) }}" alt="" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                                                                 @else
                                                                     {{ strtoupper(substr($answer->user->name, 0, 1)) }}
                                                                 @endif
                                                             </div>
-                                                            <div style="font-weight: 700; color: #002b24; font-size: 13px;">{{ $answer->user->name }}</div>
+                                                            <div style="font-weight: 700; color: #000000; font-size: 13px;">{{ $answer->user->name }}</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -133,7 +133,7 @@
 
                             <!-- Post Answer area -->
                             <div class="post-answer-area mt-5 wow fadeInUp">
-                                <h3 class="mb-4" style="font-weight: 800; color: #002b24;">{{ __('student.your_answer') }}</h3>
+                                <h3 class="mb-4" style="font-weight: 800; color: #000000;">{{ __('student.your_answer') }}</h3>
                                 <form action="{{ route('student.community.answers.store', $question->id) }}" method="POST">
                                     @csrf
                                     <div class="mb-4">

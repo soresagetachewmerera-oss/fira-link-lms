@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
 
-import '../../config/config.dart';
 import '../../models/bundle.dart';
 import '../../models/category.dart';
 import '../../models/course.dart';
@@ -17,6 +16,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/bottom_nav_bar.dart';
 import '../../widgets/home_skeletons.dart';
 import '../../widgets/live_class_banner.dart';
+import '../../widgets/course_thumbnail_image.dart';
 import '../ai_learning_path/ai_learning_path_screen.dart';
 import '../ai_suggestions/ai_suggestions_screen.dart';
 import '../auth/auth_screen.dart';
@@ -1115,48 +1115,11 @@ class _LazyNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (path == null || path!.isEmpty) {
-      return Container(
-        width: width,
-        height: height,
-        color: Colors.grey[200],
-        child: const Icon(Icons.image, color: Colors.grey, size: 28),
-      );
-    }
-
-    final String url = AppConfig.getImageUrl(path);
-
-    return Image.network(
-      url,
+    return CourseThumbnailImage(
+      imageUrl: path,
       width: width,
       height: height,
       fit: BoxFit.cover,
-      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-        if (wasSynchronouslyLoaded) return child;
-        return AnimatedOpacity(
-          opacity: frame == null ? 0 : 1,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-          child: child,
-        );
-      },
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
-        return Container(
-          width: width,
-          height: height,
-          color: Colors.grey[200],
-          child: const Center(
-            child: Icon(Icons.image, color: Colors.grey, size: 24),
-          ),
-        );
-      },
-      errorBuilder: (context, error, stackTrace) => Container(
-        width: width,
-        height: height,
-        color: Colors.grey[200],
-        child: const Icon(Icons.broken_image, color: Colors.grey, size: 28),
-      ),
     );
   }
 }

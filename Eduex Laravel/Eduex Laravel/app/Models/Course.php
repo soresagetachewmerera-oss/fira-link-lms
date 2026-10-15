@@ -157,7 +157,11 @@ class Course extends Model
         if (!$this->featured_image) {
             return null;
         }
-        return asset('storage/' . $this->featured_image);
+        if (str_starts_with($this->featured_image, 'http://') || str_starts_with($this->featured_image, 'https://')) {
+            return $this->featured_image;
+        }
+        $host = request()->hasHeader('Host') ? request()->getSchemeAndHttpHost() : config('app.url');
+        return rtrim($host, '/') . '/storage/' . ltrim($this->featured_image, '/');
     }
 
     public function getPriceAttribute()
@@ -198,19 +202,17 @@ class Course extends Model
         return $this->enrollments()->whereIn('status', ['approved', 'completed'])->count();
     }
 
-    public function subscriptionPlans(): BelongsToMany
-    {
-        return $this->belongsToMany(SubscriptionPlan::class, 'subscription_plan_courses', 'course_id', 'subscription_plan_id')
-            ->withTimestamps();
-    }
-
     public function getIntroVideoUrlAttribute()
     {
         if (!$this->intro_video) {
             return null;
         }
 
+        if (str_starts_with($this->intro_video, 'http://') || str_starts_with($this->intro_video, 'https://')) {
+            return $this->intro_video;
+        }
+
         // Generate streaming URL with the video path
-        return url('/api/video/stream?path=' . urlencode($this->intro_video));
+        return url('/api/video/stream?path=' . urlencode(ltrim($this->intro_video, '/')));
     }
 }

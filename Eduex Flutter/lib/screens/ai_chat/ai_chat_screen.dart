@@ -463,7 +463,7 @@ class _TypingIndicator extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Nova is thinking',
+              'Fira AI is thinking...',
               style: TextStyle(
                 color: AppTheme.getTextColor(context).withValues(alpha: 0.6),
                 fontSize: 12,

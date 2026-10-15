@@ -22,6 +22,7 @@ import 'checkout_screen.dart';
 import 'course_detail_skeletons.dart';
 import '../course_access/course_access_screen.dart';
 import '../../widgets/course_card.dart';
+import '../../widgets/course_thumbnail_image.dart';
 
 class CourseDetailScreen extends StatefulWidget {
   final int courseId;
@@ -847,35 +848,29 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                                           borderRadius: BorderRadius.circular(
                                             12,
                                           ),
-                                          child: course.thumbnail != null
-                                              ? Image.network(
-                                                  course.thumbnail!,
-                                                  fit: BoxFit.cover,
-                                                  width: double.infinity,
-                                                  errorBuilder:
-                                                      (
-                                                        context,
-                                                        error,
-                                                        stackTrace,
-                                                      ) => Container(
-                                                        color: Colors.grey[300],
-                                                      ),
-                                                )
-                                              : Container(
-                                                  color: Colors.grey[300],
-                                                ),
-                                        ),
-                                      ),
-                                      if (course.introVideo != null)
+                                          child: CourseThumbnailImage(
+                                            imageUrl: course.thumbnail,
+                                            courseId: course.id,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                           ),
+                                         ),
+                                       ),
+                                      if ((course.introVideo != null && course.introVideo!.isNotEmpty) ||
+                                          (course.introVideoUrl != null && course.introVideoUrl!.isNotEmpty))
                                         Center(
                                           child: GestureDetector(
                                             onTap: () {
+                                              final vidUrl = course.introVideoUrl ?? course.introVideo;
                                               _showVideoPreview(
                                                 context,
                                                 lessonTitle: "Intro Video",
-                                                videoUrl: course.introVideoUrl,
-                                                videoType:
-                                                    "hosted", // Default for intro video
+                                                videoUrl: vidUrl,
+                                                videoType: (vidUrl != null &&
+                                                        (vidUrl.contains('youtube') ||
+                                                         vidUrl.contains('youtu.be')))
+                                                    ? "youtube"
+                                                    : "hosted",
                                               );
                                             },
                                             child: Container(
@@ -1889,10 +1884,9 @@ class VideoPreviewSheet extends StatelessWidget {
     String? rawUrl = lesson?.videoUrl ?? lesson?.videoPath ?? videoUrl;
     final type = lesson?.videoType ?? videoType ?? 'hosted';
 
-    String? url = rawUrl;
-    if (url != null && !url.startsWith('http')) {
-      url = '${AppConfig.baseUrl}/storage/$url';
-    }
+    String? url = rawUrl != null && rawUrl.isNotEmpty
+        ? AppConfig.getVideoUrl(rawUrl)
+        : null;
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,

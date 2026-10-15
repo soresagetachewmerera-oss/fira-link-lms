@@ -11,7 +11,7 @@
                         <!-- Chat Header -->
                         <div class="p-4 border-bottom d-flex align-items-center justify-content-between bg-white">
                             <div class="d-flex align-items-center gap-3">
-                                <div class="icon-box" style="width: 45px; height: 45px; background: var(--theme-light, #eefdf3); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--theme, #008D5E);">
+                                <div class="icon-box" style="width: 45px; height: 45px; background: var(--theme-light, #FAF5FF); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--theme, #6D1A95);">
                                     <i class="fa-solid fa-robot service-icon" style="font-size: 20px;"></i>
                                 </div>
                                 <div>
@@ -28,7 +28,7 @@
                                     <div class="chat-message {{ $message->is_ai ? 'ai-message' : 'user-message' }}">
                                         <div class="message-content">
                                             <div class="message-bubble {{ $message->is_ai ? 'bg-white shadow-sm text-dark' : 'text-white' }}" 
-                                                 style="{{ !$message->is_ai ? 'background-color: var(--theme, #008D5E);' : '' }}">
+                                                 style="{{ !$message->is_ai ? 'background-color: var(--theme, #6D1A95);' : '' }}">
                                                 {!! nl2br(e($message->message)) !!}
                                             </div>
                                             <div class="message-time text-muted small mt-1">
@@ -192,7 +192,7 @@
                 const userHtml = `
                     <div class="chat-message user-message">
                         <div class="message-content">
-                            <div class="message-bubble text-white" style="background-color: var(--theme, #008D5E); border-bottom-right-radius: 4px;">
+                            <div class="message-bubble text-white" style="background-color: var(--theme, #6D1A95); border-bottom-right-radius: 4px;">
                                 ${escapeHtml(message).replace(/\n/g, '<br>')}
                             </div>
                             <div class="message-time text-muted small mt-1">Just now</div>

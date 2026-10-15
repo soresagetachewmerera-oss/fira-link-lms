@@ -71,20 +71,37 @@ class ProfileController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:20',
-            'bio' => 'nullable|string|max:500',
+            'bio' => 'nullable|string|max:1000',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
         ]);
 
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'bio' => $request->bio,
-        ]);
+        $user->name = $request->name;
+        $user->email = $request->email;
+        if ($request->has('phone')) {
+            $user->phone = $request->phone;
+        }
+        if ($request->has('bio')) {
+            $user->bio = $request->bio;
+        }
+
+        $photoFile = $request->file('photo') ?? $request->file('profile_photo') ?? $request->file('avatar');
+        if ($photoFile) {
+            if ($user->profile_photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->profile_photo)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo);
+            }
+            $path = $photoFile->store('profile-photos', 'public');
+            $user->profile_photo = $path;
+        }
+
+        $user->save();
 
         return response()->json([
             'success' => true,
             'message' => 'Profile updated successfully.',
-            'user' => $user
+            'photo_url' => $user->profile_photo ? asset('storage/' . $user->profile_photo) : null,
+            'user' => $user->fresh()
         ]);
     }
 
@@ -172,32 +189,39 @@ class ProfileController extends Controller
      */
     public function updateProfilePhoto(Request $request)
     {
+        $photoFile = $request->file('photo') ?? $request->file('profile_photo') ?? $request->file('avatar');
+
+        if (!$photoFile) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No photo uploaded. Please select an image.'
+            ], 422);
+        }
+
         $request->validate([
-            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
         ]);
 
         $user = $request->user();
 
-        if ($request->hasFile('photo')) {
-            // Delete old photo if exists
-            if ($user->profile_photo) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo);
-            }
-
-            $path = $request->file('photo')->store('profile-photos', 'public');
-            $user->update(['profile_photo' => $path]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile photo updated successfully.',
-                'photo_url' => asset('storage/' . $path),
-                'user' => $user
-            ]);
+        if ($user->profile_photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->profile_photo)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo);
         }
 
+        $path = $photoFile->store('profile-photos', 'public');
+        $user->profile_photo = $path;
+        $user->save();
+
+        $photoUrl = asset('storage/' . $path);
+
         return response()->json([
-            'success' => false,
-            'message' => 'No photo uploaded.'
-        ], 400);
+            'success' => true,
+            'message' => 'Profile photo updated successfully.',
+            'photo_url' => $photoUrl,
+            'profile_photo' => $path,
+            'user' => $user->fresh()
+        ]);
     }
 }

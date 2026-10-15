@@ -98,7 +98,6 @@ Route::middleware(['auth', 'role:instructor'])->prefix('instructor')->name('inst
 
     // Earnings routes
     Route::get('/earnings', [EarningsController::class, 'index'])->name('earnings');
-    Route::get('/subscription-sales', [EarningsController::class, 'subscriptionSales'])->name('subscription-sales');
     Route::get('/withdrawals', [EarningsController::class, 'withdrawals'])->name('withdrawals');
     Route::post('/withdrawals', [EarningsController::class, 'storeWithdrawal'])->name('withdrawals.store');
 

@@ -31,28 +31,6 @@ class EduExApp extends StatelessWidget {
       ),
     );
 
-    if (settingsProvider.isLoading) {
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.theme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: settingsProvider.isDarkMode
-            ? ThemeMode.dark
-            : ThemeMode.light,
-        home: Scaffold(
-          backgroundColor: settingsProvider.isDarkMode
-              ? AppTheme.backgroundDark
-              : AppTheme.splashBackground,
-          body: Center(
-            child: CircularProgressIndicator(
-              color: settingsProvider.isDarkMode
-                  ? AppTheme.primaryDark
-                  : AppTheme.primary,
-            ),
-          ),
-        ),
-      );
-    }
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,

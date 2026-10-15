@@ -1,3 +1,4 @@
+import '../../widgets/course_thumbnail_image.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -230,19 +231,13 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: widget.course.thumbnail != null
-                ? Image.network(
-                    widget.course.thumbnail!,
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                  )
-                : Container(
-                    width: 80,
-                    height: 80,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.book),
-                  ),
+            child: CourseThumbnailImage(
+              imageUrl: widget.course.thumbnail,
+              courseId: widget.course.id,
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(

@@ -20,12 +20,17 @@ use App\Http\Controllers\Front\HomeController;
 use App\Http\Controllers\Front\BundleController;
 use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Controllers\Front\CertificateVerificationController;
-use App\Http\Controllers\Front\SubscriptionController;
+use App\Http\Controllers\Student\AiChatController;
 use App\Models\CustomPage;
 
 require __DIR__.'/install.php';
 
 Route::get('/', HomeController::class)->name('home');
+
+// Fira AI Public Routes - freely accessible by any web visitor or student
+Route::get('/ai-chat', [AiChatController::class, 'publicIndex'])->name('ai-chat.public');
+Route::post('/ai-chat/send', [AiChatController::class, 'sendMessage'])->name('ai-chat.send');
+
 Route::match(['get', 'post'], '/verify-certificate', [CertificateVerificationController::class, 'verify'])->name('verify-certificate');
 
 // Terms and conditions routes
@@ -94,6 +99,8 @@ Route::post('/payment/chapa/webhook', [CourseEnrollmentController::class, 'chapa
 // Events routes
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
 Route::get('/events/bookings/verify/{reference}', EventBookingVerificationController::class)->name('events.bookings.verify');
+Route::match(['get', 'post'], '/events/payment/chapa/callback', [EventController::class, 'chapaCallback'])->name('events.chapa.callback');
+Route::get('/events/booking/confirmation/{reference}', [EventController::class, 'confirmation'])->name('events.confirmation');
 
 // Tours routes
 Route::get('/tours', [TourController::class, 'index'])->name('tours.index');
@@ -112,15 +119,8 @@ Route::middleware('auth')->group(function () {
 });
 Route::get('/events/{slug}', [EventController::class, 'show'])->name('events.show');
 
-// Public subscription pricing route
-Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
-
 // Course checkout routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/subscriptions/{plan}/checkout', [SubscriptionController::class, 'checkout'])->name('subscriptions.checkout');
-    Route::post('/subscriptions/{plan}/checkout', [SubscriptionController::class, 'processCheckout'])->name('subscriptions.process-checkout');
-    Route::get('/student/subscription', [SubscriptionController::class, 'mySubscription'])->name('student.subscription');
-    Route::post('/subscriptions/enroll/{courseId}', [SubscriptionController::class, 'enrollViaSubscription'])->name('subscriptions.enroll');
 
     Route::get('/courses/{id}/checkout', [CourseEnrollmentController::class, 'checkout'])->name('courses.checkout');
     Route::post('/courses/{id}/checkout', [CourseEnrollmentController::class, 'processCheckout'])->name('courses.checkout.process');
@@ -139,6 +139,25 @@ Route::middleware(['auth'])->group(function () {
 
 // Cron runner route
 Route::get('/cron/run', [App\Http\Controllers\CronController::class, 'run'])->name('cron.run');
+
+// Serve storage files with CORS headers and caching
+Route::get('/storage/{path}', function (string $path) {
+    $fullPath = storage_path('app/public/' . $path);
+    if (!file_exists($fullPath)) {
+        $fullPath = public_path('storage/' . $path);
+    }
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+    $mime = mime_content_type($fullPath) ?: 'application/octet-stream';
+    return response()->file($fullPath, [
+        'Content-Type' => $mime,
+        'Access-Control-Allow-Origin' => '*',
+        'Access-Control-Allow-Methods' => 'GET, HEAD, OPTIONS',
+        'Access-Control-Allow-Headers' => '*',
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*');
 
 // Include all route files
 require __DIR__ . '/auth.php';

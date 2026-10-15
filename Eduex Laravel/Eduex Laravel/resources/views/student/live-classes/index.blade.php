@@ -54,15 +54,15 @@
 
                 @if ($upcoming->isNotEmpty())
                     <div class="mb-4">
-                        <h5 style="font-weight: 700; color: #004f44; margin-bottom: 15px;">
+                        <h5 style="font-weight: 700; color: #6D1A95; margin-bottom: 15px;">
                             <i class="fas fa-calendar-alt me-2"></i> Upcoming
                         </h5>
                         @foreach ($upcoming as $liveClass)
-                            <div style="background: #fff; border-radius: 16px; padding: 22px 28px; margin-bottom: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); border-left: 4px solid #007a6a;">
+                            <div style="background: #fff; border-radius: 16px; padding: 22px 28px; margin-bottom: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); border-left: 4px solid #6D1A95;">
                                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
                                     <div style="flex: 1; min-width: 220px;">
                                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                                            <span style="background: #e8f5e9; color: #2e7d32; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 6px; text-transform: uppercase;">Scheduled</span>
+                                            <span style="background: #FAF5FF; color: #6D1A95; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 6px; text-transform: uppercase;">Scheduled</span>
                                             @if ($liveClass->minutes_until <= 30 && $liveClass->minutes_until > 0)
                                                 <span style="background: #fff3e0; color: #e65100; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 6px;">Starting Soon</span>
                                             @endif
@@ -85,9 +85,9 @@
                                                 <i class="fas fa-video me-1"></i> Join Early
                                             </a>
                                         @else
-                                            <div style="text-align: center; background: #f1f7f6; padding: 8px 18px; border-radius: 10px;">
+                                            <div style="text-align: center; background: #FAF5FF; padding: 8px 18px; border-radius: 10px;">
                                                 <div style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">Starts in</div>
-                                                <div style="font-size: 16px; font-weight: 800; color: #004f44;">
+                                                <div style="font-size: 16px; font-weight: 800; color: #6D1A95;">
                                                     @if ($liveClass->minutes_until > 1440)
                                                         {{ floor($liveClass->minutes_until / 1440) }}d {{ floor(($liveClass->minutes_until % 1440) / 60) }}h
                                                     @elseif ($liveClass->minutes_until > 60)
@@ -130,7 +130,7 @@
                                     </div>
                                     @if ($liveClass->status === 'ended' && ($liveClass->recording_url || $liveClass->recording_video_path))
                                         <a href="{{ $liveClass->recording_url ?? $liveClass->recording_video_url }}" target="_blank" rel="noopener"
-                                           style="display: inline-flex; align-items: center; gap: 6px; background: #f1f7f6; color: #004f44; padding: 8px 18px; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 13px;">
+                                           style="display: inline-flex; align-items: center; gap: 6px; background: #FAF5FF; color: #6D1A95; padding: 8px 18px; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 13px;">
                                             <i class="fas fa-play-circle"></i> Watch Recording
                                         </a>
                                     @endif

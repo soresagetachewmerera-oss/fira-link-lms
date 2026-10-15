@@ -76,7 +76,9 @@ class SettingsController extends Controller
             'twitter' => 'nullable|url|max:255',
             'facebook' => 'nullable|url|max:255',
             'youtube' => 'nullable|url|max:255',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:10240',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:10240',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -87,31 +89,32 @@ class SettingsController extends Controller
         try {
             $user->name = $request->name;
             $user->email = $request->email;
-            if ($request->filled('phone')) {
+            if ($request->has('phone')) {
                 $user->phone = $request->phone;
             }
-            if ($request->filled('bio')) {
+            if ($request->has('bio')) {
                 $user->bio = $request->bio;
             }
-            if ($request->filled('linkedin')) {
+            if ($request->has('linkedin')) {
                 $user->linkedin = $request->linkedin;
             }
-            if ($request->filled('twitter')) {
+            if ($request->has('twitter')) {
                 $user->twitter = $request->twitter;
             }
-            if ($request->filled('facebook')) {
+            if ($request->has('facebook')) {
                 $user->facebook = $request->facebook;
             }
-            if ($request->filled('youtube')) {
+            if ($request->has('youtube')) {
                 $user->youtube = $request->youtube;
             }
 
-            if ($request->hasFile('avatar')) {
+            $photoFile = $request->file('avatar') ?? $request->file('profile_photo') ?? $request->file('photo');
+            if ($photoFile) {
                 if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
                     Storage::disk('public')->delete($user->profile_photo);
                 }
                 
-                $user->profile_photo = $this->fileUploadService->uploadProfilePhoto($request->file('avatar'));
+                $user->profile_photo = $this->fileUploadService->uploadProfilePhoto($photoFile, 'instructors/photos');
             }
 
             $user->save();

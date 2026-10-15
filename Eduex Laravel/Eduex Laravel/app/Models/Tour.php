@@ -95,6 +95,7 @@ class Tour extends Model
             return $this->featured_image;
         }
 
-        return asset('storage/' . $this->featured_image);
+        $host = request()->hasHeader('Host') ? request()->getSchemeAndHttpHost() : config('app.url');
+        return rtrim($host, '/') . '/storage/' . ltrim($this->featured_image, '/');
     }
 }

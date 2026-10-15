@@ -1972,6 +1972,17 @@ class CourseEnrollmentController extends Controller
         $firstName = $nameParts[0] ?? 'Student';
         $lastName  = $nameParts[1] ?? 'User';
 
+        $customTitle = substr(preg_replace('/[^a-zA-Z0-9\-_ .]/', '', config('app.name', 'Fira Link')), 0, 16);
+        if (empty($customTitle)) {
+            $customTitle = 'Fira Link';
+        }
+
+        $rawDesc = 'Enrollment ' . ($course->title ?? 'Course');
+        $customDesc = substr(preg_replace('/[^a-zA-Z0-9\-_ .]/', '', $rawDesc), 0, 50);
+        if (empty($customDesc)) {
+            $customDesc = 'Course Enrollment';
+        }
+
         $payload = [
             'amount'       => number_format($amount, 2, '.', ''),
             'currency'     => 'ETB',
@@ -1983,8 +1994,8 @@ class CourseEnrollmentController extends Controller
             'callback_url' => config('app.url') . '/payment/chapa/callback',
             'return_url'   => config('app.url') . '/payment/chapa/callback?tx_ref=' . $txRef,
             'customization' => [
-                'title'       => config('app.name', 'Fira Link'),
-                'description' => 'Course Enrollment: ' . ($course->title ?? 'Course'),
+                'title'       => $customTitle,
+                'description' => $customDesc,
             ],
         ];
 
@@ -2009,11 +2020,24 @@ class CourseEnrollmentController extends Controller
             throw new \Exception('Chapa initialize session cURL error: ' . $curlError);
         }
 
-        if ($httpCode !== 200 && $httpCode !== 201) {
-            throw new \Exception('Failed to create Chapa checkout session. HTTP ' . $httpCode);
-        }
-
         $responseData = json_decode($response, true);
+
+        if ($httpCode !== 200 && $httpCode !== 201) {
+            $errorDetails = '';
+            if (is_array($responseData)) {
+                if (is_array($responseData['message'] ?? null)) {
+                    $flattened = [];
+                    array_walk_recursive($responseData['message'], function ($val) use (&$flattened) {
+                        $flattened[] = $val;
+                    });
+                    $errorDetails = implode(' ', $flattened);
+                } elseif (is_string($responseData['message'] ?? null)) {
+                    $errorDetails = $responseData['message'];
+                }
+            }
+            $errMsg = $errorDetails ?: substr($response, 0, 300);
+            throw new \Exception('Failed to create Chapa checkout session (HTTP ' . $httpCode . '): ' . $errMsg);
+        }
 
         $checkoutUrl = $responseData['data']['checkout_url']
             ?? $responseData['checkout_url']

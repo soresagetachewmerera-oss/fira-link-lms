@@ -8,7 +8,10 @@ echo.
 set ANDROID_HOME=D:\tools\android-sdk
 set ANDROID_USER_HOME=D:\tools\.android
 set ANDROID_AVD_HOME=D:\tools\.android\avd
+set GRADLE_USER_HOME=D:\tools\.gradle
 set PATH=C:\Users\sora\dev\flutter\bin;D:\tools\android-sdk\platform-tools;D:\tools\android-sdk\emulator;%PATH%
+
+adb start-server >nul 2>&1
 
 echo [1/3] Checking connected devices or launching Android Emulator (Pixel_7_API_34)...
 adb devices | findstr /R "device$" >nul 2>&1
@@ -18,11 +21,22 @@ if %errorlevel% equ 0 (
 )
 
 echo Starting emulator Pixel_7_API_34...
-start "" "D:\tools\android-sdk\emulator\emulator.exe" -avd Pixel_7_API_34
+sc query aehd >nul 2>&1
+if %errorlevel% equ 0 (
+    echo [OK] AEHD Hardware acceleration active.
+    start "" "D:\tools\android-sdk\emulator\emulator.exe" -avd Pixel_7_API_34
+) else (
+    echo [INFO] AEHD Driver not yet registered. Using software emulation mode.
+    echo (Tip: Run 'install_aehd_driver.bat' as Administrator for 60fps hardware speed)
+    set ANDROID_I_WANT_MY_TCG=yes
+    start "" "D:\tools\android-sdk\emulator\emulator.exe" -avd Pixel_7_API_34 -accel off
+)
 
 echo [2/3] Waiting for Android device/emulator to boot...
-echo (If this is the first boot or VT-x is disabled, please ensure Virtualization is Enabled in BIOS)
 adb wait-for-device
+echo Device detected! Waiting a few seconds for system stabilization...
+ping -n 8 127.0.0.1 >nul
+echo [OK] Android system ready!
 
 :ready_to_run
 echo.
