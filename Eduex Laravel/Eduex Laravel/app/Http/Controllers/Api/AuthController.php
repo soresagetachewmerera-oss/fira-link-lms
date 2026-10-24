@@ -350,6 +350,7 @@ class AuthController extends Controller
 
         $user->password = Hash::make($request->password);
         $user->save();
+        $user->tokens()->delete();
 
         return response()->json([
             'success' => true,
