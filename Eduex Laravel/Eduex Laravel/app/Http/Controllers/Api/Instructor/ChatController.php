@@ -112,7 +112,7 @@ class ChatController extends Controller
     {
         $request->validate([
             'message' => 'required_without:files|nullable|string|max:2000',
-            'files.*' => 'nullable|file|max:10240',
+            'files.*' => 'nullable|file|mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,txt,zip|max:10240',
         ]);
 
         $user = Auth::user();

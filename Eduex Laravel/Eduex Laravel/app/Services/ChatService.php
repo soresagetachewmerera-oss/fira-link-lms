@@ -249,8 +249,16 @@ class ChatService
 
     private function storeAttachments(ChatMessage $message, array $files): void
     {
+        $allowedExtensions = explode(',', (string) $this->getConfig('allowed_file_types', 'jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,txt,zip'));
+        $allowedExtensions = array_map('trim', array_map('strtolower', $allowedExtensions));
+
         foreach ($files as $file) {
             if (!$file instanceof UploadedFile) {
+                continue;
+            }
+
+            $extension = strtolower($file->getClientOriginalExtension());
+            if (!in_array($extension, $allowedExtensions, true)) {
                 continue;
             }
 
