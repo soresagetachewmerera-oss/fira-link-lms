@@ -68,7 +68,12 @@ class SmsEthiopiaService
             return null;
         }
 
-        // Remove non-digit characters except leading plus
+        // Reject if phone number contains letters, control characters, or command delimiters
+        if (preg_match('/[^\d+\s\-()]/', $phone)) {
+            return null;
+        }
+
+        // Remove allowed formatting characters except leading plus
         $clean = preg_replace('/[^\d+]/', '', trim($phone));
 
         if (empty($clean)) {
