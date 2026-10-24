@@ -32,7 +32,7 @@
         <!-- Thread Title & Content -->
         <h4 style="font-weight: 700; color: #1e1e2d; margin-bottom: 16px;">{{ $discussion->title }}</h4>
         <div class="thread-body-content text-secondarymb-4" style="font-size: 14px; line-height: 1.6; color: #4b5563; white-space: pre-line;">
-            {!! $discussion->content !!}
+            {!! nl2br(e($discussion->content)) !!}
         </div>
 
         <hr style="border-color: #f1f1f1; margin: 20px 0;">
@@ -92,7 +92,7 @@
                             </div>
                             
                             <p class="mb-3 text-secondary" style="font-size: 13px; line-height: 1.5; color: #4b5563; white-space: pre-line;">
-                                {!! $reply->content !!}
+                                {!! nl2br(e($reply->content)) !!}
                             </p>
                             
                             <div class="d-flex justify-content-between align-items-center">

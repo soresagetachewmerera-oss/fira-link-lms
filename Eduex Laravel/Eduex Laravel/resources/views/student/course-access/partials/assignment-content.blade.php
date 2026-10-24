@@ -71,7 +71,7 @@
                             <div class="submission-text-box mb-4">
                                 <h5 style="color: var(--header); margin-bottom: 15px;">{{ __('student.your_submission') }}</h5>
                                 <div class="submission-text-content">
-                                    {!! $submission->submission_text !!}
+                                    {!! nl2br(e($submission->submission_text)) !!}
                                 </div>
                             </div>
                         @endif
