@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\GeminiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AiChatController extends Controller
 {
@@ -46,10 +47,13 @@ class AiChatController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user() ?: auth('sanctum')->user();
-        $userId = $user ? $user->id : 1;
-        $messages = AiChatMessage::where('user_id', $userId)
-            ->orderBy('created_at', 'asc')
-            ->get();
+        if (!$user) {
+            $messages = collect([]);
+        } else {
+            $messages = AiChatMessage::where('user_id', $user->id)
+                ->orderBy('created_at', 'asc')
+                ->get();
+        }
 
         if ($request->wantsJson() || $request->is('api/*')) {
             return response()->json([
@@ -101,39 +105,61 @@ class AiChatController extends Controller
         $userMessageText = trim($userMessageText);
 
         $user = Auth::user() ?: auth('sanctum')->user();
-        $userId = $user ? $user->id : (User::first()?->id ?? 1);
+        $ip = $request->ip() ?: '127.0.0.1';
+        $throttleKey = 'ai-chat:' . ($user ? 'user:' . $user->id : 'ip:' . $ip);
+        $maxAttempts = $user ? 20 : 5; // 5 per min for guests, 20 per min for logged-in users
 
-        // Save user message
+        if (RateLimiter::tooManyAttempts($throttleKey, $maxAttempts)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            return response()->json([
+                'success' => false,
+                'message' => "Too many requests. Please wait {$seconds} seconds before sending another message."
+            ], 429);
+        }
+        RateLimiter::hit($throttleKey, 60);
+
         $userMessage = null;
-        try {
-            $userMessage = AiChatMessage::create([
-                'user_id' => $userId,
+        $history = [];
+
+        if ($user) {
+            $userId = $user->id;
+            try {
+                $userMessage = AiChatMessage::create([
+                    'user_id' => $userId,
+                    'message' => $userMessageText,
+                    'is_ai' => false,
+                ]);
+            } catch (\Throwable $e) {
+                \Log::warning('Could not save user AI message: ' . $e->getMessage());
+            }
+
+            try {
+                $history = AiChatMessage::where('user_id', $userId)
+                    ->when($userMessage, fn($q) => $q->where('id', '<', $userMessage->id))
+                    ->orderBy('created_at', 'desc')
+                    ->take(4)
+                    ->get()
+                    ->reverse()
+                    ->values()
+                    ->map(function ($msg) {
+                        if (is_string($msg->message) && strlen($msg->message) > 350) {
+                            $msg->message = mb_substr($msg->message, 0, 350) . '...';
+                        }
+                        return $msg;
+                    })
+                    ->all();
+            } catch (\Throwable $e) {
+                \Log::warning('Could not fetch AI chat history: ' . $e->getMessage());
+            }
+        } else {
+            // For guests, isolate context and never leak other users' history
+            $userMessage = (object)[
+                'id' => rand(100, 999),
+                'user_id' => null,
                 'message' => $userMessageText,
                 'is_ai' => false,
-            ]);
-        } catch (\Throwable $e) {
-            \Log::warning('Could not save user AI message: ' . $e->getMessage());
-        }
-
-        // Get chat history for context (limit to last 4 messages to save tokens and avoid quota limits)
-        $history = [];
-        try {
-            $history = AiChatMessage::where('user_id', $userId)
-                ->when($userMessage, fn($q) => $q->where('id', '<', $userMessage->id))
-                ->orderBy('created_at', 'desc')
-                ->take(4)
-                ->get()
-                ->reverse()
-                ->values()
-                ->map(function ($msg) {
-                    if (is_string($msg->message) && strlen($msg->message) > 350) {
-                        $msg->message = mb_substr($msg->message, 0, 350) . '...';
-                    }
-                    return $msg;
-                })
-                ->all();
-        } catch (\Throwable $e) {
-            \Log::warning('Could not fetch AI chat history: ' . $e->getMessage());
+                'created_at' => now(),
+            ];
         }
 
         // Get AI response
@@ -141,17 +167,22 @@ class AiChatController extends Controller
 
         // Save AI response
         $aiMessage = null;
-        try {
-            $aiMessage = AiChatMessage::create([
-                'user_id' => $userId,
-                'message' => $aiResponseText,
-                'is_ai' => true,
-            ]);
-        } catch (\Throwable $e) {
-            \Log::warning('Could not save AI reply message: ' . $e->getMessage());
+        if ($user) {
+            try {
+                $aiMessage = AiChatMessage::create([
+                    'user_id' => $user->id,
+                    'message' => $aiResponseText,
+                    'is_ai' => true,
+                ]);
+            } catch (\Throwable $e) {
+                \Log::warning('Could not save AI reply message: ' . $e->getMessage());
+            }
+        }
+
+        if (!$aiMessage) {
             $aiMessage = (object)[
                 'id' => rand(1000, 9999),
-                'user_id' => $userId,
+                'user_id' => $user?->id,
                 'message' => $aiResponseText,
                 'is_ai' => true,
                 'created_at' => now(),
@@ -161,7 +192,7 @@ class AiChatController extends Controller
         if (!$userMessage) {
             $userMessage = (object)[
                 'id' => rand(100, 999),
-                'user_id' => $userId,
+                'user_id' => $user?->id,
                 'message' => $userMessageText,
                 'is_ai' => false,
                 'created_at' => now(),
