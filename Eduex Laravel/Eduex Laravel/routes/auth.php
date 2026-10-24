@@ -10,18 +10,18 @@ use App\Http\Controllers\Auth\VerificationController;
 Route::middleware('guest')->group(function () {
     // Login routes
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:6,1');
     Route::get('/login/otp', [LoginOtpController::class, 'show'])->name('login.otp.show');
-    Route::post('/login/otp', [LoginOtpController::class, 'verify'])->name('login.otp.verify');
-    Route::post('/login/otp/resend', [LoginOtpController::class, 'resend'])->name('login.otp.resend');
+    Route::post('/login/otp', [LoginOtpController::class, 'verify'])->name('login.otp.verify')->middleware('throttle:6,1');
+    Route::post('/login/otp/resend', [LoginOtpController::class, 'resend'])->name('login.otp.resend')->middleware('throttle:6,1');
 
     // Forgot password routes
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email')->middleware('throttle:6,1');
 
     // Reset password routes
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update')->middleware('throttle:6,1');
 });
 
 Route::match(['get', 'post'], '/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');

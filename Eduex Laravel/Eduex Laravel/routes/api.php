@@ -40,7 +40,7 @@ Route::match(['GET', 'POST'], '/fira-ai/test', [AiChatController::class, 'testCo
 Route::get('/ai-chat', [AiChatController::class, 'index']);
 Route::post('/ai-chat/send', [AiChatController::class, 'sendMessage']);
 
-Route::prefix('auth')->group(function () {
+Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/login/otp/verify', [AuthController::class, 'verifyOtp']);
@@ -213,7 +213,7 @@ Route::prefix('instructor')->group(function () {
     Route::post('/verify-certificate', [ApiCertificateVerificationController::class, 'verify']);
     Route::get('/verify-certificate/{code}', [ApiCertificateVerificationController::class, 'show']);
 
-    Route::prefix('auth')->group(function () {
+    Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
         Route::post('/register', [\App\Http\Controllers\Api\Instructor\AuthController::class, 'register']);
         Route::post('/login', [\App\Http\Controllers\Api\Instructor\AuthController::class, 'login']);
         Route::post('/login/otp/verify', [\App\Http\Controllers\Api\Instructor\AuthController::class, 'verifyOtp']);
