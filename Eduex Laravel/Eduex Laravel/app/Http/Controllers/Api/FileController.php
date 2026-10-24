@@ -20,20 +20,26 @@ class FileController extends Controller
             return response()->json(['error' => 'Path is required'], 400);
         }
 
-        // Clean path - remove storage prefix if present as we use Storage::path which might look in storage/app/public
-        $cleanPath = str_replace('storage/', '', $path);
-        if (str_starts_with($cleanPath, '/')) {
-            $cleanPath = substr($cleanPath, 1);
+        // Sanitize path by removing traversal components and leading slashes
+        $cleanPath = ltrim(str_replace(['../', '..\\', 'storage/'], '', $path), '/\\');
+
+        $storagePublicBase = realpath(storage_path('app/public'));
+        $publicStorageBase = realpath(public_path('storage'));
+
+        $fullPath = null;
+        $candidate1 = realpath(storage_path('app/public/' . $cleanPath));
+        if ($candidate1 && $storagePublicBase && str_starts_with($candidate1, $storagePublicBase) && is_file($candidate1)) {
+            $fullPath = $candidate1;
+        } else {
+            $candidate2 = realpath(public_path('storage/' . $cleanPath));
+            if ($candidate2 && $publicStorageBase && str_starts_with($candidate2, $publicStorageBase) && is_file($candidate2)) {
+                $fullPath = $candidate2;
+            }
         }
 
-        $fullPath = storage_path('app/public/' . $cleanPath);
-
-        if (!file_exists($fullPath)) {
-            // Try without public if it failed
-            $fullPath = storage_path('app/' . $cleanPath);
-            if (!file_exists($fullPath)) {
-                return response()->json(['error' => 'File not found at ' . $fullPath], 404);
-            }
+        if (!$fullPath) {
+            // Generic 404 without disclosing internal OS server path
+            return response()->json(['error' => 'File not found.'], 404);
         }
 
         $response = new BinaryFileResponse($fullPath);
