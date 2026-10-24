@@ -163,13 +163,12 @@ Guidelines:
             $url = $this->baseUrl . $candidateModel . ':generateContent?key=' . $this->apiKey;
 
             try {
-                $response = Http::withoutVerifying()
-                    ->withOptions([
-                        'curl' => [
-                            CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
-                            CURLOPT_CONNECTTIMEOUT => 4,
-                        ]
-                    ])
+                $response = Http::withOptions([
+                    'curl' => [
+                        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                        CURLOPT_CONNECTTIMEOUT => 4,
+                    ]
+                ])
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                     ])
