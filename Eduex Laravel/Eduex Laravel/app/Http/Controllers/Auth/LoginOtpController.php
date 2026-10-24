@@ -147,9 +147,12 @@ class LoginOtpController extends Controller
 
 
 
-        $this->otpService->send($user);
-
-        ToastMagic::success('A new verification code has been sent to your email.');
+        try {
+            $this->otpService->send($user);
+            ToastMagic::success('A new verification code has been sent to your email.');
+        } catch (\Throwable $e) {
+            ToastMagic::warning($e->getMessage());
+        }
 
         return back();
     }

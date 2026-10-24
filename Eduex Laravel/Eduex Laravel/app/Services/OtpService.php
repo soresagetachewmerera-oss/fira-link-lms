@@ -147,7 +147,7 @@ class OtpService
         if ($this->isInCooldown($identifier, $purpose)) {
             $remaining = $this->getCooldownRemaining($identifier, $purpose);
             Log::warning("OTP request rejected due to active cooldown for user #{$user->id} ({$remaining}s left)");
-            // We still proceed or throw if strict, but let's allow graceful behavior:
+            throw new \RuntimeException("Please wait {$remaining} seconds before requesting a new code.");
         }
 
         $code = $this->generateCode();

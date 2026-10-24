@@ -109,7 +109,11 @@ class LoginController extends Controller
         }
 
         if ($this->otpService->enabled()) {
-            $this->otpService->send($user);
+            try {
+                $this->otpService->send($user);
+            } catch (\Throwable $e) {
+                // If already sent and in cooldown, reuse the active code and proceed to verify screen
+            }
 
             $request->session()->put('otp_login_user_id', $user->id);
             $request->session()->put('otp_login_remember', $request->filled('remember'));

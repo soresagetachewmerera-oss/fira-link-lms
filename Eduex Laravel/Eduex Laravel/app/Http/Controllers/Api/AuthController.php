@@ -163,7 +163,11 @@ class AuthController extends Controller
         }
 
         if ($this->otpService->enabled()) {
-            $this->otpService->send($user);
+            try {
+                $this->otpService->send($user);
+            } catch (\Throwable $e) {
+                // If already dispatched and in active cooldown, reuse active code
+            }
 
             return response()->json([
                 'message' => 'OTP sent to your email',
@@ -222,9 +226,15 @@ class AuthController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        $this->otpService->send($user);
-
-        return response()->json(['message' => 'OTP resent successfully']);
+        try {
+            $this->otpService->send($user);
+            return response()->json(['message' => 'OTP resent successfully']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 429);
+        }
     }
 
     public function logout(Request $request)
