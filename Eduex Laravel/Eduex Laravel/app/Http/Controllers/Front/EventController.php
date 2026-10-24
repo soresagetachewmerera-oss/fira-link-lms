@@ -31,19 +31,49 @@ class EventController extends Controller
 {
     public function index(Request $request): View
     {
-        $events = Event::with(['speakers', 'highlights'])
+        $query = Event::with(['speakers', 'highlights'])
             ->published()
             ->withCount([
                 'bookings as confirmed_bookings_count' => fn ($q) => $q->where('status', EventBooking::STATUS_CONFIRMED),
                 'bookings',
-            ])
-            ->orderBy('start_date')
-            ->paginate(9);
+            ]);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%")
+                  ->orWhere('summary', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('type')) {
+            $type = $request->input('type');
+            if ($type === 'free') {
+                $query->where(function ($q) {
+                    $q->where('price', 0)->orWhereNull('price');
+                });
+            } elseif ($type === 'paid') {
+                $query->where('price', '>', 0);
+            }
+        }
+
+        $sort = $request->input('sort', 'upcoming');
+        if ($sort === 'price_low') {
+            $query->orderBy('price', 'asc');
+        } elseif ($sort === 'price_high') {
+            $query->orderBy('price', 'desc');
+        } else {
+            $query->orderByRaw('CASE WHEN start_date IS NOT NULL THEN start_date ELSE created_at END asc');
+        }
+
+        $events = $query->paginate(9)->withQueryString();
 
         $meta = frontend_meta('events', null, []);
 
         return view('events.index', [
-            'pageTitle' => $meta['title'] ?? 'Events',
+            'pageTitle' => $meta['title'] ?? 'Events & Masterclasses | Fira Link',
             'metaDescription' => $meta['description'] ?? null,
             'events' => $events,
         ]);
@@ -221,7 +251,8 @@ class EventController extends Controller
                 CURLOPT_HTTPHEADER => [
                     'Authorization: Bearer ' . $secretKey,
                 ],
-                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
             ]);
 
             $response = curl_exec($ch);
@@ -325,7 +356,8 @@ class EventController extends Controller
                 'Content-Type: application/json',
             ],
             CURLOPT_TIMEOUT => 25,
-            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
         ]);
 
         $response = curl_exec($ch);

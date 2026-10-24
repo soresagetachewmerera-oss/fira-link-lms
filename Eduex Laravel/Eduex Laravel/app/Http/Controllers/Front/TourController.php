@@ -276,7 +276,8 @@ class TourController extends Controller
                 'Authorization: Bearer ' . $secretKey,
                 'Content-Type: application/json',
             ],
-            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
         ]);
 
         $response = curl_exec($ch);
@@ -331,7 +332,8 @@ class TourController extends Controller
                 CURLOPT_HTTPHEADER => [
                     'Authorization: Bearer ' . $secretKey,
                 ],
-                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
             ]);
 
             $response = curl_exec($ch);

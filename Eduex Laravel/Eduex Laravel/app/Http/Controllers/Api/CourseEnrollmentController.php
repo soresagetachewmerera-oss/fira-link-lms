@@ -740,7 +740,8 @@ class CourseEnrollmentController extends Controller
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // For sandbox sometimes needed
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // 10 seconds timeout
         curl_setopt($ch, CURLOPT_TIMEOUT, 30); // 30 seconds total
         $response = curl_exec($ch);
@@ -1087,7 +1088,8 @@ class CourseEnrollmentController extends Controller
             'Content-Type: application/json',
             'Authorization: Bearer ' . $apiKey,
         ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
@@ -1266,7 +1268,8 @@ class CourseEnrollmentController extends Controller
             'Content-Type: application/json',
             'Authorization: Bearer ' . $apiKey,
         ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1321,7 +1324,8 @@ class CourseEnrollmentController extends Controller
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Authorization: Bearer ' . $apiKey,
         ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1406,7 +1410,8 @@ class CourseEnrollmentController extends Controller
                 'Content-Type: application/json',
                 'Authorization: Bearer ' . $accessToken,
             ]);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1503,7 +1508,8 @@ class CourseEnrollmentController extends Controller
             'Accept: application/json',
             'Accept-Language: en_US',
         ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1562,7 +1568,8 @@ class CourseEnrollmentController extends Controller
             'PayPal-Request-Id: ' . uniqid(),
         ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($orderData));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1628,7 +1635,8 @@ class CourseEnrollmentController extends Controller
             'username: ' . $username,
             'password: ' . $password,
         ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
         $response  = curl_exec($ch);
         $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1687,7 +1695,8 @@ class CourseEnrollmentController extends Controller
             'Authorization: ' . $idToken,
             'X-APP-Key: ' . $appKey,
         ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
         $response  = curl_exec($ch);
         $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1762,7 +1771,8 @@ class CourseEnrollmentController extends Controller
                 'Authorization: ' . $idToken,
                 'X-APP-Key: ' . $appKey,
             ]);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
             $response  = curl_exec($ch);
             $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1871,7 +1881,8 @@ class CourseEnrollmentController extends Controller
                 'Content-Type: application/json',
                 'Authorization: Bearer ' . $apiKey,
             ]);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
@@ -2007,7 +2018,8 @@ class CourseEnrollmentController extends Controller
             'Content-Type: application/json',
             'Authorization: Bearer ' . $secretKey,
         ]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
@@ -2101,7 +2113,8 @@ class CourseEnrollmentController extends Controller
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Authorization: Bearer ' . $secretKey,
             ]);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
@@ -2136,6 +2149,24 @@ class CourseEnrollmentController extends Controller
                         'status'      => Enrollment::STATUS_APPROVED,
                         'enrolled_at' => now(),
                     ]);
+
+                    // If bundle purchase, approve all courses in the bundle and activate BundleEnrollment
+                    if (!empty($enrollment->payment->bundle_id)) {
+                        \App\Models\BundleEnrollment::updateOrCreate(
+                            ['user_id' => $enrollment->user_id, 'bundle_id' => $enrollment->payment->bundle_id],
+                            ['status' => 'approved']
+                        );
+
+                        $bundle = \App\Models\Bundle::with('courses')->find($enrollment->payment->bundle_id);
+                        if ($bundle) {
+                            foreach ($bundle->courses as $bundleCourse) {
+                                Enrollment::updateOrCreate(
+                                    ['user_id' => $enrollment->user_id, 'course_id' => $bundleCourse->id],
+                                    ['status' => Enrollment::STATUS_APPROVED, 'enrolled_at' => now()]
+                                );
+                            }
+                        }
+                    }
 
                     $this->processRevenueShare($enrollment);
 

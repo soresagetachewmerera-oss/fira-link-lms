@@ -73,6 +73,8 @@ class TourController extends Controller
                 'featured_image' => $tour->featured_image_url,
                 'gallery' => $tour->gallery ?? [],
                 'is_featured' => $tour->is_featured,
+                'metadata' => $tour->metadata,
+                'video_url' => $tour->video_url,
             ];
         });
 
@@ -113,6 +115,8 @@ class TourController extends Controller
             'cancellation_policy' => $tour->cancellation_policy,
             'available_schedules' => $tour->available_schedules ?? [],
             'is_featured' => $tour->is_featured,
+            'metadata' => $tour->metadata,
+            'video_url' => $tour->video_url,
         ]);
     }
 
@@ -220,13 +224,18 @@ class TourController extends Controller
             ]);
 
             $booking->update(['payment_id' => $payment->id]);
+
+            $chapaSession = $this->createChapaSession($totalAmount, $booking, $tour, $txRef);
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Tour reservation created. Payment required to confirm.',
+                'message' => 'Tour reservation created. Complete payment via Chapa to confirm.',
                 'payment_required' => true,
-                'checkout_url' => route('tours.confirmation', ['reference' => $booking->reference]),
+                'checkout_url' => $chapaSession['checkout_url'],
+                'tx_ref' => $txRef,
+                'booking_id' => $booking->id,
+                'reference' => $booking->reference,
                 'booking' => [
                     'id' => $booking->id,
                     'reference' => $booking->reference,
@@ -243,6 +252,214 @@ class TourController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Booking processing failed: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Create a Chapa checkout session for API tour booking.
+     */
+    private function createChapaSession(float $amount, TourBooking $booking, Tour $tour, string $txRef): array
+    {
+        $gatewayService = app(\App\Services\PaymentGatewayService::class);
+        $credentials = $gatewayService->credentialsFor('chapa');
+        $secretKey = $credentials['secret_key'] ?? env('CHAPA_SECRET_KEY');
+
+        if (empty($secretKey)) {
+            throw new \RuntimeException('Chapa credentials (secret_key) are not configured.');
+        }
+
+        $rawDesc = 'Tour ' . ($tour->title ?? 'Booking');
+        $customDesc = substr(preg_replace('/[^a-zA-Z0-9\-_ .]/', '', $rawDesc), 0, 50);
+        if (empty($customDesc)) {
+            $customDesc = 'Tour Booking';
+        }
+
+        $payload = [
+            'amount' => number_format($amount, 2, '.', ''),
+            'currency' => $tour->currency ?? 'ETB',
+            'email' => $booking->email,
+            'first_name' => $booking->first_name ?: 'Guest',
+            'last_name' => $booking->last_name ?: 'User',
+            'phone_number' => $booking->phone ?? '',
+            'tx_ref' => $txRef,
+            'callback_url' => url('/tours/payment/chapa/callback'),
+            'return_url' => url('/tours/payment/chapa/callback?tx_ref=' . $txRef),
+            'customization' => [
+                'title' => substr(preg_replace('/[^a-zA-Z0-9\-_ .]/', '', config('app.name', 'Fira Link')), 0, 16),
+                'description' => $customDesc,
+            ],
+        ];
+
+        $ch = curl_init('https://api.chapa.co/v1/transaction/initialize');
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 25,
+            CURLOPT_CONNECTTIMEOUT => 15,
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $secretKey,
+                'Content-Type: application/json',
+            ],
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+        ]);
+
+        $response = curl_exec($ch);
+        $curlError = curl_error($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($curlError) {
+            throw new \Exception('Chapa connection error: ' . $curlError);
+        }
+
+        $responseData = json_decode($response, true);
+        if (!$responseData || ($responseData['status'] ?? '') !== 'success') {
+            $msg = $responseData['message'] ?? 'Unable to initialize Chapa payment.';
+            if (is_array($msg)) {
+                $flattened = [];
+                array_walk_recursive($msg, function ($val) use (&$flattened) {
+                    $flattened[] = $val;
+                });
+                $msg = implode(' ', $flattened);
+            }
+            throw new \Exception('Chapa session error: ' . $msg);
+        }
+
+        $checkoutUrl = $responseData['data']['checkout_url'] ?? $responseData['checkout_url'] ?? null;
+        if (!$checkoutUrl) {
+            throw new \Exception('Chapa did not return a valid checkout URL.');
+        }
+
+        return [
+            'checkout_url' => $checkoutUrl,
+            'tx_ref' => $txRef,
+        ];
+    }
+
+    /**
+     * Verify a Chapa tour payment for mobile / API client.
+     */
+    public function chapaVerify(Request $request)
+    {
+        $request->validate([
+            'tx_ref' => 'required|string',
+            'booking_id' => 'required|integer',
+        ]);
+
+        $booking = TourBooking::with(['tour', 'user'])->find($request->booking_id);
+        if (!$booking) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tour booking not found.',
+            ], 404);
+        }
+
+        $payment = Payment::where('chapa_tx_ref', $request->tx_ref)
+            ->where('tour_booking_id', $booking->id)
+            ->first();
+
+        if (!$payment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tour booking payment record not found.',
+            ], 400);
+        }
+
+        if ($payment->status === Payment::STATUS_COMPLETED && $booking->status === TourBooking::STATUS_CONFIRMED) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment already verified.',
+                'booking_id' => $booking->id,
+                'reference' => $booking->reference,
+                'status' => $booking->status,
+                'payment_status' => $booking->payment_status,
+            ]);
+        }
+
+        $gatewayService = app(\App\Services\PaymentGatewayService::class);
+        $credentials = $gatewayService->credentialsFor('chapa');
+        $secretKey = $credentials['secret_key'] ?? env('CHAPA_SECRET_KEY');
+
+        if (empty($secretKey)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Chapa credentials are not configured.',
+            ], 500);
+        }
+
+        try {
+            $ch = curl_init('https://api.chapa.co/v1/transaction/verify/' . $request->tx_ref);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 25,
+                CURLOPT_CONNECTTIMEOUT => 15,
+                CURLOPT_HTTPHEADER => [
+                    'Authorization: Bearer ' . $secretKey,
+                ],
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
+            ]);
+
+            $response = curl_exec($ch);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            if ($curlError) {
+                throw new \Exception('Chapa verify cURL error: ' . $curlError);
+            }
+
+            $verifyData = json_decode($response, true) ?? [];
+            $verifiedStatus = strtolower(
+                $verifyData['data']['status'] ?? $verifyData['status'] ?? ''
+            );
+            $reference = $verifyData['data']['reference'] ?? $verifyData['reference'] ?? $request->tx_ref;
+
+            if ($verifiedStatus === 'success') {
+                DB::beginTransaction();
+                try {
+                    $payment->update([
+                        'status' => Payment::STATUS_COMPLETED,
+                        'chapa_reference' => $reference,
+                        'transaction_id' => $reference,
+                    ]);
+
+                    $booking->update([
+                        'status' => TourBooking::STATUS_CONFIRMED,
+                        'payment_status' => TourBooking::PAYMENT_PAID,
+                    ]);
+
+                    DB::commit();
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Payment successful! Your tour booking is confirmed.',
+                        'booking_id' => $booking->id,
+                        'reference' => $booking->reference,
+                        'status' => $booking->status,
+                        'payment_status' => $booking->payment_status,
+                    ]);
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Error confirming tour booking: ' . $e->getMessage(),
+                    ], 500);
+                }
+            }
+
+            $payment->update(['status' => Payment::STATUS_FAILED]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Chapa payment status: ' . ($verifiedStatus ?: 'unsuccessful'),
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Chapa verification error: ' . $e->getMessage(),
             ], 500);
         }
     }
