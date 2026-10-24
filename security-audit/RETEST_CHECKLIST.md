@@ -179,3 +179,71 @@
 - **Expected Result (Vulnerable):** `auth_token` visible in cleartext XML; backup file extracts application state.
 - **Expected Result (Fixed):** `auth_token` is not in XML (stored in Android Keystore via EncryptedSharedPreferences); `adb backup` refuses backup due to `android:allowBackup="false"`.
 - **Pass Criteria:** Mobile credentials protected against extraction on disk and via backup channels.
+
+---
+
+### RETEST-14: Verify Student Payments Scoping Isolation (FL-MED-06)
+- **Target Endpoint:** `GET /student/payments?search=TXN`
+- **Test Procedure:**
+  1. Authenticate as Student A who has 0 payment records.
+  2. Send search query matching an existing transaction ID belonging to Student B.
+- **Expected Result (Vulnerable):** Student B's payment record, transaction ID, and amount are leaked.
+- **Expected Result (Fixed):** Returns empty results; queries remain strictly scoped to `user_id = Student A`.
+- **Pass Criteria:** Grouped where closure prevents unparenthesized `orWhere` from bypassing user ownership.
+
+---
+
+### RETEST-15: Verify Chat Attachment MIME Restrictions (FL-HIGH-07)
+- **Target Endpoints:** `POST /student/messages/{id}/send`, `POST /api/chat/{id}/send`
+- **Test Procedure:**
+  1. Attempt sending a chat message with a `.php`, `.phtml`, or `.html` file attached.
+  2. Attempt sending a legitimate document or image (`.pdf`, `.png`).
+- **Expected Result (Vulnerable):** Unrestricted file types stored in public storage directory.
+- **Expected Result (Fixed):** HTTP 422 Unprocessable Content for dangerous extensions.
+- **Pass Criteria:** Only whitelisted image/document extensions (`jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,txt,zip`) are accepted and stored.
+
+---
+
+### RETEST-16: Verify Theme ZIP Slip & Deletion Path Traversal Protection (FL-HIGH-08)
+- **Target Operations:** `ThemeService::installFromZip()`, `ThemeService::deleteTheme()`
+- **Test Procedure:**
+  1. Upload a ZIP archive containing file paths with `../` traversal sequences.
+  2. Attempt to call theme deletion with a path traversal slug: `../../sensitive_directory`.
+- **Expected Result (Vulnerable):** ZIP entries extracted outside destination directory; arbitrary directories deleted.
+- **Expected Result (Fixed):** RuntimeException thrown rejecting traversal ZIP entries; InvalidArgumentException rejecting slug format.
+- **Pass Criteria:** Zero path traversal permitted during ZIP extraction or theme deletion.
+
+---
+
+### RETEST-17: Verify OTP Active Cooldown Enforcement (FL-MED-07)
+- **Target Endpoints:** `POST /api/auth/login/otp/resend`, `POST /login/otp/resend`
+- **Test Procedure:**
+  1. Request an initial login OTP.
+  2. Immediately fire multiple rapid resend requests within the 60-second cooldown window.
+- **Expected Result (Vulnerable):** Unlimited SMS and emails dispatched to recipient.
+- **Expected Result (Fixed):** API returns HTTP 429 with remaining cooldown seconds; Web UI warns with remaining seconds; no duplicate SMS dispatched.
+- **Pass Criteria:** Rate limiting and active cooldown block SMS and email flooding attacks.
+
+---
+
+### RETEST-18: Verify Token Revocation on Password Change & Admin Account Protection (FL-MED-08)
+- **Target Endpoints:** `POST /student/settings`, `POST /instructor/settings/password`, `POST /api/profile/password`
+- **Test Procedure:**
+  1. Generate active Sanctum token for user account.
+  2. Change password via profile settings.
+  3. Attempt calling authenticated API routes using pre-change token.
+  4. Submit account deletion request targeting an administrator account.
+- **Expected Result (Vulnerable):** Old tokens continue functioning; admin accounts can be queued for deletion.
+- **Expected Result (Fixed):** Old tokens return HTTP 401 Unauthenticated; admin deletion attempt throws RuntimeException.
+- **Pass Criteria:** Password change invalidates prior sessions and tokens; administrator accounts are immutable to deletion service.
+
+---
+
+### RETEST-19: Verify External HTTP Client TLS Enforcement (FL-MED-09)
+- **Target Components:** `GeminiService`, `CoffeeMarketService`
+- **Test Verification:**
+  1. Inspect HTTP client configuration in `GeminiService` and `CoffeeMarketService`.
+  2. Verify all calls require valid TLS certificates.
+- **Expected Result (Vulnerable):** `withoutVerifying()` bypasses certificate validation.
+- **Expected Result (Fixed):** Standard strict TLS verification is enforced on all external HTTP requests.
+- **Pass Criteria:** Zero instances of disabled SSL/TLS verification in codebase.
