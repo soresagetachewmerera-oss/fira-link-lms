@@ -231,7 +231,6 @@ class CourseEnrollmentController extends Controller
                     'tran_id' => $tranId,
                     'amount' => $price,
                     'store_id' => $credentials['store_id'] ?? '',
-                    'store_password' => $credentials['store_password'] ?? '',
                     'mode' => $credentials['mode'] ?? 'sandbox',
                     'enrollment_id' => $enrollment->id,
                     'bundle_id' => $isBundle ? $course->id : null,
