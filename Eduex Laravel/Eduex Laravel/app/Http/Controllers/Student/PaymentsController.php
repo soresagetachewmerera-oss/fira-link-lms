@@ -41,8 +41,10 @@ class PaymentsController extends Controller
         }
 
         if ($search !== '') {
-            $paymentsQuery->whereHas('enrollment.course', fn ($query) => $query->where('title', 'like', '%' . $search . '%'))
-                ->orWhere('transaction_id', 'like', '%' . $search . '%');
+            $paymentsQuery->where(function ($query) use ($search) {
+                $query->whereHas('enrollment.course', fn ($q) => $q->where('title', 'like', '%' . $search . '%'))
+                    ->orWhere('transaction_id', 'like', '%' . $search . '%');
+            });
         }
 
         $payments = $paymentsQuery
