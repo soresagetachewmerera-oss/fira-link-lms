@@ -585,7 +585,7 @@ class FrontendSettingController extends Controller
     public function deleteTheme(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'theme' => ['required', 'string', 'max:120'],
+            'theme' => ['required', 'string', 'regex:/^[a-z0-9]([a-z0-9\-]*[a-z0-9])?$/', 'max:120'],
         ]);
 
         $slug = $validated['theme'];

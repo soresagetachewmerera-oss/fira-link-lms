@@ -375,6 +375,19 @@ class ThemeService
             throw new \RuntimeException('Failed to open the ZIP file.');
         }
 
+        // Validate all entries against Zip Slip (path traversal) before extraction
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $entry = $zip->getNameIndex($i);
+            if ($entry === false) {
+                continue;
+            }
+            $normalized = str_replace('\\', '/', $entry);
+            if (str_contains($normalized, '../') || str_contains($normalized, '/..') || str_starts_with($normalized, '/') || str_starts_with($normalized, '..')) {
+                $zip->close();
+                throw new \RuntimeException('Insecure ZIP archive: path traversal detected in file names.');
+            }
+        }
+
         $tempDir = storage_path('app/tmp/theme-' . Str::uuid());
         File::ensureDirectoryExists($tempDir);
 
@@ -444,6 +457,10 @@ class ThemeService
      */
     public function deleteTheme(string $slug): void
     {
+        if (!preg_match('/^[a-z0-9]([a-z0-9\-]*[a-z0-9])?$/', $slug)) {
+            throw new \InvalidArgumentException('Invalid theme slug format.');
+        }
+
         // Cannot delete the "default" concept (it's just home.blade.php)
         if ($slug === 'default') {
             throw new \RuntimeException('Cannot delete the default theme.');
