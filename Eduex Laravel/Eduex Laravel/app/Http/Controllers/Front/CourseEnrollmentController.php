@@ -2737,18 +2737,21 @@ class CourseEnrollmentController extends Controller
         $secretKey = $credentials['secret_key'] ?? null;
         $webhookSecret = $credentials['webhook_secret'] ?? $secretKey;
 
-        $signatureValid = false;
-        // Verify signature if webhook secret is configured
-        if (!empty($webhookSecret) && !empty($signature)) {
-            $expectedSignature = hash_hmac('sha256', $rawContent, $webhookSecret);
-            if (!hash_equals($expectedSignature, $signature)) {
-                \Illuminate\Support\Facades\Log::warning('Chapa webhook signature mismatch.', [
-                    'received' => $signature,
-                ]);
-                return response()->json(['success' => false, 'message' => 'Invalid signature.'], 403);
-            }
-            $signatureValid = true;
+        // Require valid signature and secret
+        if (empty($signature) || empty($webhookSecret)) {
+            \Illuminate\Support\Facades\Log::warning('Chapa webhook rejected: missing signature or secret not configured.');
+            return response()->json(['success' => false, 'message' => 'Missing or unconfigured webhook signature.'], 401);
         }
+
+        $expectedSignature = hash_hmac('sha256', $rawContent, $webhookSecret);
+        if (!hash_equals($expectedSignature, $signature)) {
+            \Illuminate\Support\Facades\Log::warning('Chapa webhook signature mismatch.', [
+                'received' => $signature,
+            ]);
+            return response()->json(['success' => false, 'message' => 'Invalid signature.'], 403);
+        }
+
+        $signatureValid = true;
 
         $payload = json_decode($rawContent, true) ?? $request->all();
         $txRef = $payload['tx_ref'] ?? $payload['trx_ref'] ?? null;
