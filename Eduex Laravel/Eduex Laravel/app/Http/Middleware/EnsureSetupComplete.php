@@ -22,7 +22,14 @@ class EnsureSetupComplete
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($this->state->isInstalled() || $this->isSetupRoute($request)) {
+        if ($this->state->isInstalled()) {
+            if ($this->isSetupRoute($request)) {
+                return redirect('/');
+            }
+            return $next($request);
+        }
+
+        if ($this->isSetupRoute($request)) {
             return $next($request);
         }
 
