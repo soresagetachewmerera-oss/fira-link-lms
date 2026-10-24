@@ -65,24 +65,10 @@ class LoginController extends Controller
         }
 
         if (!Auth::validate($credentials)) {
-            // Check fallback password between '12345678' and 'password'
-            if (in_array($credentials['password'], ['12345678', 'password'])) {
-                $altCredentials = $credentials;
-                $altCredentials['password'] = ($credentials['password'] === '12345678') ? 'password' : '12345678';
-                if (Auth::validate($altCredentials)) {
-                    $credentials = $altCredentials;
-                } else {
-                    ToastMagic::warning('Invalid credentials. Please try again.');
-                    return back()->withErrors([
-                        'email' => 'The provided credentials do not match our records.',
-                    ])->onlyInput('email');
-                }
-            } else {
-                ToastMagic::warning('Invalid credentials. Please try again.');
-                return back()->withErrors([
-                    'email' => 'The provided credentials do not match our records.',
-                ])->onlyInput('email');
-            }
+            ToastMagic::warning('Invalid credentials. Please try again.');
+            return back()->withErrors([
+                'email' => 'The provided credentials do not match our records.',
+            ])->onlyInput('email');
         }
 
         /** @var User|null $user */
