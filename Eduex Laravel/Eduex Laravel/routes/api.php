@@ -72,6 +72,10 @@ Route::get('/events/{id}', [EventController::class, 'show']);
 Route::get('/tours', [TourController::class, 'index']);
 Route::get('/tours/{id}', [TourController::class, 'show']);
 Route::post('/tours/{id}/book', [TourController::class, 'book']);
+Route::post('/tours/payments/chapa/verify', [TourController::class, 'chapaVerify']);
+Route::post('/events/payments/chapa/verify', [EventController::class, 'chapaVerify']);
+Route::post('/payments/chapa/verify', [CourseEnrollmentController::class, 'chapaVerify']);
+Route::post('/courses/payments/chapa/verify', [CourseEnrollmentController::class, 'chapaVerify']);
 Route::get('/certificates/download/signed/{id}', [CertificateController::class, 'downloadSigned'])->name('api.certificates.download.signed')->middleware('signed');
 
 
@@ -123,6 +127,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/payments/bkash/verify', [CourseEnrollmentController::class, 'bkashVerify']);
     Route::post('/payments/xpay/verify', [CourseEnrollmentController::class, 'xpayVerify']);
     Route::post('/payments/chapa/verify', [CourseEnrollmentController::class, 'chapaVerify']);
+    Route::post('/events/payments/chapa/verify', [EventController::class, 'chapaVerify']);
+    Route::post('/tours/payments/chapa/verify', [TourController::class, 'chapaVerify']);
     Route::get('/user/courses', [CourseController::class, 'myCourses']);
     Route::get('/user/certificates', [CertificateController::class, 'index']);
     Route::get('/user/certificates/{id}', [CertificateController::class, 'show']);
@@ -215,7 +221,7 @@ Route::prefix('instructor')->group(function () {
         Route::post('/forgot-password', [\App\Http\Controllers\Api\Instructor\AuthController::class, 'forgotPassword']);
     });
     
-    Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
+    Route::middleware(['auth:sanctum', 'role:instructor', 'throttle:api'])->group(function () {
         Route::get('/user', [\App\Http\Controllers\Api\Instructor\AuthController::class, 'user']);
         Route::post('/logout', [\App\Http\Controllers\Api\Instructor\AuthController::class, 'logout']);
         Route::get('/dashboard', [\App\Http\Controllers\Api\Instructor\DashboardController::class, 'index']);
