@@ -1,0 +1,3603 @@
+/* ==========================================================================
+   FIRA LINK LMS — EXPANSIVE FULL-SCREEN & RESPONSIVE DESIGN SYSTEM
+   ========================================================================== */
+
+/* 1. Global & Header Layout */
+html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+}
+
+body.home-page .header-top-section {
+    display: none !important;
+}
+
+body.home-page .js-cookie-consent,
+.cookie-consent,
+.js-cookie-consent {
+    display: none !important;
+}
+
+/* Force hide back-top on homepage so it doesn't overlap the Fira AI launcher */
+#back-top,
+button#back-top,
+body.home-page #back-top,
+body.home-page .back-to-top {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Force hide default mouse cursor widget so it doesn't pin at 0,0 */
+body.home-page .mouseCursor,
+.mouseCursor {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+#header-sticky.header-1 {
+    background: #ffffff !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    padding: 0 !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+#header-sticky .container-fluid {
+    max-width: 1360px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 clamp(16px, 3vw, 40px) !important;
+    height: 100% !important;
+}
+
+#header-sticky .mega-menu-wrapper {
+    height: 100% !important;
+    width: 100% !important;
+}
+
+#header-sticky .header-main {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    height: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+}
+
+/* Brand Logo */
+#header-sticky .logo {
+    margin-right: clamp(16px, 2.5vw, 44px) !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.fira-exact-logo {
+    width: auto !important;
+    max-width: 145px !important;
+    height: 38px !important;
+    display: block !important;
+    object-fit: contain !important;
+}
+
+/* Header Navigation Menu */
+#header-sticky .header-right-items {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex: 1 1 auto !important;
+    gap: 16px !important;
+}
+
+.mean__menu-wrapper {
+    display: flex !important;
+    align-items: center !important;
+}
+
+#header-sticky .main-menu {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#header-sticky .main-menu nav {
+    display: block !important;
+}
+
+#header-sticky .main-menu ul {
+    display: flex !important;
+    align-items: center !important;
+    gap: clamp(16px, 1.8vw, 28px) !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.header-1 .header-main .main-menu ul li,
+#header-sticky .header-main .main-menu ul li,
+.header-main .main-menu ul li {
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.header-1 .header-main .main-menu ul li a,
+#header-sticky .header-main .main-menu ul li a,
+.header-main .main-menu ul li a {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 14.5px !important;
+    font-weight: 500 !important;
+    color: #1e293b !important;
+    padding: 6px 4px !important;
+    line-height: 1.3 !important;
+    text-decoration: none !important;
+    transition: color 0.15s ease !important;
+}
+
+.header-1 .header-main .main-menu ul li a:hover,
+#header-sticky .main-menu ul li a:hover {
+    color: #6b21a8 !important;
+}
+
+.header-1 .header-main .main-menu ul li a.fira-nav-active,
+#header-sticky .header-main .main-menu ul li a.fira-nav-active {
+    border: 1.5px solid #6b21a8 !important;
+    border-radius: 8px !important;
+    padding: 6px 14px !important;
+    color: #6b21a8 !important;
+    font-weight: 600 !important;
+    line-height: 1.3 !important;
+    display: inline-block !important;
+    background: rgba(243, 232, 255, 0.3) !important;
+}
+
+/* Header Right Utilities */
+#header-sticky .header-right {
+    display: flex !important;
+    align-items: center !important;
+    gap: clamp(12px, 1.4vw, 18px) !important;
+    margin: 0 !important;
+    margin-left: auto !important;
+    padding: 0 !important;
+}
+
+.header-1 .header-right .search-toggler,
+.header-1 .header-right a.search-toggler,
+.header-nav-icon-link.search-toggler {
+    background-color: transparent !important;
+    border: none !important;
+    width: auto !important;
+    height: auto !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.header-nav-icon-link {
+    color: #334155 !important;
+    font-size: 17px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    padding: 4px !important;
+    margin: 0 !important;
+    transition: color 0.15s ease, transform 0.15s ease !important;
+}
+
+.header-nav-icon-link:hover {
+    color: #6b21a8 !important;
+    transform: translateY(-1px) !important;
+}
+
+.header-lang-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 5px 12px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 9999px !important;
+    background: #ffffff !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.header-lang-pill:hover {
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+}
+
+.header-lang-pill .lang-text {
+    font-family: 'Inter', sans-serif !important;
+}
+
+.header-lang-pill .lang-chevron {
+    font-size: 10px !important;
+    color: #64748b !important;
+    margin-left: 2px !important;
+}
+
+.fira-btn-enroll {
+    background-color: #6b21a8 !important;
+    color: #ffffff !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    padding: 9px 20px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    text-decoration: none !important;
+    line-height: 1 !important;
+    height: 38px !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 4px 14px rgba(107, 33, 168, 0.25) !important;
+    transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease !important;
+    white-space: nowrap !important;
+}
+
+.fira-btn-enroll:hover {
+    background-color: #581c87 !important;
+    color: #ffffff !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 18px rgba(107, 33, 168, 0.35) !important;
+}
+
+/* ==========================================================================
+   2. HERO SECTION (EXPANSIVE FULL-SCREEN & MODERN)
+   ========================================================================== */
+.fira-hero-section {
+    position: relative !important;
+    background: radial-gradient(120% 90% at 50% 0%, #fbf9fe 0%, #f6f0fd 60%, #efe4fa 100%), #fbf9fe !important;
+    min-height: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: clamp(24px, 3.5vh, 44px) 0 clamp(24px, 3.5vh, 40px) !important;
+    overflow: hidden !important;
+    width: 100% !important;
+}
+
+.fira-hero-container {
+    max-width: 1360px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 clamp(16px, 3vw, 40px) !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.fira-hero-container .row {
+    margin: 0 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+@media (min-width: 992px) {
+    .fira-hero-container .row {
+        flex-wrap: nowrap !important;
+    }
+    .fira-hero-col-left {
+        flex: 0 0 52% !important;
+        width: 52% !important;
+        max-width: 52% !important;
+        padding-right: 32px !important;
+    }
+    .fira-hero-col-right {
+        flex: 0 0 48% !important;
+        width: 48% !important;
+        max-width: 48% !important;
+        padding-left: 16px !important;
+    }
+}
+
+/* Decorative blurred shapes removed */
+.fira-ambient-shape {
+    display: none !important;
+}
+
+/* Hero Badge */
+.fira-hero-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: rgba(243, 232, 255, 0.75) !important;
+    border: 1px solid rgba(192, 132, 252, 0.45) !important;
+    border-radius: 9999px !important;
+    padding: 6px 16px !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+    margin-bottom: 14px !important;
+    box-shadow: 0 2px 8px rgba(107, 33, 168, 0.08) !important;
+    max-width: 100% !important;
+}
+
+.fira-hero-badge i {
+    color: #7e22ce !important;
+    font-size: 13px !important;
+    flex-shrink: 0 !important;
+}
+
+.fira-hero-badge span {
+    color: #7e22ce !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+    line-height: 1.3 !important;
+}
+
+/* Hero Title */
+.fira-hero-title {
+    font-family: 'Inter', sans-serif !important;
+    font-size: clamp(2.25rem, 3.8vw, 3.6rem) !important;
+    font-weight: 800 !important;
+    line-height: 1.15 !important;
+    color: #0f172a !important;
+    letter-spacing: -0.025em !important;
+    margin-bottom: 14px !important;
+    text-transform: none !important;
+}
+
+.fira-hero-title .purple-text {
+    color: #6b21a8 !important;
+    font-weight: 800 !important;
+}
+
+/* Hero Description (No truncation, natural wrap: 2 lines on desktop, 3 lines on mobile) */
+.fira-hero-desc {
+    font-family: 'Inter', sans-serif !important;
+    font-size: clamp(1rem, 1.15vw, 1.125rem) !important;
+    line-height: 1.6 !important;
+    color: #475569 !important;
+    margin-bottom: 22px !important;
+    max-width: 610px !important;
+    display: block !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    -webkit-line-clamp: unset !important;
+    -webkit-box-orient: unset !important;
+}
+
+/* CTA Buttons */
+.fira-hero-ctas {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    margin-bottom: 18px !important;
+    flex-wrap: wrap !important;
+}
+
+.fira-btn-primary {
+    background-color: #6b21a8 !important;
+    color: #ffffff !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    padding: 12px 28px !important;
+    border-radius: 10px !important;
+    box-shadow: 0 8px 24px -4px rgba(107, 33, 168, 0.4) !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+}
+
+.fira-btn-primary:hover {
+    color: #ffffff !important;
+    background-color: #581c87 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 12px 28px -4px rgba(107, 33, 168, 0.5) !important;
+}
+
+.fira-btn-primary:focus-visible {
+    outline: 2px solid #581c87 !important;
+    outline-offset: 3px !important;
+}
+
+.fira-btn-secondary {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    padding: 12px 26px !important;
+    border-radius: 10px !important;
+    border: 1.5px solid #e2e8f0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
+}
+
+.fira-btn-secondary:hover {
+    color: #6b21a8 !important;
+    border-color: #d8b4fe !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(107, 33, 168, 0.12) !important;
+}
+
+.fira-btn-secondary:focus-visible {
+    outline: 2px solid #6b21a8 !important;
+    outline-offset: 3px !important;
+}
+
+/* Trust Line Directly Under Buttons */
+.fira-hero-trust-line {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 14px !important;
+    color: #64748b !important;
+    margin-top: -4px !important;
+    margin-bottom: 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    line-height: 1.4 !important;
+}
+
+.fira-trust-stat {
+    color: #475569 !important;
+    font-weight: 500 !important;
+}
+
+.fira-trust-dot {
+    color: #94a3b8 !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    user-select: none !important;
+}
+
+.fira-trust-partner {
+    color: #475569 !important;
+}
+
+.fira-trust-partner strong {
+    color: #1e293b !important;
+    font-weight: 600 !important;
+}
+
+/* Popular Pathways (Wrapped on Desktop, Scrollable with fade on Mobile) */
+.fira-pathways {
+    margin-top: 0 !important;
+    max-width: 620px !important;
+    width: 100% !important;
+}
+
+.fira-pathways-label {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.8px !important;
+    color: #94a3b8 !important;
+    text-transform: uppercase !important;
+    margin-bottom: 10px !important;
+}
+
+.fira-pathways-scroll-wrap {
+    position: relative !important;
+    width: 100% !important;
+}
+
+.fira-pathways-chips {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px 10px !important;
+    width: 100% !important;
+    padding-bottom: 0 !important;
+}
+
+.fira-chip {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12.5px !important;
+    font-weight: 500 !important;
+    border-radius: 9999px !important;
+    padding: 6px 14px !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    transition: all 0.15s ease !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #64748b !important;
+    line-height: 1.3 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+
+.fira-chip.active {
+    background: #f5edfc !important;
+    border-color: #e9d5ff !important;
+    color: #6b21a8 !important;
+    font-weight: 600 !important;
+}
+
+.fira-chip:hover {
+    border-color: #d8b4fe !important;
+    color: #6b21a8 !important;
+    background: #faf5ff !important;
+    text-decoration: none !important;
+}
+
+.fira-chip:focus-visible {
+    outline: 2px solid #6b21a8 !important;
+    outline-offset: 2px !important;
+}
+
+/* Quick Links Row */
+.fira-hero-quick-links {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 8px 14px !important;
+    margin-top: 4px !important;
+    margin-bottom: 0 !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13px !important;
+    color: #64748b !important;
+}
+
+.fira-quick-links-title {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.6px !important;
+    text-transform: uppercase !important;
+    color: #94a3b8 !important;
+    margin-right: 2px !important;
+}
+
+.fira-quick-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    color: #64748b !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    transition: color 0.15s ease, transform 0.15s ease !important;
+}
+
+.fira-quick-link i {
+    font-size: 12px !important;
+    color: #94a3b8 !important;
+    transition: color 0.15s ease !important;
+}
+
+.fira-quick-link:hover {
+    color: #6D1A95 !important;
+    text-decoration: none !important;
+}
+
+.fira-quick-link:hover i {
+    color: #6D1A95 !important;
+}
+
+.fira-quick-link:focus-visible {
+    outline: 2px solid #6D1A95 !important;
+    outline-offset: 2px !important;
+    border-radius: 4px !important;
+}
+
+.fira-quick-link-sep {
+    color: #cbd5e1 !important;
+    font-size: 12px !important;
+}
+
+/* Hero Right Column Showcase Image & Practical Training Card */
+.fira-hero-showcase-box {
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    position: relative !important;
+    width: 100% !important;
+}
+
+.fira-hero-visual-inner {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 620px !important;
+    display: inline-block !important;
+}
+
+.fira-hero-showcase-img {
+    width: 100% !important;
+    max-width: 620px !important;
+    height: auto !important;
+    display: block !important;
+    filter: drop-shadow(0 14px 28px rgba(107, 33, 168, 0.12)) !important;
+    transition: transform 0.3s ease !important;
+}
+
+.fira-hero-showcase-img:hover {
+    transform: translateY(-2px) !important;
+}
+
+/* 100% Practical Training Card (Min 13px text) */
+.fira-training-badge-card {
+    position: absolute !important;
+    bottom: 12px !important;
+    left: 12px !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(226, 232, 240, 0.95) !important;
+    border-radius: 14px !important;
+    padding: 10px 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.12) !important;
+    z-index: 5 !important;
+    max-width: 290px !important;
+    transition: transform 0.2s ease !important;
+}
+
+.fira-training-badge-card:hover {
+    transform: translateY(-2px) !important;
+}
+
+.fira-training-badge-icon {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-radius: 50% !important;
+    background: #f3e8ff !important;
+    color: #6b21a8 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 16px !important;
+}
+
+.fira-training-badge-body {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.fira-training-badge-title {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    line-height: 1.25 !important;
+    display: block !important;
+}
+
+.fira-training-badge-sub {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #64748b !important;
+    line-height: 1.25 !important;
+    margin-top: 2px !important;
+    display: block !important;
+}
+
+.fira-hero-showcase-img:hover {
+    transform: translateY(-3px) !important;
+}
+
+/* ==========================================================================
+   3. PARTNERS SECTION
+   ========================================================================== */
+.fira-partners-section {
+    padding: 44px 0 36px !important;
+    background: #ffffff !important;
+    text-align: center !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.fira-partners-section .container {
+    max-width: 1360px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 clamp(16px, 3vw, 40px) !important;
+}
+
+.fira-partners-heading {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 14.5px !important;
+    font-weight: 600 !important;
+    color: #64748b !important;
+    margin-bottom: 22px !important;
+    letter-spacing: 0.3px !important;
+    text-transform: none !important;
+}
+
+.fira-partners-wrap {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.fira-partners-img,
+.koffera-partner-logo {
+    max-width: 250px !important;
+    max-height: 75px !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 auto !important;
+    display: block !important;
+    object-fit: contain !important;
+    transition: transform 0.25s ease, filter 0.25s ease !important;
+}
+
+.koffera-partner-logo:hover {
+    transform: scale(1.05) !important;
+}
+
+/* ==========================================================================
+   4. CATALOG HEADER & COURSES SECTION
+   ========================================================================== */
+.mhq-courses-section {
+    padding: 48px 0 60px !important;
+    background: #ffffff !important;
+}
+
+.mhq-courses-section .container {
+    max-width: 1360px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 clamp(16px, 3vw, 40px) !important;
+}
+
+.fira-catalog-section-header {
+    margin-bottom: 28px !important;
+}
+
+.fira-catalog-sub {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #6b21a8 !important;
+    letter-spacing: 0.8px !important;
+    text-transform: uppercase !important;
+    margin-bottom: 6px !important;
+}
+
+.fira-catalog-title {
+    font-family: 'Inter', sans-serif !important;
+    font-size: clamp(1.85rem, 2.8vw, 2.5rem) !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    letter-spacing: -0.02em !important;
+    margin-bottom: 8px !important;
+}
+
+.fira-catalog-desc {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 15px !important;
+    color: #64748b !important;
+    margin-bottom: 0 !important;
+}
+
+.fira-catalog-tabs {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+}
+
+.fira-tab-pill {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    padding: 6px 16px !important;
+    border-radius: 9999px !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+    transition: all 0.15s ease !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+    line-height: 1.3 !important;
+}
+
+.fira-tab-pill.active {
+    background: #6b21a8 !important;
+    border-color: #6b21a8 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(107, 33, 168, 0.25) !important;
+}
+
+.fira-tab-pill:hover {
+    border-color: #c084fc !important;
+    color: #6b21a8 !important;
+}
+
+/* ==========================================================================
+   5. FLOATING FIRA AI WIDGET
+   ========================================================================== */
+#fira-ai-launcher {
+    background: #6b21a8 !important;
+    border-radius: 50% !important;
+    width: 48px !important;
+    height: 48px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 6px 20px rgba(107, 33, 168, 0.45) !important;
+    border: 2px solid #ffffff !important;
+    position: fixed !important;
+    bottom: 24px !important;
+    right: 24px !important;
+    z-index: 9999 !important;
+    cursor: pointer !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+#fira-ai-launcher:hover {
+    transform: scale(1.06) !important;
+    box-shadow: 0 8px 26px rgba(107, 33, 168, 0.55) !important;
+}
+
+#fira-ai-launcher .fira-launcher-text,
+#fira-ai-launcher .fira-launcher-badge {
+    display: none !important;
+}
+
+#fira-ai-launcher .fira-launcher-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    position: relative !important;
+}
+
+#fira-ai-launcher .fira-launcher-icon i {
+    display: none !important;
+}
+
+#fira-ai-launcher .fira-launcher-icon::before {
+    content: "FIRA" !important;
+    color: #ffffff !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.5px !important;
+}
+
+#fira-ai-launcher .fira-status-dot {
+    position: absolute !important;
+    top: 2px !important;
+    right: 2px !important;
+    width: 9px !important;
+    height: 9px !important;
+    background: #22c55e !important;
+    border-radius: 50% !important;
+    border: 2px solid #ffffff !important;
+}
+
+/* ==========================================================================
+   6. RESPONSIVE BREAKPOINTS & MOBILE NAVIGATION
+   ========================================================================== */
+@media (max-width: 1199px) {
+    #header-sticky .main-menu ul {
+        gap: 14px !important;
+    }
+    .header-1 .header-main .main-menu ul li a {
+        font-size: 13.5px !important;
+    }
+    .fira-btn-enroll {
+        padding: 8px 14px !important;
+        font-size: 13px !important;
+    }
+}
+
+@media (max-width: 991px) {
+    #header-sticky.header-1 {
+        height: 64px !important;
+        min-height: 64px !important;
+    }
+    .header-1 .mean__menu-wrapper {
+        display: none !important;
+    }
+    .header-1 .header__hamburger,
+    .header__hamburger {
+        display: block !important;
+        cursor: pointer !important;
+        font-size: 20px !important;
+        color: #1e293b !important;
+        margin-left: 8px !important;
+    }
+    .fira-hero-section {
+        min-height: auto !important;
+        padding: 44px 0 40px !important;
+    }
+    .fira-hero-col-left,
+    .fira-hero-col-right {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+        padding: 0 !important;
+    }
+    .fira-hero-showcase-box {
+        justify-content: center !important;
+        margin-top: 36px !important;
+    }
+    .fira-hero-showcase-img {
+        max-width: 520px !important;
+        margin: 0 auto !important;
+    }
+    .fira-hero-title {
+        font-size: clamp(2rem, 5vw, 2.75rem) !important;
+    }
+    .fira-ambient-shape {
+        opacity: 0.3 !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .fira-hero-section {
+        padding: 32px 0 28px !important;
+    }
+    .fira-hero-badge {
+        padding: 5px 12px !important;
+        margin-bottom: 16px !important;
+        gap: 6px !important;
+    }
+    .fira-hero-badge i {
+        font-size: 11px !important;
+    }
+    .fira-hero-badge span {
+        font-size: 10px !important;
+        letter-spacing: 0.3px !important;
+    }
+    .fira-hero-title {
+        font-size: clamp(1.7rem, 6.5vw, 2.2rem) !important;
+        margin-bottom: 14px !important;
+    }
+    .fira-hero-desc {
+        font-size: 14.5px !important;
+        line-height: 1.55 !important;
+        margin-bottom: 20px !important;
+        display: block !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        white-space: normal !important;
+        -webkit-line-clamp: unset !important;
+    }
+    .fira-hero-ctas {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 10px !important;
+        margin-bottom: 14px !important;
+    }
+    .fira-btn-primary,
+    .fira-btn-secondary {
+        width: 100% !important;
+        padding: 12px 20px !important;
+        font-size: 14.5px !important;
+        justify-content: center !important;
+    }
+    .fira-hero-trust-line {
+        font-size: 13px !important;
+        margin-bottom: 20px !important;
+        flex-wrap: wrap !important;
+        gap: 4px 8px !important;
+    }
+    .fira-pathways-scroll-wrap {
+        overflow: hidden !important;
+        position: relative !important;
+        width: 100% !important;
+    }
+    .fira-pathways-scroll-wrap::after {
+        content: "" !important;
+        position: absolute !important;
+        top: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 40px !important;
+        background: linear-gradient(to right, rgba(251, 249, 254, 0) 0%, rgba(251, 249, 254, 0.98) 100%) !important;
+        pointer-events: none !important;
+        z-index: 2 !important;
+    }
+    .fira-pathways-chips {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+        gap: 8px !important;
+        padding-right: 44px !important;
+        padding-bottom: 6px !important;
+    }
+    .fira-pathways-chips::-webkit-scrollbar {
+        display: none !important;
+    }
+    .fira-chip {
+        font-size: 12px !important;
+        padding: 5px 12px !important;
+    }
+    .fira-hero-quick-links {
+        gap: 8px 10px !important;
+        font-size: 12.5px !important;
+        margin-top: 12px !important;
+    }
+    .fira-hero-showcase-img {
+        max-width: 100% !important;
+    }
+    .fira-partners-section {
+        padding: 28px 0 22px !important;
+    }
+    .fira-partners-heading {
+        font-size: 13px !important;
+        margin-bottom: 16px !important;
+    }
+}
+
+@media (max-width: 575px) {
+    #header-sticky.header-1 {
+        height: 58px !important;
+        min-height: 58px !important;
+    }
+    #header-sticky .container-fluid {
+        padding: 0 14px !important;
+    }
+    #header-sticky .logo {
+        margin-right: 8px !important;
+    }
+    .fira-exact-logo {
+        max-width: 110px !important;
+        height: 30px !important;
+    }
+    .header-lang-pill,
+    .fira-btn-enroll,
+    .header-nav-icon-link[title*="Cart"] {
+        display: none !important;
+    }
+    #header-sticky .header-right {
+        gap: 12px !important;
+    }
+    .header-nav-icon-link {
+        font-size: 16px !important;
+    }
+    .header-1 .header__hamburger,
+    .header__hamburger {
+        display: block !important;
+        font-size: 18px !important;
+        margin-left: 4px !important;
+    }
+    .fira-hero-container {
+        padding: 0 14px !important;
+    }
+    .fira-hero-badge span {
+        font-size: 9.5px !important;
+        letter-spacing: 0.2px !important;
+    }
+    .fira-partners-section .container,
+    .mhq-courses-section .container {
+        padding: 0 14px !important;
+    }
+    .fira-ambient-shape {
+        display: none !important;
+    }
+    #fira-ai-launcher {
+        width: 44px !important;
+        height: 44px !important;
+        bottom: 18px !important;
+        right: 18px !important;
+    }
+    #fira-ai-launcher .fira-launcher-icon::before {
+        font-size: 10px !important;
+    }
+}
+
+/* ==========================================================================
+   4. INTRODUCTION VIDEO SECTION (ONLY VIDEO, CENTERED & 100% RESPONSIVE)
+   ========================================================================== */
+.fira-video-section {
+    position: relative !important;
+    background: linear-gradient(180deg, #ffffff 0%, #faf5ff 50%, #ffffff 100%) !important;
+    padding: clamp(36px, 5vh, 64px) 0 clamp(40px, 6vh, 72px) !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.fira-video-container {
+    max-width: 1140px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 clamp(14px, 3vw, 32px) !important;
+    position: relative !important;
+    z-index: 2 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.fira-video-showcase-wrap {
+    max-width: 1040px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    position: relative !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+/* Ambient Subtle Purple Glow */
+.fira-video-ambient-glow {
+    position: absolute !important;
+    top: 4% !important;
+    left: 4% !important;
+    right: 4% !important;
+    bottom: 4% !important;
+    background: radial-gradient(circle, rgba(109, 26, 149, 0.22) 0%, rgba(109, 26, 149, 0.06) 55%, transparent 75%) !important;
+    filter: blur(48px) !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+}
+
+/* Video Player Container (16:9 Frame) */
+.fira-video-player-container {
+    position: relative !important;
+    z-index: 2 !important;
+    width: 100% !important;
+    border-radius: clamp(14px, 2vw, 22px) !important;
+    overflow: hidden !important;
+    background: #0B0E17 !important;
+    border: 1.5px solid rgba(109, 26, 149, 0.22) !important;
+    box-shadow: 0 20px 50px -10px rgba(109, 26, 149, 0.22), 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.3s ease !important;
+}
+
+.fira-video-player-container:hover {
+    border-color: rgba(109, 26, 149, 0.45) !important;
+    box-shadow: 0 28px 65px -12px rgba(109, 26, 149, 0.32), 0 14px 32px -6px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Responsive 16:9 Native Video Element */
+.fira-responsive-video {
+    width: 100% !important;
+    aspect-ratio: 16 / 9 !important;
+    height: auto !important;
+    display: block !important;
+    background: #000000 !important;
+    border-radius: clamp(12px, 1.8vw, 20px) !important;
+    outline: none !important;
+    object-fit: cover !important;
+}
+
+.fira-hero-video-cta i {
+    color: #7e22ce !important;
+    font-size: 15px !important;
+    transition: transform 0.2s ease !important;
+}
+
+.fira-hero-video-cta:hover i {
+    transform: scale(1.15) !important;
+}
+
+/* ==========================================================================
+   5. POLISHED VIDEO MODAL
+   ========================================================================== */
+body.fira-modal-locked {
+    overflow: hidden !important;
+    touch-action: none !important;
+}
+
+.fira-modal-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 999999 !important;
+    background: rgba(15, 23, 42, 0.88) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: clamp(12px, 3vw, 32px) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: opacity 0.3s ease, visibility 0.3s ease !important;
+}
+
+.fira-modal-backdrop.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+.fira-modal-dialog {
+    background: #0f172a !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: clamp(14px, 2vw, 20px) !important;
+    width: 100% !important;
+    max-width: 1040px !important;
+    max-height: 92vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(192, 132, 252, 0.2) !important;
+    overflow: hidden !important;
+    transform: scale(0.95) translateY(12px) !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.fira-modal-backdrop.active .fira-modal-dialog {
+    transform: scale(1) translateY(0) !important;
+}
+
+.fira-modal-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 14px 20px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: rgba(30, 41, 59, 0.7) !important;
+}
+
+.fira-modal-title-wrap {
+    display: flex !important;
+    align-items: center !important;
+    overflow: hidden !important;
+}
+
+.purple-icon {
+    color: #c084fc !important;
+}
+
+.fira-modal-title {
+    font-family: 'Inter', sans-serif !important;
+    font-size: clamp(14px, 1.4vw, 16px) !important;
+    font-weight: 700 !important;
+    color: #f8fafc !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.fira-modal-close {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #f8fafc !important;
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 15px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    outline: none !important;
+    flex-shrink: 0 !important;
+}
+
+.fira-modal-close:hover,
+.fira-modal-close:focus-visible {
+    background: #dc2626 !important;
+    border-color: #dc2626 !important;
+    color: #ffffff !important;
+    transform: rotate(90deg) !important;
+}
+
+.fira-modal-body {
+    padding: 0 !important;
+    background: #000000 !important;
+    width: 100% !important;
+    flex: 1 1 auto !important;
+}
+
+.fira-modal-video-wrapper {
+    position: relative !important;
+    width: 100% !important;
+    padding-top: 56.25% !important; /* 16:9 Aspect Ratio */
+    overflow: hidden !important;
+}
+
+.fira-native-video {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    background: #000000 !important;
+    outline: none !important;
+}
+
+.fira-modal-footer {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    padding: 12px 20px !important;
+    background: #0f172a !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.fira-modal-footer-caption {
+    color: #94a3b8 !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+
+.fira-modal-footer-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.fira-btn-sm {
+    padding: 8px 18px !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+    line-height: 1 !important;
+}
+
+/* Reduced Motion Preference */
+@media (prefers-reduced-motion: reduce) {
+    .fira-video-card,
+    .fira-modal-backdrop,
+    .fira-modal-dialog,
+    .fira-play-disc,
+    .fira-play-ripple,
+    .fira-video-poster {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* Mobile & Tablet Responsive Tweaks for Only-Video Section */
+@media (max-width: 991px) {
+    .fira-video-section {
+        padding: 36px 0 42px !important;
+    }
+    .fira-video-container {
+        padding: 0 16px !important;
+    }
+}
+
+@media (max-width: 575px) {
+    .fira-video-section {
+        padding: 24px 0 32px !important;
+    }
+    .fira-video-container {
+        padding: 0 12px !important;
+    }
+    .fira-video-player-container {
+        border-radius: 14px !important;
+        box-shadow: 0 12px 28px -6px rgba(109, 26, 149, 0.22), 0 6px 16px -4px rgba(0, 0, 0, 0.08) !important;
+    }
+    .fira-responsive-video {
+        border-radius: 12px !important;
+    }
+}
+    .fira-modal-header {
+        padding: 10px 14px !important;
+    }
+    .fira-modal-footer {
+        padding: 10px 14px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    .fira-modal-footer-actions {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+    .fira-modal-footer-actions .fira-btn-primary,
+    .fira-modal-footer-actions .fira-btn-secondary {
+        flex: 1 1 auto !important;
+        text-align: center !important;
+        justify-content: center !important;
+    }
+}
+
+/* ==========================================================================
+   Fira Link Academy - Learner Stories Animated Video Carousel Section
+   ========================================================================== */
+
+.fira-learner-section {
+    position: relative;
+    padding: 85px 0 80px;
+    background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 50%, #F8FAFC 100%);
+    overflow: hidden;
+}
+
+/* 1. Centered Section Header */
+.fira-learner-header {
+    margin-bottom: 38px;
+}
+
+.fira-learner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 18px;
+    border-radius: 9999px;
+    background: rgba(109, 26, 149, 0.08);
+    border: 1px solid rgba(109, 26, 149, 0.22);
+    color: #6D1A95;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+.fira-learner-heading {
+    font-size: 38px;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 14px;
+    line-height: 1.25;
+    letter-spacing: -0.5px;
+}
+
+.purple-highlight {
+    color: #6D1A95;
+    background: linear-gradient(135deg, #6D1A95 0%, #9B28DB 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.fira-learner-subheading {
+    font-size: 16.5px;
+    color: #4B5563;
+    max-width: 640px;
+    margin: 0 auto 18px;
+    line-height: 1.6;
+}
+
+.fira-learner-sub-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 14px;
+    color: #374151;
+}
+
+.fira-verified-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: #1F2937;
+}
+
+.fira-meta-dot {
+    color: #9CA3AF;
+}
+
+.fira-channel-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 9999px;
+    background: #000000;
+    color: #FFFFFF !important;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fira-channel-pill:hover {
+    background: #1F2937;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.fira-ext-mini {
+    font-size: 10px;
+    opacity: 0.8;
+}
+
+/* 2. Carousel Outer Wrapper & Viewport */
+.fira-carousel-outer-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 10px 0 20px;
+    overflow: hidden;
+}
+
+/* Left & Right Soft Edge Fade Masks */
+.fira-edge-fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    z-index: 15;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.fira-edge-fade-left {
+    left: 0;
+    background: linear-gradient(to right, #F8FAFC 30%, rgba(248, 250, 252, 0) 100%);
+}
+
+.fira-edge-fade-right {
+    right: 0;
+    background: linear-gradient(to left, #F8FAFC 30%, rgba(248, 250, 252, 0) 100%);
+}
+
+/* Left/Right Circular Purple Arrow Buttons */
+.fira-carousel-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #6D1A95;
+    color: #FFFFFF;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    cursor: pointer;
+    z-index: 20;
+    box-shadow: 0 6px 18px rgba(109, 26, 149, 0.38);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fira-carousel-nav-btn:hover {
+    background: #551275;
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 8px 24px rgba(109, 26, 149, 0.52);
+}
+
+.fira-carousel-nav-btn:focus-visible {
+    outline: 2px solid #6D1A95;
+    outline-offset: 3px;
+}
+
+.fira-nav-prev {
+    left: 20px;
+}
+
+.fira-nav-next {
+    right: 20px;
+}
+
+/* Single Horizontal Row Viewport */
+.fira-carousel-viewport {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px 0 16px;
+    outline: none;
+}
+
+.fira-carousel-viewport::-webkit-scrollbar {
+    display: none;
+}
+
+/* Continuous Carousel Track */
+.fira-carousel-track {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 20px;
+    width: max-content;
+    padding: 0 30px;
+}
+
+/* Card Sizing per Breakpoint */
+/* Desktop (>= 1200px): ~325px vertical cards */
+.fira-carousel-item {
+    flex: 0 0 325px;
+    width: 325px;
+}
+
+/* Vertical Video Card Housing Direct Video Embed */
+.fira-video-card {
+    position: relative;
+    width: 325px;
+    height: 578px;
+    max-width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(168, 85, 247, 0.25);
+    padding: 0;
+    background: #0E071A;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 4px 12px -2px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+    display: block;
+}
+
+.fira-video-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 35px -8px rgba(109, 26, 149, 0.28), 0 10px 20px -4px rgba(0, 0, 0, 0.12);
+    border-color: rgba(168, 85, 247, 0.5);
+}
+
+.fira-video-card:focus-visible {
+    outline: 3px solid #6D1A95;
+    outline-offset: 3px;
+    transform: scale(1.03);
+}
+
+/* Ambient Subtle Corner Glow */
+.fira-card-ambient {
+    position: absolute;
+    top: -40px;
+    left: -40px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(109, 26, 149, 0.35) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Video Media Container & Direct Player Iframe */
+.fira-card-media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: #000000;
+}
+
+.fira-tiktok-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: #000000;
+}
+
+.fira-card-poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+/* Centered Circular Purple Play Button */
+.fira-play-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.fira-play-circle {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #6D1A95;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(109, 26, 149, 0.5);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.fira-play-triangle {
+    color: #FFFFFF;
+    font-size: 18px;
+    margin-left: 3px;
+}
+
+.fira-play-ripple {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid rgba(168, 85, 247, 0.55);
+    animation: fira-pulse-ring 2.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.fira-video-card:hover .fira-play-circle {
+    transform: scale(1.12);
+    box-shadow: 0 10px 28px rgba(109, 26, 149, 0.7);
+}
+
+/* Duration Chip (Top Right) */
+.fira-duration-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 5;
+    background: rgba(15, 8, 28, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 9px;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Bottom Dark Gradient Info Overlay */
+.fira-card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    padding: 45px 16px 16px;
+    background: linear-gradient(to top, rgba(13, 6, 24, 0.96) 0%, rgba(13, 6, 24, 0.72) 65%, rgba(13, 6, 24, 0) 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    pointer-events: none;
+}
+
+.fira-course-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #E9D5FF;
+    background: rgba(109, 26, 149, 0.45);
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    padding: 2px 8px;
+    border-radius: 9999px;
+    width: fit-content;
+    margin-bottom: 2px;
+}
+
+.fira-overlay-name {
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.25;
+}
+
+.fira-overlay-role {
+    color: #D8B4FE;
+    font-size: 12.5px;
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.3;
+}
+
+/* Bottom Action Banner */
+.fira-learner-bottom-cta {
+    margin-top: 48px;
+}
+
+.fira-learner-cta-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 24px 32px;
+    background: #FFFFFF;
+    border-radius: 18px;
+    border: 1px solid rgba(109, 26, 149, 0.15);
+    box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.05);
+}
+
+.fira-cta-text {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15.5px;
+    font-weight: 600;
+    color: #1F2937;
+    text-align: left;
+}
+
+.fira-purple-icon {
+    color: #6D1A95;
+    font-size: 20px;
+}
+
+.fira-cta-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.fira-btn-outline-dark {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 9999px;
+    border: 1.5px solid #111827;
+    background: transparent;
+    color: #111827 !important;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+
+.fira-btn-outline-dark:hover {
+    background: #111827;
+    color: #FFFFFF !important;
+}
+
+/* 5. Accessible Video Lightbox Modal */
+.fira-video-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.fira-video-modal.is-open {
+    display: flex;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.fira-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 4, 20, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.fira-modal-dialog {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 420px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    animation: firaModalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes firaModalIn {
+    from {
+        transform: scale(0.94) translateY(12px);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+.fira-modal-content {
+    background: #0E071A;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(109, 26, 149, 0.35);
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65), 0 0 35px rgba(109, 26, 149, 0.25);
+    display: flex;
+    flex-direction: column;
+}
+
+.fira-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(20, 10, 36, 0.85);
+}
+
+.fira-modal-badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #D8B4FE;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.fira-modal-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin: 2px 0 0;
+    line-height: 1.25;
+}
+
+.fira-modal-subtitle {
+    font-size: 12px;
+    color: #9CA3AF;
+    margin: 2px 0 0;
+}
+
+.fira-modal-close-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #E5E7EB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.fira-modal-close-btn:hover {
+    background: #EF4444;
+    color: #FFFFFF;
+    transform: rotate(90deg);
+}
+
+.fira-modal-body {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 9 / 16;
+    max-height: 62vh;
+    background: #000000;
+    overflow: hidden;
+}
+
+.fira-modal-player-mount {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+.fira-modal-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+.fira-modal-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #D1D5DB;
+    font-size: 13px;
+    z-index: 1;
+}
+
+.fira-modal-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    border-top-color: #6D1A95;
+    border-radius: 50%;
+    animation: fira-spin 0.8s linear infinite;
+}
+
+.fira-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: #0A0413;
+    font-size: 12.5px;
+}
+
+.fira-modal-direct-link {
+    color: #A855F7 !important;
+    font-weight: 600;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s ease;
+}
+
+.fira-modal-direct-link:hover {
+    color: #C084FC !important;
+}
+
+.fira-modal-done-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #E5E7EB;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fira-modal-done-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #FFFFFF;
+}
+
+body.fira-modal-open {
+    overflow: hidden !important;
+}
+
+/* Reduced Motion Compliance */
+@media (prefers-reduced-motion: reduce) {
+    .fira-carousel-viewport {
+        scroll-snap-type: x mandatory;
+    }
+    .fira-carousel-item {
+        scroll-snap-align: start;
+    }
+    .fira-play-ripple {
+        animation: none;
+    }
+    .fira-modal-dialog {
+        animation: none;
+    }
+}
+
+/* Responsive Breakpoints: Tablet (768px - 1199px) -> ~2.5 cards visible */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .fira-carousel-item {
+        flex: 0 0 310px;
+        width: 310px;
+    }
+    .fira-video-card {
+        width: 310px;
+        height: 550px;
+    }
+    .fira-learner-heading {
+        font-size: 32px;
+    }
+    .fira-learner-cta-box {
+        flex-direction: column;
+        text-align: center;
+    }
+    .fira-cta-text {
+        text-align: center;
+        justify-content: center;
+    }
+}
+
+/* Responsive Breakpoints: Mobile (< 768px) -> ~1.3 cards visible to hint at scrolling */
+@media (max-width: 767px) {
+    .fira-learner-section {
+        padding: 55px 0 50px;
+    }
+    .fira-learner-heading {
+        font-size: 26px;
+    }
+    .fira-learner-subheading {
+        font-size: 14.5px;
+        margin-bottom: 16px;
+    }
+    .fira-edge-fade {
+        width: 36px;
+    }
+    .fira-carousel-nav-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 13px;
+    }
+    .fira-nav-prev {
+        left: 8px;
+    }
+    .fira-nav-next {
+        right: 8px;
+    }
+    .fira-carousel-track {
+        gap: 14px;
+        padding: 0 16px;
+    }
+    .fira-carousel-item {
+        flex: 0 0 280px;
+        width: 280px;
+    }
+    .fira-video-card {
+        width: 280px;
+        height: 500px;
+    }
+    .fira-learner-cta-box {
+        padding: 20px 16px;
+        flex-direction: column;
+        text-align: center;
+    }
+    .fira-cta-text {
+        text-align: center;
+        justify-content: center;
+    }
+    .fira-cta-buttons {
+        width: 100%;
+        flex-direction: column;
+    }
+    .fira-cta-buttons a {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+}
+
+/* ==========================================================================
+   FIRA LINK — UNIVERSAL UTILITY & TYPOGRAPHY SYSTEM
+   ========================================================================== */
+.text-xs {
+    font-size: 0.75rem !important;
+    line-height: 1.15rem !important;
+}
+.text-sm {
+    font-size: 0.875rem !important;
+    line-height: 1.35rem !important;
+}
+.text-md {
+    font-size: 1rem !important;
+    line-height: 1.5rem !important;
+}
+.text-lg {
+    font-size: 1.125rem !important;
+    line-height: 1.65rem !important;
+}
+.text-purple {
+    color: #6D1A95 !important;
+}
+.bg-purple {
+    background-color: #6D1A95 !important;
+}
+.border-purple {
+    border-color: #6D1A95 !important;
+}
+.hover-purple {
+    transition: color 0.15s ease !important;
+}
+.hover-purple:hover {
+    color: #6D1A95 !important;
+}
+.backdrop-blur {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+.shadow-xs {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+.shadow-card {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+.shadow-hover {
+    box-shadow: 0 16px 36px rgba(109, 26, 149, 0.14) !important;
+}
+
+/* ==========================================================================
+   INNER PAGE BREADCRUMB & HERO ALIGNMENT
+   ========================================================================== */
+.breadcrumb-wrapper {
+    position: relative !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    overflow: hidden !important;
+    margin-bottom: 0 !important;
+}
+
+.breadcrumb-wrapper::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 0 !important;
+    background: linear-gradient(135deg, rgba(13, 12, 29, 0.90) 0%, rgba(74, 15, 105, 0.85) 60%, rgba(109, 26, 149, 0.78) 100%) !important;
+    z-index: 1 !important;
+}
+
+.breadcrumb-wrapper .container {
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.breadcrumb-wrapper .page-heading {
+    padding: 72px 0 62px !important;
+    text-align: center !important;
+}
+
+.breadcrumb-wrapper .page-heading h1 {
+    font-size: clamp(2rem, 4vw, 3rem) !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    letter-spacing: -0.025em !important;
+    line-height: 1.25 !important;
+    margin-bottom: 14px !important;
+    text-transform: capitalize !important;
+}
+
+.breadcrumb-wrapper .page-heading .breadcrumb-items {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-top: 0 !important;
+    padding: 8px 22px !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    border-radius: 999px !important;
+    gap: 10px !important;
+    font-size: 0.875rem !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.breadcrumb-wrapper .page-heading .breadcrumb-items li a {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    transition: color 0.15s ease !important;
+}
+
+.breadcrumb-wrapper .page-heading .breadcrumb-items li a:hover {
+    color: #FBBF24 !important;
+}
+
+.breadcrumb-wrapper .page-heading .breadcrumb-items li i {
+    font-size: 0.6875rem !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ==========================================================================
+   TOURS SECTION — MAIN LAYOUT & ALIGNMENT
+   ========================================================================== */
+.tour-section {
+    background-color: #F8FAFC !important;
+    padding: 32px 0 84px !important;
+}
+
+/* Section Header / Intro Banner */
+.fira-tour-intro {
+    text-align: center;
+    max-width: 820px;
+    margin: 0 auto 36px;
+}
+
+.fira-tour-intro .fira-eyebrow-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(109, 26, 149, 0.08);
+    color: #6D1A95;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 6px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(109, 26, 149, 0.18);
+    margin-bottom: 12px;
+}
+
+.fira-tour-intro h2 {
+    font-size: clamp(1.75rem, 3vw, 2.35rem);
+    font-weight: 800;
+    color: #0F172A;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+    margin-bottom: 12px;
+}
+
+.fira-tour-intro p {
+    font-size: 0.965rem;
+    color: #475569;
+    line-height: 1.6;
+    margin-bottom: 18px;
+}
+
+.fira-tour-trust-strip {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 18px;
+}
+
+.fira-trust-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #334155;
+    background: #ffffff;
+    padding: 5px 13px;
+    border-radius: 999px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.fira-trust-item i {
+    color: #6D1A95;
+    font-size: 0.875rem;
+}
+
+/* ==========================================================================
+   TOURS FILTER & SEARCH BAR
+   ========================================================================== */
+.fira-tour-filter-card {
+    background: #ffffff;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    margin-bottom: 28px;
+}
+
+.fira-filter-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.725rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #475569;
+    margin-bottom: 6px;
+}
+
+.fira-filter-label i {
+    color: #6D1A95;
+}
+
+.fira-tour-filter-card .form-control,
+.fira-tour-filter-card .form-select {
+    height: 46px !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    font-size: 0.8875rem !important;
+    color: #0F172A !important;
+    padding: 10px 14px !important;
+    background-color: #F8FAFC !important;
+    transition: all 0.2s ease !important;
+}
+
+.fira-tour-filter-card .form-control:focus,
+.fira-tour-filter-card .form-select:focus {
+    background-color: #ffffff !important;
+    border-color: #6D1A95 !important;
+    box-shadow: 0 0 0 3px rgba(109, 26, 149, 0.12) !important;
+    outline: none !important;
+}
+
+.fira-tour-filter-card .input-group {
+    border-radius: 12px;
+}
+
+.fira-tour-filter-card .input-group-text {
+    height: 46px !important;
+    background-color: #F8FAFC !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-right: none !important;
+    border-top-left-radius: 12px !important;
+    border-bottom-left-radius: 12px !important;
+    color: #64748B !important;
+    padding: 0 14px !important;
+}
+
+.fira-tour-filter-card .input-group .form-control {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-left: none !important;
+}
+
+.fira-filter-btn {
+    height: 46px !important;
+    background: #6D1A95 !important;
+    border: 1.5px solid #6D1A95 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    border-radius: 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 0 16px !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 4px 12px rgba(109, 26, 149, 0.20) !important;
+}
+
+.fira-filter-btn:hover {
+    background: #581277 !important;
+    border-color: #581277 !important;
+    box-shadow: 0 6px 18px rgba(109, 26, 149, 0.32) !important;
+    color: #ffffff !important;
+}
+
+.fira-reset-btn {
+    height: 46px !important;
+    background: #F1F5F9 !important;
+    border: 1.5px solid #E2E8F0 !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    border-radius: 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 0 14px !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.fira-reset-btn:hover {
+    background: #E2E8F0 !important;
+    color: #0F172A !important;
+}
+
+/* Quick Category Pills Scrollbar */
+.fira-tour-quick-cats {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    padding-top: 14px;
+    margin-top: 14px;
+    border-top: 1px solid #F1F5F9;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+}
+
+.fira-tour-quick-cats::-webkit-scrollbar {
+    height: 4px;
+}
+.fira-tour-quick-cats::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 4px;
+}
+
+.fira-cat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 15px;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #475569;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.fira-cat-pill:hover {
+    background: #F1F5F9;
+    border-color: #CBD5E1;
+    color: #0F172A;
+}
+
+.fira-cat-pill.active {
+    background: #6D1A95;
+    border-color: #6D1A95;
+    color: #ffffff;
+    box-shadow: 0 3px 10px rgba(109, 26, 149, 0.24);
+}
+
+.fira-cat-pill .pill-count {
+    font-size: 0.725rem;
+    opacity: 0.85;
+}
+
+/* Active Filter Chips Bar */
+.fira-active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #FAF5FF;
+    border: 1px dashed rgba(109, 26, 149, 0.25);
+    border-radius: 12px;
+    margin-top: 14px;
+}
+
+.fira-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    color: #6D1A95;
+    border: 1px solid rgba(109, 26, 149, 0.20);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.fira-chip a {
+    color: #94A3B8;
+    text-decoration: none;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.fira-chip a:hover {
+    color: #DC2626;
+}
+
+.fira-clear-all-link {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #DC2626;
+    text-decoration: none;
+    margin-left: 4px;
+}
+
+.fira-clear-all-link:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   RESULTS COUNTER BAR
+   ========================================================================== */
+.fira-tour-results-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    padding: 0 4px;
+}
+
+.fira-results-count {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0F172A;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fira-results-count .badge {
+    background: #F1F5F9;
+    color: #475569;
+    border: 1px solid #E2E8F0;
+    font-size: 0.775rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+/* ==========================================================================
+   TOUR CARD COMPONENT — PIXEL-PERFECT ALIGNMENT
+   ========================================================================== */
+.fira-tour-card {
+    background: #ffffff;
+    border: 1px solid #E2E8F0;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+
+.fira-tour-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 36px rgba(109, 26, 149, 0.13);
+    border-color: rgba(109, 26, 149, 0.30);
+}
+
+.fira-tour-media {
+    position: relative;
+    height: 220px;
+    background: #0F172A;
+    overflow: hidden;
+}
+
+.fira-tour-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.45s ease;
+}
+
+.fira-tour-card:hover .fira-tour-media img {
+    transform: scale(1.06);
+}
+
+.fira-tour-media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.70) 0%, rgba(0, 0, 0, 0) 55%);
+    pointer-events: none;
+}
+
+.fira-media-top {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.fira-badge-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.fira-cat-badge {
+    background: rgba(15, 23, 42, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-size: 0.725rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    letter-spacing: 0.02em;
+}
+
+.fira-diff-badge {
+    font-size: 0.725rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+}
+
+.fira-diff-easy {
+    background: #10B981;
+    color: #ffffff;
+}
+
+.fira-diff-moderate {
+    background: #3B82F6;
+    color: #ffffff;
+}
+
+.fira-diff-challenging {
+    background: #F59E0B;
+    color: #0F172A;
+}
+
+.fira-media-bottom {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.fira-duration-pill {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #0F172A;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.fira-duration-pill i {
+    color: #6D1A95;
+}
+
+.fira-seats-pill {
+    font-size: 0.725rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.fira-seats-available {
+    background: rgba(16, 185, 129, 0.92);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.fira-seats-full {
+    background: rgba(239, 68, 68, 0.95);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Card Body Content */
+.fira-tour-body {
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.fira-tour-dest {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6D1A95;
+    margin-bottom: 8px;
+}
+
+.fira-tour-dest i {
+    font-size: 0.8125rem;
+}
+
+.fira-tour-title {
+    font-size: 1.075rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #0F172A;
+    margin-bottom: 8px;
+    min-height: 48px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.fira-tour-title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.fira-tour-title a:hover {
+    color: #6D1A95;
+}
+
+.fira-tour-summary {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: #64748B;
+    margin-bottom: 14px;
+    min-height: 42px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.fira-tour-spec-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.fira-spec-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.725rem;
+    font-weight: 600;
+    color: #475569;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+.fira-spec-chip i {
+    color: #6D1A95;
+    font-size: 0.75rem;
+}
+
+/* Card Footer with Price and Buttons */
+.fira-tour-footer {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid #F1F5F9;
+}
+
+.fira-price-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.fira-price-col .price-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748B;
+    margin-bottom: 2px;
+}
+
+.fira-price-col .price-value {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #6D1A95;
+    line-height: 1.1;
+}
+
+.fira-price-col .price-free {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #10B981;
+}
+
+.fira-card-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.fira-card-actions .btn-details {
+    flex: 1;
+    height: 40px;
+    border: 1.5px solid #E2E8F0;
+    background: #ffffff;
+    color: #334155;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.fira-card-actions .btn-details:hover {
+    border-color: #6D1A95;
+    color: #6D1A95;
+    background: #FAF5FF;
+}
+
+.fira-card-actions .btn-book {
+    flex: 1;
+    height: 40px;
+    border: 1.5px solid #6D1A95;
+    background: #6D1A95;
+    color: #ffffff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(109, 26, 149, 0.20);
+    transition: all 0.2s ease;
+}
+
+.fira-card-actions .btn-book:hover {
+    background: #581277;
+    border-color: #581277;
+    color: #ffffff;
+    box-shadow: 0 6px 16px rgba(109, 26, 149, 0.32);
+}
+
+.fira-card-actions .btn-soldout {
+    flex: 1;
+    height: 40px;
+    border: 1.5px solid #E2E8F0;
+    background: #F1F5F9;
+    color: #94A3B8;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   VALUE PROPOSITION SECTION (WHY CHOOSE FIRA LINK EXPEDITIONS)
+   ========================================================================== */
+.fira-tour-features-section {
+    background: #ffffff;
+    border-radius: 24px;
+    border: 1px solid #E2E8F0;
+    padding: 48px 36px;
+    margin-top: 64px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.fira-features-header {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 40px;
+}
+
+.fira-features-header h3 {
+    font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+    font-weight: 800;
+    color: #0F172A;
+    margin-bottom: 10px;
+}
+
+.fira-features-header p {
+    font-size: 0.925rem;
+    color: #64748B;
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+.fira-feature-card {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 24px;
+    height: 100%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fira-feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    border-color: rgba(109, 26, 149, 0.25);
+}
+
+.fira-feature-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(109, 26, 149, 0.10);
+    color: #6D1A95;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+}
+
+.fira-feature-card h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0F172A;
+    margin-bottom: 8px;
+}
+
+.fira-feature-card p {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: #64748B;
+    margin-bottom: 0;
+}
+
+/* ==========================================================================
+   CUSTOM EXPEDITION CTA BANNER
+   ========================================================================== */
+.fira-tour-cta-banner {
+    background: linear-gradient(135deg, #0F172A 0%, #3B0E54 50%, #6D1A95 100%);
+    border-radius: 24px;
+    padding: 48px 40px;
+    margin-top: 48px;
+    color: #ffffff;
+    box-shadow: 0 12px 36px rgba(109, 26, 149, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+.fira-tour-cta-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.fira-cta-content h3 {
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+}
+
+.fira-cta-content p {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
+    max-width: 650px;
+    margin-bottom: 0;
+}
+
+.fira-cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.fira-cta-btn-primary {
+    background: #F59E0B;
+    border: 1.5px solid #F59E0B;
+    color: #0F172A;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 12px 24px;
+    border-radius: 12px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    transition: all 0.2s ease;
+}
+
+.fira-cta-btn-primary:hover {
+    background: #D97706;
+    border-color: #D97706;
+    color: #ffffff;
+}
+
+.fira-cta-btn-outline {
+    background: rgba(255, 255, 255, 0.10);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 12px 22px;
+    border-radius: 12px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.fira-cta-btn-outline:hover {
+    background: rgba(255, 255, 255, 0.20);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.40);
+}
+
+/* ==========================================================================
+   PAGINATION STYLING
+   ========================================================================== */
+.fira-pagination-wrapper .pagination {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin: 0;
+}
+
+.fira-pagination-wrapper .page-item .page-link {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #334155;
+    background: #ffffff;
+    border: 1.5px solid #E2E8F0;
+    transition: all 0.2s ease;
+}
+
+.fira-pagination-wrapper .page-item .page-link:hover {
+    background: #FAF5FF;
+    border-color: #6D1A95;
+    color: #6D1A95;
+}
+
+.fira-pagination-wrapper .page-item.active .page-link {
+    background: #6D1A95 !important;
+    border-color: #6D1A95 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(109, 26, 149, 0.25);
+}
+
+.fira-pagination-wrapper .page-item.disabled .page-link {
+    background: #F8FAFC;
+    color: #94A3B8;
+    border-color: #E2E8F0;
+}
+
+/* ==========================================================================
+   RESPONSIVE MEDIA QUERIES (DESKTOP, TABLET, MOBILE)
+   ========================================================================== */
+@media (max-width: 1199px) {
+    .fira-tour-intro h2 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 991px) {
+    .breadcrumb-wrapper .page-heading {
+        padding: 56px 0 48px !important;
+    }
+    .fira-tour-filter-card {
+        padding: 20px;
+    }
+    .fira-tour-cta-banner {
+        padding: 36px 28px;
+    }
+    .fira-cta-actions {
+        justify-content: flex-start;
+        margin-top: 20px;
+    }
+    .fira-tour-features-section {
+        padding: 36px 24px;
+        margin-top: 48px;
+    }
+}
+
+@media (max-width: 767px) {
+    .tour-section {
+        padding: 28px 0 60px !important;
+    }
+    .breadcrumb-wrapper .page-heading {
+        padding: 44px 0 36px !important;
+    }
+    .breadcrumb-wrapper .page-heading h1 {
+        font-size: 1.75rem !important;
+    }
+    .fira-tour-intro {
+        margin-bottom: 24px;
+    }
+    .fira-tour-intro h2 {
+        font-size: 1.6rem;
+    }
+    .fira-tour-filter-card {
+        padding: 16px;
+        border-radius: 16px;
+    }
+    .fira-filter-btn {
+        width: 100% !important;
+    }
+    .fira-reset-btn {
+        width: 100% !important;
+    }
+    .fira-tour-media {
+        height: 200px;
+    }
+    .fira-tour-body {
+        padding: 18px;
+    }
+    .fira-tour-title {
+        min-height: auto;
+        font-size: 1.05rem;
+    }
+    .fira-tour-summary {
+        min-height: auto;
+        margin-bottom: 12px;
+    }
+    .fira-tour-cta-banner {
+        padding: 28px 20px;
+        border-radius: 18px;
+    }
+    .fira-cta-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    .fira-cta-actions a {
+        width: 100%;
+        justify-content: center;
+    }
+    .fira-tour-features-section {
+        padding: 28px 18px;
+        border-radius: 18px;
+    }
+}
+
+/* ==========================================================================
+   FIRA LINK — EVENTS SECTION LAYOUT & DESIGN SYSTEM
+   ========================================================================== */
+.fira-event-section {
+    background-color: #F8FAFC !important;
+    padding: 36px 0 84px !important;
+}
+
+@media (max-width: 768px) {
+    .fira-event-section {
+        padding: 24px 0 60px !important;
+    }
+}
+
+/* Event Intro Header */
+.fira-event-intro {
+    text-align: center;
+    max-width: 820px;
+    margin: 0 auto 36px;
+}
+
+.fira-event-intro .fira-eyebrow-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(109, 26, 149, 0.08);
+    color: #6D1A95;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 6px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(109, 26, 149, 0.18);
+    margin-bottom: 12px;
+}
+
+.fira-event-intro h2 {
+    font-size: clamp(1.75rem, 3vw, 2.35rem);
+    font-weight: 800;
+    color: #0F172A;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+    margin-bottom: 12px;
+}
+
+.fira-event-intro p {
+    font-size: 0.965rem;
+    color: #475569;
+    line-height: 1.6;
+    margin-bottom: 18px;
+}
+
+/* Event Filter Panel */
+.fira-event-filter-card {
+    background: #ffffff;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    margin-bottom: 28px;
+}
+
+.fira-event-card {
+    background: #ffffff;
+    border: 1px solid #E2E8F0;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+
+.fira-event-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 36px rgba(109, 26, 149, 0.13);
+    border-color: rgba(109, 26, 149, 0.30);
+}
+
+.fira-event-media {
+    position: relative;
+    height: 220px;
+    background: #0F172A;
+    overflow: hidden;
+}
+
+.fira-event-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.45s ease;
+}
+
+.fira-event-card:hover .fira-event-media img {
+    transform: scale(1.06);
+}
+
+.fira-event-media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.70) 0%, rgba(0, 0, 0, 0) 55%);
+    pointer-events: none;
+}
+
+/* Modern Calendar Date Tile Badge */
+.fira-date-tile {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 6px 12px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.fira-date-tile .date-month {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #6D1A95;
+    letter-spacing: 0.05em;
+    line-height: 1;
+}
+
+.fira-date-tile .date-day {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #0F172A;
+    line-height: 1.1;
+    margin-top: 2px;
+}
+
+/* Event Format / Price Badges */
+.fira-event-badge-free {
+    background: rgba(16, 185, 129, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-size: 0.725rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+    letter-spacing: 0.02em;
+}
+
+.fira-event-badge-paid {
+    background: rgba(109, 26, 149, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-size: 0.725rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(109, 26, 149, 0.25);
+    letter-spacing: 0.02em;
+}
+
+/* Event Body */
+.fira-event-body {
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.fira-event-venue {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6D1A95;
+    margin-bottom: 8px;
+}
+
+.fira-event-title {
+    font-size: 1.075rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #0F172A;
+    margin-bottom: 8px;
+    min-height: 48px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.fira-event-title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.fira-event-title a:hover {
+    color: #6D1A95;
+}
+
+.fira-event-summary {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: #64748B;
+    margin-bottom: 14px;
+    min-height: 42px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.fira-event-spec-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.fira-event-footer {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid #F1F5F9;
+}
+
+/* Event Details Area Overhaul */
+.mhq-event-details-section {
+    background-color: #F8FAFC !important;
+    padding: 48px 0 84px !important;
+}
+
+.mhq-event-details-area .mhq-image {
+    height: clamp(220px, 42vw, 400px);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 36px;
+    background: #0F172A;
+}
+
+.mhq-event-details-area .mhq-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mhq-event-details-area .details-content {
+    background: #ffffff;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    margin-bottom: 30px;
+}
+
+.mhq-event-details-area .details-content h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin-bottom: 14px;
+}
+
+.mhq-event-details-area .event-details-information {
+    background: #ffffff;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.mhq-event-details-area .event-details-information h4 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.mhq-event-details-area .event-details-information .information-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #F8FAFC;
+    font-size: 0.875rem;
+}
+
+.mhq-event-details-area .event-details-information .information-list li span:first-child {
+    color: #64748B;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mhq-event-details-area .event-details-information .information-list li span:first-child i {
+    color: #6D1A95;
+    width: 16px;
+    text-align: center;
+}
+
+.mhq-event-details-area .event-details-information .information-list li .text {
+    font-weight: 700;
+    color: #0F172A;
+}
+
+@media (max-width: 767px) {
+    .fira-event-section,
+    .mhq-event-details-section {
+        padding: 28px 0 60px !important;
+    }
+    .fira-event-intro {
+        margin-bottom: 24px;
+    }
+    .fira-event-intro h2 {
+        font-size: 1.6rem;
+    }
+    .fira-event-media {
+        height: 200px;
+    }
+    .fira-event-body {
+        padding: 18px;
+    }
+    .fira-event-title {
+        min-height: auto;
+    }
+    .fira-event-summary {
+        min-height: auto;
+        margin-bottom: 12px;
+    }
+    .mhq-event-details-area .details-content {
+        padding: 20px;
+    }
+    .mhq-event-details-area .event-details-information {
+        padding: 20px;
+    }
+}
+
+
+

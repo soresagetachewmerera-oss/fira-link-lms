@@ -45,12 +45,10 @@ class EnforceCanonicalAndSecurityHeaders
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(self)');
 
-        if (!$response->headers->has('Content-Security-Policy')) {
             $response->headers->set(
                 'Content-Security-Policy',
-                "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; img-src 'self' https: data: blob:; media-src 'self' https: blob:; frame-ancestors 'self';"
+                "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; img-src 'self' https: data: blob:; media-src 'self' https: blob:; frame-src 'self' https: data:; frame-ancestors 'self';"
             );
-        }
 
         if ($request->isSecure() || app()->isProduction()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
