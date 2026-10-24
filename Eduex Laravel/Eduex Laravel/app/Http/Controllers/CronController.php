@@ -29,29 +29,22 @@ class CronController extends Controller
      */
     public function run(Request $request)
     {
-        $configuredKey = $this->settings->get('cron_key');
+        $configuredKey = $this->settings->get('cron_key') ?: env('CRON_KEY');
 
-        // Check key if configured in DB
-        if (!empty($configuredKey)) {
-            $providedKey = $request->query('key') ?: $request->query('cron_key');
-            if ($providedKey !== $configuredKey) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Unauthorized. Invalid cron key.'
-                ], 403);
-            }
-        } else {
-            // Fallback to .env CRON_KEY
-            $envKey = env('CRON_KEY');
-            if (!empty($envKey)) {
-                $providedKey = $request->query('key') ?: $request->query('cron_key');
-                if ($providedKey !== $envKey) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Unauthorized. Invalid cron key.'
-                    ], 403);
-                }
-            }
+        if (empty($configuredKey)) {
+            Log::warning('Cron web route accessed but cron key is not configured.');
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Scheduler web route is disabled. Please configure a cron_key in settings or .env.'
+            ], 403);
+        }
+
+        $providedKey = $request->query('key') ?: $request->query('cron_key') ?: $request->header('X-Cron-Key');
+        if (!hash_equals((string)$configuredKey, (string)$providedKey)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. Invalid cron key.'
+            ], 403);
         }
 
         $timestamp = date('Y-m-d H:i:s');
