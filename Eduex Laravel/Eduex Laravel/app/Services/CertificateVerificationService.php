@@ -59,15 +59,14 @@ class CertificateVerificationService
             ];
         }
 
-        $officialCertNumber = strtoupper($enrollment->certificate_number);
+        $officialCertNumber = strtoupper((string) $enrollment->certificate_number);
 
-        // Check exact match or valid prefix match
-        if ($code !== $officialCertNumber && $code !== sprintf('CERT-%06d', $enrollmentId) && (string)$enrollmentId !== $code) {
-            // Check hash mismatch
+        // Require exact match against the official certificate number with checksum
+        if (!empty($officialCertNumber) && $code !== $officialCertNumber) {
             return [
                 'is_valid' => false,
                 'code_entered' => $code,
-                'message' => __('frontend.certificate_checksum_mismatch') ?? 'Certificate code checksum does not match our official records.',
+                'message' => __('frontend.certificate_checksum_mismatch') ?? 'Certificate code does not match our official records.',
             ];
         }
 
