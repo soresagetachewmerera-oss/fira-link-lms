@@ -71,6 +71,7 @@ class SettingsController extends Controller
             }
 
             $user->password = Hash::make($request->password);
+            $user->tokens()->delete();
             $user->save();
 
             ToastMagic::success('Your password has been updated successfully!');

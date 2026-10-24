@@ -70,6 +70,7 @@ class ProfileController extends Controller
 
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
+            $user->tokens()->delete();
         }
 
         $user->save();

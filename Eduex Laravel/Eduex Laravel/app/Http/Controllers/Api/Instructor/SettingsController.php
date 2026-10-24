@@ -178,6 +178,13 @@ class SettingsController extends Controller
             $user->password = Hash::make($request->new_password);
             $user->save();
 
+            $currentTokenId = $user->currentAccessToken()?->id;
+            if ($currentTokenId) {
+                $user->tokens()->where('id', '!=', $currentTokenId)->delete();
+            } else {
+                $user->tokens()->delete();
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Password updated successfully'

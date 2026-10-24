@@ -127,6 +127,13 @@ class ProfileController extends Controller
             'password' => \Hash::make($request->new_password)
         ]);
 
+        $currentTokenId = $user->currentAccessToken()?->id;
+        if ($currentTokenId) {
+            $user->tokens()->where('id', '!=', $currentTokenId)->delete();
+        } else {
+            $user->tokens()->delete();
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Password updated successfully.'
@@ -134,13 +141,14 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete user account.
-     */
-    /**
      * Request account deletion.
      */
     public function requestDeleteAccount(Request $request)
     {
+        $request->validate([
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
         $user = $request->user();
 
         // Check if there is already a pending request
@@ -161,7 +169,7 @@ class ProfileController extends Controller
             'user_email' => $user->email,
             'role' => $user->role,
             'status' => 'pending',
-            'reason' => $request->reason, // Optional reason
+            'reason' => $request->input('reason'),
         ]);
 
         return response()->json([

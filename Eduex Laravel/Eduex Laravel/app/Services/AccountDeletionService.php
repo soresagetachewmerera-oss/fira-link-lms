@@ -17,9 +17,14 @@ class AccountDeletionService
 {
     public function deleteUser(User $user): void
     {
+        if ($user->isAdmin()) {
+            throw new \RuntimeException('Cannot delete administrator accounts via deletion service.');
+        }
+
         $profilePhoto = $user->profile_photo;
 
         DB::transaction(function () use ($user, $profilePhoto) {
+            $user->tokens()->delete();
             if ($user->isStudent()) {
                 $user->lessonProgress()->delete();
                 $user->quizAttempts()->delete();
