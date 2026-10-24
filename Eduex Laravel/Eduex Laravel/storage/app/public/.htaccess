@@ -1,0 +1,28 @@
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, HEAD"
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, HEAD"
+    Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma, Range, x-xsrf-token"
+    Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma, Range, x-xsrf-token"
+    Header set Access-Control-Expose-Headers "Content-Length, Content-Range"
+    Header always set Access-Control-Expose-Headers "Content-Length, Content-Range"
+</IfModule>
+
+Options -Indexes
+
+# Disable script execution in user upload directory
+<FilesMatch "(?i)\.(php|phtml|php3|php4|php5|php7|php8|phar|shtml|cgi|pl|py|sh|bash|exe)$">
+    Order Deny,Allow
+    Deny from all
+    Require all denied
+</FilesMatch>
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>

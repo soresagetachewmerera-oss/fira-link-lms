@@ -462,7 +462,7 @@ class StudentCourseController extends Controller
 
         $validator = Validator::make($request->all(), [
             'submission_text' => 'nullable|string',
-            'file' => 'nullable|file|max:10240', // 10MB max
+            'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar,jpg,jpeg,png|max:10240', // 10MB max
         ]);
 
         if ($validator->fails()) {

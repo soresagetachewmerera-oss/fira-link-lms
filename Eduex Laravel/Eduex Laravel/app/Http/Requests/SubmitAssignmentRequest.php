@@ -25,7 +25,7 @@ class SubmitAssignmentRequest extends FormRequest
             'assignment_id' => ['required', 'integer', 'exists:assignments,id'],
             'submission_text' => ['nullable', 'string'],
             'files' => ['nullable', 'array', 'max:10'],
-            'files.*' => ['file', 'max:10240'], 
+            'files.*' => ['file', 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar,jpg,jpeg,png', 'max:10240'], 
         ];
     }
 
