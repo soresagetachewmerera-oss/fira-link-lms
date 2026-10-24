@@ -31,11 +31,31 @@ Route::get('/', HomeController::class)->name('home');
 Route::get('/ai-chat', [AiChatController::class, 'publicIndex'])->name('ai-chat.public');
 Route::post('/ai-chat/send', [AiChatController::class, 'sendMessage'])->name('ai-chat.send');
 
+// Free Business Tools routes
+Route::get('/free-tools', [\App\Http\Controllers\Front\FreeToolsController::class, 'index'])->name('free-tools.index');
+Route::get('/free-tools/market-data', [\App\Http\Controllers\Front\FreeToolsController::class, 'marketData'])->name('free-tools.market-data');
+Route::post('/free-tools/ai-analysis', [\App\Http\Controllers\Front\FreeToolsController::class, 'aiAnalysis'])->name('free-tools.ai-analysis');
+Route::post('/free-tools/calculate', [\App\Http\Controllers\Front\FreeToolsController::class, 'calculate'])->name('free-tools.calculate');
+Route::post('/free-tools/save-calculation', [\App\Http\Controllers\Front\FreeToolsController::class, 'saveCalculation'])->name('free-tools.save-calculation');
+Route::post('/free-tools/ask-advisor', [\App\Http\Controllers\Front\FreeToolsController::class, 'askAdvisor'])->name('free-tools.ask-advisor');
+
 Route::match(['get', 'post'], '/verify-certificate', [CertificateVerificationController::class, 'verify'])->name('verify-certificate');
 
-// Terms and conditions routes
+// Sitemap XML route
+Route::get('/sitemap.xml', [\App\Http\Controllers\Front\SitemapController::class, 'index'])->name('sitemap');
+
+// Programs & Pricing public routes
+Route::get('/programs', [\App\Http\Controllers\Front\ProgramController::class, 'index'])->name('programs');
+Route::get('/pricing', [\App\Http\Controllers\Front\PricingController::class, 'index'])->name('pricing');
+
+// Legal routes (Privacy Policy & Terms of Service)
+Route::get('/privacy', [\App\Http\Controllers\Front\LegalController::class, 'privacy'])->name('privacy');
+Route::get('/terms', [\App\Http\Controllers\Front\LegalController::class, 'terms'])->name('terms');
+Route::get('/privacy-policy', function () {
+    return redirect('/privacy', 301);
+});
 Route::get('/terms-conditions', function () {
-    return redirect()->route('pages.show', ['customPage' => 'terms-and-conditions'], 301);
+    return redirect('/terms', 301);
 });
 
 // About and contact routes
@@ -140,15 +160,28 @@ Route::middleware(['auth'])->group(function () {
 // Cron runner route
 Route::get('/cron/run', [App\Http\Controllers\CronController::class, 'run'])->name('cron.run');
 
-// Serve storage files with CORS headers and caching
+// Serve storage files with CORS headers, caching, and strict path-traversal prevention
 Route::get('/storage/{path}', function (string $path) {
-    $fullPath = storage_path('app/public/' . $path);
-    if (!file_exists($fullPath)) {
-        $fullPath = public_path('storage/' . $path);
+    $cleanPath = ltrim(str_replace(['../', '..\\'], '', $path), '/\\');
+
+    $storagePublicBase = realpath(storage_path('app/public'));
+    $publicStorageBase = realpath(public_path('storage'));
+
+    $fullPath = null;
+    $candidate1 = realpath(storage_path('app/public/' . $cleanPath));
+    if ($candidate1 && $storagePublicBase && str_starts_with($candidate1, $storagePublicBase) && is_file($candidate1)) {
+        $fullPath = $candidate1;
+    } else {
+        $candidate2 = realpath(public_path('storage/' . $cleanPath));
+        if ($candidate2 && $publicStorageBase && str_starts_with($candidate2, $publicStorageBase) && is_file($candidate2)) {
+            $fullPath = $candidate2;
+        }
     }
-    if (!file_exists($fullPath)) {
+
+    if (!$fullPath) {
         abort(404);
     }
+
     $mime = mime_content_type($fullPath) ?: 'application/octet-stream';
     return response()->file($fullPath, [
         'Content-Type' => $mime,
@@ -158,6 +191,10 @@ Route::get('/storage/{path}', function (string $path) {
         'Cache-Control' => 'public, max-age=86400',
     ]);
 })->where('path', '.*');
+
+// Legacy subscription route aliases for backward compatibility
+Route::get('/subscriptions', fn() => redirect()->route('courses'))->name('subscriptions.index');
+Route::get('/student/subscription', fn() => redirect()->route('student.dashboard'))->name('student.subscription');
 
 // Include all route files
 require __DIR__ . '/auth.php';
