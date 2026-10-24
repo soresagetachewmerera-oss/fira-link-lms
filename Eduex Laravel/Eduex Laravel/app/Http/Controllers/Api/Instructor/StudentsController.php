@@ -125,6 +125,13 @@ class StudentsController extends Controller
             ->with('course')
             ->get();
 
+        if ($enrollments->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student not found or not enrolled in any of your courses.'
+            ], 404);
+        }
+
         $courses = $enrollments->map(function ($enrollment) use ($id) {
             $totalLessons = Lesson::whereHas('topic', function($q) use ($enrollment) {
                 $q->where('course_id', $enrollment->course_id);
@@ -160,7 +167,7 @@ class StudentsController extends Controller
                 'email' => $this->maskEmail($student->email),
                 'avatar' => $student->profile_photo ? asset('storage/' . $student->profile_photo) : 'https://ui-avatars.com/api/?name=' . urlencode($student->name),
                 'bio' => $student->bio,
-                'phone' => $student->phone,
+                'phone' => $this->maskPhone($student->phone),
                 'last_active' => $student->last_login_at ? Carbon::parse($student->last_login_at)->format('M d, Y') : 'Never',
             ],
             'stats' => [
@@ -191,5 +198,17 @@ class StudentsController extends Controller
         }
         
         return substr($name, 0, 1) . str_repeat('*', min($len - 2, 5)) . substr($name, -1) . '@' . $domain;
+    }
+
+    /**
+     * Mask phone number for privacy
+     */
+    private function maskPhone($phone)
+    {
+        if (!$phone) return '';
+        $clean = preg_replace('/[^\d+]/', '', $phone);
+        $len = strlen($clean);
+        if ($len <= 4) return '***';
+        return substr($clean, 0, 3) . str_repeat('*', max(0, $len - 6)) . substr($clean, -3);
     }
 }
