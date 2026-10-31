@@ -48,6 +48,13 @@ class SettingsProvider with ChangeNotifier {
             (Locale locale) => locale.languageCode == languageCode,
           )) {
         _locale = Locale(languageCode);
+      } else {
+        final deviceLocale = WidgetsBinding.instance.platformDispatcher.locale;
+        if (deviceLocale.languageCode == 'am') {
+          _locale = const Locale('am');
+        } else {
+          _locale = const Locale('en');
+        }
       }
       _isDarkMode = isDarkMode;
     } catch (e) {
@@ -56,11 +63,11 @@ class SettingsProvider with ChangeNotifier {
   }
 
   Future<void> setLocale(Locale locale) async {
+    _locale = locale;
+    notifyListeners();
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('language_code', locale.languageCode);
-      _locale = locale;
-      notifyListeners();
     } catch (e) {
       debugPrint('Error setting locale: $e');
     }
@@ -80,8 +87,13 @@ class SettingsProvider with ChangeNotifier {
   String formatPrice(dynamic price) {
     if (price == null) return '';
     final double value = price is num ? price.toDouble() : (double.tryParse(price.toString()) ?? 0.0);
+    final formatter = NumberFormat('#,##0.00', 'en_US');
+    final formattedNum = formatter.format(value);
+    if (_locale.languageCode == 'am') {
+      return '$formattedNum ብር';
+    }
     final String sym = currencySymbol.trim();
     final String prefix = sym.isNotEmpty ? '$sym ' : 'ETB ';
-    return NumberFormat.currency(symbol: prefix, decimalDigits: 2).format(value);
+    return '$prefix$formattedNum';
   }
 }

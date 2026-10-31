@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "Fira Link Academy";
+"CFBundleName" = "Fira Link";
+"NSCameraUsageDescription" = "Fira Link needs camera access to take profile photos and scan QR codes.";
+"NSPhotoLibraryUsageDescription" = "Fira Link needs photo library access to upload assignments and profile pictures.";
+"NSMicrophoneUsageDescription" = "Fira Link needs microphone access for interactive learning and voice notes.";

@@ -1,5 +1,5 @@
 name: eduex_app
-description: EduEx - Complete Learning Management System Flutter UI Kit
+description: Fira Link Academy - Complete Learning Management System Mobile Application
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -47,6 +47,7 @@ dependencies:
   no_screenshot: ^1.1.0
   flutter_markdown_plus: ^1.0.7
   http_parser: ^4.1.2
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_test:
@@ -126,6 +127,9 @@ flutter:
         - asset: assets/fonts/montserrat/static/Montserrat-BlackItalic.ttf
           weight: 900
           style: italic
+    - family: NotoSansEthiopic
+      fonts:
+        - asset: assets/fonts/noto_sans_ethiopic/NotoSansEthiopic-Variable.ttf
 
 flutter_launcher_icons:
   android: true

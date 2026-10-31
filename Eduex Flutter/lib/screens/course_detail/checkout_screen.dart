@@ -21,6 +21,7 @@ import '../../services/course_service.dart';
 import '../../widgets/course_thumbnail_image.dart';
 import 'enrollment_success_screen.dart';
 import '../auth/auth_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final Course course;
@@ -1309,7 +1310,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                       Expanded(
                         child: Text(
-                          'Checkout',
+                          context.l10n.checkout,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppTheme.getTextColor(context),
@@ -1344,7 +1345,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  'Course Summary',
+                                  context.l10n.courseSummary,
                                   style: TextStyle(
                                     color: AppTheme.getTextColor(context),
                                     fontSize: 18,
@@ -1444,7 +1445,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                               ),
                                               const SizedBox(width: 6),
                                               Text(
-                                                '${widget.course.studentsCount ?? 0} Students',
+                                                '${widget.course.studentsCount ?? 0} ${context.l10n.students}',
                                                 style: TextStyle(
                                                   color: AppTheme.getTextColor(
                                                     context,
@@ -1470,7 +1471,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 ),
                                 const SizedBox(height: 20),
                                 Text(
-                                  'Price Breakdown',
+                                  context.l10n.priceBreakdown,
                                   style: TextStyle(
                                     color: AppTheme.getTextColor(context),
                                     fontSize: 18,
@@ -1480,7 +1481,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 ),
                                 const SizedBox(height: 20),
                                 _PriceRow(
-                                  label: 'Course Price',
+                                  label: context.l10n.coursePrice,
                                   amount: settingsProvider.formatPrice(
                                     _originalPrice,
                                   ),
@@ -1501,7 +1502,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                           ),
                                           const SizedBox(width: 6),
                                           Text(
-                                            'Discount (${_discountPercent.toStringAsFixed(0)}%)',
+                                            '${context.l10n.discount} (${_discountPercent.toStringAsFixed(0)}%)',
                                             style: TextStyle(
                                               color: Colors.green,
                                               fontSize: 14,
@@ -1531,7 +1532,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 ),
                                 const SizedBox(height: 12),
                                 _PriceRow(
-                                  label: 'Total',
+                                  label: context.l10n.total,
                                   amount: settingsProvider.formatPrice(
                                     _finalPrice,
                                   ),
@@ -1553,7 +1554,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
                                   Text(
-                                    'Promo Code',
+                                    context.l10n.couponCode,
                                     style: TextStyle(
                                       color: AppTheme.getTextColor(context),
                                       fontSize: 18,
@@ -1573,7 +1574,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                             fontSize: 14,
                                           ),
                                           decoration: InputDecoration(
-                                            hintText: 'Enter promo code',
+                                            hintText: context.l10n.couponCode,
                                             hintStyle: TextStyle(
                                               color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
                                             ),
@@ -1620,7 +1621,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                                 elevation: 0,
                                               ),
                                               child: Text(
-                                                _appliedCouponCode != null ? 'Remove' : 'Apply',
+                                                _appliedCouponCode != null ? context.l10n.remove : context.l10n.apply,
                                                 style: const TextStyle(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w700,
@@ -1667,7 +1668,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
                                   Text(
-                                    'Payment Method',
+                                    context.l10n.paymentMethod,
                                     style: TextStyle(
                                       color: AppTheme.getTextColor(context),
                                       fontSize: 18,
@@ -1759,7 +1760,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              'Total',
+                              context.l10n.total,
                               style: TextStyle(
                                 color: AppTheme.getTextColor(
                                   context,
@@ -1797,7 +1798,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 elevation: 0,
                               ),
                               child: Text(
-                                'Confirm Payment',
+                                context.l10n.confirmPayment,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,

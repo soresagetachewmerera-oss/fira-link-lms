@@ -12,6 +12,7 @@ import 'rate_app_sheet.dart';
 import 'share_app_sheet.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../services/profile_service.dart';
 import '../../config/config.dart';
 import '../common/webview_screen.dart';
@@ -53,25 +54,148 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  void _showLanguageSheet(BuildContext context) {
+    final currentLocale = Localizations.localeOf(context);
+    final languages = [
+      {'code': 'en', 'name': 'English', 'icon': 'assets/img/icons/en.png'},
+      {'code': 'am', 'name': 'አማርኛ', 'icon': 'assets/img/icons/am.png'},
+    ];
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext ctx) {
+        return Container(
+          decoration: BoxDecoration(
+            color: AppTheme.getCardColor(ctx),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppTheme.getTextColor(ctx).withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  context.l10n.selectLanguage,
+                  style: TextStyle(
+                    color: AppTheme.getTextColor(ctx),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              ...languages.map((lang) {
+                final isSelected = lang['code'] == currentLocale.languageCode;
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    Provider.of<SettingsProvider>(context, listen: false)
+                        .setLocale(Locale(lang['code']!));
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? AppTheme.getMint100(ctx)
+                          : AppTheme.getSoftGray150(ctx),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppTheme.getTextColor(ctx)
+                                  : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.asset(
+                              lang['icon']!,
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                color: AppTheme.getMint100(ctx),
+                                child: Center(
+                                  child: HugeIcon(
+                                    icon: HugeIcons.strokeRoundedLanguageCircle,
+                                    size: 20,
+                                    color: AppTheme.getTextColor(ctx),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            lang['name']!,
+                            style: TextStyle(
+                              color: AppTheme.getTextColor(ctx),
+                              fontSize: 16,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        if (isSelected)
+                          HugeIcon(
+                            icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                            size: 24,
+                            color: AppTheme.getTextColor(ctx),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _showDeleteAccountDialog() async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Account'),
-        content: const Text(
-          'Are you sure you want to delete your account? This action cannot be undone.',
+        title: Text(context.l10n.deleteAccount),
+        content: Text(
+          context.l10n.deleteAccountConfirm,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Cancel',
+              context.l10n.cancel,
               style: TextStyle(color: AppTheme.getTextColor(context)),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(context.l10n.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -99,7 +223,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  'Deletion request submitted. Awaiting admin approval.',
+                  context.l10n.deletionAwaitingApprovalMessage,
                   style: TextStyle(color: AppTheme.getTextColor(context)),
                 ),
                 backgroundColor: AppTheme.getCardColor(context),
@@ -160,11 +284,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
 
+              // Preferences / Language Section
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  context.l10n.preferences,
+                  style: TextStyle(
+                    color: AppTheme.getTextColor(
+                      context,
+                    ).withValues(alpha: 0.7),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.getCardColor(context),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: <Widget>[
+                    _MenuItemWithCustomIcon(
+                      icon: Icons.language,
+                      title: context.l10n.language,
+                      subtitle: Localizations.localeOf(context).languageCode == 'am'
+                          ? 'አማርኛ'
+                          : 'English',
+                      onTap: () => _showLanguageSheet(context),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
               // Account Settings Section
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
-                  'Account',
+                  context.l10n.accountSettings,
                   style: TextStyle(
                     color: AppTheme.getTextColor(
                       context,
@@ -184,8 +343,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: <Widget>[
                     _MenuItemWithCustomIcon(
                       icon: Icons.person_outline,
-                      title: 'Edit Profile',
-                      subtitle: 'Update your personal information',
+                      title: context.l10n.editProfile,
+                      subtitle: context.l10n.editProfileSubtitle,
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -196,8 +355,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     _MenuItemWithCustomIcon(
                       icon: Icons.lock_outline,
-                      title: 'Change Password',
-                      subtitle: 'Update your account password',
+                      title: context.l10n.changePassword,
+                      subtitle: context.l10n.changePasswordSubtitle,
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -220,18 +379,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ? Icons.access_time_rounded
                               : Icons.delete_outline,
                           title: isPending
-                              ? 'Deletion Pending'
-                              : 'Delete Account',
+                              ? context.l10n.deletionPending
+                              : context.l10n.deleteAccount,
                           subtitle: isPending
-                              ? 'Awaiting admin approval'
-                              : 'Permanently remove your account',
+                              ? context.l10n.awaitingAdminApproval
+                              : context.l10n.permanentlyRemoveAccount,
                           isDestructive: !isPending,
                           onTap: isPending
                               ? () {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                       content: Text(
-                                        'Your account deletion request is awaiting approval.',
+                                        context.l10n.deletionAwaitingApprovalMessage,
                                       ),
                                     ),
                                   );
@@ -249,7 +408,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
-                  'Privacy & Security',
+                  context.l10n.privacyAndSecurity,
                   style: TextStyle(
                     color: AppTheme.getTextColor(
                       context,
@@ -276,7 +435,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Padding(
                         padding: const EdgeInsets.all(20),
                         child: Text(
-                          'No pages available',
+                          context.l10n.noDataAvailable,
                           style: TextStyle(
                             color: AppTheme.getTextColor(
                               context,
@@ -289,7 +448,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         return _MenuItem(
                           icon: HugeIcons.strokeRoundedFile01,
                           title: page.title,
-                          subtitle: 'View ${page.title}',
+                          subtitle: '${context.l10n.view} ${page.title}',
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
@@ -361,16 +520,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     _MenuItem(
                       icon: HugeIcons.strokeRoundedStar,
-                      title: 'Rate App',
-                      subtitle: 'Rate us on the app store',
+                      title: context.l10n.rateApp,
+                      subtitle: context.l10n.rateAppSubtitle,
                       onTap: () {
                         showRateAppSheet(context);
                       },
                     ),
                     _MenuItem(
                       icon: HugeIcons.strokeRoundedShare01,
-                      title: 'Share App',
-                      subtitle: 'Share with friends and family',
+                      title: context.l10n.shareApp,
+                      subtitle: context.l10n.shareAppSubtitle,
                       onTap: () {
                         showShareAppSheet(context);
                       },

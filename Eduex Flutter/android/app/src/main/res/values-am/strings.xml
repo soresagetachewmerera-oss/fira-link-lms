@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ፊራ ሊንክ አካዳሚ</string>
+    <string name="notification_channel_name">የፊራ ሊንክ ማሳወቂያዎች</string>
+    <string name="notification_channel_description">የትምህርት መረጃዎች፣ የገበያ ዋጋዎች እና አዳዲስ ዝመናዎች</string>
+</resources>

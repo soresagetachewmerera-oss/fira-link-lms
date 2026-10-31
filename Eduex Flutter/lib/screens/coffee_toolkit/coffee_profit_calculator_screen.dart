@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/coffee_toolkit_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../l10n/app_localizations.dart';
 
 class CoffeeProfitCalculatorScreen extends StatefulWidget {
   const CoffeeProfitCalculatorScreen({super.key});
@@ -150,8 +151,8 @@ class _CoffeeProfitCalculatorScreenState
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Deal calculation saved successfully to workspace!'),
+        SnackBar(
+          content: Text(context.l10n.calculationSaved),
           backgroundColor: Colors.green,
         ),
       );
@@ -183,7 +184,7 @@ class _CoffeeProfitCalculatorScreenState
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Profit Calculator',
+          context.l10n.profitCalculator,
           style: TextStyle(
             color: AppTheme.getTextColor(context),
             fontSize: 18,
@@ -252,7 +253,7 @@ class _CoffeeProfitCalculatorScreenState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'ESTIMATED NET MARGIN',
+                context.l10n.profitMargin,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 11,

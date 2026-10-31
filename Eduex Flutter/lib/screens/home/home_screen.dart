@@ -1,38 +1,32 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
-import 'package:provider/provider.dart';
-import '../../providers/wishlist_provider.dart';
-import '../../providers/auth_provider.dart';
-import '../../providers/settings_provider.dart';
-import '../../providers/chat_provider.dart';
-import '../../router/app_router.dart';
+import 'package:flutter/rendering.dart';
 
 import '../../theme/app_theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/bottom_nav_bar.dart';
+import '../../widgets/fira_bottom_dock.dart';
 import '../../services/home_service.dart';
 import '../../services/course_service.dart';
 import '../../models/home_data.dart';
-import '../../models/banner.dart';
-import '../../models/category.dart';
 import '../../models/course.dart';
 import '../../models/bundle.dart';
-import '../categories/categories_screen.dart';
-import '../category_detail/category_detail_screen.dart';
 import '../courses/courses_screen.dart';
-import '../course_detail/course_detail_screen.dart';
-import '../bundles/bundle_detail_screen.dart';
-import '../../widgets/course_thumbnail_image.dart';
 import '../bundles/bundles_screen.dart';
-import '../ai_suggestions/ai_suggestions_screen.dart';
-import '../wishlist/wishlist_screen.dart';
-import '../notifications/notifications_screen.dart';
-import '../dashboard/dashboard_screen.dart';
-import '../../widgets/live_class_banner.dart';
-import '../auth/auth_screen.dart';
+import '../bundles/bundle_detail_screen.dart';
 import '../../widgets/home_skeletons.dart';
-import '../coffee_toolkit/coffee_toolkit_hub_screen.dart';
+import 'widgets/home_design_constants.dart';
+import 'widgets/home_header.dart';
+import 'widgets/home_search_bar.dart';
+import 'widgets/continue_learning_card.dart';
+import 'widgets/market_strip.dart';
+import 'widgets/toolkit_bento.dart';
+import 'widgets/topic_chips.dart';
+import 'widgets/featured_course_card.dart';
+import 'models/market_data.dart';
+import 'models/continue_learning_data.dart';
+import 'repositories/market_data_repository.dart';
+import 'repositories/continue_learning_repository.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -46,11 +40,127 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   final HomeService _homeService = HomeService();
   final CourseService _courseService = CourseService();
+  final MarketDataRepository _marketRepo = const MockMarketDataRepository();
+  final ContinueLearningRepository _continueLearningRepo = const MockContinueLearningRepository();
+
+  HomeData? _homeData;
+  List<Course> _recentCourses = [];
+  List<Bundle> _bundles = [];
+  List<MarketChipItem> _marketItems = [];
+  ContinueLearningCourse? _inProgressCourse;
+
+  bool _isLoading = true;
+  String? _error;
+  String _selectedTopic = 'All';
+
   double _savedScrollPosition = 0.0;
+  double _lastScrollOffset = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAllData();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadAllData() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      // 1. Fetch Market strip data (Mock/Live repository with TODO)
+      final marketFuture = _marketRepo.getMarketStripItems();
+
+      // 2. Fetch in-progress course (Mock/Live repository with TODO)
+      final continueLearningFuture = _continueLearningRepo.getActiveInProgressCourse();
+
+      // 3. Fetch Home data
+      final homeResponse = await _homeService.fetchHomeData();
+
+      final marketResult = await marketFuture;
+      final continueLearningResult = await continueLearningFuture;
+
+      if (homeResponse.statusCode == 200) {
+        final jsonResponse = jsonDecode(homeResponse.body);
+        if (jsonResponse['success'] == true) {
+          if (!mounted) return;
+          setState(() {
+            _homeData = HomeData.fromJson(jsonResponse);
+            _recentCourses = _homeData?.recentCourses ?? [];
+            _marketItems = marketResult;
+            _inProgressCourse = continueLearningResult;
+          });
+
+          // Fetch bundles asynchronously
+          try {
+            final bundleResponse = await _courseService.fetchBundles();
+            if (bundleResponse.statusCode == 200) {
+              final bData = jsonDecode(bundleResponse.body);
+              if (bData['success'] == true && bData['data'] != null && mounted) {
+                setState(() {
+                  _bundles = (bData['data'] as List)
+                      .map((b) => Bundle.fromJson(b))
+                      .toList();
+                });
+              }
+            }
+          } catch (_) {
+            // Non-critical bundle fetch error ignored
+          }
+
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
+        } else {
+          _handleError('Failed to load platform data');
+        }
+      } else {
+        _handleError('Server responded with code: ${homeResponse.statusCode}');
+      }
+    } catch (e) {
+      _handleError('Connection error: $e');
+    }
+  }
+
+  void _handleError(String message) {
+    if (!mounted) return;
+    setState(() {
+      _error = message;
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _onRefresh() async {
+    if (_scrollController.hasClients) {
+      _savedScrollPosition = _scrollController.offset;
+    }
+
+    await _loadAllData();
+
+    if (mounted && _scrollController.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _scrollController.hasClients && _savedScrollPosition > 0) {
+          _scrollController.jumpTo(
+            _savedScrollPosition.clamp(0.0, _scrollController.position.maxScrollExtent),
+          );
+        }
+      });
+    }
+  }
 
   void _handleSearch(String query) {
     if (query.trim().isEmpty) return;
-    Navigator.of(context).pushReplacement(
+    Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             CoursesScreen(initialSearchQuery: query),
@@ -62,205 +172,111 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  HomeData? _homeData;
-  bool _isLoading = true;
-  String? _error;
-
-  // Pagination state for Recent Courses
-  List<Course> _recentCourses = [];
-  int _recentPage = 1;
-  bool _isMoreRecentLoading = false;
-  bool _hasMoreRecent = true;
-
-  List<Bundle> _bundles = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchData();
-    _scrollController.addListener(_onScroll);
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
-      _loadMoreRecentCourses();
-    }
-  }
-
-  Future<void> _fetchData() async {
-    try {
-      final response = await _homeService.fetchHomeData();
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        if (jsonResponse['success'] == true) {
-          if (mounted) {
-            setState(() {
-              _homeData = HomeData.fromJson(jsonResponse);
-              _recentCourses = _homeData?.recentCourses ?? [];
-            });
-
-            // Fetch bundles in parallel
-            try {
-              final bundleResponse = await _courseService.fetchBundles();
-              if (bundleResponse.statusCode == 200) {
-                final bData = jsonDecode(bundleResponse.body);
-                if (bData['success'] == true && bData['data'] != null) {
-                  setState(() {
-                    _bundles = (bData['data'] as List)
-                        .map((b) => Bundle.fromJson(b))
-                        .toList();
-                  });
-                }
-              }
-            } catch (e) {
-              // Ignore bundle fetch error
-            }
-
-            setState(() {
-              _isLoading = false;
-            });
-          }
-        } else {
-          _handleError('Failed to load data');
-        }
-      } else {
-        _handleError('Server error: ${response.statusCode}');
-      }
-    } catch (e) {
-      _handleError('Connection error: $e');
-    }
-  }
-
-  Future<void> _loadMoreRecentCourses() async {
-    if (_isMoreRecentLoading || !_hasMoreRecent) return;
-
+  void _handleTopicSelected(String topic) {
     setState(() {
-      _isMoreRecentLoading = true;
+      _selectedTopic = topic;
     });
+  }
 
-    try {
-      final response = await _courseService.fetchRecentCourses(
-        page: _recentPage + 1,
-      );
+  List<Course> _getFilteredCourses(List<Course> allCourses) {
+    if (_selectedTopic == 'All') return allCourses;
 
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        if (jsonResponse['success'] == true) {
-          // Check if data is paginated (Laravel default: data -> data)
-          final data = jsonResponse['data'];
-          final List<dynamic> newCoursesJson =
-              (data is Map && data.containsKey('data')) ? data['data'] : data;
+    final String topic = _selectedTopic.toLowerCase();
+    final filtered = allCourses.where((c) {
+      final String title = c.title.toLowerCase();
+      final String desc = (c.description ?? '').toLowerCase();
+      final String cat = (c.categoryName ?? '').toLowerCase();
 
-          if (mounted) {
-            setState(() {
-              if (newCoursesJson.isNotEmpty) {
-                _recentCourses.addAll(
-                  newCoursesJson.map((json) => Course.fromJson(json)).toList(),
-                );
-                _recentPage++;
-              } else {
-                _hasMoreRecent = false;
-              }
-            });
-          }
-        }
+      switch (_selectedTopic) {
+        case 'Sourcing':
+          return title.contains('sourc') || title.contains('origin') || title.contains('green') || cat.contains('sourc') || cat.contains('coffee');
+        case 'Cupping & quality':
+          return title.contains('cup') || title.contains('qualit') || title.contains('grad') || title.contains('sca') || desc.contains('cup');
+        case 'Export docs':
+          return title.contains('doc') || title.contains('custom') || title.contains('complian') || title.contains('contract') || title.contains('export');
+        case 'Logistics':
+          return title.contains('logist') || title.contains('freight') || title.contains('supply') || title.contains('ship') || title.contains('transport');
+        case 'Finance':
+          return title.contains('financ') || title.contains('fob') || title.contains('cif') || title.contains('price') || title.contains('forex');
+        case 'Buyers':
+          return title.contains('buyer') || title.contains('roaster') || title.contains('trade') || title.contains('market');
+        default:
+          return title.contains(topic) || cat.contains(topic);
       }
-    } catch (e) {
-      debugPrint('Error loading more courses: $e');
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isMoreRecentLoading = false;
-        });
+    }).toList();
+
+    return filtered.isNotEmpty ? filtered : allCourses;
+  }
+
+  bool _handleScrollNotification(UserScrollNotification notification) {
+    final double currentOffset = _scrollController.hasClients ? _scrollController.offset : 0.0;
+
+    // Always show dock at the very top
+    if (currentOffset <= 80.0) {
+      if (!firaDockVisibilityNotifier.value) {
+        firaDockVisibilityNotifier.value = true;
+      }
+      _lastScrollOffset = currentOffset;
+      return false;
+    }
+
+    final double delta = currentOffset - _lastScrollOffset;
+
+    // Scrolling down by more than 8px past 80px -> hide dock
+    if (notification.direction == ScrollDirection.reverse && delta > 8.0) {
+      if (firaDockVisibilityNotifier.value) {
+        firaDockVisibilityNotifier.value = false;
       }
     }
-  }
-
-  void _handleError(String message) {
-    if (mounted) {
-      setState(() {
-        _error = message;
-        _isLoading = false;
-      });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-    }
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _onRefresh() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    if (_scrollController.hasClients) {
-      _savedScrollPosition = _scrollController.offset;
+    // Scrolling up -> show dock
+    else if (notification.direction == ScrollDirection.forward && delta < -8.0) {
+      if (!firaDockVisibilityNotifier.value) {
+        firaDockVisibilityNotifier.value = true;
+      }
     }
 
-    await _fetchData();
-
-    // Restore scroll position after refresh to prevent auto-scroll
-    if (mounted && _scrollController.hasClients) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && _scrollController.hasClients) {
-          if (_savedScrollPosition > 0 &&
-              _savedScrollPosition <=
-                  _scrollController.position.maxScrollExtent) {
-            _scrollController.jumpTo(_savedScrollPosition);
-          }
-        }
-      });
-    }
+    _lastScrollOffset = currentOffset;
+    return false;
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       backgroundColor: AppTheme.getBackgroundColor(context),
-      body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            const SizedBox(height: 12),
-            const _HomeAppBar(),
-            const SizedBox(height: 16),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: _onRefresh,
-                color: AppTheme.primary,
-                displacement: 40,
-                edgeOffset: 0,
-                triggerMode: RefreshIndicatorTriggerMode.onEdge,
-                child: _isLoading
-                    ? const HomeSkeletons()
-                    : _error != null
-                    ? _buildErrorState()
-                    : _buildMainContent(),
+      extendBody: true, // Allows content to flow smoothly under floating dock
+      body: Container(
+        decoration: isDark
+            ? null
+            : const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFFFCFBFE), // Subtle top-to-bottom tint in light mode
+                    Color(0xFFF9F7FA),
+                  ],
+                ),
               ),
+        child: SafeArea(
+          bottom: false,
+          child: NotificationListener<UserScrollNotification>(
+            onNotification: _handleScrollNotification,
+            child: RefreshIndicator(
+              onRefresh: _onRefresh,
+              color: HomeDesignConstants.brandPrimary(context),
+              displacement: 40,
+              child: _isLoading
+                  ? const HomeSkeletons()
+                  : _error != null
+                      ? _buildErrorState()
+                      : _buildMainContent(),
             ),
-          ],
+          ),
         ),
       ),
       bottomNavigationBar: const AppBottomNavBar(currentTab: BottomNavTab.home),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     Navigator.of(context).push(
-      //       MaterialPageRoute(
-      //         builder: (context) => const AiCourseGeneratorInputScreen(),
-      //       ),
-      //     );
-      //   },
-      //   backgroundColor: AppTheme.getPrimaryColor(context),
-      //   elevation: 0,
-      //   child: const Icon(Icons.add, color: Colors.white, size: 28),
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -273,43 +289,41 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 40),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Icon(
-              Icons.error_outline,
+              Icons.error_outline_rounded,
               size: 48,
               color: Colors.red.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 16),
             Text(
-              'Oops!',
+              'Unable to load trade content',
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.getTextColor(context),
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: HomeDesignConstants.text(context),
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              _error!,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.getTextColor(context)),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () {
-                setState(() {
-                  _isLoading = true;
-                  _error = null;
-                });
-                _fetchData();
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('Try Again'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primary,
-                foregroundColor: Colors.white,
+              _error ?? 'An unexpected error occurred.',
+              style: TextStyle(
+                fontSize: 13,
+                color: HomeDesignConstants.mutedText(context),
               ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _onRefresh,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: HomeDesignConstants.brandPrimary(context),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Try Again'),
             ),
           ],
         ),
@@ -318,1684 +332,279 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildMainContent() {
-    final data = _homeData;
-    if (data == null) {
-      return const Center(child: Text('No data found'));
-    }
+    final List<Course> allFeatured = _homeData?.popularCourses.isNotEmpty == true
+        ? _homeData!.popularCourses
+        : _recentCourses;
+    final List<Course> filteredFeatured = _getFilteredCourses(allFeatured);
 
-    return CustomScrollView(
+    return SingleChildScrollView(
       controller: _scrollController,
       physics: const AlwaysScrollableScrollPhysics(
         parent: BouncingScrollPhysics(),
       ),
-      slivers: <Widget>[
-        const SliverToBoxAdapter(child: SizedBox(height: 12)), // Top spacing
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: _SearchRow(
-              controller: _searchController,
-              onSearch: _handleSearch,
-            ),
-          ),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 20)),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: _HeroBanner(banners: data.banners),
-          ),
-        ),
-        if (data.upcomingLiveClass != null) ...[
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: LiveClassBanner(
-                liveClass: data.upcomingLiveClass!,
-                margin: EdgeInsets.zero,
-              ),
-            ),
-          ),
-        ],
-        const SliverToBoxAdapter(child: SizedBox(height: 24)),
-        if (data.categories.isNotEmpty) ...[
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _SectionHeader(
-                title: context.l10n.topCategories,
-                actionText: context.l10n.seeAll,
-                onSeeAllTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const CategoriesScreen(),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          SliverToBoxAdapter(
-            child: _TopCategoriesRow(categories: data.categories),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const CoffeeToolkitHubScreen(),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF4A0E66), Color(0xFF6D1A95)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF6D1A95).withValues(alpha: 0.25),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const HugeIcon(
-                          icon: HugeIcons.strokeRoundedCoffee01,
-                          size: 24,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Row(
-                              children: [
-                                Text(
-                                  'Coffee Export Toolkit',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(width: 8),
-                                Badge(
-                                  label: Text(
-                                    'PRO',
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  backgroundColor: Colors.amber,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Profit calculator, offer sheets & Fira AI advisor',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.8),
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(
-                        Icons.arrow_forward_ios,
-                        color: Colors.white70,
-                        size: 14,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
-        ],
-        if (data.popularCourses.isNotEmpty) ...[
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _SectionHeader(
-                title: context.l10n.popularCourses,
-                actionText: context.l10n.seeAll,
-                onSeeAllTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const CoursesScreen(),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          SliverToBoxAdapter(
-            child: _PopularCoursesRow(courses: data.popularCourses),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
-        ],
-        if (_bundles.isNotEmpty) ...[
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _SectionHeader(
-                title: 'Course Bundles',
-                actionText: context.l10n.seeAll,
-                onSeeAllTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const BundlesScreen(),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 220,
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                scrollDirection: Axis.horizontal,
-                itemCount: _bundles.length,
-                itemBuilder: (context, index) {
-                  final bundle = _bundles[index];
-                  final courseCount = bundle.courses?.length ?? 0;
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BundleDetailScreen(bundle: bundle),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      width: 190,
-                      margin: const EdgeInsets.only(right: 16),
-                      decoration: BoxDecoration(
-                        color: AppTheme.getCardColor(context),
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.06),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(14),
-                                ),
-                                child: bundle.image != null
-                                    ? Image.network(
-                                        bundle.image!,
-                                        height: 110,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, e, st) => Container(
-                                          height: 110,
-                                          color: Colors.grey.shade200,
-                                          child: Icon(Icons.layers_outlined,
-                                              color: Colors.grey.shade400, size: 32),
-                                        ),
-                                      )
-                                    : Container(
-                                        height: 110,
-                                        width: double.infinity,
-                                        color: Colors.grey.shade200,
-                                        child: Icon(Icons.layers_outlined,
-                                            color: Colors.grey.shade400, size: 32),
-                                      ),
-                              ),
-                              if (courseCount > 0)
-                                Positioned(
-                                  top: 8,
-                                  left: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 3),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFF3C00),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      '$courseCount Courses',
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    bundle.title,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                      color: AppTheme.getTextColor(context),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    context.read<SettingsProvider>().formatPrice(bundle.price),
-                                    style: TextStyle(
-                                      color: AppTheme.primary,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
-        ],
-        if (data.aiSuggestions.isNotEmpty) ...[
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _SectionHeader(
-                title: 'AI Suggestions',
-                actionText: context.l10n.seeAll,
-                onSeeAllTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const AiSuggestionsScreen(),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          SliverToBoxAdapter(
-            child: _AiSuggestionsRow(courses: data.aiSuggestions),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
-        ],
-        if (_recentCourses.isNotEmpty) ...[
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _SectionHeader(
-                title: 'Most Recent',
-                actionText: context.l10n.seeAll,
-                onSeeAllTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const CoursesScreen(),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          _MostRecentSection(
-            courses: _recentCourses,
-            isLoading: _isMoreRecentLoading,
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 30)),
-        ],
-      ],
-    );
-  }
-}
-
-class _HomeAppBar extends StatelessWidget {
-  const _HomeAppBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, auth, child) {
-        final user = auth.user;
-        final bool isAuthenticated = auth.isAuthenticated;
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: <Widget>[
-              GestureDetector(
-                onTap: () {
-                  if (isAuthenticated) {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const DashboardScreen(),
-                      ),
-                    );
-                  } else {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const AuthScreen(),
-                      ),
-                    );
-                  }
-                },
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppTheme.getCardColor(context),
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      image: (isAuthenticated && user?.profilePhotoUrl != null)
-                          ? NetworkImage(user!.profilePhotoUrl!)
-                          : const AssetImage('assets/img/default-profile.png')
-                                as ImageProvider,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      context.l10n.hello,
-                      style: TextStyle(
-                        color: AppTheme.getTextColor(
-                          context,
-                        ).withValues(alpha: 0.6),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0.1,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      isAuthenticated ? (user?.name ?? 'User') : 'Guest',
-                      style: TextStyle(
-                        color: AppTheme.getTextColor(context),
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const WishlistScreen(),
-                        ),
-                      );
-                    },
-                    child: Consumer<WishlistProvider>(
-                      builder: (context, provider, child) {
-                        return Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: AppTheme.primary.withValues(alpha: 0.06),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  Icons.favorite_border,
-                                  size: 18,
-                                  color: AppTheme.getTextColor(context),
-                                ),
-                              ),
-                            ),
-                            if (provider.itemCount > 0)
-                              Positioned(
-                                right: -2,
-                                top: -2,
-                                child: Container(
-                                  padding: const EdgeInsets.all(3),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFF4B4B),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: AppTheme.getCardColor(context),
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  constraints: const BoxConstraints(
-                                    minWidth: 14,
-                                    minHeight: 14,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      '${provider.itemCount}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 8,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pushNamed(AppRouter.messages);
-                    },
-                    child: Consumer<ChatProvider>(
-                      builder: (context, chatProvider, child) {
-                        return Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: AppTheme.primary.withValues(alpha: 0.06),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: HugeIcon(
-                                  icon: HugeIcons.strokeRoundedBubbleChat,
-                                  size: 18,
-                                  color: AppTheme.getTextColor(context),
-                                ),
-                              ),
-                            ),
-                            if (chatProvider.unreadCount > 0)
-                              Positioned(
-                                right: -2,
-                                top: -2,
-                                child: Container(
-                                  padding: const EdgeInsets.all(3),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFF4B4B),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: AppTheme.getCardColor(context),
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  constraints: const BoxConstraints(
-                                    minWidth: 14,
-                                    minHeight: 14,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      '${chatProvider.unreadCount}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 8,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const NotificationsScreen(),
-                        ),
-                      );
-                    },
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: <Widget>[
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: AppTheme.primary.withValues(alpha: 0.06),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: HugeIcon(
-                              icon: HugeIcons.strokeRoundedNotification01,
-                              size: 18,
-                              color: AppTheme.getTextColor(context),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          right: 6,
-                          top: 6,
-                          child: Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: Colors.redAccent,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: AppTheme.getBackgroundColor(context),
-                                width: 1.5,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _SearchRow extends StatelessWidget {
-  const _SearchRow({required this.controller, required this.onSearch});
-
-  final TextEditingController controller;
-  final Function(String) onSearch;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 48,
-      child: Stack(
-        alignment: Alignment.centerRight,
+      padding: const EdgeInsets.only(
+        top: 10,
+        bottom: HomeDesignConstants.bottomDockClearance, // Clear 140dp floating dock
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          TextField(
-            controller: controller,
-            onSubmitted: onSearch,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: AppTheme.getCardColor(context),
-              hintText: context.l10n.search,
-              hintStyle: TextStyle(
-                color: AppTheme.getTextColor(context).withValues(alpha: 0.65),
-                fontSize: 14,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(
-                  color: AppTheme.primary.withValues(alpha: 0.2),
-                  width: 1.5,
-                ),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 0,
-              ).copyWith(right: 52),
-            ),
-            style: TextStyle(
-              color: AppTheme.getTextColor(context),
-              fontSize: 14,
-            ),
+          // 1. Compact Header (Single row)
+          const HomeHeader(),
+          const SizedBox(height: 16),
+
+          // 2. Search Bar (Radius 20, soft purple shadow, circular button)
+          HomeSearchBar(
+            controller: _searchController,
+            onSearch: _handleSearch,
           ),
-          Positioned(
-            right: 6,
-            child: GestureDetector(
-              onTap: () => onSearch(controller.text),
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: AppTheme.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: HugeIcon(
-                    icon: HugeIcons.strokeRoundedSearch01,
-                    size: 18,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+          const SizedBox(height: 16),
+
+          // 3. Continue Learning Card (Shown only if in progress)
+          if (_inProgressCourse != null) ...[
+            ContinueLearningCard(course: _inProgressCourse),
+            const SizedBox(height: 16),
+          ],
+
+          // 4. Market Strip (Horizontal scroll chips with ICE Arabica, USD/ETB, etc.)
+          MarketStrip(items: _marketItems),
+          const SizedBox(height: 18),
+
+          // 5. Export Toolkit (Bento Grid: Hero with unchanged PRO badge + 4 tiles)
+          const ToolkitBento(),
+          const SizedBox(height: 24),
+
+          // 6. Topic Chips (All, Sourcing, Cupping, Export docs, Logistics, Finance, Buyers)
+          TopicChips(
+            selectedTopic: _selectedTopic,
+            onTopicSelected: _handleTopicSelected,
           ),
-        ],
-      ),
-    );
-  }
-}
+          const SizedBox(height: 16),
 
-class _HeroBanner extends StatelessWidget {
-  const _HeroBanner({required this.banners});
-
-  final List<BannerModel> banners;
-
-  @override
-  Widget build(BuildContext context) {
-    if (banners.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return _HeroBannerSlider(banners: banners);
-  }
-}
-
-class _HeroBannerSlider extends StatefulWidget {
-  const _HeroBannerSlider({required this.banners});
-
-  final List<BannerModel> banners;
-
-  @override
-  State<_HeroBannerSlider> createState() => _HeroBannerSliderState();
-}
-
-class _HeroBannerSliderState extends State<_HeroBannerSlider> {
-  final PageController _controller = PageController();
-  int _page = 0;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        SizedBox(
-          height: 150,
-          child: PageView.builder(
-            controller: _controller,
-            onPageChanged: (int index) => setState(() => _page = index),
-            itemCount: widget.banners.length,
-            itemBuilder: (BuildContext context, int index) {
-              final banner = widget.banners[index];
-              return Container(
-                margin: const EdgeInsets.only(right: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: banner.imagePath != null
-                    ? _LazyNetworkImage(banner.imagePath!)
-                    : Container(color: Colors.grey[300]),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List<Widget>.generate(widget.banners.length, (int index) {
-            final bool isActive = index == _page;
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              height: 4,
-              width: isActive ? 16 : 8,
-              decoration: BoxDecoration(
-                color: isActive
-                    ? AppTheme.primary
-                    : AppTheme.primary.withValues(alpha: 0.25),
-                borderRadius: BorderRadius.circular(4),
-              ),
-            );
-          }),
-        ),
-      ],
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({
-    required this.title,
-    required this.actionText,
-    this.onSeeAllTap,
-  });
-
-  final String title;
-  final String actionText;
-  final VoidCallback? onSeeAllTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        Text(
-          title,
-          style: TextStyle(
-            color: AppTheme.getTextColor(context),
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const Spacer(),
-        GestureDetector(
-          onTap: onSeeAllTap,
-          child: Text(
-            actionText,
-            style: TextStyle(
-              color: AppTheme.getTextColor(context).withValues(alpha: 0.6),
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+          // 7. Featured Training Course Cards (Horizontal list, snap scrolling)
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: HomeDesignConstants.horizontalPadding,
             ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _TopCategoriesRow extends StatelessWidget {
-  const _TopCategoriesRow({required this.categories});
-
-  final List<Category> categories;
-
-  IconData _getCategoryIcon(String? iconName) {
-    if (iconName == null) return Icons.grid_view_rounded;
-
-    // Map FontAwesome class names to Material Icons (approximate)
-    switch (iconName) {
-      case 'fas fa-code':
-        return Icons.code_rounded;
-      case 'fas fa-pencil-ruler':
-        return Icons.design_services_rounded;
-      case 'fas fa-briefcase':
-        return Icons.business_center_rounded;
-      case 'fas fa-chalkboard-teacher':
-        return Icons.school_rounded; // or cast_for_education
-      case 'fas fa-laptop-code':
-        return Icons.computer_rounded;
-      case 'fas fa-bullhorn':
-        return Icons.campaign_rounded;
-      case 'fas fa-camera':
-        return Icons.camera_alt_rounded;
-      case 'fas fa-music':
-        return Icons.music_note_rounded;
-      case 'fas fa-chart-line':
-        return Icons.show_chart_rounded;
-      case 'fas fa-utensils':
-        return Icons.restaurant_rounded;
-      case 'fas fa-heartbeat':
-        return Icons.favorite_rounded;
-      case 'fas fa-language':
-        return Icons.language_rounded;
-      default:
-        return Icons.grid_view_rounded;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (categories.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return SizedBox(
-      height: 100,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: categories.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 12),
-        itemBuilder: (BuildContext context, int index) {
-          final Category category = categories[index];
-          // Simple color generation or mapping could be here. Using default for now.
-          final Color background = AppTheme.primary.withValues(alpha: 0.1);
-
-          return GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => CategoryDetailScreen(
-                    categoryId: category.id,
-                    categoryName: category.name,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Featured Courses',
+                  style: TextStyle(
+                    color: HomeDesignConstants.text(context),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.3,
                   ),
                 ),
-              );
-            },
-            child: SizedBox(
-              width: 100,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: <Widget>[
-                  Positioned.fill(
-                    top: 20,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: background,
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 16,
-                      ),
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Text(
-                          category.name,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: AppTheme.primary,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            height: 1.2,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Floating circular icon slightly above the card
-                  Positioned(
-                    top: 2,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: background,
-                          border: Border.all(
-                            color: AppTheme.getCardColor(context),
-                            width: 2,
-                          ),
-                        ),
-                        child: Center(
-                          child: Icon(
-                            _getCategoryIcon(category.icon), // Default icon
-                            size: 24,
-                            color: AppTheme.primary,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-// Helper widget for network images with lazy loading effect
-class _LazyNetworkImage extends StatelessWidget {
-  final String path;
-  final double? width;
-  final double? height;
-
-  const _LazyNetworkImage(this.path, {this.width, this.height});
-
-  @override
-  Widget build(BuildContext context) {
-    return CourseThumbnailImage(
-      imageUrl: path,
-      width: width,
-      height: height,
-      fit: BoxFit.cover,
-    );
-  }
-}
-
-class _PopularCoursesRow extends StatelessWidget {
-  const _PopularCoursesRow({required this.courses});
-
-  final List<Course> courses;
-
-  @override
-  Widget build(BuildContext context) {
-    final settingsProvider = Provider.of<SettingsProvider>(context);
-    if (courses.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return SizedBox(
-      height: 210,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: courses.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 16),
-        itemBuilder: (BuildContext context, int index) {
-          final Course course = courses[index];
-          return GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => CourseDetailScreen(courseId: course.id),
-                ),
-              );
-            },
-            child: Container(
-              width: 220,
-              decoration: BoxDecoration(
-                color: AppTheme.getSoftGray150(context),
-                borderRadius: BorderRadius.circular(22),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  SizedBox(
-                    height: 110,
-                    width: double.infinity,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: <Widget>[
-                        Container(
-                          color: AppTheme.mint200,
-                          child: course.thumbnail != null
-                              ? _LazyNetworkImage(course.thumbnail!)
-                              : Container(color: Colors.grey[300]),
-                        ),
-                        if (course.isLiveCourse)
-                          Positioned(
-                            left: 10,
-                            top: 10,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: const Text(
-                                'LIVE',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        Positioned(
-                          right: 10,
-                          top: 10,
-                          child: Container(
-                            width: 26,
-                            height: 26,
-                            decoration: BoxDecoration(
-                              color: AppTheme.getCardColor(
-                                context,
-                              ).withValues(alpha: 0.9),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: HugeIcon(
-                                icon: HugeIcons.strokeRoundedBookmark01,
-                                size: 14,
-                                color: AppTheme.getTextColor(context),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          course.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: AppTheme.getTextColor(context),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: <Widget>[
-                            HugeIcon(
-                              icon: HugeIcons.strokeRoundedPlay,
-                              size: 12,
-                              color: AppTheme.getTextColor(
-                                context,
-                              ).withValues(alpha: 0.5),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${course.lessonsCount} ${context.l10n.lessons}',
-                              style: TextStyle(
-                                color: AppTheme.getTextColor(
-                                  context,
-                                ).withValues(alpha: 0.5),
-                                fontSize: 11,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                              ),
-                              child: Text(
-                                '·',
-                                style: TextStyle(
-                                  color: AppTheme.getTextColor(
-                                    context,
-                                  ).withValues(alpha: 0.5),
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ),
-                            HugeIcon(
-                              icon: HugeIcons.strokeRoundedStar,
-                              size: 12,
-                              color: AppTheme.getTextColor(
-                                context,
-                              ).withValues(alpha: 0.5),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${course.rating ?? 0.0} (${course.reviewsCount})',
-                              style: TextStyle(
-                                color: AppTheme.getTextColor(
-                                  context,
-                                ).withValues(alpha: 0.5),
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            if (course.discountedPrice != null &&
-                                course.discountedPrice! <
-                                    (course.price ?? 0)) ...[
-                              Text(
-                                settingsProvider.formatPrice(
-                                  course.discountedPrice,
-                                ),
-                                style: TextStyle(
-                                  color: AppTheme.getTextColor(context),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                settingsProvider.formatPrice(course.price),
-                                style: TextStyle(
-                                  color: AppTheme.getTextColor(
-                                    context,
-                                  ).withValues(alpha: 0.5),
-                                  fontSize: 12,
-                                  decoration: TextDecoration.lineThrough,
-                                ),
-                              ),
-                            ] else
-                              Text(
-                                course.price != null
-                                    ? settingsProvider.formatPrice(course.price)
-                                    : 'Free',
-                                style: TextStyle(
-                                  color: AppTheme.getTextColor(context),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _AiSuggestionsRow extends StatelessWidget {
-  const _AiSuggestionsRow({required this.courses});
-
-  final List<Course> courses;
-
-  @override
-  Widget build(BuildContext context) {
-    final settingsProvider = Provider.of<SettingsProvider>(context);
-    if (courses.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return SizedBox(
-      height: 210,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: courses.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 16),
-        itemBuilder: (BuildContext context, int index) {
-          final Course course = courses[index];
-          return GestureDetector(
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => CourseDetailScreen(courseId: course.id),
-                ),
-              );
-            },
-            child: Container(
-              width: 220,
-              decoration: BoxDecoration(
-                color: AppTheme.getSoftGray150(context),
-                borderRadius: BorderRadius.circular(22),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  SizedBox(
-                    height: 110,
-                    width: double.infinity,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: <Widget>[
-                        Container(
-                          color: AppTheme.mint200,
-                          child: course.thumbnail != null
-                              ? _LazyNetworkImage(course.thumbnail!)
-                              : Container(color: Colors.grey[300]),
-                        ),
-                        if (course.isLiveCourse)
-                          Positioned(
-                            left: 10,
-                            top: 10,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: const Text(
-                                'LIVE',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        Positioned(
-                          right: 10,
-                          top: 10,
-                          child: Container(
-                            width: 26,
-                            height: 26,
-                            decoration: BoxDecoration(
-                              color: AppTheme.getCardColor(
-                                context,
-                              ).withValues(alpha: 0.9),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: HugeIcon(
-                                icon: HugeIcons.strokeRoundedBookmark01,
-                                size: 14,
-                                color: AppTheme.getTextColor(context),
-                              ),
-                            ),
-                          ),
-                        ),
-                        // AI Badge
-                        Positioned(
-                          left: 10,
-                          top: 10,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primary.withValues(alpha: 0.9),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Icon(
-                                  Icons.auto_awesome,
-                                  size: 12,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'AI',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          course.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: AppTheme.getTextColor(context),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: <Widget>[
-                            HugeIcon(
-                              icon: HugeIcons.strokeRoundedPlay,
-                              size: 12,
-                              color: AppTheme.getTextColor(
-                                context,
-                              ).withValues(alpha: 0.5),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${course.lessonsCount} ${context.l10n.lessons}',
-                              style: TextStyle(
-                                color: AppTheme.getTextColor(
-                                  context,
-                                ).withValues(alpha: 0.5),
-                                fontSize: 11,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                              ),
-                              child: Text(
-                                '·',
-                                style: TextStyle(
-                                  color: AppTheme.getTextColor(
-                                    context,
-                                  ).withValues(alpha: 0.5),
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ),
-                            HugeIcon(
-                              icon: HugeIcons.strokeRoundedStar,
-                              size: 12,
-                              color: AppTheme.getTextColor(
-                                context,
-                              ).withValues(alpha: 0.5),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${course.rating ?? 0.0} (${course.reviewsCount})',
-                              style: TextStyle(
-                                color: AppTheme.getTextColor(
-                                  context,
-                                ).withValues(alpha: 0.5),
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            if (course.discountedPrice != null &&
-                                course.discountedPrice! <
-                                    (course.price ?? 0)) ...[
-                              Text(
-                                settingsProvider.formatPrice(
-                                  course.discountedPrice,
-                                ),
-                                style: TextStyle(
-                                  color: AppTheme.getTextColor(context),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                settingsProvider.formatPrice(course.price),
-                                style: TextStyle(
-                                  color: AppTheme.getTextColor(
-                                    context,
-                                  ).withValues(alpha: 0.5),
-                                  fontSize: 12,
-                                  decoration: TextDecoration.lineThrough,
-                                ),
-                              ),
-                            ] else
-                              Text(
-                                course.price != null
-                                    ? settingsProvider.formatPrice(course.price)
-                                    : 'Free',
-                                style: TextStyle(
-                                  color: AppTheme.getTextColor(context),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _MostRecentSection extends StatelessWidget {
-  const _MostRecentSection({required this.courses, this.isLoading = false});
-
-  final List<Course> courses;
-  final bool isLoading;
-
-  @override
-  Widget build(BuildContext context) {
-    if (courses.isEmpty && !isLoading) {
-      return const SliverToBoxAdapter(child: SizedBox.shrink());
-    }
-
-    return SliverMainAxisGroup(
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final Course course = courses[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: GestureDetector(
+                InkWell(
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) =>
-                            CourseDetailScreen(courseId: course.id),
+                        builder: (_) => const CoursesScreen(),
                       ),
                     );
                   },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppTheme.getSoftGray150(context),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    padding: const EdgeInsets.all(8),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        // Course image
-                        Container(
-                          width: 130,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            color: AppTheme.mint200,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              course.thumbnail != null
-                                  ? _LazyNetworkImage(
-                                      course.thumbnail!,
-                                      width: 130,
-                                      height: 100,
-                                    )
-                                  : Container(color: Colors.grey[300]),
-                              if (course.isLiveCourse)
-                                Positioned(
-                                  left: 8,
-                                  top: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: const Text(
-                                      'LIVE',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 8,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        // Course details
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: _MostRecentCourseDetails(course: course),
-                          ),
-                        ),
-                      ],
+                  child: Text(
+                    context.l10n.seeAll,
+                    style: TextStyle(
+                      color: HomeDesignConstants.brandPrimary(context),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-              );
-            }, childCount: courses.length),
-          ),
-        ),
-        if (isLoading)
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: Center(child: CircularProgressIndicator()),
+              ],
             ),
           ),
-      ],
+          const SizedBox(height: 12),
+
+          // Horizontal Snap Scroll List
+          SizedBox(
+            height: 295,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(
+                horizontal: HomeDesignConstants.horizontalPadding,
+              ),
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              itemCount: filteredFeatured.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 14),
+              itemBuilder: (context, index) {
+                final course = filteredFeatured[index];
+                return FeaturedCourseCard(
+                  course: course,
+                  width: 236.0,
+                );
+              },
+            ),
+          ),
+
+          // Course Bundles Section (if available)
+          if (_bundles.isNotEmpty) ...[
+            const SizedBox(height: 28),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: HomeDesignConstants.horizontalPadding,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Curated Master Bundles',
+                    style: TextStyle(
+                      color: HomeDesignConstants.text(context),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const BundlesScreen(),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      context.l10n.seeAll,
+                      style: TextStyle(
+                        color: HomeDesignConstants.brandPrimary(context),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 190,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: HomeDesignConstants.horizontalPadding,
+                ),
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: _bundles.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 14),
+                itemBuilder: (context, index) {
+                  final bundle = _bundles[index];
+                  return _buildBundleCard(bundle);
+                },
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
-}
 
-class _MostRecentCourseDetails extends StatelessWidget {
-  const _MostRecentCourseDetails({required this.course});
-  final Course course;
+  Widget _buildBundleCard(Bundle bundle) {
+    final int courseCount = bundle.courses?.length ?? 0;
+    final Color cardBg = HomeDesignConstants.surface(context);
+    final Color textColor = HomeDesignConstants.text(context);
+    final Color primaryColor = HomeDesignConstants.brandPrimary(context);
 
-  @override
-  Widget build(BuildContext context) {
-    final settingsProvider = Provider.of<SettingsProvider>(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Text(
-          course.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: AppTheme.getTextColor(context),
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BundleDetailScreen(bundle: bundle),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(HomeDesignConstants.radiusTile),
+      child: Container(
+        width: 210,
+        decoration: BoxDecoration(
+          color: cardBg,
+          borderRadius: BorderRadius.circular(HomeDesignConstants.radiusTile),
+          boxShadow: HomeDesignConstants.softShadow(context),
+          border: Border.all(
+            color: HomeDesignConstants.brandTint(context),
+            width: 1.0,
           ),
         ),
-        const SizedBox(height: 6),
-        Row(
-          children: <Widget>[
-            HugeIcon(
-              icon: HugeIcons.strokeRoundedPlay,
-              size: 11,
-              color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
-            ),
-            const SizedBox(width: 4),
-            Text(
-              '${course.lessonsCount} ${context.l10n.lessons}',
-              style: TextStyle(
-                color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
-                fontSize: 10,
-              ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                bundle.image != null
+                    ? Image.network(
+                        bundle.image!,
+                        height: 105,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => Container(
+                          height: 105,
+                          color: HomeDesignConstants.brandTint(context),
+                          child: Icon(Icons.layers_outlined, color: primaryColor, size: 28),
+                        ),
+                      )
+                    : Container(
+                        height: 105,
+                        width: double.infinity,
+                        color: HomeDesignConstants.brandTint(context),
+                        child: Icon(Icons.layers_outlined, color: primaryColor, size: 28),
+                      ),
+                if (courseCount > 0)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '$courseCount Courses',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Text(
-                '·',
-                style: TextStyle(
-                  color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
-                  fontSize: 10,
-                ),
-              ),
-            ),
-            HugeIcon(
-              icon: HugeIcons.strokeRoundedStar,
-              size: 11,
-              color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
-            ),
-            const SizedBox(width: 4),
-            Text(
-              '${course.rating ?? 0.0} (${course.reviewsCount})',
-              style: TextStyle(
-                color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
-                fontSize: 10,
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    bundle.title,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Full specialization pack',
+                    style: TextStyle(
+                      color: HomeDesignConstants.mutedText(context),
+                      fontSize: 10.5,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            if (course.discountedPrice != null &&
-                course.discountedPrice! < (course.price ?? 0)) ...[
-              Text(
-                settingsProvider.formatPrice(course.discountedPrice),
-                style: TextStyle(
-                  color: AppTheme.getTextColor(context),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                settingsProvider.formatPrice(course.price),
-                style: TextStyle(
-                  color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
-                  fontSize: 13,
-                  decoration: TextDecoration.lineThrough,
-                ),
-              ),
-            ] else
-              Text(
-                course.price != null
-                    ? settingsProvider.formatPrice(course.price)
-                    : 'Free',
-                style: TextStyle(
-                  color: AppTheme.getTextColor(context),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-          ],
-        ),
-      ],
+      ),
     );
   }
 }

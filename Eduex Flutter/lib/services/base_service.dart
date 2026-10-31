@@ -23,10 +23,13 @@ class BaseService {
   }
 
   Future<Map<String, String>> getHeaders() async {
-    final token = await getToken();
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString(_tokenKey);
+    final lang = prefs.getString('language_code') ?? 'en';
     return {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      'Accept-Language': lang,
       if (token != null) 'Authorization': 'Bearer $token',
     };
   }

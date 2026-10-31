@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../models/tour.dart';
 import '../../services/tour_service.dart';
 import '../../theme/app_theme.dart';
+import '../common/webview_screen.dart';
 import 'tour_booking_confirmation_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class TourBookingScreen extends StatefulWidget {
   const TourBookingScreen({required this.tour, super.key});
@@ -66,22 +68,84 @@ class _TourBookingScreenState extends State<TourBookingScreen> {
       final resBody = jsonDecode(response.body);
 
       if ((response.statusCode == 200 || response.statusCode == 201) && mounted) {
-        final bookingData = resBody['booking'] as Map<String, dynamic>;
+        final bookingData = (resBody['booking'] ?? {}) as Map<String, dynamic>;
         final String reference = bookingData['reference'] ?? 'TR-SUCCESS';
-        final int bookingId = bookingData['id'] as int;
+        final int bookingId = (bookingData['id'] ?? resBody['booking_id'] ?? 0) as int;
 
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => TourBookingConfirmationScreen(
-              bookingId: bookingId,
-              reference: reference,
-              tourTitle: widget.tour.title,
-              participants: _participants,
-              totalAmount: _totalAmount,
-              currency: widget.tour.currency,
+        // If paid tour requiring Chapa payment
+        if (resBody['payment_required'] == true && resBody['checkout_url'] != null) {
+          final String checkoutUrl = resBody['checkout_url'] as String;
+          final String txRef = (resBody['tx_ref'] as String?) ?? '';
+
+          setState(() => _isLoading = false);
+
+          // Open Chapa payment gateway
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => WebViewScreen(
+                url: checkoutUrl,
+                title: 'Chapa Tour Payment',
+                shouldExit: (url) => url.contains('/tours/payment/chapa/callback'),
+              ),
             ),
-          ),
-        );
+          );
+
+          if (!mounted) return;
+
+          // Verify with Backend
+          setState(() => _isLoading = true);
+
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(child: CircularProgressIndicator()),
+          );
+
+          final verifyResponse = await _tourService.verifyChapaPayment(
+            txRef: txRef,
+            bookingId: bookingId,
+          );
+
+          if (mounted) {
+            Navigator.of(context, rootNavigator: true).pop(); // Close dialog
+          }
+
+          final verifyData = jsonDecode(verifyResponse.body);
+          if (verifyResponse.statusCode == 200 && verifyData['success'] == true) {
+            if (mounted) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => TourBookingConfirmationScreen(
+                    bookingId: bookingId,
+                    reference: reference,
+                    tourTitle: widget.tour.title,
+                    participants: _participants,
+                    totalAmount: _totalAmount,
+                    currency: widget.tour.currency,
+                  ),
+                ),
+              );
+            }
+          } else if (mounted) {
+            final errorMsg = verifyData['message'] ?? 'Payment verification failed.';
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg)));
+          }
+        } else {
+          // Free tour or pre-approved
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => TourBookingConfirmationScreen(
+                bookingId: bookingId,
+                reference: reference,
+                tourTitle: widget.tour.title,
+                participants: _participants,
+                totalAmount: _totalAmount,
+                currency: widget.tour.currency,
+              ),
+            ),
+          );
+        }
       } else if (mounted) {
         final errorMsg = resBody['message'] ?? 'Failed to complete booking.';
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg)));
@@ -102,7 +166,7 @@ class _TourBookingScreenState extends State<TourBookingScreen> {
     return Scaffold(
       backgroundColor: AppTheme.getBackgroundColor(context),
       appBar: AppBar(
-        title: const Text('Confirm Reservation', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(context.l10n.confirmReservation, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -150,7 +214,7 @@ class _TourBookingScreenState extends State<TourBookingScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '${widget.tour.currency} ${widget.tour.price.toStringAsFixed(2)} per person',
+                            '${widget.tour.currency} ${widget.tour.price.toStringAsFixed(2)} ${context.l10n.perPerson}',
                             style: TextStyle(fontSize: 11.5, color: primaryColor, fontWeight: FontWeight.w600),
                           ),
                         ],
@@ -161,7 +225,7 @@ class _TourBookingScreenState extends State<TourBookingScreen> {
               ),
               const SizedBox(height: 20),
 
-              const Text('Lead Passenger Details', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+              Text(context.l10n.attendeeInformation, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
               const SizedBox(height: 12),
 
               Row(
@@ -169,16 +233,16 @@ class _TourBookingScreenState extends State<TourBookingScreen> {
                   Expanded(
                     child: TextFormField(
                       controller: _firstNameController,
-                      decoration: const InputDecoration(labelText: 'First Name *', border: OutlineInputBorder()),
-                      validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                      decoration: InputDecoration(labelText: '${context.l10n.firstName} *', border: OutlineInputBorder()),
+                      validator: (v) => v == null || v.isEmpty ? context.l10n.fieldRequired : null,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: TextFormField(
                       controller: _lastNameController,
-                      decoration: const InputDecoration(labelText: 'Last Name *', border: OutlineInputBorder()),
-                      validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                      decoration: InputDecoration(labelText: '${context.l10n.lastName} *', border: OutlineInputBorder()),
+                      validator: (v) => v == null || v.isEmpty ? context.l10n.fieldRequired : null,
                     ),
                   ),
                 ],
@@ -188,21 +252,21 @@ class _TourBookingScreenState extends State<TourBookingScreen> {
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(labelText: 'Email Address *', border: OutlineInputBorder()),
-                validator: (v) => v == null || !v.contains('@') ? 'Valid email required' : null,
+                decoration: InputDecoration(labelText: '${context.l10n.email} *', border: OutlineInputBorder()),
+                validator: (v) => v == null || !v.contains('@') ? context.l10n.fieldRequired : null,
               ),
               const SizedBox(height: 12),
 
               TextFormField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(labelText: 'Phone Number *', hintText: '+251 9...', border: OutlineInputBorder()),
-                validator: (v) => v == null || v.isEmpty ? 'Phone required' : null,
+                decoration: InputDecoration(labelText: '${context.l10n.phoneNumber} *', hintText: '+251 9...', border: OutlineInputBorder()),
+                validator: (v) => v == null || v.isEmpty ? context.l10n.fieldRequired : null,
               ),
               const SizedBox(height: 20),
 
               // Participants Counter
-              const Text('Number of Participants', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+              Text(context.l10n.attendees, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -214,7 +278,7 @@ class _TourBookingScreenState extends State<TourBookingScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Passengers', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    Text(context.l10n.attendees, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                     Row(
                       children: [
                         IconButton(
@@ -241,8 +305,8 @@ class _TourBookingScreenState extends State<TourBookingScreen> {
               TextFormField(
                 controller: _requestsController,
                 maxLines: 2,
-                decoration: const InputDecoration(
-                  labelText: 'Special Requests / Dietary Needs (Optional)',
+                decoration: InputDecoration(
+                  labelText: '${context.l10n.notes} (${context.l10n.optional})',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -250,7 +314,7 @@ class _TourBookingScreenState extends State<TourBookingScreen> {
 
               // Payment Method Choice
               if (widget.tour.price > 0) ...[
-                const Text('Payment Method', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                Text(context.l10n.paymentMethod, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                 RadioListTile<String>(
                   value: 'chapa',
                   groupValue: _selectedPaymentMethod,
@@ -272,9 +336,9 @@ class _TourBookingScreenState extends State<TourBookingScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Total Payable:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                    Text('${context.l10n.total}:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
                     Text(
-                      _totalAmount > 0 ? '${widget.tour.currency} ${_totalAmount.toStringAsFixed(2)}' : 'Free Entry',
+                      _totalAmount > 0 ? '${widget.tour.currency} ${_totalAmount.toStringAsFixed(2)}' : context.l10n.free,
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: primaryColor),
                     ),
                   ],
@@ -293,7 +357,7 @@ class _TourBookingScreenState extends State<TourBookingScreen> {
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Confirm & Reserve Seats', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                      : Text(context.l10n.confirmReservation, style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
                 ),
               ),
             ],

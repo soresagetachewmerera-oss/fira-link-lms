@@ -9,6 +9,8 @@ import '../../app.dart';
 import '../../providers/settings_provider.dart';
 import '../common/webview_screen.dart';
 import '../../router/app_router.dart';
+import '../../widgets/bottom_nav_bar.dart';
+import '../home/widgets/home_design_constants.dart';
 
 class _LanguageData {
   const _LanguageData({
@@ -32,32 +34,14 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   List<_LanguageData> get _availableLanguages {
     return AppLocalizations.supportedLocales.map((locale) {
-      String name;
-      String iconPath;
-      switch (locale.languageCode) {
-        case 'en':
-          name = 'English';
-          iconPath = 'assets/img/icons/en.png';
-          break;
-        case 'es':
-          name = 'Spanish';
-          iconPath = 'assets/img/icons/es.png';
-          break;
-        case 'bn':
-          name = 'বাংলা';
-          iconPath = 'assets/img/icons/bn.png';
-          break;
-        case 'hi':
-          name = 'हिन्दी';
-          iconPath = 'assets/img/icons/hi.png';
-          break;
-        case 'fr':
-          name = 'Français';
-          iconPath = 'assets/img/icons/fr.png';
-          break;
-        default:
-          name = locale.languageCode.toUpperCase();
-          iconPath = 'assets/img/icons/en.png';
+      final String name;
+      final String iconPath;
+      if (locale.languageCode == 'am') {
+        name = 'አማርኛ';
+        iconPath = 'assets/img/icons/am.png';
+      } else {
+        name = 'English';
+        iconPath = 'assets/img/icons/en.png';
       }
       return _LanguageData(locale: locale, name: name, iconPath: iconPath);
     }).toList();
@@ -222,10 +206,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final user = auth.user;
         return Scaffold(
           backgroundColor: AppTheme.getBackgroundColor(context),
+          extendBody: true,
+          bottomNavigationBar: const AppBottomNavBar(
+            currentTab: BottomNavTab.profile,
+          ),
           body: SafeArea(
             bottom: false,
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, HomeDesignConstants.bottomDockClearance),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -239,7 +227,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             size: 20,
                             color: AppTheme.getTextColor(context),
                           ),
-                          onPressed: () => Navigator.of(context).pop(),
+                          onPressed: () {
+                            if (Navigator.of(context).canPop()) {
+                              Navigator.of(context).pop();
+                            } else {
+                              Navigator.of(context).pushReplacement(
+                                PageRouteBuilder(
+                                  pageBuilder: (_, animation, _) => AppConfig.getHomePage(),
+                                  transitionsBuilder: (_, animation, _, child) => FadeTransition(opacity: animation, child: child),
+                                  transitionDuration: const Duration(milliseconds: 200),
+                                ),
+                              );
+                            }
+                          },
                           padding: EdgeInsets.zero,
                         ),
                         Expanded(
@@ -314,7 +314,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               const SizedBox(height: 6),
-                              // Level Badge
+                              // Member Status Badge
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 10,
@@ -324,13 +324,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   color: AppTheme.getMint100(context),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: Text(
-                                  '${context.l10n.level}: ${context.l10n.levelValue}',
-                                  style: TextStyle(
-                                    color: AppTheme.getPrimaryColor(context),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.verified_rounded,
+                                      size: 13,
+                                      color: AppTheme.getPrimaryColor(context),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      (user?.role.isNotEmpty ?? false)
+                                          ? (user!.role[0].toUpperCase() +
+                                              user.role.substring(1))
+                                          : 'Verified Member',
+                                      style: TextStyle(
+                                        color: AppTheme.getPrimaryColor(context),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                               const SizedBox(height: 6),
@@ -354,11 +368,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // Group 1: Learning & Progress
+                  // Group 1: Learning & Trade Features
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Text(
-                      'Learning & Progress',
+                      'Learning & Trade Features',
                       style: TextStyle(
                         color: AppTheme.getTextColor(
                           context,
@@ -386,18 +400,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ).pushNamed(AppRouter.dashboard);
                           },
                         ),
-                        // _MenuItemWithCustomIcon(
-                        //   icon: Icons.home,
-                        //   title: 'Home 2',
-                        //   subtitle: 'Alternative home screen',
-                        //   onTap: () {
-                        //     Navigator.of(context).push(
-                        //       MaterialPageRoute(
-                        //         builder: (context) => const Home2Screen(),
-                        //       ),
-                        //     );
-                        //   },
-                        // ),
                         _MenuItem(
                           icon: HugeIcons.strokeRoundedBook01,
                           title: context.l10n.myCourses,
@@ -406,6 +408,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Navigator.of(
                               context,
                             ).pushNamed(AppRouter.myCourses);
+                          },
+                        ),
+                        _MenuItem(
+                          icon: HugeIcons.strokeRoundedCoffee01,
+                          title: 'Coffee Export Toolkit',
+                          subtitle: 'Export pricing, contracts & market intelligence',
+                          onTap: () {
+                            Navigator.of(
+                              context,
+                            ).pushNamed(AppRouter.coffeeToolkit);
+                          },
+                        ),
+                        _MenuItem(
+                          icon: HugeIcons.strokeRoundedTicket01,
+                          title: context.l10n.myTicketBookings,
+                          subtitle: 'Event & trade tour bookings',
+                          onTap: () {
+                            Navigator.of(
+                              context,
+                            ).pushNamed(AppRouter.myTicketBookings);
+                          },
+                        ),
+                        _MenuItem(
+                          icon: HugeIcons.strokeRoundedCertificate01,
+                          title: context.l10n.certificates,
+                          subtitle: context.l10n.earnedCertificates,
+                          onTap: () {
+                            Navigator.of(
+                              context,
+                            ).pushNamed(AppRouter.certificates);
                           },
                         ),
                         _MenuItem(
@@ -428,92 +460,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ).pushNamed(AppRouter.myQuizAttempts);
                           },
                         ),
-                        _MenuItem(
-                          icon: HugeIcons.strokeRoundedCertificate01,
-                          title: context.l10n.certificates,
-                          subtitle: context.l10n.earnedCertificates,
-                          onTap: () {
-                            Navigator.of(
-                              context,
-                            ).pushNamed(AppRouter.certificates);
-                          },
-                        ),
-                        _MenuItem(
-                          icon: HugeIcons.strokeRoundedTicket01,
-                          title: context.l10n.myTicketBookings,
-                          subtitle: context.l10n.ticketBookings,
-                          onTap: () {
-                            Navigator.of(
-                              context,
-                            ).pushNamed(AppRouter.myTicketBookings);
-                          },
-                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // Group 2: Productivity & Tracking
+                  // Group 2: AI Advisory
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Text(
-                      'Productivity & Tracking',
-                      style: TextStyle(
-                        color: AppTheme.getTextColor(
-                          context,
-                        ).withValues(alpha: 0.7),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppTheme.getCardColor(context),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      children: <Widget>[
-                        _MenuItemWithCustomIcon(
-                          icon: Icons.timer_outlined,
-                          title: 'Study Timer',
-                          subtitle: 'Pomodoro timer for focused study sessions',
-                          onTap: () {
-                            Navigator.of(
-                              context,
-                            ).pushNamed(AppRouter.studyTimer);
-                          },
-                        ),
-                        _MenuItemWithCustomIcon(
-                          icon: Icons.trending_up,
-                          title: 'Focus Progress',
-                          subtitle: 'Track your study sessions and progress',
-                          onTap: () {
-                            Navigator.of(
-                              context,
-                            ).pushNamed(AppRouter.focusProgress);
-                          },
-                        ),
-                        _MenuItemWithCustomIcon(
-                          icon: Icons.calendar_today,
-                          title: 'Weekly Review',
-                          subtitle:
-                              'Review your weekly progress and achievements',
-                          onTap: () {
-                            Navigator.of(
-                              context,
-                            ).pushNamed(AppRouter.weeklyReview);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Group 3: AI Tools
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      'AI Tools',
+                      'AI Advisory & Intelligence',
                       style: TextStyle(
                         color: AppTheme.getTextColor(
                           context,
@@ -533,30 +488,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: <Widget>[
                         _MenuItem(
                           icon: HugeIcons.strokeRoundedAiChat02,
-                          title: 'Fira AI - Assistant',
-                          subtitle: 'Chat with Fira AI powered by Google Gemini',
+                          title: 'Fira AI - Trade Assistant',
+                          subtitle: 'Trade & business advisory powered by Google Gemini',
                           onTap: () {
                             Navigator.of(context).pushNamed(AppRouter.aiChat);
-                          },
-                        ),
-                        _MenuItemWithCustomIcon(
-                          icon: Icons.auto_awesome,
-                          title: context.l10n.aiPreferences,
-                          subtitle: context.l10n.aiPreferencesSubtitle,
-                          onTap: () {
-                            Navigator.of(
-                              context,
-                            ).pushNamed(AppRouter.aiSuggestions);
-                          },
-                        ),
-                        _MenuItem(
-                          icon: HugeIcons.strokeRoundedAiUser,
-                          title: 'AI Learning Path Generator',
-                          subtitle: 'Generate personalized learning roadmap',
-                          onTap: () {
-                            Navigator.of(
-                              context,
-                            ).pushNamed(AppRouter.aiLearningPath);
                           },
                         ),
                       ],
@@ -732,6 +667,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         // Language Switcher
                         GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTap: () => _showLanguageSheet(context),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 12),
