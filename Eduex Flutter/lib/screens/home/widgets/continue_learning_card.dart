@@ -127,7 +127,7 @@ class ContinueLearningCard extends StatelessWidget {
 
             // Purple gradient "Resume" button
             Semantics(
-              label: 'Resume lesson ${course!.currentLesson}',
+              label: '${context.l10n.resume} ${context.l10n.lesson} ${course!.currentLesson}',
               button: true,
               child: InkWell(
                 onTap: () {
