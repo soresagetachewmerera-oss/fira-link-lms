@@ -130,6 +130,9 @@ Run on the production server **in this order**. Always run the dry run first and
 1. `php artisan migrate`
    - slice 0: milestone proof and bank-confirmation columns
    - slice 1: `users.must_reset_password`, nullable `users.email` (phone-only and email-only accounts)
+   - slice 2: `organizations.business_role`, `entity_type`, `tin_number`, `needs_manual_review`, `created_by`;
+     `users.onboarding_intents`. After this deploy, lots and supplier pages are hidden from buyers unless the
+     seller's business has an approved, unexpired seller verification.
 2. `php artisan files:move-evidence-private --dry-run`, then without `--dry-run` — moves bank slips, contracts,
    dispute and report evidence, lot evidence, seller licenses and lab reports off the public disk.
 3. `php artisan marketplace:reset-evidence-levels`, then with `--force` — sets every lot back to `claimed`
@@ -147,7 +150,10 @@ Run on the production server **in this order**. Always run the dry run first and
    receive mail at (and mail sending works on the server — send yourself a test reset first), or a verified phone
    with SMS configured. An admin with a placeholder email and no verified phone would be locked out. Fix those
    accounts first (change their password while still signed in, or correct their email), then run `--force`.
-6. Rotate the leaked secrets listed above. Rotate `APP_KEY` last, after confirming everything else works: it signs
+6. `php artisan businesses:report-auto-created` — report only, nothing changes. Lists empty businesses that the
+   old code created automatically (named after the person or "… Trade Entity"). Decide by hand; never delete
+   automatically.
+7. Rotate the leaked secrets listed above. Rotate `APP_KEY` last, after confirming everything else works: it signs
    every web user out and voids signed links.
 
 ## 4. Workflow per slice
