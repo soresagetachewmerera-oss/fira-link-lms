@@ -115,15 +115,40 @@ history. These had real values and must be treated as leaked and rotated:
 Removing these from git history needs a history rewrite and a force push. That is the user's decision; rotation
 is the fix that matters.
 
+Other auth secrets and settings:
+
+- `AUTH_TEST_OTP_CODE` (fixed sign-in code) must **never** be set in production. It is honoured only when
+  `APP_ENV=local`, but keep it out of every non-local `.env` anyway.
+- `SMS_ETHIOPIA_API_KEY`: without it, production refuses phone sign-in and phone verification ("SMS not
+  available") instead of skipping them. Rotating it affects only SMS delivery; codes already sent stay valid.
+
 ## One-time production tasks (not yet run)
 
-Run on the production server, in this order, after deploying slice 0. Run the dry runs first and read the counts.
+Run on the production server **in this order**. Always run the dry run first and read the counts before using
+`--force`. Take a database backup before step 1.
 
-1. `php artisan migrate` (adds milestone proof and bank-confirmation columns)
+1. `php artisan migrate`
+   - slice 0: milestone proof and bank-confirmation columns
+   - slice 1: `users.must_reset_password`, nullable `users.email` (phone-only and email-only accounts)
 2. `php artisan files:move-evidence-private --dry-run`, then without `--dry-run` — moves bank slips, contracts,
    dispute and report evidence, lot evidence, seller licenses and lab reports off the public disk.
 3. `php artisan marketplace:reset-evidence-levels`, then with `--force` — sets every lot back to `claimed`
    (sellers could set the level themselves before slice 0), one audit-log entry per lot. Admins re-review afterwards.
+4. `php artisan auth:report-email-aliases` — report only, nothing changes. Decide each pair by hand; never merge
+   automatically.
+5. `php artisan auth:flag-weak-passwords` (**dry run first**, read the count), then with `--force`.
+
+   **Warning before `--force`:** it flags *every* account whose password is `12345678` or `password`,
+   **admins included**, and signs them out. A flagged account cannot sign in with a password until it sets a new one:
+   - Web login sends it to Forgot password, which emails a reset link; completing the reset clears the flag.
+   - Mobile phone sign-in sends it straight to "choose a new password" (only if the phone is verified).
+
+   So before `--force`, check that **each admin account has a working reset path**: a real email address it can
+   receive mail at (and mail sending works on the server — send yourself a test reset first), or a verified phone
+   with SMS configured. An admin with a placeholder email and no verified phone would be locked out. Fix those
+   accounts first (change their password while still signed in, or correct their email), then run `--force`.
+6. Rotate the leaked secrets listed above. Rotate `APP_KEY` last, after confirming everything else works: it signs
+   every web user out and voids signed links.
 
 ## 4. Workflow per slice
 
