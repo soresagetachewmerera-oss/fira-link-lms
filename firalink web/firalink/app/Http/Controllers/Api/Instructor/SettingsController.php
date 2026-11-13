@@ -87,6 +87,15 @@ class SettingsController extends Controller
             ], 422);
         }
 
+        // Email changes go through POST /api/user/email (fresh auth + code to the new address).
+        if (strcasecmp((string) $request->email, (string) $user->email) !== 0) {
+            return response()->json([
+                'success' => false,
+                'code' => 'EMAIL_CHANGE_NEEDS_CODE',
+                'message' => 'Change your email with a code sent to the new address.',
+            ], 422);
+        }
+
         // A new number is saved unverified; verify it with POST /api/user/phone.
         if ($error = $user->setPhoneFromProfile($request->phone)) {
             return response()->json(['success' => false, 'code' => 'PHONE_TAKEN', 'message' => $error], 422);
@@ -95,7 +104,6 @@ class SettingsController extends Controller
         try {
             $user->update([
                 'name' => $request->name,
-                'email' => $request->email,
                 'bio' => $request->bio,
                 'linkedin' => $request->linkedin,
                 'twitter' => $request->twitter,

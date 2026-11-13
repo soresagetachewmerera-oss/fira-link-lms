@@ -49,6 +49,11 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                            <div class="form-group">
+                                <label for="current_password_email">Current Password <small class="text-muted">(needed only to change your email)</small></label>
+                                <input type="password" name="current_password" id="current_password_email"
+                                    class="form-control" autocomplete="current-password">
+                            </div>
 
                             <div class="form-group">
                                 <label for="phone">Phone Number</label>
@@ -116,6 +121,15 @@
                                 <input type="hidden" name="name" value="{{ old('name', $user->name) }}">
                                 <input type="hidden" name="email" value="{{ old('email', $user->email) }}">
                                 <input type="hidden" name="phone" value="{{ old('phone', $user->phone) }}">
+                                <div class="form-group">
+                                    <label for="current_password_pw">Current Password</label>
+                                    <input type="password" name="current_password" id="current_password_pw" required
+                                        class="form-control @error('current_password') is-invalid @enderror"
+                                        autocomplete="current-password" placeholder="Enter your current password">
+                                    @error('current_password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                                 <div class="form-group">
                                     <label for="password">New Password</label>
                                     <input type="password" name="password" id="password"

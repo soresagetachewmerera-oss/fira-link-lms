@@ -103,6 +103,80 @@ class StepUpController extends Controller
         ]);
     }
 
+    private function emailChangeKey(User $user): string
+    {
+        return 'email_change_pending_' . $user->id;
+    }
+
+    /**
+     * Start an email change: send a 6-digit code to the NEW address. Needs fresh auth.
+     * The answer is the same whether or not the address is already used by another account
+     * (no code is sent then), so this cannot be used to look up who has an account.
+     */
+    public function sendEmailChangeCode(Request $request): JsonResponse
+    {
+        $request->validate(['email' => 'required|email:rfc|max:191']);
+        $user = $request->user();
+        $email = \Illuminate\Support\Str::lower(trim((string) $request->input('email')));
+
+        if ($email === \Illuminate\Support\Str::lower((string) $user->email)) {
+            return response()->json(['success' => false, 'code' => 'SAME_EMAIL', 'message' => 'This is already your email address.'], 422);
+        }
+
+        $takenByOther = User::where('email', $email)->where('id', '!=', $user->id)->exists();
+        if (!$takenByOther) {
+            \Illuminate\Support\Facades\Cache::put($this->emailChangeKey($user), $email, now()->addMinutes($this->otp->expiryMinutes()));
+            $draft = (clone $user)->forceFill(['email' => $email]);
+            $this->otp->sendToEmail('email_change:' . $user->id, 'email_change', $draft, withCooldown: true);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'If this address can be used, a 6-digit code is on its way to it.',
+            'code_length' => 6,
+            'expiry_minutes' => $this->otp->expiryMinutes(),
+        ]);
+    }
+
+    /**
+     * Confirm the email change with the code sent to the new address. Needs fresh auth.
+     */
+    public function changeEmail(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email:rfc|max:191',
+            'code' => 'required|digits:6',
+        ]);
+        $user = $request->user();
+        $email = \Illuminate\Support\Str::lower(trim((string) $request->input('email')));
+
+        $pending = \Illuminate\Support\Facades\Cache::get($this->emailChangeKey($user));
+        $result = $pending === $email
+            ? $this->otp->verifyForIdentifier('email_change:' . $user->id, (string) $request->input('code'), 'email_change')
+            : ['success' => false];
+
+        if (!($result['success'] ?? false) || User::where('email', $email)->where('id', '!=', $user->id)->exists()) {
+            return response()->json(['success' => false, 'code' => 'INVALID_CODE', 'message' => 'That code is not correct or has expired.'], 422);
+        }
+
+        \Illuminate\Support\Facades\Cache::forget($this->emailChangeKey($user));
+        $before = $user->email;
+        $user->forceFill(['email' => $email, 'email_verified_at' => now()])->save();
+
+        AuditLog::create([
+            'user_id' => $user->id,
+            'action' => 'email_changed',
+            'auditable_type' => User::class,
+            'auditable_id' => $user->id,
+            'before_state' => ['had_email' => !empty($before)],
+            'after_state' => ['email_domain' => substr(strrchr($email, '@'), 1)],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Email updated.', 'user' => $user->fresh()]);
+    }
+
     /**
      * Change the verified phone. Needs fresh auth (route middleware) and a code sent to the new
      * number with POST /api/auth/phone/verify/send. A number used by another account is refused.

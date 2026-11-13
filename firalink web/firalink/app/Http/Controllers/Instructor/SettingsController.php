@@ -87,8 +87,15 @@ class SettingsController extends Controller
         }
 
         try {
+            // Email change is sensitive: only right after signing in (fresh session).
+            if (strcasecmp((string) $request->email, (string) $user->email) !== 0) {
+                if (!\App\Services\Auth\FreshAuth::isFresh($request)) {
+                    return back()->withErrors(['email' => 'For your security, sign out and sign in again, then change your email within 10 minutes.'])->withInput();
+                }
+                $user->email = $request->email;
+                $user->email_verified_at = null;
+            }
             $user->name = $request->name;
-            $user->email = $request->email;
             if ($request->has('phone') && ($error = $user->setPhoneFromProfile($request->phone))) {
                 return back()->withErrors(['phone' => $error])->withInput();
             }

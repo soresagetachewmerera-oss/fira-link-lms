@@ -47,8 +47,18 @@ class ProfileController extends Controller
             'phone' => ['nullable', 'string', 'max:30'],
             'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,gif', 'max:10240'],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,gif', 'max:10240'],
-            'password' => ['nullable', 'confirmed', 'min:8'],
+            'password' => ['nullable', 'string', 'min:8', 'max:128', 'regex:/[0-9]/', 'regex:/[A-Z]/', 'confirmed'],
+            'current_password' => ['nullable', 'string'],
         ]);
+
+        // Changing the password or the email needs the current password (checked before any change).
+        $changingPassword = !empty($validated['password']);
+        $changingEmail = strcasecmp($validated['email'], (string) $user->email) !== 0;
+        if (($changingPassword || $changingEmail) && !Hash::check((string) ($validated['current_password'] ?? ''), $user->password)) {
+            return back()->withErrors([
+                'current_password' => 'Enter your current password to change your password or email.',
+            ])->withInput($request->except(['password', 'password_confirmation', 'current_password']));
+        }
 
         $photoFile = $request->file('profile_photo') ?? $request->file('avatar');
         if ($photoFile) {
@@ -70,12 +80,21 @@ class ProfileController extends Controller
             return back()->withErrors(['phone' => $error])->withInput();
         }
 
-        if (!empty($validated['password'])) {
+        if ($changingPassword) {
             $user->password = Hash::make($validated['password']);
-            $user->tokens()->delete();
+            $user->must_reset_password = false;
         }
 
         $user->save();
+
+        if ($changingPassword) {
+            // Sign out every other device; keep this admin's current web session.
+            $user->tokens()->delete();
+            \Illuminate\Support\Facades\DB::table(config('session.table', 'sessions'))
+                ->where('user_id', $user->id)
+                ->where('id', '!=', $request->session()->getId())
+                ->delete();
+        }
 
         ToastMagic::success('Profile updated successfully.');
 

@@ -67,6 +67,10 @@ Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
     Route::post('/phone/verify', [\App\Http\Controllers\Api\PhoneAuthController::class, 'verify']);
     Route::post('/phone/complete', [\App\Http\Controllers\Api\PhoneAuthController::class, 'complete']);
 
+    // Email and password sign-up (no phone needed), confirmed by an emailed 6-digit code
+    Route::post('/email/register/start', [\App\Http\Controllers\Api\EmailSignUpController::class, 'start']);
+    Route::post('/email/register/verify', [\App\Http\Controllers\Api\EmailSignUpController::class, 'verify']);
+
     // Forgot password by phone or email: identical answers whether or not the account exists
     Route::post('/password/forgot', [\App\Http\Controllers\Api\PasswordResetController::class, 'forgot']);
     Route::post('/password/verify-code', [\App\Http\Controllers\Api\PasswordResetController::class, 'verifyCode']);
@@ -78,6 +82,8 @@ Route::middleware(['auth:sanctum', 'throttle:10,1'])->group(function () {
     Route::post('/auth/step-up/code', [\App\Http\Controllers\Api\StepUpController::class, 'sendCode']);
     Route::post('/auth/step-up/verify', [\App\Http\Controllers\Api\StepUpController::class, 'verify']);
     Route::post('/user/phone', [\App\Http\Controllers\Api\StepUpController::class, 'changePhone'])->middleware('fresh.auth');
+    Route::post('/user/email/code', [\App\Http\Controllers\Api\StepUpController::class, 'sendEmailChangeCode'])->middleware('fresh.auth');
+    Route::post('/user/email', [\App\Http\Controllers\Api\StepUpController::class, 'changeEmail'])->middleware('fresh.auth');
 });
 
 Route::get('/home', [HomeController::class, 'index']);

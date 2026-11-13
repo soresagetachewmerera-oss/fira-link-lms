@@ -69,7 +69,7 @@ class ProfileController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'nullable|email',
             'phone' => 'nullable|string|max:20',
             'bio' => 'nullable|string|max:1000',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
@@ -77,8 +77,17 @@ class ProfileController extends Controller
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
         ]);
 
+        // Email is a sign-in and reset channel: it changes only through POST /api/user/email
+        // (fresh auth + a code sent to the new address), never through the profile form.
+        if ($request->filled('email') && strcasecmp((string) $request->email, (string) $user->email) !== 0) {
+            return response()->json([
+                'success' => false,
+                'code' => 'EMAIL_CHANGE_NEEDS_CODE',
+                'message' => 'Change your email with a code sent to the new address.',
+            ], 422);
+        }
+
         $user->name = $request->name;
-        $user->email = $request->email;
         if ($request->has('phone')) {
             // A new number is saved unverified; verify it with POST /api/user/phone.
             if ($error = $user->setPhoneFromProfile($request->phone)) {

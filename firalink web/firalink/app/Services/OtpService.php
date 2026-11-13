@@ -177,13 +177,28 @@ class OtpService
      * the same identifier and purpose, so it is verified exactly like the SMS code: same hashing,
      * expiry, attempt limit and lockout.
      */
-    public function sendToEmail(string $identifier, string $purpose, User $user): array
+    public function sendToEmail(string $identifier, string $purpose, User $user, bool $withCooldown = false): array
     {
         if (empty($user->email)) {
             return ['success' => false, 'code' => 'NO_EMAIL', 'message' => 'No email address.'];
         }
+        if ($until = $this->lockedUntil($identifier, $purpose)) {
+            return ['success' => false, 'code' => 'LOCKED', 'message' => 'Too many wrong codes. Try again later.', 'locked_until' => $until->toIso8601String()];
+        }
+        if ($withCooldown && $this->isInCooldown($identifier, $purpose)) {
+            return [
+                'success' => false,
+                'code' => 'COOLDOWN_ACTIVE',
+                'message' => 'Wait before asking for a new code.',
+                'cooldown_remaining' => $this->getCooldownRemaining($identifier, $purpose),
+            ];
+        }
         if ($error = $this->guardSend($identifier, $purpose)) {
             return $error;
+        }
+        if ($withCooldown) {
+            $sec = $this->resendCooldownSeconds();
+            Cache::put($this->cooldownKey($identifier, $purpose), now()->addSeconds($sec), now()->addSeconds($sec));
         }
 
         $code = $this->generateCode();
