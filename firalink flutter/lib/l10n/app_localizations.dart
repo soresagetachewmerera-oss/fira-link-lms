@@ -797,6 +797,13 @@ class AppLocalizations {
   String get confirmAction => _t('confirmAction');
   String get codeOrPasswordWrong => _t('codeOrPasswordWrong');
 
+  // Email sign-up
+  String get emailSignUpTitle => _t('emailSignUpTitle');
+  String get emailSignUpSubtitle => _t('emailSignUpSubtitle');
+  String get createAccountWithEmail => _t('createAccountWithEmail');
+  String get acceptTermsRequired => _t('acceptTermsRequired');
+  String get acceptTermsLabel => _t('acceptTermsLabel');
+
 }
 
 class AppLocalizationsDelegate

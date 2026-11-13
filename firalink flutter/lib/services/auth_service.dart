@@ -35,6 +35,25 @@ class AuthService extends BaseService {
   Future<http.Response> phoneComplete(String signupTicket, String fullName) =>
       _post('/auth/phone/complete', {'signup_ticket': signupTicket, 'full_name': fullName});
 
+  // ── Email and password sign-up (no phone needed) ──────────────────────────
+
+  Future<http.Response> emailSignUpStart({
+    required String fullName,
+    required String email,
+    required String password,
+    required String confirmation,
+  }) =>
+      _post('/auth/email/register/start', {
+        'full_name': fullName,
+        'email': email,
+        'password': password,
+        'password_confirmation': confirmation,
+        'terms': true,
+      });
+
+  Future<http.Response> emailSignUpVerify(String email, String code) =>
+      _post('/auth/email/register/verify', {'email': email, 'code': code});
+
   // ── Forgot password by phone or email ─────────────────────────────────────
 
   Future<http.Response> passwordForgot({required String channel, required String value}) =>

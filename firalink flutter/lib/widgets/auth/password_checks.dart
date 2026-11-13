@@ -66,9 +66,11 @@ class _Check extends StatelessWidget {
               color: met ? fira.success : fira.mutedText,
             ),
             const SizedBox(width: 8),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: met ? fira.onSurface : fira.mutedText),
+            Expanded(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: met ? fira.onSurface : fira.mutedText),
+              ),
             ),
           ],
         ),

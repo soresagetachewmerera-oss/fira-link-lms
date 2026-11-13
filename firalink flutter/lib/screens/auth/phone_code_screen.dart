@@ -14,7 +14,7 @@ import '../../widgets/fira_error_state.dart';
 import 'full_name_screen.dart';
 import 'new_password_screen.dart';
 
-enum _CodeMode { signIn, reset }
+enum _CodeMode { signIn, reset, emailSignUp }
 
 /// S-005 Verify phone code, and the reset-code step of Forgot password.
 /// 6 digits, resend countdown from the server, expiry notice, "never share" warning.
@@ -41,6 +41,19 @@ class PhoneCodeScreen extends StatefulWidget {
   })  : _mode = _CodeMode.reset,
         _value = value,
         phoneMasked = value,
+        smsFailed = false;
+
+  /// Email sign-up: the code was sent to [email]; confirming it creates the account.
+  const PhoneCodeScreen.emailSignUp({
+    super.key,
+    required String email,
+    required this.cooldownSeconds,
+    required this.expiryMinutes,
+    this.authService,
+  })  : _mode = _CodeMode.emailSignUp,
+        _value = email,
+        phoneMasked = email,
+        channel = 'email',
         smsFailed = false;
 
   final _CodeMode _mode;
@@ -99,9 +112,11 @@ class _PhoneCodeScreenState extends State<PhoneCodeScreen> {
     });
 
     try {
-      final res = widget._mode == _CodeMode.signIn
-          ? await _auth.phoneVerify(widget._value, code)
-          : await _auth.passwordVerifyCode(channel: widget.channel, value: widget._value, code: code);
+      final res = switch (widget._mode) {
+        _CodeMode.signIn => await _auth.phoneVerify(widget._value, code),
+        _CodeMode.reset => await _auth.passwordVerifyCode(channel: widget.channel, value: widget._value, code: code),
+        _CodeMode.emailSignUp => await _auth.emailSignUpVerify(widget._value, code),
+      };
       if (!mounted) return;
       final body = authBody(res);
 
@@ -114,6 +129,13 @@ class _PhoneCodeScreenState extends State<PhoneCodeScreen> {
 
       if (widget._mode == _CodeMode.reset) {
         _openNewPassword(body['reset_ticket'].toString());
+        return;
+      }
+
+      if (widget._mode == _CodeMode.emailSignUp) {
+        await context.read<AuthProvider>().completeSignIn(body);
+        if (!mounted) return;
+        goAfterSignIn(context, isNewUser: true);
         return;
       }
 
@@ -144,6 +166,11 @@ class _PhoneCodeScreenState extends State<PhoneCodeScreen> {
   }
 
   Future<void> _resend() async {
+    if (widget._mode == _CodeMode.emailSignUp) {
+      // The password is not kept on the device: resend from the sign-up form.
+      Navigator.of(context).pop();
+      return;
+    }
     try {
       final res = widget._mode == _CodeMode.signIn
           ? await _auth.phoneStart(widget._value)
@@ -184,9 +211,10 @@ class _PhoneCodeScreenState extends State<PhoneCodeScreen> {
     final fira = context.fira;
     final textTheme = Theme.of(context).textTheme;
     final isSignIn = widget._mode == _CodeMode.signIn;
+    final isEmailSignUp = widget._mode == _CodeMode.emailSignUp;
 
     return AuthPage(
-      title: isSignIn ? l10n.enterCodeTitle : l10n.checkYourMessages,
+      title: isSignIn || isEmailSignUp ? l10n.enterCodeTitle : l10n.checkYourMessages,
       subtitle: isSignIn
           ? l10n.translate('codeSentToPhone', {'phone': widget.phoneMasked})
           : l10n.translate('codeSentToDestination', {'destination': widget.phoneMasked}),

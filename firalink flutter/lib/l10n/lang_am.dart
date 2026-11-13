@@ -752,6 +752,12 @@ const Map<String, String> kLangAm = {
   'useCodeInstead': "በምትኩ ኮድ ተጠቀም",
   'confirmAction': "አረጋግጥ",
   'codeOrPasswordWrong': "ኮዱ ወይም የይለፍ ቃሉ ትክክል አይደለም።",
+  // Email sign-up
+  'emailSignUpTitle': "በኢሜይል መለያ ይፍጠሩ",
+  'emailSignUpSubtitle': "ከኢትዮጵያ ውጭ ላሉ ገዢዎች ወይም የኢትዮጵያ ስልክ ቁጥር ለሌላቸው። ባለ 6 አሃዝ ኮድ በኢሜይል እንልክልዎታለን።",
+  'createAccountWithEmail': "የኢትዮጵያ ቁጥር የለዎትም? በኢሜይል መለያ ይፍጠሩ",
+  'acceptTermsRequired': "ለመቀጠል የአገልግሎት ውሉን እና የግላዊነት ፖሊሲውን ይቀበሉ።",
+  'acceptTermsLabel': "የአገልግሎት ውሉን እና የግላዊነት ፖሊሲውን እቀበላለሁ።",
 };
 
 const Map<String, String> langAm = kLangAm;

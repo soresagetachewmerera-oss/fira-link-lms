@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../config/config.dart';
 import '../../widgets/auth/auth_navigation.dart';
+import 'email_sign_up_screen.dart';
 import 'forgot_password_screen.dart';
 import 'otp_verification_screen.dart';
 import 'phone_sign_in_screen.dart';
@@ -544,6 +545,14 @@ class _LoginFormState extends State<_LoginForm> {
                 MaterialPageRoute(builder: (_) => const PhoneSignInScreen()),
               ),
               child: Text(context.l10n.newToFiraCreateAccount),
+            ),
+          ),
+          Center(
+            child: TextButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const EmailSignUpScreen()),
+              ),
+              child: Text(context.l10n.createAccountWithEmail, textAlign: TextAlign.center),
             ),
           ),
           Center(

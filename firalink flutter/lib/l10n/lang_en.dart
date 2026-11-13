@@ -752,6 +752,12 @@ const Map<String, String> kLangEn = {
   'useCodeInstead': "Use a code instead",
   'confirmAction': "Confirm",
   'codeOrPasswordWrong': "That code or password is not correct.",
+  // Email sign-up
+  'emailSignUpTitle': "Create an account with email",
+  'emailSignUpSubtitle': "For buyers outside Ethiopia or anyone without an Ethiopian phone number. We will email you a 6-digit code.",
+  'createAccountWithEmail': "No Ethiopian number? Create an account with email",
+  'acceptTermsRequired': "Accept the Terms of Service and Privacy Policy to continue.",
+  'acceptTermsLabel': "I accept the Terms of Service and Privacy Policy.",
 };
 
 const Map<String, String> langEn = kLangEn;

@@ -8,6 +8,7 @@ import '../../widgets/auth/auth_messages.dart';
 import '../../widgets/auth/auth_navigation.dart';
 import '../../widgets/fira_error_state.dart';
 import 'auth_screen.dart';
+import 'email_sign_up_screen.dart';
 import 'phone_code_screen.dart';
 
 /// S-004 Phone sign in: one step for new and returning users.
@@ -151,7 +152,13 @@ class _PhoneSignInScreenState extends State<PhoneSignInScreen> {
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AuthScreen())),
           ),
         ),
-        const SizedBox(height: 24),
+        Center(
+          child: TextButton(
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EmailSignUpScreen())),
+            child: Text(l10n.createAccountWithEmail, textAlign: TextAlign.center),
+          ),
+        ),
+        const SizedBox(height: 16),
         Text(l10n.termsNotice, textAlign: TextAlign.center, style: textTheme.bodySmall?.copyWith(color: fira.mutedText)),
         const SizedBox(height: 8),
         Center(
