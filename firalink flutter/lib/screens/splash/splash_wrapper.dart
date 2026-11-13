@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/auth_provider.dart';
 import '../../router/app_router.dart';
 import 'splash_screen.dart';
+import 'startup_route.dart';
 
 class SplashWrapper extends StatefulWidget {
   const SplashWrapper({super.key});
@@ -27,20 +28,21 @@ class _SplashWrapperState extends State<SplashWrapper> {
   void _checkAuthAndNavigate() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final bool hasSeenOnboarding =
-        prefs.getBool('has_seen_onboarding') ?? false;
 
     if (!mounted) return;
 
-    if (authProvider.isAuthenticated) {
-      Navigator.of(context).pushReplacementNamed(AppRouter.home);
-    } else {
-      if (hasSeenOnboarding) {
-        Navigator.of(context).pushReplacementNamed(AppRouter.home);
-      } else {
-        Navigator.of(context).pushReplacementNamed(AppRouter.onboarding);
-      }
-    }
+    final route = decideStartupRoute(
+      isAuthenticated: authProvider.isAuthenticated,
+      languageChosen: prefs.getBool(StartupPrefs.languageChosen) ?? false,
+      seenOnboarding: prefs.getBool(StartupPrefs.seenOnboarding) ?? false,
+    );
+
+    final routeName = switch (route) {
+      StartupRoute.home => AppRouter.home,
+      StartupRoute.languagePicker => AppRouter.languageChoice,
+      StartupRoute.onboarding => AppRouter.onboarding,
+    };
+    Navigator.of(context).pushReplacementNamed(routeName);
   }
 
   @override

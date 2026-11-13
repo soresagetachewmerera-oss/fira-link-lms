@@ -17,6 +17,21 @@ class AuthProvider with ChangeNotifier {
   Map<String, dynamic>? get deletionRequestStatus => _deletionRequestStatus;
   bool get isAuthenticated => _user != null;
 
+  /// Stores the token and user from a successful sign-in response (phone sign-in, sign-up).
+  Future<void> completeSignIn(Map<String, dynamic> data) async {
+    final token = data['token']?.toString() ?? '';
+    final userRaw = data['user'];
+    if (token.isEmpty || userRaw is! Map<String, dynamic>) {
+      throw StateError('Sign-in response without token or user');
+    }
+    await _authService.saveToken(token);
+    _user = User.fromJson(userRaw);
+    try {
+      PushNotificationService().syncTokenWithServer();
+    } catch (_) {}
+    notifyListeners();
+  }
+
   Future<void> loadUser() async {
     final token = await _authService.getToken();
     if (token == null || token.isEmpty) return;
@@ -108,6 +123,7 @@ class AuthProvider with ChangeNotifier {
         }
         return {
           'success': false,
+          'code': data['code'],
           'message': data['message'] ?? 'Invalid login credentials',
           'errors': data['errors'],
         };

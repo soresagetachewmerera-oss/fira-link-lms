@@ -6,8 +6,10 @@ import '../../theme/app_theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../config/config.dart';
+import '../../widgets/auth/auth_navigation.dart';
 import 'forgot_password_screen.dart';
 import 'otp_verification_screen.dart';
+import 'phone_sign_in_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -317,12 +319,22 @@ class _LoginFormState extends State<_LoginForm> {
         return;
       }
 
+      // Flagged weak password: no token until a new password is chosen.
+      if (result['code'] == 'PASSWORD_RESET_REQUIRED') {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => ForgotPasswordScreen(initialMessage: context.l10n.passwordResetRequired),
+        ));
+        return;
+      }
+
       toastification.show(
         context: context,
         type: ToastificationType.error,
         style: ToastificationStyle.fillColored,
         title: const Text('Login Failed'),
-        description: Text(result['message'] ?? 'Please check your credentials'),
+        description: Text(result['code'] == 'INVALID_CREDENTIALS'
+            ? context.l10n.invalidEmailOrPassword
+            : (result['message'] ?? context.l10n.invalidEmailOrPassword)),
         alignment: Alignment.bottomCenter,
         autoCloseDuration: const Duration(seconds: 4),
       );
@@ -514,6 +526,30 @@ class _LoginFormState extends State<_LoginForm> {
                         letterSpacing: 0.3,
                       ),
                     ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Email sign-in is its own flow; phone is the main way in (and the way to sign up).
+          Center(
+            child: TextButton(
+              onPressed: () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const PhoneSignInScreen()),
+              ),
+              child: Text(context.l10n.useMyPhoneInstead),
+            ),
+          ),
+          Center(
+            child: TextButton(
+              onPressed: () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const PhoneSignInScreen()),
+              ),
+              child: Text(context.l10n.newToFiraCreateAccount),
+            ),
+          ),
+          Center(
+            child: TextButton(
+              onPressed: () => exploreAsGuest(context),
+              child: Text(context.l10n.exploreAsGuest),
             ),
           ),
           SizedBox(height: MediaQuery.of(context).padding.bottom + 24),

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../l10n/lang_am.dart';
+import '../../l10n/lang_en.dart';
 import '../../providers/settings_provider.dart';
 import '../onboarding/onboarding_screen.dart';
+import '../splash/startup_route.dart';
 
 class LanguageChoiceScreen extends StatefulWidget {
   const LanguageChoiceScreen({super.key});
@@ -42,10 +46,11 @@ class _LanguageChoiceScreenState extends State<LanguageChoiceScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Choose Your Language\nቋንቋ ይምረጡ',
+              // Shown in both languages: the user has not picked one yet.
+              Text(
+                '${kLangEn['languagePickerTitle']}\n${kLangAm['languagePickerTitle']}',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF1E293B),
@@ -53,10 +58,10 @@ class _LanguageChoiceScreenState extends State<LanguageChoiceScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'You can change this later in settings\nበማንኛውም ጊዜ በቅንብሮች መቀየር ይችላሉ',
+              Text(
+                '${kLangEn['languagePickerHint']}\n${kLangAm['languagePickerHint']}',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: Colors.black54),
+                style: const TextStyle(fontSize: 13, color: Colors.black54),
               ),
               const SizedBox(height: 40),
 
@@ -91,17 +96,21 @@ class _LanguageChoiceScreenState extends State<LanguageChoiceScreen> {
                   ),
                   elevation: 0,
                 ),
-                onPressed: () {
+                onPressed: () async {
                   final settings = Provider.of<SettingsProvider>(context, listen: false);
-                  settings.setLocale(Locale(_selectedLang));
+                  await settings.setLocale(Locale(_selectedLang));
+                  // First launch only: never show the picker again.
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool(StartupPrefs.languageChosen, true);
+                  if (!context.mounted) return;
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (_) => const OnboardingScreen()),
                   );
                 },
-                child: const Text(
-                  'Continue / ቀጥል',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                child: Text(
+                  '${kLangEn['continueAction']} / ${kLangAm['continueAction']}',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 16),

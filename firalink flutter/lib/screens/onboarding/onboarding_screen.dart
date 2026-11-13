@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../router/app_router.dart';
+import '../splash/startup_route.dart';
 import '../../theme/fira_colors.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -17,52 +19,39 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;
 
-  final List<_OnboardingContent> _pages = const [
-    _OnboardingContent(
-      badge: 'B2B COMMERCE & EXPORT',
-      badgeColor: Color(0xFFF59E0B),
-      titleLeading: 'Connect Ethiopian',
-      titleAccent: ' export commodities',
-      titleTrailing: '\nto global markets',
-      description:
-          'Directly trade specialty coffee, sesame, pulses, and livestock with verified international buyers across 30+ global destinations.',
-      imagePath: 'assets/img/onboarding/onboarding_b2b_trade.png',
-      glowColor: Color(0xFFF59E0B),
-    ),
-    _OnboardingContent(
-      badge: 'FIRA AI LEGAL STUDIO',
-      badgeColor: Color(0xFFC084FC),
-      titleLeading: 'Generate instant',
-      titleAccent: ' AI export documents',
-      titleTrailing: '\n& customs packages',
-      description:
-          'Produce bank-ready Proforma Invoices, Bills of Lading, and Certificates of Origin in seconds with Fira AI\'s automated legal intelligence.',
-      imagePath: 'assets/img/onboarding/onboarding_ai_docs.png',
-      glowColor: Color(0xFF6D1A95),
-    ),
-    _OnboardingContent(
-      badge: 'COFFEE SAFARIS & AGRO-TOURS',
-      badgeColor: Color(0xFF10B981),
-      titleLeading: 'Book curated',
-      titleAccent: ' coffee origin safaris',
-      titleTrailing: '\n& agro-expeditions',
-      description:
-          'Experience guided farm-to-cup journeys across Guji, Yirgacheffe, and Sidama. Reserve harvest immersions and cupping masterclasses.',
-      imagePath: 'assets/img/onboarding/onboarding_safari_tours.png',
-      glowColor: Color(0xFF10B981),
-    ),
-    _OnboardingContent(
-      badge: 'GLOBAL SUMMITS & ACADEMY',
-      badgeColor: Color(0xFF60A5FA),
-      titleLeading: 'Access high-level',
-      titleAccent: ' business summits',
-      titleTrailing: '\n& executive training',
-      description:
-          'Reserve VIP passes for international bilateral trade forums, expos, and earn accredited trade masterclass certifications.',
-      imagePath: 'assets/img/onboarding/onboarding_summits.png',
-      glowColor: Color(0xFF3B82F6),
-    ),
-  ];
+  static const int _pageCount = 3;
+
+  /// The three onboarding messages from the design (S-003), localized.
+  /// Visual treatment (badges, artwork, glow) is the existing app's.
+  List<_OnboardingContent> _pages(BuildContext context) {
+    final l10n = context.l10n;
+    return [
+      _OnboardingContent(
+        badge: l10n.onboardingBadge1,
+        badgeColor: const Color(0xFFF59E0B),
+        titleLeading: l10n.onboardingTitle1,
+        description: l10n.onboardingBody1,
+        imagePath: 'assets/img/onboarding/onboarding_b2b_trade.png',
+        glowColor: const Color(0xFFF59E0B),
+      ),
+      _OnboardingContent(
+        badge: l10n.onboardingBadge2,
+        badgeColor: const Color(0xFFC084FC),
+        titleLeading: l10n.onboardingTitle2,
+        description: l10n.onboardingBody2,
+        imagePath: 'assets/img/onboarding/onboarding_ai_docs.png',
+        glowColor: const Color(0xFF6D1A95),
+      ),
+      _OnboardingContent(
+        badge: l10n.onboardingBadge3,
+        badgeColor: const Color(0xFF10B981),
+        titleLeading: l10n.onboardingTitle3,
+        description: l10n.onboardingBody3,
+        imagePath: 'assets/img/onboarding/onboarding_safari_tours.png',
+        glowColor: const Color(0xFF10B981),
+      ),
+    ];
+  }
 
   @override
   void dispose() {
@@ -72,24 +61,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _handleNext() {
     HapticFeedback.lightImpact();
-    if (_currentIndex < _pages.length - 1) {
+    if (_currentIndex < _pageCount - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeOutCubic,
       );
     } else {
-      _completeOnboarding();
+      _completeOnboarding(toSignIn: true);
     }
   }
 
-  Future<void> _completeOnboarding() async {
+  /// Skip and Get started go to phone sign-in; Explore as guest goes to Home.
+  Future<void> _completeOnboarding({required bool toSignIn}) async {
     HapticFeedback.mediumImpact();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('has_seen_onboarding', true);
+    await prefs.setBool(StartupPrefs.seenOnboarding, true);
 
     if (!mounted) return;
 
-    Navigator.of(context).pushReplacementNamed(AppRouter.home);
+    Navigator.of(context).pushReplacementNamed(toSignIn ? AppRouter.auth : AppRouter.home);
   }
 
   @override
@@ -97,6 +87,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final fira = context.fira;
     final textTheme = Theme.of(context).textTheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final pages = _pages(context);
 
     return Scaffold(
       backgroundColor: fira.surface,
@@ -151,13 +142,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ],
                   ),
                   TextButton(
-                    onPressed: _completeOnboarding,
+                    onPressed: () => _completeOnboarding(toSignIn: true),
                     style: TextButton.styleFrom(
                       foregroundColor: fira.mutedText,
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
                     child: Text(
-                      'Skip',
+                      context.l10n.skipAction,
                       style: TextStyle(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w600,
@@ -174,7 +165,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               Expanded(
                 child: PageView.builder(
                   controller: _pageController,
-                  itemCount: _pages.length,
+                  itemCount: pages.length,
                   physics: const PageScrollPhysics(
                     parent: BouncingScrollPhysics(),
                   ),
@@ -185,7 +176,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     });
                   },
                   itemBuilder: (context, index) {
-                    final content = _pages[index];
+                    final content = pages[index];
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -266,32 +257,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _Indicator(
-                    length: _pages.length,
+                    length: pages.length,
                     activeIndex: _currentIndex,
-                    activeColor: _pages[_currentIndex].badgeColor,
+                    activeColor: pages[_currentIndex].badgeColor,
                   ),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Page 1 gets quick "Get started" text button
-                      if (_currentIndex == 0) ...[
-                        TextButton(
-                          onPressed: _completeOnboarding,
-                          style: TextButton.styleFrom(
-                            foregroundColor: fira.brandPrimary,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          ),
-                          child: Text(
-                            'Get started',
-                            style: TextStyle(
-                              color: fira.brandPrimary,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
+                      // Every page: browse without an account
+                      TextButton(
+                        onPressed: () => _completeOnboarding(toSignIn: false),
+                        style: TextButton.styleFrom(
+                          foregroundColor: fira.brandPrimary,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        ),
+                        child: Text(
+                          context.l10n.exploreAsGuest,
+                          style: TextStyle(
+                            color: fira.brandPrimary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                      ],
+                      ),
+                      const SizedBox(width: 8),
 
                       // Next / Complete Button
                       GestureDetector(
@@ -300,7 +289,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           duration: const Duration(milliseconds: 300),
                           height: 50,
                           padding: EdgeInsets.symmetric(
-                            horizontal: _currentIndex == _pages.length - 1 ? 22 : 18,
+                            horizontal: _currentIndex == pages.length - 1 ? 22 : 18,
                           ),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
@@ -320,10 +309,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              if (_currentIndex == _pages.length - 1) ...[
-                                const Text(
-                                  'Explore Fira Link',
-                                  style: TextStyle(
+                              if (_currentIndex == pages.length - 1) ...[
+                                Text(
+                                  context.l10n.getStartedAction,
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14,
@@ -444,122 +433,17 @@ class _OnboardingTitle extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final fira = context.fira;
 
-    return RichText(
-      text: TextSpan(
-        style: textTheme.headlineMedium?.copyWith(
-          color: fira.onSurface,
-          fontWeight: FontWeight.w400,
-          fontSize: 25,
-          height: 1.25,
-        ),
-        children: [
-          TextSpan(text: content.titleLeading),
-          if (content.titleAccent != null)
-            WidgetSpan(
-              alignment: PlaceholderAlignment.baseline,
-              baseline: TextBaseline.alphabetic,
-              child: _AccentTextWithUnderline(
-                text: content.titleAccent!,
-                style: textTheme.headlineMedium?.copyWith(
-                      color: fira.brandPrimary,
-                      fontWeight: FontWeight.w700,
-                      fontStyle: FontStyle.italic,
-                      fontSize: 25,
-                    ) ??
-                    const TextStyle(),
-              ),
-            ),
-          if (content.titleTrailing != null)
-            TextSpan(text: content.titleTrailing),
-        ],
+    // One localized sentence per page (the split accent styling needs fixed English word order).
+    return Text(
+      content.titleLeading,
+      style: textTheme.headlineMedium?.copyWith(
+        color: fira.onSurface,
+        fontWeight: FontWeight.w700,
+        fontSize: 25,
+        height: 1.25,
       ),
     );
   }
-}
-
-class _AccentTextWithUnderline extends StatelessWidget {
-  const _AccentTextWithUnderline({required this.text, required this.style});
-
-  final String text;
-  final TextStyle style;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Text(text, style: style),
-        Positioned(
-          left: 0,
-          right: 0,
-          top: (style.fontSize ?? 25) * 1.08,
-          child: SizedBox(
-            height: 6,
-            child: CustomPaint(
-              painter: _WavyUnderlinePainter(context: context),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _WavyUnderlinePainter extends CustomPainter {
-  const _WavyUnderlinePainter({required this.context});
-
-  final BuildContext context;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final fira = context.fira;
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
-      ..strokeCap = StrokeCap.round;
-
-    final path = Path();
-    final baseY = size.height / 2;
-    const waveCount = 5;
-    final waveLength = size.width / waveCount;
-
-    path.moveTo(0, baseY);
-
-    for (int i = 0; i < waveCount; i++) {
-      final progress = i / (waveCount - 1);
-      final amplitude = 1.5 + (progress * 4.5);
-      final x1 = i * waveLength + waveLength * 0.25;
-      final x2 = i * waveLength + waveLength * 0.75;
-      final midX = i * waveLength + waveLength * 0.5;
-
-      path.quadraticBezierTo(x1, baseY - amplitude, midX, baseY);
-      path.quadraticBezierTo(
-        x2,
-        baseY + amplitude,
-        (i + 1) * waveLength,
-        baseY,
-      );
-    }
-
-    final gradient = LinearGradient(
-      colors: [
-        fira.brandPrimary.withValues(alpha: 0.7),
-        fira.brandPrimary.withValues(alpha: 0.9),
-        fira.brandPrimary,
-      ],
-      stops: const [0.0, 0.5, 1.0],
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-    );
-
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
-    paint.shader = gradient.createShader(rect);
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(_WavyUnderlinePainter oldDelegate) => true;
 }
 
 class _Indicator extends StatelessWidget {
@@ -600,8 +484,6 @@ class _OnboardingContent {
     required this.badge,
     required this.badgeColor,
     required this.titleLeading,
-    this.titleAccent,
-    this.titleTrailing,
     required this.description,
     required this.imagePath,
     required this.glowColor,
@@ -610,8 +492,6 @@ class _OnboardingContent {
   final String badge;
   final Color badgeColor;
   final String titleLeading;
-  final String? titleAccent;
-  final String? titleTrailing;
   final String description;
   final String imagePath;
   final Color glowColor;

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../services/api_exception.dart';
 import '../../services/marketplace_service.dart';
 import '../../services/upload_file.dart';
+import '../../widgets/auth/fresh_auth_sheet.dart';
 import '../../widgets/fira_error_state.dart';
 
 class OrganizationVerificationScreen extends StatefulWidget {
@@ -248,11 +249,15 @@ class _OrganizationVerificationScreenState extends State<OrganizationVerificatio
 
     setState(() => _isLoading = true);
     try {
-      final res = await _marketplaceService.uploadVerificationDocument(
-        targetRole: _selectedRole,
-        documentType: docType,
-        fileBytes: fileBytes,
-        filename: fileName,
+      // Sensitive action: the server may ask the user to confirm it is them first.
+      final res = await FreshAuthSheet.run(
+        context,
+        () => _marketplaceService.uploadVerificationDocument(
+          targetRole: _selectedRole,
+          documentType: docType,
+          fileBytes: fileBytes,
+          filename: fileName,
+        ),
       );
       if (mounted) {
         if (res.statusCode == 200 || res.statusCode == 201) {

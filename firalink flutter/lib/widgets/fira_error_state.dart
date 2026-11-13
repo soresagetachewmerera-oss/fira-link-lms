@@ -23,6 +23,7 @@ class FiraErrorText {
       if (error.isUnauthenticated) return l10n.sessionExpired;
       if (error.isFileRejected) return fileRejection(context, error.reason);
       if (error.code == 'CONFIRMATION_REQUIRED') return l10n.milestoneConfirmationRequired;
+      if (error.code == 'FRESH_AUTH_REQUIRED') return l10n.confirmItsYouBody;
       if (error.isForbidden) return l10n.notAllowed;
     }
     return isAction ? l10n.actionFailed : l10n.loadFailedBody;

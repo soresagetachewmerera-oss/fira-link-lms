@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
 import '../screens/auth/auth_screen.dart';
+import '../screens/auth/phone_sign_in_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/home/home2_screen.dart';
@@ -56,6 +57,7 @@ class AppRouter {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   static const String onboarding = '/onboarding';
   static const String auth = '/auth';
+  static const String emailSignIn = '/auth/email';
   static const String dashboard = '/dashboard';
   static const String home = '/home';
   static const String profile = '/profile';
@@ -148,6 +150,9 @@ class AppRouter {
       case onboarding:
         return const OnboardingScreen();
       case auth:
+        // Phone sign-in is the main way in (new and returning users); email is linked from it.
+        return const PhoneSignInScreen();
+      case emailSignIn:
         return const AuthScreen();
       case dashboard:
         return const DashboardScreen();
@@ -271,8 +276,8 @@ class AuthGuard extends StatelessWidget {
         if (auth.isAuthenticated) {
           return child;
         } else {
-          // Redirect to login if not authenticated
-          return const AuthScreen();
+          // Redirect to sign-in if not authenticated
+          return const PhoneSignInScreen();
         }
       },
     );
