@@ -1,8 +1,8 @@
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../../models/deal_room_model.dart';
 import '../../services/deal_room_service.dart';
+import '../../services/upload_file.dart';
+import '../../widgets/fira_error_state.dart';
 
 class ExportContractEsignScreen extends StatefulWidget {
   final DealRoomModel dealRoom;
@@ -17,7 +17,7 @@ class ExportContractEsignScreen extends StatefulWidget {
 class _ExportContractEsignScreenState extends State<ExportContractEsignScreen> {
   final DealRoomService _service = DealRoomService();
   final _signatureController = TextEditingController();
-  File? _contractFile;
+  UploadFile? _contractFile;
   bool _isSigning = false;
   bool _agreedToTerms = false;
 
@@ -28,15 +28,16 @@ class _ExportContractEsignScreenState extends State<ExportContractEsignScreen> {
   }
 
   Future<void> _pickContractFile() async {
-    final res = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-    );
-    if (res != null && res.files.single.path != null) {
-      setState(() {
-        _contractFile = File(res.files.single.path!);
-      });
+    final file = await UploadFile.pickDocument(extensions: const ['pdf']);
+    if (file == null || !mounted) return;
+    final rejection = file.localRejection;
+    if (rejection != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(FiraErrorText.fileRejection(context, rejection))),
+      );
+      return;
     }
+    setState(() => _contractFile = file);
   }
 
   Future<void> _submitSignature() async {
@@ -71,9 +72,7 @@ class _ExportContractEsignScreenState extends State<ExportContractEsignScreen> {
       );
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(res['message'] ?? 'Failed to sign contract'), backgroundColor: Colors.redAccent),
-      );
+      showFiraActionError(context, res['error'] ?? Exception());
     }
   }
 
@@ -181,7 +180,7 @@ class _ExportContractEsignScreenState extends State<ExportContractEsignScreen> {
                 icon: const Icon(Icons.picture_as_pdf_outlined),
                 label: Text(
                   _contractFile != null
-                      ? _contractFile!.path.split(Platform.pathSeparator).last
+                      ? _contractFile!.name
                       : 'Upload Scanned Contract PDF',
                   overflow: TextOverflow.ellipsis,
                 ),

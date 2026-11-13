@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../../services/api_exception.dart';
 import '../../services/marketplace_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/fira_error_state.dart';
 import '../../router/app_router.dart';
 import 'widgets/quota_limit_sheet.dart';
 import 'organization_verification_screen.dart';
@@ -19,6 +21,7 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
   Map<String, dynamic>? _entitlementsData;
   List<dynamic> _myListings = [];
   bool _isLoading = true;
+  Object? _loadError;
 
   @override
   void initState() {
@@ -27,37 +30,42 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
   }
 
   Future<void> _fetchSellerData() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
     try {
-      final resProf = await _marketplaceService.getSellerProfile();
-      final resList = await _marketplaceService.getSellerListings();
+      final resProf = requireSuccess(await _marketplaceService.getSellerProfile());
+      final resList = requireSuccess(await _marketplaceService.getSellerListings());
       final resEnt = await _marketplaceService.getOrganizationEntitlements();
 
-      if (resProf.statusCode == 200 && mounted) {
-        final data = jsonDecode(resProf.body);
-        _profileData = data['data'];
-      }
+      final profile = jsonDecode(resProf.body)['data'];
 
-      if (resEnt.statusCode == 200 && mounted) {
+      // 404 means the user has no business workspace yet: a real state, not an error.
+      Map<String, dynamic>? entitlements;
+      if (resEnt.statusCode == 200) {
         final data = jsonDecode(resEnt.body);
-        _entitlementsData = data['data'] is Map<String, dynamic> ? data['data'] : null;
+        entitlements = data['data'] is Map<String, dynamic> ? data['data'] : null;
+      } else if (resEnt.statusCode != 404) {
+        throw ApiException.fromResponse(resEnt);
       }
 
-      if (resList.statusCode == 200 && mounted) {
-        final data = jsonDecode(resList.body);
-        final raw = data['data'];
-        if (raw is List) {
-          _myListings = raw;
-        } else if (raw is Map && raw['data'] is List) {
-          _myListings = raw['data'];
-        } else {
-          _myListings = [];
-        }
-      }
+      final raw = jsonDecode(resList.body)['data'];
+      final listings = raw is List ? raw : (raw is Map && raw['data'] is List ? raw['data'] as List : <dynamic>[]);
 
-      if (mounted) setState(() => _isLoading = false);
-    } catch (_) {
-      if (mounted) setState(() => _isLoading = false);
+      if (!mounted) return;
+      setState(() {
+        _profileData = profile;
+        _entitlementsData = entitlements;
+        _myListings = listings;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loadError = e;
+        _isLoading = false;
+      });
     }
   }
 
@@ -238,6 +246,13 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+      );
+    }
+
+    if (_loadError != null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: FiraErrorState(error: _loadError, onRetry: _fetchSellerData),
       );
     }
 

@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/api_exception.dart';
 import '../../services/marketplace_service.dart';
+import '../../widgets/fira_error_state.dart';
 import '../../theme/app_theme.dart';
 import '../../router/app_router.dart';
 import 'widgets/quota_limit_sheet.dart';
@@ -19,6 +22,7 @@ class _MarketplaceRfqsScreenState extends State<MarketplaceRfqsScreen> {
   final MarketplaceService _marketplaceService = MarketplaceService();
   List<dynamic> _rfqs = [];
   bool _isLoading = true;
+  Object? _loadError;
 
   @override
   void initState() {
@@ -27,29 +31,34 @@ class _MarketplaceRfqsScreenState extends State<MarketplaceRfqsScreen> {
   }
 
   Future<void> _fetchRfqs() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
     try {
-      final res = await _marketplaceService.getRfqs();
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        if (mounted) {
-          setState(() {
-            final raw = data['data'];
-            if (raw is List) {
-              _rfqs = raw;
-            } else if (raw is Map && raw['data'] is List) {
-              _rfqs = raw['data'];
-            } else {
-              _rfqs = [];
-            }
-            _isLoading = false;
-          });
-        }
-      } else {
-        if (mounted) setState(() => _isLoading = false);
+      final res = requireSuccess(await _marketplaceService.getRfqs());
+      final data = jsonDecode(res.body);
+      if (mounted) {
+        setState(() {
+          final raw = data['data'];
+          if (raw is List) {
+            _rfqs = raw;
+          } else if (raw is Map && raw['data'] is List) {
+            _rfqs = raw['data'];
+          } else {
+            _rfqs = [];
+          }
+          _isLoading = false;
+        });
       }
-    } catch (_) {
-      if (mounted) setState(() => _isLoading = false);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _rfqs = [];
+          _loadError = e;
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -157,12 +166,19 @@ class _MarketplaceRfqsScreenState extends State<MarketplaceRfqsScreen> {
                             }
 
                             Navigator.pop(ctx);
-                            final res = await _marketplaceService.submitQuote(rfq['id'], {
-                              'offered_price_usd_per_lb': price,
-                              'quantity_bags': bags,
-                              'payment_terms': termsCtrl.text.trim(),
-                              'validity_date': DateTime.now().add(const Duration(days: 14)).toIso8601String().split('T')[0],
-                            });
+                            final http.Response res;
+                            try {
+                              res = await _marketplaceService.submitQuote(rfq['id'], {
+                                'offered_price_usd_per_lb': price,
+                                'quantity_bags': bags,
+                                'payment_terms': termsCtrl.text.trim(),
+                                'validity_date': DateTime.now().add(const Duration(days: 14)).toIso8601String().split('T')[0],
+                              });
+                            } catch (e) {
+                              if (mounted) showFiraActionError(context, e);
+                              return;
+                            }
+                            if (!mounted) return;
 
                             if (res.statusCode == 200 || res.statusCode == 201) {
                               if (mounted) {
@@ -259,6 +275,15 @@ class _MarketplaceRfqsScreenState extends State<MarketplaceRfqsScreen> {
         color: AppTheme.primary,
         child: _isLoading
             ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+            : _loadError != null
+            ? ListView(
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    child: FiraErrorState(error: _loadError, onRetry: _fetchRfqs),
+                  ),
+                ],
+              )
             : _rfqs.isEmpty
                 ? const Center(child: Text('No open buyer tenders found.'))
                 : ListView.separated(

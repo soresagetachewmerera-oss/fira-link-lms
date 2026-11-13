@@ -1,8 +1,9 @@
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/deal_room_model.dart';
 import '../../services/deal_room_service.dart';
+import '../../services/upload_file.dart';
+import '../../widgets/fira_error_state.dart';
 
 class PaymentMilestonesScreen extends StatefulWidget {
   final DealRoomModel dealRoom;
@@ -22,7 +23,7 @@ class PaymentMilestonesScreen extends StatefulWidget {
 class _PaymentMilestonesScreenState extends State<PaymentMilestonesScreen> {
   final DealRoomService _service = DealRoomService();
   final _notesController = TextEditingController();
-  File? _proofFile;
+  UploadFile? _proofFile;
   bool _isUpdating = false;
 
   @override
@@ -32,23 +33,25 @@ class _PaymentMilestonesScreenState extends State<PaymentMilestonesScreen> {
   }
 
   Future<void> _pickProof() async {
-    final res = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-    );
-    if (res != null && res.files.single.path != null) {
-      setState(() {
-        _proofFile = File(res.files.single.path!);
-      });
+    final file = await UploadFile.pickDocument();
+    if (file == null || !mounted) return;
+    final rejection = file.localRejection;
+    if (rejection != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(FiraErrorText.fileRejection(context, rejection))),
+      );
+      return;
     }
+    setState(() => _proofFile = file);
   }
 
+  /// Uploads the bank slip or SWIFT copy. This does not complete the step:
+  /// it counts only after Fira Link confirms the payment with the bank.
   Future<void> _submitMilestone() async {
     setState(() => _isUpdating = true);
     final res = await _service.advanceMilestone(
       dealRoomId: widget.dealRoom.id,
       milestoneId: widget.milestone.id,
-      status: 'achieved',
       notes: _notesController.text.trim(),
       document: _proofFile,
     );
@@ -58,13 +61,11 @@ class _PaymentMilestonesScreenState extends State<PaymentMilestonesScreen> {
 
     if (res['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Payment milestone proof uploaded!'), backgroundColor: Colors.green),
+        SnackBar(content: Text(AppLocalizations.of(context).proofSubmittedPendingBank)),
       );
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(res['message'] ?? 'Failed to update milestone')),
-      );
+      showFiraActionError(context, res['error'] ?? Exception());
     }
   }
 
@@ -138,7 +139,7 @@ class _PaymentMilestonesScreenState extends State<PaymentMilestonesScreen> {
                 icon: const Icon(Icons.upload_file),
                 label: Text(
                   _proofFile != null
-                      ? _proofFile!.path.split(Platform.pathSeparator).last
+                      ? _proofFile!.name
                       : 'Attach Swift Copy / Escrow Slip',
                   overflow: TextOverflow.ellipsis,
                 ),

@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/api_exception.dart';
 import '../../services/marketplace_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/fira_error_state.dart';
 import 'widgets/verification_prompt_dialog.dart';
 
 class CoffeeListingDetailScreen extends StatefulWidget {
@@ -22,6 +25,7 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
   dynamic _benchmark;
   bool _isSaved = false;
   bool _isLoading = true;
+  Object? _loadError;
 
   @override
   void initState() {
@@ -30,24 +34,33 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
   }
 
   Future<void> _fetchDetail() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
     try {
       final res = await _marketplaceService.getListingDetail(widget.idOrSlug);
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        if (mounted) {
-          setState(() {
-            _listing = data['data']['listing'];
-            _benchmark = data['data']['official_benchmark'];
-            _isSaved = data['data']['is_saved'] ?? false;
-            _isLoading = false;
-          });
-        }
-      } else {
+      if (res.statusCode == 404) {
+        // A real "not found": the lot was removed or never existed.
         if (mounted) setState(() => _isLoading = false);
+        return;
+      }
+      final data = jsonDecode(requireSuccess(res).body);
+      if (mounted) {
+        setState(() {
+          _listing = data['data']['listing'];
+          _benchmark = data['data']['official_benchmark'];
+          _isSaved = data['data']['is_saved'] ?? false;
+          _isLoading = false;
+        });
       }
     } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() {
+          _loadError = e;
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -73,8 +86,12 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
             duration: const Duration(seconds: 2),
           ),
         );
+      } else if (mounted) {
+        showFiraActionError(context, ApiException.fromResponse(res));
       }
-    } catch (_) {}
+    } catch (e) {
+      if (mounted) showFiraActionError(context, e);
+    }
   }
 
   void _showSampleDialog() {
@@ -175,13 +192,19 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                               return;
                             }
                             Navigator.pop(ctx);
-                            final res = await _marketplaceService.submitInquiry(_listing['id'], {
-                              'inquiry_type': 'sample_request',
-                              'subject': 'Sample Request for ${_listing['title']}',
-                              'message': messageCtrl.text.trim(),
-                              'shipping_address': addressCtrl.text.trim(),
-                              'courier_account': courierCtrl.text.trim(),
-                            });
+                            final http.Response res;
+                            try {
+                              res = await _marketplaceService.submitInquiry(_listing['id'], {
+                                'inquiry_type': 'sample_request',
+                                'subject': 'Sample Request for ${_listing['title']}',
+                                'message': messageCtrl.text.trim(),
+                                'shipping_address': addressCtrl.text.trim(),
+                                'courier_account': courierCtrl.text.trim(),
+                              });
+                            } catch (e) {
+                              if (mounted) showFiraActionError(context, e);
+                              return;
+                            }
                             if (res.statusCode == 200 || res.statusCode == 201) {
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -352,12 +375,18 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                           return;
                         }
                         Navigator.pop(ctx);
-                        final res = await _marketplaceService.submitInquiry(_listing['id'], {
-                          'inquiry_type': inquiryType,
-                          'subject': subjectCtrl.text.trim(),
-                          'message': messageCtrl.text.trim(),
-                          'quantity_interested_bags': int.tryParse(bagsCtrl.text.trim()),
-                        });
+                        final http.Response res;
+                        try {
+                          res = await _marketplaceService.submitInquiry(_listing['id'], {
+                            'inquiry_type': inquiryType,
+                            'subject': subjectCtrl.text.trim(),
+                            'message': messageCtrl.text.trim(),
+                            'quantity_interested_bags': int.tryParse(bagsCtrl.text.trim()),
+                          });
+                        } catch (e) {
+                          if (mounted) showFiraActionError(context, e);
+                          return;
+                        }
                         if (res.statusCode == 200 || res.statusCode == 201) {
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -421,6 +450,13 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+      );
+    }
+
+    if (_loadError != null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: FiraErrorState(error: _loadError, onRetry: _fetchDetail),
       );
     }
 

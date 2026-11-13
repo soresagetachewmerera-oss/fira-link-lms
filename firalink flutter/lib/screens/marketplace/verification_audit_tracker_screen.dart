@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../../services/api_exception.dart';
 import '../../services/marketplace_service.dart';
+import '../../widgets/fira_error_state.dart';
 
 class VerificationAuditTrackerScreen extends StatefulWidget {
   final String role; // 'exporter', 'supplier', 'buyer', 'broker'
@@ -15,6 +18,11 @@ class _VerificationAuditTrackerScreenState
     extends State<VerificationAuditTrackerScreen> {
   final MarketplaceService _marketplaceService = MarketplaceService();
   bool _isLoading = true;
+  Object? _loadError;
+
+  /// Real status for this role from the API (unsubmitted, draft, pending_review, approved, ...).
+  String _status = 'unsubmitted';
+  int _documentCount = 0;
 
   @override
   void initState() {
@@ -23,10 +31,27 @@ class _VerificationAuditTrackerScreenState
   }
 
   Future<void> _fetchStatus() async {
-    setState(() => _isLoading = true);
-    await _marketplaceService.getVerificationStatus();
-    if (mounted) {
-      setState(() => _isLoading = false);
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
+    try {
+      final res = requireSuccess(await _marketplaceService.getVerificationStatus());
+      final decoded = jsonDecode(res.body);
+      final roleData = decoded['data']?['checklist']?[widget.role];
+      final documents = roleData?['data']?['documents'];
+      if (!mounted) return;
+      setState(() {
+        _status = roleData?['status']?.toString() ?? 'unsubmitted';
+        _documentCount = documents is List ? documents.length : 0;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loadError = e;
+        _isLoading = false;
+      });
     }
   }
 
@@ -34,12 +59,15 @@ class _VerificationAuditTrackerScreenState
   Widget build(BuildContext context) {
     const primaryColor = Color(0xFF6D1A95);
 
+    // Each step is done only when the server says so. Approval comes only from an admin review.
+    final submitted = !['unsubmitted', 'draft'].contains(_status);
+    final approved = _status == 'approved';
     final steps = [
-      {'title': 'Dossier Submitted', 'desc': 'Legal credentials & certificates uploaded', 'done': true},
-      {'title': 'Document Integrity Check', 'desc': 'SHA-256 cryptographic vault hash verified', 'done': true},
-      {'title': 'ECTA / MoTI Registry Match', 'desc': 'Cross-referenced against regulatory registry', 'done': true},
-      {'title': 'Signatory Authorization', 'desc': 'National ID / passport verified', 'done': false},
-      {'title': 'Verified Badge Grant', 'desc': 'Public verification seal awarded', 'done': false},
+      {'title': 'Dossier Submitted', 'desc': 'Legal credentials & certificates uploaded', 'done': submitted},
+      {'title': 'Document Integrity Check', 'desc': 'SHA-256 cryptographic vault hash verified', 'done': _documentCount > 0},
+      {'title': 'ECTA / MoTI Registry Match', 'desc': 'Cross-referenced against regulatory registry', 'done': approved},
+      {'title': 'Signatory Authorization', 'desc': 'National ID / passport verified', 'done': approved},
+      {'title': 'Verified Badge Grant', 'desc': 'Public verification seal awarded', 'done': approved},
     ];
 
     return Scaffold(
@@ -58,6 +86,8 @@ class _VerificationAuditTrackerScreenState
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: primaryColor))
+          : _loadError != null
+          ? FiraErrorState(error: _loadError, onRetry: _fetchStatus)
           : Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(

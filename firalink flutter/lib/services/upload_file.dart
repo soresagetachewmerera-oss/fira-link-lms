@@ -32,10 +32,10 @@ class UploadFile {
 
   /// Opens the system file picker for a PDF, JPG or PNG and reads it into memory.
   /// Returns null if the user cancels or the platform returns no data.
-  static Future<UploadFile?> pickDocument() async {
+  static Future<UploadFile?> pickDocument({List<String> extensions = documentExtensions}) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: documentExtensions,
+      allowedExtensions: extensions,
       withData: true,
     );
     final picked = result?.files.single;

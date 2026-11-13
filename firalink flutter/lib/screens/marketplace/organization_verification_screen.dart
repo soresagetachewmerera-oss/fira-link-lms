@@ -1,9 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
+import 'dart:typed_data';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import '../../services/api_exception.dart';
 import '../../services/marketplace_service.dart';
+import '../../services/upload_file.dart';
+import '../../widgets/fira_error_state.dart';
 
 class OrganizationVerificationScreen extends StatefulWidget {
   final String? initialRole;
@@ -17,6 +20,7 @@ class OrganizationVerificationScreen extends StatefulWidget {
 class _OrganizationVerificationScreenState extends State<OrganizationVerificationScreen> {
   final MarketplaceService _marketplaceService = MarketplaceService();
   bool _isLoading = true;
+  Object? _loadError;
   String _selectedRole = 'exporter';
   Map<String, dynamic>? _orgData;
   Map<String, dynamic>? _checklistData;
@@ -69,24 +73,27 @@ class _OrganizationVerificationScreenState extends State<OrganizationVerificatio
   }
 
   Future<void> _loadVerificationStatus() async {
-    setState(() => _isLoading = true);
-    final res = await _marketplaceService.getVerificationStatus();
-    if (res.statusCode == 200 && mounted) {
-      try {
-        final decoded = jsonDecode(res.body);
-        final data = decoded['data'] ?? {};
-        setState(() {
-          _orgData = data['organization'];
-          _checklistData = data['checklist'];
-          _updateFormFieldsForRole(_selectedRole);
-          _isLoading = false;
-        });
-        return;
-      } catch (_) {}
-    }
-
-    if (mounted) {
-      setState(() => _isLoading = false);
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
+    try {
+      final res = requireSuccess(await _marketplaceService.getVerificationStatus());
+      final decoded = jsonDecode(res.body);
+      final data = decoded['data'] ?? {};
+      if (!mounted) return;
+      setState(() {
+        _orgData = data['organization'];
+        _checklistData = data['checklist'];
+        _updateFormFieldsForRole(_selectedRole);
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loadError = e;
+        _isLoading = false;
+      });
     }
   }
 
@@ -126,7 +133,17 @@ class _OrganizationVerificationScreenState extends State<OrganizationVerificatio
       if (_expiryController.text.trim().isNotEmpty) 'license_expires_at': _expiryController.text.trim(),
     };
 
-    final res = await _marketplaceService.submitVerificationDetails(payload);
+    final http.Response res;
+    try {
+      res = await _marketplaceService.submitVerificationDetails(payload);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        showFiraActionError(context, e);
+      }
+      return;
+    }
+    if (!mounted) return;
     setState(() => _isSubmitting = false);
 
     if (mounted) {
@@ -139,12 +156,7 @@ class _OrganizationVerificationScreenState extends State<OrganizationVerificatio
         );
         _loadVerificationStatus();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Submission failed. Please check your inputs.'),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
+        showFiraActionError(context, ApiException.fromResponse(res));
       }
     }
   }
@@ -207,17 +219,9 @@ class _OrganizationVerificationScreenState extends State<OrganizationVerificatio
                 subtitle: const Text('Select scanned certificate or official document', style: TextStyle(fontSize: 12)),
                 onTap: () async {
                   Navigator.pop(ctx);
-                  final result = await FilePicker.platform.pickFiles(
-                    type: FileType.custom,
-                    allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-                    withData: true,
-                  );
-                  if (result != null && result.files.isNotEmpty) {
-                    final file = result.files.first;
-                    final bytes = file.bytes ?? (file.path != null ? await File(file.path!).readAsBytes() : null);
-                    if (bytes != null) {
-                      _performDocumentUpload(docType, docLabel, bytes, file.name);
-                    }
+                  final file = await UploadFile.pickDocument();
+                  if (file != null) {
+                    _performDocumentUpload(docType, docLabel, file.bytes, file.name);
                   }
                 },
               ),
@@ -234,6 +238,14 @@ class _OrganizationVerificationScreenState extends State<OrganizationVerificatio
     List<int> fileBytes,
     String fileName,
   ) async {
+    final localRejection = UploadFile(name: fileName, bytes: Uint8List.fromList(fileBytes)).localRejection;
+    if (localRejection != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(FiraErrorText.fileRejection(context, localRejection))),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
       final res = await _marketplaceService.uploadVerificationDocument(
@@ -252,24 +264,11 @@ class _OrganizationVerificationScreenState extends State<OrganizationVerificatio
           );
           _loadVerificationStatus();
         } else {
-          final decoded = jsonDecode(res.body);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(decoded['message'] ?? 'Upload failed. Please try again.'),
-              backgroundColor: Colors.redAccent,
-            ),
-          );
+          showFiraActionError(context, ApiException.fromResponse(res));
         }
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Upload error: $e'),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
-      }
+      if (mounted) showFiraActionError(context, e);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -313,6 +312,8 @@ class _OrganizationVerificationScreenState extends State<OrganizationVerificatio
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: brandPurple))
+          : _loadError != null
+          ? FiraErrorState(error: _loadError, onRetry: _loadVerificationStatus)
           : RefreshIndicator(
               onRefresh: _loadVerificationStatus,
               color: brandPurple,

@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../services/api_exception.dart';
 import '../../services/marketplace_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/fira_error_state.dart';
 
 class MarketplacePricingScreen extends StatefulWidget {
   const MarketplacePricingScreen({super.key});
@@ -18,6 +20,7 @@ class _MarketplacePricingScreenState extends State<MarketplacePricingScreen> {
   String _currency = 'ETB'; // 'ETB' or 'USD'
   String _billingCycle = 'monthly'; // 'monthly' or 'annual'
   bool _isLoading = true;
+  Object? _loadError;
   bool _isSubscribing = false;
 
   @override
@@ -27,31 +30,38 @@ class _MarketplacePricingScreenState extends State<MarketplacePricingScreen> {
   }
 
   Future<void> _fetchData() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
     try {
-      final resPlans = await _marketplaceService.getSubscriptionPlans();
+      final resPlans = requireSuccess(await _marketplaceService.getSubscriptionPlans());
       final resEnt = await _marketplaceService.getOrganizationEntitlements();
 
-      if (resPlans.statusCode == 200 && mounted) {
-        final data = jsonDecode(resPlans.body);
-        final raw = data['data'];
-        if (raw is List) {
-          _plans = raw;
-        } else if (raw is Map && raw['data'] is List) {
-          _plans = raw['data'];
-        } else {
-          _plans = [];
-        }
-      }
+      final raw = jsonDecode(resPlans.body)['data'];
+      final plans = raw is List ? raw : (raw is Map && raw['data'] is List ? raw['data'] as List : <dynamic>[]);
 
-      if (resEnt.statusCode == 200 && mounted) {
+      // 401/404: signed out or no business workspace yet. Plans still show.
+      Map<String, dynamic>? org;
+      if (resEnt.statusCode == 200) {
         final data = jsonDecode(resEnt.body);
-        _orgData = data['data'] is Map<String, dynamic> ? data['data'] : null;
+        org = data['data'] is Map<String, dynamic> ? data['data'] : null;
+      } else if (resEnt.statusCode != 401 && resEnt.statusCode != 404) {
+        throw ApiException.fromResponse(resEnt);
       }
 
-      if (mounted) setState(() => _isLoading = false);
-    } catch (_) {
-      if (mounted) setState(() => _isLoading = false);
+      if (!mounted) return;
+      setState(() {
+        _plans = plans;
+        _orgData = org;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loadError = e;
+        _isLoading = false;
+      });
     }
   }
 
@@ -157,12 +167,10 @@ class _MarketplacePricingScreenState extends State<MarketplacePricingScreen> {
           );
         }
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() => _isSubscribing = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Network error. Please try again.'), backgroundColor: Colors.red),
-        );
+        showFiraActionError(context, e);
       }
     }
   }
@@ -177,6 +185,8 @@ class _MarketplacePricingScreenState extends State<MarketplacePricingScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+          : _loadError != null
+          ? FiraErrorState(error: _loadError, onRetry: _fetchData)
           : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
               child: Column(

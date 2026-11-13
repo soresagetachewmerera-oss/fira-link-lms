@@ -1,8 +1,9 @@
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/deal_room_model.dart';
 import '../../services/deal_room_service.dart';
+import '../../services/upload_file.dart';
+import '../../widgets/fira_error_state.dart';
 
 class ShippingLogisticsScreen extends StatefulWidget {
   final DealRoomModel dealRoom;
@@ -23,7 +24,7 @@ class _ShippingLogisticsScreenState extends State<ShippingLogisticsScreen> {
   final DealRoomService _service = DealRoomService();
   final _carrierController = TextEditingController(text: 'Ethiopian Shipping and Logistics (ESLSE)');
   final _blNumberController = TextEditingController();
-  File? _blFile;
+  UploadFile? _blFile;
   bool _isUpdating = false;
 
   @override
@@ -34,17 +35,19 @@ class _ShippingLogisticsScreenState extends State<ShippingLogisticsScreen> {
   }
 
   Future<void> _pickBlFile() async {
-    final res = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-    );
-    if (res != null && res.files.single.path != null) {
-      setState(() {
-        _blFile = File(res.files.single.path!);
-      });
+    final file = await UploadFile.pickDocument();
+    if (file == null || !mounted) return;
+    final rejection = file.localRejection;
+    if (rejection != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(FiraErrorText.fileRejection(context, rejection))),
+      );
+      return;
     }
+    setState(() => _blFile = file);
   }
 
+  /// Submits the Bill of Lading. Fira Link confirms the step after review.
   Future<void> _submitMilestone() async {
     setState(() => _isUpdating = true);
     final combinedNotes = 'Carrier: ${_carrierController.text.trim()} | B/L No: ${_blNumberController.text.trim()}';
@@ -52,7 +55,6 @@ class _ShippingLogisticsScreenState extends State<ShippingLogisticsScreen> {
     final res = await _service.advanceMilestone(
       dealRoomId: widget.dealRoom.id,
       milestoneId: widget.milestone.id,
-      status: 'achieved',
       notes: combinedNotes,
       document: _blFile,
     );
@@ -62,13 +64,11 @@ class _ShippingLogisticsScreenState extends State<ShippingLogisticsScreen> {
 
     if (res['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bill of Lading released & verified!'), backgroundColor: Colors.green),
+        SnackBar(content: Text(AppLocalizations.of(context).proofSubmittedPendingReview)),
       );
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(res['message'] ?? 'Failed to update logistics')),
-      );
+      showFiraActionError(context, res['error'] ?? Exception());
     }
   }
 
@@ -151,7 +151,7 @@ class _ShippingLogisticsScreenState extends State<ShippingLogisticsScreen> {
                 icon: const Icon(Icons.directions_boat_outlined),
                 label: Text(
                   _blFile != null
-                      ? _blFile!.path.split(Platform.pathSeparator).last
+                      ? _blFile!.name
                       : 'Attach Bill of Lading PDF',
                   overflow: TextOverflow.ellipsis,
                 ),

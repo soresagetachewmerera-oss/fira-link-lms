@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../services/marketplace_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/fira_error_state.dart';
 import 'widgets/quota_limit_sheet.dart';
 import 'widgets/verification_prompt_dialog.dart';
 
@@ -121,8 +122,11 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
           );
         }
       }
-    } catch (_) {
-      if (mounted) setState(() => _isSubmitting = false);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        showFiraActionError(context, e);
+      }
     }
   }
 

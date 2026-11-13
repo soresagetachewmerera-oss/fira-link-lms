@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../l10n/app_localizations.dart';
 
 class LotPhotoCaptureScreen extends StatefulWidget {
   final ValueChanged<List<File>>? onPhotosCaptured;
@@ -15,20 +16,13 @@ class _LotPhotoCaptureScreenState extends State<LotPhotoCaptureScreen> {
   final ImagePicker _picker = ImagePicker();
   final List<File> _capturedPhotos = [];
 
+  /// Lot evidence must be taken inside the app, so only the camera is offered.
+  /// Gallery photos are not accepted (they may be old, edited or from another lot).
   Future<void> _takePhoto() async {
     final XFile? photo = await _picker.pickImage(source: ImageSource.camera, imageQuality: 85);
     if (photo != null) {
       setState(() {
         _capturedPhotos.add(File(photo.path));
-      });
-    }
-  }
-
-  Future<void> _pickFromGallery() async {
-    final List<XFile> photos = await _picker.pickMultiImage(imageQuality: 85);
-    if (photos.isNotEmpty) {
-      setState(() {
-        _capturedPhotos.addAll(photos.map((p) => File(p.path)));
       });
     }
   }
@@ -142,36 +136,24 @@ class _LotPhotoCaptureScreenState extends State<LotPhotoCaptureScreen> {
                       ),
               ),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: primaryColor,
-                        side: const BorderSide(color: primaryColor),
-                        minimumSize: const Size.fromHeight(50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
-                      icon: const Icon(Icons.photo_library_outlined),
-                      label: const Text('Gallery'),
-                      onPressed: _pickFromGallery,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size.fromHeight(50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
-                      icon: const Icon(Icons.camera_alt),
-                      label: const Text('Camera'),
-                      onPressed: _takePhoto,
-                    ),
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Text(
+                  AppLocalizations.of(context).cameraOnlyEvidence,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                ),
+              ),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size.fromHeight(50),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                icon: const Icon(Icons.camera_alt),
+                label: const Text('Camera'),
+                onPressed: _takePhoto,
               ),
             ],
           ),

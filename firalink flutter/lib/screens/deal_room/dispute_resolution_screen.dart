@@ -1,8 +1,8 @@
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../../models/deal_room_model.dart';
 import '../../services/deal_room_service.dart';
+import '../../services/upload_file.dart';
+import '../../widgets/fira_error_state.dart';
 
 class DisputeResolutionScreen extends StatefulWidget {
   final DealRoomModel dealRoom;
@@ -18,7 +18,7 @@ class _DisputeResolutionScreenState extends State<DisputeResolutionScreen> {
   final DealRoomService _service = DealRoomService();
   final _reasonController = TextEditingController();
   final _detailsController = TextEditingController();
-  File? _evidenceFile;
+  UploadFile? _evidenceFile;
   bool _isSubmitting = false;
 
   @override
@@ -29,15 +29,16 @@ class _DisputeResolutionScreenState extends State<DisputeResolutionScreen> {
   }
 
   Future<void> _pickEvidence() async {
-    final res = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-    );
-    if (res != null && res.files.single.path != null) {
-      setState(() {
-        _evidenceFile = File(res.files.single.path!);
-      });
+    final file = await UploadFile.pickDocument();
+    if (file == null || !mounted) return;
+    final rejection = file.localRejection;
+    if (rejection != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(FiraErrorText.fileRejection(context, rejection))),
+      );
+      return;
     }
+    setState(() => _evidenceFile = file);
   }
 
   Future<void> _submitDispute() async {
@@ -71,9 +72,7 @@ class _DisputeResolutionScreenState extends State<DisputeResolutionScreen> {
       );
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(res['message'] ?? 'Failed to register dispute')),
-      );
+      showFiraActionError(context, res['error'] ?? Exception());
     }
   }
 
@@ -164,7 +163,7 @@ class _DisputeResolutionScreenState extends State<DisputeResolutionScreen> {
                 icon: const Icon(Icons.attach_file),
                 label: Text(
                   _evidenceFile != null
-                      ? _evidenceFile!.path.split(Platform.pathSeparator).last
+                      ? _evidenceFile!.name
                       : 'Attach Lab Test or Survey Proof',
                   overflow: TextOverflow.ellipsis,
                 ),

@@ -1,49 +1,83 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/deal_room_model.dart';
+import 'api_exception.dart';
 import 'base_service.dart';
+import 'upload_file.dart';
 
+/// Deal room API client.
+///
+/// Action methods return `{'success': bool, 'message': String?, 'error': ApiException?}`.
+/// On failure, `error` is set so screens can show a localized message. Nothing is
+/// ever reported as successful unless the server said so.
+///
+/// Uploads use [UploadFile] (bytes in memory), so they work on Android, iOS and web.
 class DealRoomService extends BaseService {
   static const Duration _timeout = Duration(milliseconds: 15000);
+  static const Duration _uploadTimeout = Duration(seconds: 60);
 
-  /// List user's deal rooms
+  Map<String, dynamic> _result(http.Response res, {int okStatus = 200}) {
+    Map<String, dynamic>? decoded;
+    try {
+      final body = jsonDecode(res.body);
+      if (body is Map<String, dynamic>) decoded = body;
+    } catch (_) {}
+
+    final ok = res.statusCode == okStatus && decoded?['success'] == true;
+    return {
+      'success': ok,
+      'message': decoded?['message'],
+      'data': decoded?['data'],
+      if (!ok) 'error': ApiException.fromResponse(res),
+    };
+  }
+
+  Map<String, dynamic> _failure(Object error) => {
+        'success': false,
+        'message': null,
+        'error': error is ApiException ? error : const ApiException.network(),
+      };
+
+  Future<http.Response> _multipart(
+    Uri url,
+    Map<String, String> fields,
+    String fileField,
+    UploadFile file,
+  ) async {
+    final headers = await getHeaders();
+    headers.remove('Content-Type'); // multipart sets its own boundary
+    final request = http.MultipartRequest('POST', url)
+      ..headers.addAll(headers)
+      ..fields.addAll(fields)
+      ..files.add(file.toMultipart(fileField));
+    final streamed = await request.send().timeout(_uploadTimeout);
+    return http.Response.fromStream(streamed);
+  }
+
+  /// List user's deal rooms. Throws [ApiException] on failure.
   Future<List<DealRoomModel>> getDealRooms() async {
-    try {
+    final res = requireSuccess(await guardedRequest(() async {
       final headers = await getHeaders();
-      final url = Uri.parse('${BaseService.baseUrl}/deal-rooms');
-      final res = await http.get(url, headers: headers).timeout(_timeout);
-
-      if (res.statusCode == 200) {
-        final decoded = jsonDecode(res.body);
-        final list = (decoded['data'] as List? ?? [])
-            .map((item) => DealRoomModel.fromJson(item as Map<String, dynamic>))
-            .toList();
-        return list;
-      }
-    } catch (_) {}
-    return [];
+      return http.get(Uri.parse('${BaseService.baseUrl}/deal-rooms'), headers: headers).timeout(_timeout);
+    }));
+    final decoded = jsonDecode(res.body);
+    return (decoded['data'] as List? ?? [])
+        .map((item) => DealRoomModel.fromJson(item as Map<String, dynamic>))
+        .toList();
   }
 
-  /// Get single deal room details
-  Future<DealRoomModel?> getDealRoom(int id) async {
-    try {
+  /// Get single deal room details. Throws [ApiException] on failure.
+  Future<DealRoomModel> getDealRoom(int id) async {
+    final res = requireSuccess(await guardedRequest(() async {
       final headers = await getHeaders();
-      final url = Uri.parse('${BaseService.baseUrl}/deal-rooms/$id');
-      final res = await http.get(url, headers: headers).timeout(_timeout);
-
-      if (res.statusCode == 200) {
-        final decoded = jsonDecode(res.body);
-        if (decoded['data'] != null) {
-          return DealRoomModel.fromJson(decoded['data']);
-        }
-      }
-    } catch (_) {}
-    return null;
+      return http.get(Uri.parse('${BaseService.baseUrl}/deal-rooms/$id'), headers: headers).timeout(_timeout);
+    }));
+    final decoded = jsonDecode(res.body);
+    return DealRoomModel.fromJson(decoded['data'] as Map<String, dynamic>);
   }
 
-  /// Open new deal room
+  /// Open new deal room (buyer only; the server takes buyer and seller from the quote or lot).
   Future<Map<String, dynamic>> openDealRoom({
     int? listingId,
     int? quotationId,
@@ -52,168 +86,104 @@ class DealRoomService extends BaseService {
     String incoterm = 'FOB Djibouti',
   }) async {
     try {
-      final headers = await getHeaders();
-      final url = Uri.parse('${BaseService.baseUrl}/deal-rooms');
-      final res = await http
-          .post(
-            url,
-            headers: headers,
-            body: jsonEncode({
-              'listing_id': listingId,
-              'quotation_id': quotationId,
-              'title': title,
-              'target_value_usd': targetValueUsd,
-              'incoterm': incoterm,
-            }),
-          )
-          .timeout(_timeout);
-
-      final decoded = jsonDecode(res.body);
-      if (res.statusCode == 201 && decoded['success'] == true) {
-        return {
-          'success': true,
-          'message': decoded['message'],
-          'deal_room': DealRoomModel.fromJson(decoded['data']),
-        };
+      final res = await guardedRequest(() async {
+        final headers = await getHeaders();
+        return http
+            .post(
+              Uri.parse('${BaseService.baseUrl}/deal-rooms'),
+              headers: headers,
+              body: jsonEncode({
+                'listing_id': listingId,
+                'quotation_id': quotationId,
+                'title': title,
+                'target_value_usd': targetValueUsd,
+                'incoterm': incoterm,
+              }),
+            )
+            .timeout(_timeout);
+      });
+      final result = _result(res, okStatus: 201);
+      if (result['success'] == true) {
+        result['deal_room'] = DealRoomModel.fromJson(result['data'] as Map<String, dynamic>);
       }
-      return {
-        'success': false,
-        'message': decoded['message'] ?? 'Failed to open deal room',
-      };
+      return result;
     } catch (e) {
-      return {'success': false, 'message': e.toString()};
+      return _failure(e);
     }
   }
 
-  /// Sign bilateral export contract
+  /// Sign bilateral export contract, optionally attaching the contract PDF.
   Future<Map<String, dynamic>> signContract({
     required int dealRoomId,
     required String signature,
-    File? contractDocument,
+    UploadFile? contractDocument,
   }) async {
     try {
-      final headers = await getHeaders();
       final url = Uri.parse('${BaseService.baseUrl}/deal-rooms/$dealRoomId/sign-contract');
-
-      if (contractDocument != null) {
-        final request = http.MultipartRequest('POST', url);
-        request.headers.addAll(headers);
-        request.fields['signature'] = signature;
-        request.files.add(await http.MultipartFile.fromPath('contract_document', contractDocument.path));
-        final streamed = await request.send();
-        final res = await http.Response.fromStream(streamed);
-        final decoded = jsonDecode(res.body);
-        return {
-          'success': res.statusCode == 200 && decoded['success'] == true,
-          'message': decoded['message'] ?? 'Contract signed',
-        };
-      } else {
-        final res = await http
-            .post(
-              url,
-              headers: headers,
-              body: jsonEncode({'signature': signature}),
-            )
-            .timeout(_timeout);
-        final decoded = jsonDecode(res.body);
-        return {
-          'success': res.statusCode == 200 && decoded['success'] == true,
-          'message': decoded['message'] ?? 'Contract signed',
-        };
-      }
+      final res = await guardedRequest(() async {
+        if (contractDocument != null) {
+          return _multipart(url, {'signature': signature}, 'contract_document', contractDocument);
+        }
+        final headers = await getHeaders();
+        return http.post(url, headers: headers, body: jsonEncode({'signature': signature})).timeout(_timeout);
+      });
+      return _result(res);
     } catch (e) {
-      return {'success': false, 'message': e.toString()};
+      return _failure(e);
     }
   }
 
-  /// Advance milestone status & upload inspection/logistics proof
+  /// Upload proof for a milestone (bank slip, SWIFT copy, inspection report, B/L)
+  /// or mark it in progress. The client never marks a milestone done: proof moves it
+  /// to "proof_submitted", and Fira Link finance confirms it after the bank does.
   Future<Map<String, dynamic>> advanceMilestone({
     required int dealRoomId,
     required int milestoneId,
-    required String status,
     String? notes,
-    File? document,
+    UploadFile? document,
   }) async {
     try {
-      final headers = await getHeaders();
       final url = Uri.parse('${BaseService.baseUrl}/deal-rooms/$dealRoomId/milestones/$milestoneId/advance');
-
-      if (document != null) {
-        final request = http.MultipartRequest('POST', url);
-        request.headers.addAll(headers);
-        request.fields['status'] = status;
-        if (notes != null) request.fields['notes'] = notes;
-        request.files.add(await http.MultipartFile.fromPath('document', document.path));
-        final streamed = await request.send();
-        final res = await http.Response.fromStream(streamed);
-        final decoded = jsonDecode(res.body);
-        return {
-          'success': res.statusCode == 200 && decoded['success'] == true,
-          'message': decoded['message'] ?? 'Milestone updated',
-        };
-      } else {
-        final res = await http
-            .post(
-              url,
-              headers: headers,
-              body: jsonEncode({'status': status, 'notes': notes}),
-            )
+      final res = await guardedRequest(() async {
+        if (document != null) {
+          return _multipart(url, {if (notes != null && notes.isNotEmpty) 'notes': notes}, 'document', document);
+        }
+        final headers = await getHeaders();
+        return http
+            .post(url, headers: headers, body: jsonEncode({'status': 'in_progress', 'notes': notes}))
             .timeout(_timeout);
-        final decoded = jsonDecode(res.body);
-        return {
-          'success': res.statusCode == 200 && decoded['success'] == true,
-          'message': decoded['message'] ?? 'Milestone updated',
-        };
-      }
+      });
+      return _result(res);
     } catch (e) {
-      return {'success': false, 'message': e.toString()};
+      return _failure(e);
     }
   }
 
-  /// Raise dispute
+  /// Raise dispute, optionally with evidence.
   Future<Map<String, dynamic>> raiseDispute({
     required int dealRoomId,
     required String reason,
     required String details,
-    File? evidence,
+    UploadFile? evidence,
   }) async {
     try {
-      final headers = await getHeaders();
       final url = Uri.parse('${BaseService.baseUrl}/deal-rooms/$dealRoomId/dispute');
-
-      if (evidence != null) {
-        final request = http.MultipartRequest('POST', url);
-        request.headers.addAll(headers);
-        request.fields['reason'] = reason;
-        request.fields['details'] = details;
-        request.files.add(await http.MultipartFile.fromPath('evidence', evidence.path));
-        final streamed = await request.send();
-        final res = await http.Response.fromStream(streamed);
-        final decoded = jsonDecode(res.body);
-        return {
-          'success': res.statusCode == 200 && decoded['success'] == true,
-          'message': decoded['message'] ?? 'Dispute registered',
-        };
-      } else {
-        final res = await http
-            .post(
-              url,
-              headers: headers,
-              body: jsonEncode({'reason': reason, 'details': details}),
-            )
+      final res = await guardedRequest(() async {
+        if (evidence != null) {
+          return _multipart(url, {'reason': reason, 'details': details}, 'evidence', evidence);
+        }
+        final headers = await getHeaders();
+        return http
+            .post(url, headers: headers, body: jsonEncode({'reason': reason, 'details': details}))
             .timeout(_timeout);
-        final decoded = jsonDecode(res.body);
-        return {
-          'success': res.statusCode == 200 && decoded['success'] == true,
-          'message': decoded['message'] ?? 'Dispute registered',
-        };
-      }
+      });
+      return _result(res);
     } catch (e) {
-      return {'success': false, 'message': e.toString()};
+      return _failure(e);
     }
   }
 
-  /// Complete deal room
+  /// Complete deal room (server allows it only after final settlement is confirmed).
   Future<bool> completeDeal(int dealRoomId) async {
     try {
       final headers = await getHeaders();
@@ -225,4 +195,3 @@ class DealRoomService extends BaseService {
     }
   }
 }
-

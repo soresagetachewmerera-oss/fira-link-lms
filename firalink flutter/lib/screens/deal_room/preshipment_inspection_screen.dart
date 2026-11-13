@@ -1,8 +1,9 @@
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/deal_room_model.dart';
 import '../../services/deal_room_service.dart';
+import '../../services/upload_file.dart';
+import '../../widgets/fira_error_state.dart';
 
 class PreshipmentInspectionScreen extends StatefulWidget {
   final DealRoomModel dealRoom;
@@ -24,7 +25,7 @@ class _PreshipmentInspectionScreenState
   final DealRoomService _service = DealRoomService();
   final _surveyorController = TextEditingController(text: 'ECTA Coffee Quality Inspection Center');
   final _notesController = TextEditingController();
-  File? _inspectionFile;
+  UploadFile? _inspectionFile;
   bool _isUpdating = false;
 
   @override
@@ -35,17 +36,19 @@ class _PreshipmentInspectionScreenState
   }
 
   Future<void> _pickInspection() async {
-    final res = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-    );
-    if (res != null && res.files.single.path != null) {
-      setState(() {
-        _inspectionFile = File(res.files.single.path!);
-      });
+    final file = await UploadFile.pickDocument();
+    if (file == null || !mounted) return;
+    final rejection = file.localRejection;
+    if (rejection != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(FiraErrorText.fileRejection(context, rejection))),
+      );
+      return;
     }
+    setState(() => _inspectionFile = file);
   }
 
+  /// Submits the inspection report. Fira Link confirms the step after review.
   Future<void> _submitMilestone() async {
     setState(() => _isUpdating = true);
     final combinedNotes = 'Surveyor: ${_surveyorController.text.trim()} | Notes: ${_notesController.text.trim()}';
@@ -53,7 +56,6 @@ class _PreshipmentInspectionScreenState
     final res = await _service.advanceMilestone(
       dealRoomId: widget.dealRoom.id,
       milestoneId: widget.milestone.id,
-      status: 'achieved',
       notes: combinedNotes,
       document: _inspectionFile,
     );
@@ -63,13 +65,11 @@ class _PreshipmentInspectionScreenState
 
     if (res['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pre-shipment inspection recorded!'), backgroundColor: Colors.green),
+        SnackBar(content: Text(AppLocalizations.of(context).proofSubmittedPendingReview)),
       );
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(res['message'] ?? 'Failed to update inspection')),
-      );
+      showFiraActionError(context, res['error'] ?? Exception());
     }
   }
 
@@ -141,7 +141,7 @@ class _PreshipmentInspectionScreenState
                 icon: const Icon(Icons.verified_outlined),
                 label: Text(
                   _inspectionFile != null
-                      ? _inspectionFile!.path.split(Platform.pathSeparator).last
+                      ? _inspectionFile!.name
                       : 'Attach ECTA / SGS Certificate (PDF)',
                   overflow: TextOverflow.ellipsis,
                 ),

@@ -647,6 +647,27 @@ const Map<String, String> kLangAm = {
   'yourAffiliateLink': "የእርስዎ የአጋርነት ማስፈንጠሪያ",
   'yourPoints': "የእርስዎ ነጥቦች",
   'yourStreaks': "የእርስዎ ተከታታይ ቀናት",
+
+  // Request errors and uploads (slice 0)
+  'actionFailed': "ድርጊቱ አልተሳካም። እንደገና ይሞክሩ።",
+  'cameraOnlyEvidence': "ፎቶዎችን በመተግበሪያው ውስጥ ያንሱ። ከጋለሪ የተወሰዱ ፎቶዎች እንደ ሎት ማስረጃ ተቀባይነት የላቸውም።",
+  'connectionProblemBody': "የኢንተርኔት ግንኙነትዎን ያረጋግጡና እንደገና ይሞክሩ።",
+  'connectionProblemTitle': "ፊራ ሊንክን ማግኘት አልተቻለም",
+  'fileRejectedEmpty': "ፋይሉ ባዶ ነው።",
+  'fileRejectedPlaceholder': "ፋይሉ እውነተኛ ሰነድ ወይም ፎቶ አልያዘም።",
+  'fileRejectedTooLarge': "ፋይሉ ከ10 ሜባ በላይ ነው።",
+  'fileRejectedTooSmall': "ፋይሉ እውነተኛ ሰነድ ወይም ፎቶ ለመሆን በጣም ትንሽ ነው።",
+  'fileRejectedType': "የሚቀበሉት PDF፣ JPG ወይም PNG ፋይሎች ብቻ ናቸው።",
+  'fileRejectedUnreadable': "ፋይሉን ማንበብ አልተቻለም። ሌላ ፋይል ይምረጡ።",
+  'loadFailedBody': "ይህን ገጽ መጫን አልቻልንም። እንደገና ይሞክሩ።",
+  'loadFailedTitle': "ችግር ተፈጥሯል",
+  'milestoneConfirmationRequired': "አንድ ደረጃ የሚጠናቀቀው ፊራ ሊንክ ከባንኩ ጋር ካረጋገጠ በኋላ ብቻ ነው።",
+  'notAllowed': "ይህን ለማድረግ ፈቃድ የለዎትም።",
+  'proofSubmittedPendingBank': "ማረጋገጫው ተልኳል። ይህ ደረጃ የሚጠናቀቀው ባንኩ ሲያረጋግጥ ነው።",
+  'sessionExpired': "ክፍለ ጊዜዎ አብቅቷል። እንደገና ይግቡ።",
+  'bagsCount': "{count} ጆንያዎች",
+  'noQuotesYet': "እስካሁን ምንም ዋጋ አልቀረበም። የተረጋገጡ ሻጮች ጥያቄዎን ሲመልሱ እዚህ ይታያሉ።",
+  'proofSubmittedPendingReview': "ሰነዱ ተልኳል። ይህ ደረጃ የሚጠናቀቀው ፊራ ሊንክ ሲያረጋግጥ ነው።",
 };
 
 const Map<String, String> langAm = kLangAm;

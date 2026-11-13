@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/deal_room_model.dart';
 import '../../services/deal_room_service.dart';
+import '../../widgets/fira_error_state.dart';
 import 'dispute_resolution_screen.dart';
 import 'export_contract_esign_screen.dart';
 import 'payment_milestones_screen.dart';
@@ -20,6 +21,7 @@ class _DealRoomHubScreenState extends State<DealRoomHubScreen> {
   final DealRoomService _service = DealRoomService();
   DealRoomModel? _dealRoom;
   bool _isLoading = true;
+  Object? _loadError;
 
   @override
   void initState() {
@@ -28,11 +30,21 @@ class _DealRoomHubScreenState extends State<DealRoomHubScreen> {
   }
 
   Future<void> _loadDealRoom() async {
-    setState(() => _isLoading = true);
-    final dr = await _service.getDealRoom(widget.dealRoomId);
-    if (mounted) {
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
+    try {
+      final dr = await _service.getDealRoom(widget.dealRoomId);
+      if (!mounted) return;
       setState(() {
         _dealRoom = dr;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loadError = e;
         _isLoading = false;
       });
     }
@@ -116,8 +128,8 @@ class _DealRoomHubScreenState extends State<DealRoomHubScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: primaryColor))
-          : _dealRoom == null
-              ? const Center(child: Text('Deal Room not found'))
+          : _loadError != null || _dealRoom == null
+              ? FiraErrorState(error: _loadError, onRetry: _loadDealRoom)
               : RefreshIndicator(
                   onRefresh: _loadDealRoom,
                   child: SingleChildScrollView(

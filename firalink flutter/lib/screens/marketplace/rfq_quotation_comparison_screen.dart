@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
+import '../../services/api_exception.dart';
 import '../../services/deal_room_service.dart';
 import '../../services/marketplace_service.dart';
+import '../../widgets/fira_error_state.dart';
 import '../deal_room/deal_room_hub_screen.dart';
 
 class RfqQuotationComparisonScreen extends StatefulWidget {
@@ -26,6 +29,7 @@ class _RfqQuotationComparisonScreenState
 
   List<dynamic> _quotes = [];
   bool _isLoading = true;
+  Object? _loadError;
 
   @override
   void initState() {
@@ -34,19 +38,42 @@ class _RfqQuotationComparisonScreenState
   }
 
   Future<void> _fetchQuotes() async {
-    setState(() => _isLoading = true);
-    final res = await _marketplaceService.getRfqQuotes(widget.rfqId);
-    if (mounted) {
-      if (res.statusCode == 200) {
-        try {
-          final decoded = jsonDecode(res.body);
-          if (decoded['data'] is List) {
-            _quotes = decoded['data'];
-          }
-        } catch (_) {}
-      }
-      setState(() => _isLoading = false);
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
+    try {
+      final res = requireSuccess(await _marketplaceService.getRfqQuotes(widget.rfqId));
+      final decoded = jsonDecode(res.body);
+      final data = decoded['data'];
+      final quotes = data is Map ? data['quotes'] : data;
+      if (!mounted) return;
+      setState(() {
+        _quotes = quotes is List ? quotes : [];
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _quotes = [];
+        _loadError = e;
+        _isLoading = false;
+      });
     }
+  }
+
+  String _sellerName(dynamic quote) {
+    final seller = quote['seller'];
+    final profile = seller is Map ? seller['seller_profile'] : null;
+    return (profile is Map ? profile['company_name'] : null)?.toString() ??
+        (seller is Map ? seller['name'] : null)?.toString() ??
+        '';
+  }
+
+  bool _sellerVerified(dynamic quote) {
+    final seller = quote['seller'];
+    final profile = seller is Map ? seller['seller_profile'] : null;
+    return profile is Map && profile['verification_status'] == 'verified';
   }
 
   Future<void> _acceptAndOpenDealRoom(dynamic quote) async {
@@ -99,6 +126,8 @@ class _RfqQuotationComparisonScreenState
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: primaryColor))
+          : _loadError != null
+          ? FiraErrorState(error: _loadError, onRetry: _fetchQuotes)
           : Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -116,13 +145,22 @@ class _RfqQuotationComparisonScreenState
                   const SizedBox(height: 18),
 
                   Expanded(
-                    child: ListView.separated(
-                      itemCount: _quotes.isNotEmpty ? _quotes.length : 2,
+                    child: _quotes.isEmpty
+                        ? Center(
+                            child: Text(
+                              AppLocalizations.of(context).noQuotesYet,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 13, color: Colors.black54),
+                            ),
+                          )
+                        : ListView.separated(
+                      itemCount: _quotes.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 14),
                       itemBuilder: (context, index) {
-                        final price = index == 0 ? 3.45 : 3.60;
-                        final seller = index == 0 ? 'Abyssinia Specialty Exporters' : 'Keffa Highlands Union';
-                        final isVerified = true;
+                        final quote = _quotes[index];
+                        final price = (num.tryParse('${quote['offered_price_usd_per_lb']}') ?? 0).toStringAsFixed(2);
+                        final seller = _sellerName(quote);
+                        final isVerified = _sellerVerified(quote);
 
                         return Container(
                           padding: const EdgeInsets.all(16),
@@ -162,11 +200,13 @@ class _RfqQuotationComparisonScreenState
                               const SizedBox(height: 12),
                               Row(
                                 children: [
-                                  _buildTag('FOB Djibouti'),
+                                  _buildTag('${quote['incoterm'] ?? ''}'),
                                   const SizedBox(width: 6),
-                                  _buildTag('GrainPro Bags'),
-                                  const SizedBox(width: 6),
-                                  _buildTag('SCA 87.5'),
+                                  _buildTag(AppLocalizations.of(context).translate('bagsCount', {'count': quote['quantity_bags'] ?? 0})),
+                                  if (quote['listing']?['cupping_score'] != null) ...[
+                                    const SizedBox(width: 6),
+                                    _buildTag('SCA ${quote['listing']['cupping_score']}'),
+                                  ],
                                 ],
                               ),
                               const SizedBox(height: 14),
@@ -191,11 +231,7 @@ class _RfqQuotationComparisonScreenState
                                         foregroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                       ),
-                                      onPressed: () => _acceptAndOpenDealRoom({
-                                        'id': index + 1,
-                                        'total_price_usd': price * 42328.7,
-                                        'incoterm': 'FOB Djibouti',
-                                      }),
+                                      onPressed: () => _acceptAndOpenDealRoom(quote),
                                       child: const Text('Accept & Deal Room'),
                                     ),
                                   ),

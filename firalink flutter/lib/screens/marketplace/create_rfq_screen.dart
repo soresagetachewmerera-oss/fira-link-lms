@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/marketplace_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/fira_error_state.dart';
 import 'widgets/verification_prompt_dialog.dart';
 
 class CreateRfqScreen extends StatefulWidget {
@@ -100,8 +101,11 @@ class _CreateRfqScreenState extends State<CreateRfqScreen> {
           );
         }
       }
-    } catch (_) {
-      if (mounted) setState(() => _isSubmitting = false);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        showFiraActionError(context, e);
+      }
     }
   }
 

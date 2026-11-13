@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/api_exception.dart';
 import '../../services/marketplace_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/fira_error_state.dart';
 import '../../router/app_router.dart';
 import 'widgets/verification_prompt_dialog.dart';
 class MarketplaceHomeScreen extends StatefulWidget {
@@ -19,6 +21,7 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
 
   List<dynamic> _listings = [];
   bool _isLoading = true;
+  Object? _loadError;
   String? _selectedOrigin;
   String? _selectedProcess;
 
@@ -47,34 +50,39 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
   }
 
   Future<void> _fetchListings() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
     try {
-      final res = await _marketplaceService.getListings(
+      final res = requireSuccess(await _marketplaceService.getListings(
         search: _searchController.text.trim(),
         origin: (_selectedOrigin == null || _selectedOrigin == 'All Origins') ? null : _selectedOrigin,
         processing: (_selectedProcess == null || _selectedProcess == 'All Processes') ? null : _selectedProcess?.toLowerCase(),
-      );
+      ));
 
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        if (mounted) {
-          setState(() {
-            final raw = data['data'];
-            if (raw is List) {
-              _listings = raw;
-            } else if (raw is Map && raw['data'] is List) {
-              _listings = raw['data'];
-            } else {
-              _listings = [];
-            }
-            _isLoading = false;
-          });
-        }
-      } else {
-        if (mounted) setState(() => _isLoading = false);
+      final data = jsonDecode(res.body);
+      if (mounted) {
+        setState(() {
+          final raw = data['data'];
+          if (raw is List) {
+            _listings = raw;
+          } else if (raw is Map && raw['data'] is List) {
+            _listings = raw['data'];
+          } else {
+            _listings = [];
+          }
+          _isLoading = false;
+        });
       }
     } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() {
+          _listings = [];
+          _loadError = e;
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -407,6 +415,11 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
             if (_isLoading)
               const SliverFillRemaining(
                 child: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+              )
+            else if (_loadError != null)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: FiraErrorState(error: _loadError, onRetry: _fetchListings),
               )
             else if (_listings.isEmpty)
               SliverFillRemaining(

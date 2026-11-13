@@ -692,6 +692,26 @@ class AppLocalizations {
   String get yourPoints => _t('yourPoints');
   String get yourStreaks => _t('yourStreaks');
 
+  // Request errors and uploads (slice 0)
+  String get actionFailed => _t('actionFailed');
+  String get cameraOnlyEvidence => _t('cameraOnlyEvidence');
+  String get connectionProblemBody => _t('connectionProblemBody');
+  String get connectionProblemTitle => _t('connectionProblemTitle');
+  String get fileRejectedEmpty => _t('fileRejectedEmpty');
+  String get fileRejectedPlaceholder => _t('fileRejectedPlaceholder');
+  String get fileRejectedTooLarge => _t('fileRejectedTooLarge');
+  String get fileRejectedTooSmall => _t('fileRejectedTooSmall');
+  String get fileRejectedType => _t('fileRejectedType');
+  String get fileRejectedUnreadable => _t('fileRejectedUnreadable');
+  String get loadFailedBody => _t('loadFailedBody');
+  String get loadFailedTitle => _t('loadFailedTitle');
+  String get milestoneConfirmationRequired => _t('milestoneConfirmationRequired');
+  String get notAllowed => _t('notAllowed');
+  String get proofSubmittedPendingBank => _t('proofSubmittedPendingBank');
+  String get sessionExpired => _t('sessionExpired');
+  String get noQuotesYet => _t('noQuotesYet');
+  String get proofSubmittedPendingReview => _t('proofSubmittedPendingReview');
+
 }
 
 class AppLocalizationsDelegate

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../../services/api_exception.dart';
 import '../../services/marketplace_service.dart';
+import '../../widgets/fira_error_state.dart';
 
 class ExporterQuoteBuilderScreen extends StatefulWidget {
   final int rfqId;
@@ -40,16 +43,24 @@ class _ExporterQuoteBuilderScreenState extends State<ExporterQuoteBuilderScreen>
     setState(() => _isSubmitting = true);
     final pricePerLb = double.tryParse(_priceController.text.trim()) ?? 0.0;
 
-    final res = await _service.submitQuote(
-      widget.rfqId,
-      {
-        'price_per_lb': pricePerLb,
-        'incoterm': _incoterm,
-        'packaging': _packaging,
-        'validity_days': _validityDays,
-        'notes': _notesController.text.trim(),
-      },
-    );
+    final http.Response res;
+    try {
+      res = await _service.submitQuote(
+        widget.rfqId,
+        {
+          'price_per_lb': pricePerLb,
+          'incoterm': _incoterm,
+          'packaging': _packaging,
+          'validity_days': _validityDays,
+          'notes': _notesController.text.trim(),
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+      showFiraActionError(context, e);
+      return;
+    }
 
     if (!mounted) return;
     setState(() => _isSubmitting = false);
@@ -63,12 +74,7 @@ class _ExporterQuoteBuilderScreenState extends State<ExporterQuoteBuilderScreen>
       );
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to submit quote. Please check inputs.'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+      showFiraActionError(context, ApiException.fromResponse(res));
     }
   }
 
