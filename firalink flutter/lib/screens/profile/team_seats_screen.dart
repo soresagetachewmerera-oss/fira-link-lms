@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
-import '../../models/organization_model.dart';
-import '../../services/organization_service.dart';
+import 'package:provider/provider.dart';
 
+import '../../l10n/app_localizations.dart';
+import '../../models/organization_model.dart';
+import '../../providers/workspace_provider.dart';
+import '../../theme/fira_colors.dart';
+import '../../widgets/fira_error_state.dart';
+import '../../widgets/workspace_status_pill.dart';
+
+/// Team and roles: read-only for members. Only the owner can remove a member (the server says
+/// which rows can be removed). Adding members stays hidden until seats exist.
 class TeamSeatsScreen extends StatefulWidget {
   final OrganizationModel organization;
 
@@ -12,235 +20,169 @@ class TeamSeatsScreen extends StatefulWidget {
 }
 
 class _TeamSeatsScreenState extends State<TeamSeatsScreen> {
-  final OrganizationService _service = OrganizationService();
-  List<OrganizationMemberModel> _members = [];
-  bool _isLoading = true;
+  late Future<TeamRoster> _future;
 
   @override
   void initState() {
     super.initState();
-    _loadMembers();
+    _future = _load();
   }
 
-  Future<void> _loadMembers() async {
-    setState(() => _isLoading = true);
-    final list = await _service.getMembers(widget.organization.id);
-    if (mounted) {
-      setState(() {
-        _members = list;
-        _isLoading = false;
-      });
-    }
-  }
+  Future<TeamRoster> _load() => context.read<WorkspaceProvider>().loadTeam(widget.organization.id);
 
-  void _showInviteDialog() {
-    final emailCtrl = TextEditingController();
-    String role = 'staff';
+  void _reload() => setState(() => _future = _load());
 
-    showDialog(
+  Future<void> _confirmRemove(OrganizationMemberModel member) async {
+    final l10n = context.l10n;
+    final fira = context.fira;
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Invite Team Member', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Enter colleague email address and assign seat role:'),
-              const SizedBox(height: 12),
-              TextField(
-                controller: emailCtrl,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  hintText: 'colleague@company.com',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-              const SizedBox(height: 14),
-              DropdownButtonFormField<String>(
-                value: role,
-                decoration: InputDecoration(
-                  labelText: 'Role',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                items: const [
-                  DropdownMenuItem(value: 'manager', child: Text('Manager (Trading & Lots)')),
-                  DropdownMenuItem(value: 'staff', child: Text('Staff (View & Operations)')),
-                ],
-                onChanged: (val) {
-                  if (val != null) setDialogState(() => role = val);
-                },
-              ),
-            ],
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        title: Text(l10n.teamRemoveTitle),
+        content: Text(l10n.translate('teamRemoveBody', {'name': member.name, 'business': widget.organization.name})),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.remove, style: TextStyle(color: fira.danger)),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6D1A95),
-                foregroundColor: Colors.white,
-              ),
-              onPressed: () async {
-                Navigator.pop(ctx);
-                final res = await _service.addMember(widget.organization.id, emailCtrl.text.trim(), role);
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(res['message'] ?? 'Invite sent'),
-                      backgroundColor: res['success'] == true ? Colors.green : Colors.redAccent,
-                    ),
-                  );
-                  _loadMembers();
-                }
-              },
-              child: const Text('Send Invite'),
-            ),
-          ],
-        ),
+        ],
       ),
     );
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await context.read<WorkspaceProvider>().removeMember(widget.organization.id, member.userId);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.teamRemoved)));
+      _reload();
+    } catch (e) {
+      if (mounted) showFiraActionError(context, e);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF6D1A95);
+    final fira = context.fira;
+    final l10n = context.l10n;
+    final divider = Theme.of(context).dividerColor;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: fira.surface,
       appBar: AppBar(
         title: Text(
-          '${widget.organization.name} Seats',
-          style: const TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold, fontSize: 16),
+          l10n.workspaceTeamAndRoles,
+          style: TextStyle(color: fira.onSurface, fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: fira.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+          icon: Icon(Icons.arrow_back, color: fira.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_add_outlined, color: primaryColor),
-            onPressed: _showInviteDialog,
-          ),
-        ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: primaryColor))
-          : _members.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.people_outline, size: 48, color: Colors.grey.shade400),
-                      const SizedBox(height: 12),
-                      const Text('No team members yet', style: TextStyle(color: Colors.grey)),
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.person_add),
-                        label: const Text('Invite First Member'),
-                        style: ElevatedButton.styleFrom(backgroundColor: primaryColor),
-                        onPressed: _showInviteDialog,
-                      ),
-                    ],
-                  ),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.all(20),
-                  itemCount: _members.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final member = _members[index];
-                    final isOwner = member.role == 'owner';
+      body: FutureBuilder<TeamRoster>(
+        future: _future,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return FiraErrorState(error: snapshot.error, onRetry: _reload);
+          }
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator(color: fira.brandPrimary));
+          }
+          final roster = snapshot.data!;
+          final others = roster.members.where((m) => m.role != 'owner').length;
 
-                    return Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade200),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: primaryColor.withValues(alpha: 0.1),
-                            child: Text(
-                              member.name.isNotEmpty ? member.name[0].toUpperCase() : 'U',
-                              style: const TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  member.name,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  member.email,
-                                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: isOwner
-                                  ? primaryColor.withValues(alpha: 0.1)
-                                  : Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              member.role.toUpperCase(),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: isOwner ? primaryColor : Colors.grey.shade700,
-                              ),
-                            ),
-                          ),
-                          if (!isOwner) ...[
-                            const SizedBox(width: 8),
-                            IconButton(
-                              icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-                              onPressed: () async {
-                                final confirmed = await showDialog<bool>(
-                                  context: context,
-                                  builder: (ctx) => AlertDialog(
-                                    title: const Text('Remove Member?'),
-                                    content: Text('Remove ${member.name} from this workspace?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(ctx, false),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(ctx, true),
-                                        child: const Text('Remove', style: TextStyle(color: Colors.red)),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                                if (confirmed == true) {
-                                  await _service.removeMember(widget.organization.id, member.userId);
-                                  _loadMembers();
-                                }
-                              },
-                            ),
-                          ],
-                        ],
-                      ),
-                    );
-                  },
+          return RefreshIndicator(
+            onRefresh: () async => _reload(),
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                Text(
+                  widget.organization.name,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: fira.onSurface),
                 ),
+                const SizedBox(height: 4),
+                if (!roster.viewerIsOwner)
+                  Text(l10n.teamReadOnlyNotice, style: TextStyle(fontSize: 12, color: fira.mutedText)),
+                const SizedBox(height: 16),
+                for (final member in roster.members) ...[
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: fira.card,
+                      border: Border.all(color: divider),
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: fira.brandTint,
+                          child: Text(
+                            member.name.isNotEmpty ? member.name[0].toUpperCase() : 'U',
+                            style: TextStyle(color: fira.brandPrimary, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                member.name,
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: fira.onSurface),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                member.email.isNotEmpty ? member.email : (member.phone ?? ''),
+                                style: TextStyle(fontSize: 12, color: fira.mutedText),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: member.role == 'owner' ? fira.brandTint : fira.chipUnselectedBg,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            WorkspaceLabels.memberRole(l10n, member.role),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: member.role == 'owner' ? fira.brandPrimary : fira.mutedText,
+                            ),
+                          ),
+                        ),
+                        if (member.canRemove) ...[
+                          const SizedBox(width: 4),
+                          IconButton(
+                            tooltip: l10n.remove,
+                            icon: Icon(Icons.person_remove_outlined, color: fira.danger, size: 20),
+                            onPressed: () => _confirmRemove(member),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                if (others == 0)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: Text(l10n.teamEmpty, style: TextStyle(color: fira.mutedText)),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
-

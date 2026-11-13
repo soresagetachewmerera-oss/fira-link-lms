@@ -4,6 +4,10 @@ import 'package:provider/provider.dart';
 
 import '../../../providers/auth_provider.dart';
 import '../../../providers/chat_provider.dart';
+import '../../../providers/workspace_provider.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../theme/fira_colors.dart';
+import '../../profile/workspace_switcher_sheet.dart';
 import '../../../router/app_router.dart';
 import '../../notifications/notifications_screen.dart';
 import '../../dashboard/dashboard_screen.dart';
@@ -125,6 +129,7 @@ class HomeHeader extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    if (isAuthenticated) const _WorkspaceChip(),
                   ],
                 ),
               ),
@@ -262,16 +267,64 @@ class HomeHeader extends StatelessWidget {
   }
 
   Widget _buildFallbackAvatar(String name, Color primaryColor) {
-    final initial = name.isNotEmpty ? name[0].toUpperCase() : 'F';
-    return Center(
-      child: Text(
-        initial,
-        style: TextStyle(
-          color: primaryColor,
-          fontSize: 18,
-          fontWeight: FontWeight.w800,
+    return _fallbackAvatar(name, primaryColor);
+  }
+}
+
+/// The active workspace (Personal or a business) under the greeting; tap opens the switcher.
+class _WorkspaceChip extends StatelessWidget {
+  const _WorkspaceChip();
+
+  @override
+  Widget build(BuildContext context) {
+    final fira = context.fira;
+    final org = context.watch<WorkspaceProvider>().currentOrganization;
+    final label = org?.name ?? context.l10n.workspacePersonal;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Semantics(
+        button: true,
+        label: context.l10n.workspaceSwitchTitle,
+        child: InkWell(
+          onTap: () => WorkspaceSwitcherSheet.show(context),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(color: fira.chipSelectedBg, borderRadius: BorderRadius.circular(12)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(org == null ? Icons.person_outline : Icons.business_outlined, size: 13, color: fira.brandPrimary),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: fira.brandPrimary),
+                  ),
+                ),
+                Icon(Icons.expand_more, size: 14, color: fira.brandPrimary),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
+}
+
+Widget _fallbackAvatar(String name, Color primaryColor) {
+  final initial = name.isNotEmpty ? name[0].toUpperCase() : 'F';
+  return Center(
+    child: Text(
+      initial,
+      style: TextStyle(
+        color: primaryColor,
+        fontSize: 18,
+        fontWeight: FontWeight.w800,
+      ),
+    ),
+  );
 }

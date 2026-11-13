@@ -12,6 +12,7 @@ import '../../router/app_router.dart';
 import '../home/widgets/home_design_constants.dart';
 import 'workspace_switcher_sheet.dart';
 import '../../providers/workspace_provider.dart';
+import '../../widgets/workspace_status_pill.dart';
 
 class _LanguageData {
   const _LanguageData({
@@ -399,7 +400,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      org?.name ?? 'Personal Workspace',
+                                      org?.name ?? context.l10n.workspacePersonal,
                                       style: TextStyle(
                                         color: AppTheme.getTextColor(context),
                                         fontWeight: FontWeight.bold,
@@ -409,8 +410,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     Text(
                                       org != null
-                                          ? '${org.businessType.toUpperCase()} • TAP TO SWITCH'
-                                          : 'TAP TO SWITCH OR ADD BUSINESS',
+                                          ? WorkspaceLabels.businessRole(context.l10n, org.businessType)
+                                          : context.l10n.workspaceTapToSwitch,
                                       style: TextStyle(
                                         color: AppTheme.getPrimaryColor(context),
                                         fontSize: 11,
@@ -420,6 +421,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ],
                                 ),
                               ),
+                              if (org != null) ...[
+                                WorkspaceStatusPill(status: org.status),
+                                const SizedBox(width: 6),
+                              ],
                               Icon(
                                 Icons.unfold_more,
                                 color: AppTheme.getPrimaryColor(context),

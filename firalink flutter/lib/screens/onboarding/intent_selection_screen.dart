@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../l10n/app_localizations.dart';
 import '../../providers/workspace_provider.dart';
+import '../../theme/fira_colors.dart';
+import '../../widgets/fira_error_state.dart';
 import 'business_workspace_setup_screen.dart';
 import 'intent_welcome_screen.dart';
 
+/// Intent (S-102): multi-select and skippable. Sell or buy leads to Business setup
+/// (the server answers needs_business_setup); everything else goes to the home flow.
 class IntentSelectionScreen extends StatefulWidget {
   const IntentSelectionScreen({super.key});
 
@@ -11,97 +17,100 @@ class IntentSelectionScreen extends StatefulWidget {
   State<IntentSelectionScreen> createState() => _IntentSelectionScreenState();
 }
 
-class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
-  String _selectedIntent = 'export';
-  bool _isSaving = false;
+class _IntentOption {
+  const _IntentOption(this.id, this.icon);
+  final String id;
+  final IconData icon;
+}
 
-  final List<Map<String, dynamic>> _intents = [
-    {
-      'id': 'export',
-      'title': 'Export or Sell Coffee',
-      'subtitle': 'Ethiopian licensed exporter, washing station, commercial farm, or cooperative.',
-      'icon': Icons.local_shipping_outlined,
-      'color': Color(0xFF6D1A95),
-      'requires_business': true,
-    },
-    {
-      'id': 'buy',
-      'title': 'Source & Import Coffee',
-      'subtitle': 'International green coffee buyer, specialty roaster, or import distributor.',
-      'icon': Icons.shopping_bag_outlined,
-      'color': Color(0xFF0D9488),
-      'requires_business': true,
-    },
-    {
-      'id': 'learn',
-      'title': 'Learn & Build Skills',
-      'subtitle': 'Access Fira Link Academy, cupping courses, export trade regulations & certifications.',
-      'icon': Icons.school_outlined,
-      'color': Color(0xFFD97706),
-      'requires_business': false,
-    },
-    {
-      'id': 'events',
-      'title': 'Origin Tours & Events',
-      'subtitle': 'Explore Ethiopian coffee regions, harvest tours, B2B cupping & trade summits.',
-      'icon': Icons.explore_outlined,
-      'color': Color(0xFF2563EB),
-      'requires_business': false,
-    },
+class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
+  static const _options = [
+    _IntentOption('export', Icons.local_shipping_outlined),
+    _IntentOption('buy', Icons.shopping_bag_outlined),
+    _IntentOption('learn', Icons.school_outlined),
+    _IntentOption('events', Icons.explore_outlined),
   ];
 
+  final Set<String> _selected = {};
+  bool _isSaving = false;
+
+  (String, String) _texts(AppLocalizations l10n, String id) {
+    switch (id) {
+      case 'export':
+        return (l10n.intentSellTitle, l10n.intentSellSubtitle);
+      case 'buy':
+        return (l10n.intentBuyTitle, l10n.intentBuySubtitle);
+      case 'learn':
+        return (l10n.intentLearnTitle, l10n.intentLearnSubtitle);
+      default:
+        return (l10n.intentEventsTitle, l10n.intentEventsSubtitle);
+    }
+  }
+
+  /// Keeps the order of the list so the first choice is stable.
+  List<String> get _orderedSelection => [for (final o in _options) if (_selected.contains(o.id)) o.id];
+
   Future<void> _handleContinue() async {
+    final intents = _orderedSelection;
     setState(() => _isSaving = true);
-    final wsProvider = Provider.of<WorkspaceProvider>(context, listen: false);
-    await wsProvider.saveIntent(_selectedIntent);
+    try {
+      final needsBusiness = await context.read<WorkspaceProvider>().saveIntents(intents);
+      if (!mounted) return;
+      _goNext(intents, needsBusiness);
+    } catch (e) {
+      if (mounted) showFiraActionError(context, e);
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
 
+  Future<void> _handleSkip() async {
+    // Skipping records an empty choice; the next screen does not depend on it succeeding.
+    try {
+      await context.read<WorkspaceProvider>().saveIntents(const []);
+    } catch (_) {}
     if (!mounted) return;
-    setState(() => _isSaving = false);
+    _goNext(const [], false);
+  }
 
-    final intentMeta = _intents.firstWhere((i) => i['id'] == _selectedIntent);
-    final requiresBusiness = intentMeta['requires_business'] == true;
-
-    if (requiresBusiness) {
+  void _goNext(List<String> intents, bool needsBusiness) {
+    if (needsBusiness) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => BusinessWorkspaceSetupScreen(intent: _selectedIntent),
+          builder: (_) => BusinessWorkspaceSetupScreen(intent: intents.contains('export') ? 'export' : 'buy'),
         ),
       );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => IntentWelcomeScreen(intent: _selectedIntent),
-        ),
-      );
+      return;
     }
+    final welcome = intents.contains('events') && !intents.contains('learn') ? 'events' : 'learn';
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => IntentWelcomeScreen(intent: welcome)),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF6D1A95);
+    final fira = context.fira;
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: fira.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: fira.surface,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: Icon(Icons.arrow_back, color: fira.onSurface),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const IntentWelcomeScreen(intent: 'learn'),
-                ),
-              );
-            },
-            child: const Text('Skip for now', style: TextStyle(color: Colors.grey)),
+            onPressed: _isSaving ? null : _handleSkip,
+            child: Text(l10n.intentSkip, style: TextStyle(color: fira.mutedText)),
           ),
         ],
       ),
@@ -111,123 +120,119 @@ class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'What is your primary goal?',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
+              Text(
+                l10n.intentStepLabel,
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: fira.brandPrimary),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                l10n.intentTitle,
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: fira.onSurface),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'We tailor your initial space accordingly. You can always add other roles or workspaces later.',
-                style: TextStyle(fontSize: 13, color: Colors.black54, height: 1.4),
+              Text(
+                l10n.intentSubtitle,
+                style: TextStyle(fontSize: 13, color: fira.mutedText, height: 1.4),
               ),
               const SizedBox(height: 24),
-
               Expanded(
                 child: ListView.separated(
-                  itemCount: _intents.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 14),
+                  itemCount: _options.length + 1,
+                  separatorBuilder: (_, _) => const SizedBox(height: 14),
                   itemBuilder: (context, index) {
-                    final item = _intents[index];
-                    final isSelected = _selectedIntent == item['id'];
-                    final itemColor = item['color'] as Color;
+                    if (index == _options.length) {
+                      return Text(
+                        l10n.intentHint,
+                        style: TextStyle(fontSize: 12, color: fira.mutedText, height: 1.4),
+                      );
+                    }
+                    final option = _options[index];
+                    final isSelected = _selected.contains(option.id);
+                    final (title, subtitle) = _texts(l10n, option.id);
 
-                    return InkWell(
-                      onTap: () => setState(() => _selectedIntent = item['id']),
-                      borderRadius: BorderRadius.circular(18),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: isSelected ? primaryColor : Colors.grey.shade200,
-                            width: isSelected ? 2 : 1,
+                    return Semantics(
+                      checked: isSelected,
+                      button: true,
+                      child: InkWell(
+                        onTap: () => setState(() {
+                          isSelected ? _selected.remove(option.id) : _selected.add(option.id);
+                        }),
+                        borderRadius: BorderRadius.circular(22),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.all(18),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(
+                              color: isSelected ? fira.brandPrimary : theme.dividerColor,
+                              width: isSelected ? 2 : 1,
+                            ),
+                            color: isSelected ? fira.brandTint : fira.card,
                           ),
-                          color: isSelected
-                              ? primaryColor.withValues(alpha: 0.04)
-                              : Colors.white,
-                          boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: primaryColor.withValues(alpha: 0.08),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  )
-                                ]
-                              : [],
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: itemColor.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(14),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: fira.brandPrimary.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(option.icon, color: fira.brandPrimary, size: 26),
                               ),
-                              child: Icon(item['icon'] as IconData, color: itemColor, size: 26),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item['title'],
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: isSelected ? primaryColor : const Color(0xFF1E293B),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      title,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: isSelected ? fira.brandPrimary : fira.onSurface,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    item['subtitle'],
-                                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600, height: 1.3),
-                                  ),
-                                ],
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      subtitle,
+                                      style: TextStyle(fontSize: 12, color: fira.mutedText, height: 1.3),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            Radio<String>(
-                              value: item['id'],
-                              groupValue: _selectedIntent,
-                              activeColor: primaryColor,
-                              onChanged: (val) {
-                                if (val != null) setState(() => _selectedIntent = val);
-                              },
-                            ),
-                          ],
+                              const SizedBox(width: 10),
+                              Checkbox(
+                                value: isSelected,
+                                activeColor: fira.brandPrimary,
+                                onChanged: (v) => setState(() {
+                                  v == true ? _selected.add(option.id) : _selected.remove(option.id);
+                                }),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
                   },
                 ),
               ),
-
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  foregroundColor: Colors.white,
+                  backgroundColor: fira.brandPrimary,
+                  foregroundColor: theme.colorScheme.onPrimary,
                   minimumSize: const Size.fromHeight(52),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
-                onPressed: _isSaving ? null : _handleContinue,
+                onPressed: (_isSaving || _selected.isEmpty) ? null : _handleContinue,
                 child: _isSaving
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 22,
                         height: 22,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        child: CircularProgressIndicator(color: theme.colorScheme.onPrimary, strokeWidth: 2),
                       )
-                    : const Text(
-                        'Continue',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
+                    : Text(l10n.intentContinue, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 12),
             ],
@@ -237,4 +242,3 @@ class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
     );
   }
 }
-

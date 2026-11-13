@@ -14,6 +14,7 @@ class ApiException implements Exception {
     this.reason,
     this.serverMessage,
     this.isNetwork = false,
+    this.invalidFields = const {},
   });
 
   /// The server could not be reached (offline, DNS, timeout, TLS).
@@ -23,12 +24,17 @@ class ApiException implements Exception {
     String? code;
     String? reason;
     String? message;
+    var fields = const <String>{};
     try {
       final decoded = jsonDecode(res.body);
       if (decoded is Map) {
         code = decoded['code']?.toString();
         reason = decoded['reason']?.toString();
         message = decoded['message']?.toString();
+        final errors = decoded['errors'];
+        if (errors is Map) {
+          fields = errors.keys.map((k) => k.toString()).toSet();
+        }
       }
     } catch (_) {
       // Non-JSON error body (proxy error page, etc.): status code is enough.
@@ -38,6 +44,7 @@ class ApiException implements Exception {
       code: code,
       reason: reason,
       serverMessage: message,
+      invalidFields: fields,
     );
   }
 
@@ -53,6 +60,9 @@ class ApiException implements Exception {
   final String? serverMessage;
 
   final bool isNetwork;
+
+  /// Field names the server rejected in a 422 validation answer (keys of `errors`).
+  final Set<String> invalidFields;
 
   bool get isUnauthenticated => statusCode == 401;
   bool get isForbidden => statusCode == 403;

@@ -2,118 +2,102 @@ import 'package:flutter/foundation.dart';
 import '../models/organization_model.dart';
 import '../services/organization_service.dart';
 
+/// The active workspace: Personal (no business) or one business the user is an active member of.
+/// Everything here mirrors the server; status and verification are never decided in the app.
 class WorkspaceProvider with ChangeNotifier {
-  final OrganizationService _service = OrganizationService();
+  WorkspaceProvider({OrganizationService? service}) : _service = service ?? OrganizationService();
+
+  final OrganizationService _service;
 
   OrganizationModel? _currentOrganization;
   List<OrganizationModel> _organizations = [];
+  List<String> _intents = [];
+  int _maxOwnedBusinesses = 3;
+  int _ownedBusinesses = 0;
   bool _isLoading = false;
-  String? _onboardingIntent;
-  String? _errorMessage;
+  Object? _error;
 
   OrganizationModel? get currentOrganization => _currentOrganization;
   List<OrganizationModel> get organizations => _organizations;
+  bool get isPersonal => _currentOrganization == null;
+  List<String> get onboardingIntents => _intents;
+  String? get onboardingIntent => _intents.isEmpty ? null : _intents.first;
   bool get isLoading => _isLoading;
-  String? get onboardingIntent => _onboardingIntent;
-  String? get errorMessage => _errorMessage;
 
-  bool get isVerifiedExporter =>
-      _currentOrganization?.isVerified == true &&
-      _currentOrganization?.verifiedRoles.contains('exporter') == true;
+  /// The last load or switch failure ([ApiException] or other), for an error state with retry.
+  Object? get error => _error;
 
-  bool get isVerifiedBuyer =>
-      _currentOrganization?.isVerified == true &&
-      _currentOrganization?.verifiedRoles.contains('buyer') == true;
+  /// The account limit is not a plan feature; at the limit the app says "ask support".
+  bool get reachedBusinessLimit => _ownedBusinesses >= _maxOwnedBusinesses;
+  int get maxOwnedBusinesses => _maxOwnedBusinesses;
 
-  bool get isVerifiedSupplier =>
-      _currentOrganization?.isVerified == true &&
-      _currentOrganization?.verifiedRoles.contains('supplier') == true;
+  bool _hasVerifiedRole(String role) =>
+      _currentOrganization?.isVerified == true && _currentOrganization?.verifiedRoles.contains(role) == true;
 
-  bool get isVerifiedBroker =>
-      _currentOrganization?.isVerified == true &&
-      _currentOrganization?.verifiedRoles.contains('broker') == true;
+  bool get isVerifiedExporter => _hasVerifiedRole('exporter');
+  bool get isVerifiedBuyer => _hasVerifiedRole('buyer');
+  bool get isVerifiedSupplier => _hasVerifiedRole('supplier');
+  bool get isVerifiedBroker => _hasVerifiedRole('broker');
 
   Future<void> loadWorkspaces() async {
     _isLoading = true;
-    _errorMessage = null;
+    _error = null;
     notifyListeners();
 
     try {
-      final res = await _service.getUserOrganizations();
-      if (res['success'] == true) {
-        _currentOrganization = res['current_organization'] as OrganizationModel?;
-        _organizations = res['organizations'] as List<OrganizationModel>;
-        _onboardingIntent = res['onboarding_intent'] as String?;
-      } else {
-        _errorMessage = res['message'];
-      }
+      final snapshot = await _service.getUserOrganizations();
+      _currentOrganization = snapshot.current;
+      _organizations = snapshot.organizations;
+      _intents = snapshot.intents;
+      _maxOwnedBusinesses = snapshot.maxOwnedBusinesses;
+      _ownedBusinesses = snapshot.ownedBusinesses;
     } catch (e) {
-      _errorMessage = e.toString();
+      _error = e;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  Future<bool> switchWorkspace(int organizationId) async {
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      final res = await _service.switchWorkspace(organizationId);
-      if (res['success'] == true) {
-        _currentOrganization = res['organization'] as OrganizationModel?;
-        await loadWorkspaces();
-        return true;
-      } else {
-        _errorMessage = res['message'];
-      }
-    } catch (e) {
-      _errorMessage = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-    return false;
+  /// Switch to a business, or to Personal with null. Throws on failure.
+  Future<void> switchWorkspace(int? organizationId) async {
+    await _service.switchWorkspace(organizationId);
+    await loadWorkspaces();
   }
 
-  Future<bool> createWorkspace({
+  /// Business setup. Throws [ApiException] (validation, WORKSPACE_LIMIT, network).
+  Future<OrganizationModel> createWorkspace({
     required String name,
-    required String businessType,
-    String? country,
+    required String businessRole,
+    required String entityType,
+    required String country,
+    String? tinNumber,
     String? billingEmail,
   }) async {
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      final res = await _service.createOrganization(
-        name: name,
-        businessType: businessType,
-        country: country,
-        billingEmail: billingEmail,
-      );
-
-      if (res['success'] == true) {
-        _currentOrganization = res['organization'] as OrganizationModel?;
-        await loadWorkspaces();
-        return true;
-      } else {
-        _errorMessage = res['message'];
-      }
-    } catch (e) {
-      _errorMessage = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-    return false;
+    final org = await _service.createOrganization(
+      name: name,
+      businessRole: businessRole,
+      entityType: entityType,
+      country: country,
+      tinNumber: tinNumber,
+      billingEmail: billingEmail,
+    );
+    await loadWorkspaces();
+    return org;
   }
 
-  Future<bool> saveIntent(String intent) async {
-    _onboardingIntent = intent;
+  /// Saves the multi-select intent. Returns true when Business setup should follow.
+  Future<bool> saveIntents(List<String> intents) async {
+    final needsBusiness = await _service.saveOnboardingIntents(intents);
+    _intents = List.unmodifiable(intents);
     notifyListeners();
-    return await _service.saveOnboardingIntent(intent);
+    return needsBusiness;
   }
+
+  /// Entity types, roles and countries for Business setup (one server list).
+  Future<WorkspaceOptions> loadOptions() => _service.getOptions();
+
+  Future<TeamRoster> loadTeam(int organizationId) => _service.getMembers(organizationId);
+
+  Future<void> removeMember(int organizationId, int userId) => _service.removeMember(organizationId, userId);
 }
-

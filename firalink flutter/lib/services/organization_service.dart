@@ -2,180 +2,143 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/organization_model.dart';
+import 'api_exception.dart';
 import 'base_service.dart';
 
+/// Workspaces (slice 2). Every call throws [ApiException] on failure; nothing is faked.
 class OrganizationService extends BaseService {
   static const Duration _timeout = Duration(milliseconds: 10000);
 
-  /// Fetch all organizations user belongs to, plus current active workspace
-  Future<Map<String, dynamic>> getUserOrganizations() async {
-    try {
-      final headers = await getHeaders();
-      final url = Uri.parse('${BaseService.baseUrl}/user/organizations');
-      final res = await http.get(url, headers: headers).timeout(_timeout);
-
-      if (res.statusCode == 200) {
-        final decoded = jsonDecode(res.body);
-        final data = decoded['data'] ?? {};
-        final currentOrgJson = data['current_organization'];
-        final orgsList = (data['organizations'] as List? ?? [])
-            .map((o) => OrganizationModel.fromJson(o as Map<String, dynamic>))
-            .toList();
-
-        return {
-          'success': true,
-          'current_organization': currentOrgJson != null
-              ? OrganizationModel.fromJson(currentOrgJson as Map<String, dynamic>)
-              : null,
-          'organizations': orgsList,
-          'onboarding_intent': data['onboarding_intent']?.toString(),
-        };
-      }
-      return {'success': false, 'message': 'Failed to load workspaces'};
-    } catch (e) {
-      return {'success': false, 'message': e.toString()};
-    }
+  Map<String, dynamic> _data(http.Response res) {
+    final decoded = jsonDecode(requireSuccess(res).body);
+    final data = decoded is Map ? decoded['data'] : null;
+    return data is Map<String, dynamic> ? data : <String, dynamic>{};
   }
 
-  /// Create a new business workspace
-  Future<Map<String, dynamic>> createOrganization({
+  /// GET /workspaces/options — entity types, roles and countries for Business setup.
+  Future<WorkspaceOptions> getOptions() async {
+    final res = await guardedRequest(() async {
+      final headers = await getHeaders();
+      return http.get(Uri.parse('${BaseService.baseUrl}/workspaces/options'), headers: headers).timeout(_timeout);
+    });
+    return WorkspaceOptions.fromJson(_data(res));
+  }
+
+  /// GET /user/organizations — Personal plus every business the user is an active member of.
+  Future<WorkspaceSnapshot> getUserOrganizations() async {
+    final res = await guardedRequest(() async {
+      final headers = await getHeaders();
+      return http.get(Uri.parse('${BaseService.baseUrl}/user/organizations'), headers: headers).timeout(_timeout);
+    });
+    final data = _data(res);
+    final current = data['current_organization'];
+    final limits = data['limits'] is Map ? data['limits'] as Map : const {};
+    return WorkspaceSnapshot(
+      current: current is Map<String, dynamic> ? OrganizationModel.fromJson(current) : null,
+      organizations: (data['organizations'] as List? ?? [])
+          .map((o) => OrganizationModel.fromJson(o as Map<String, dynamic>))
+          .toList(),
+      intents: (data['onboarding_intents'] as List? ?? []).map((e) => e.toString()).toList(),
+      maxOwnedBusinesses: (limits['max_owned_businesses'] as num?)?.toInt() ?? 3,
+      ownedBusinesses: (limits['owned_businesses'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  /// POST /user/organizations — Business setup. Throws WORKSPACE_LIMIT at the account limit.
+  Future<OrganizationModel> createOrganization({
     required String name,
-    required String businessType,
-    String? country,
+    required String businessRole,
+    required String entityType,
+    required String country,
+    String? tinNumber,
     String? billingEmail,
   }) async {
-    try {
+    final res = await guardedRequest(() async {
       final headers = await getHeaders();
-      final url = Uri.parse('${BaseService.baseUrl}/user/organizations');
-      final res = await http
+      return http
           .post(
-            url,
+            Uri.parse('${BaseService.baseUrl}/user/organizations'),
             headers: headers,
             body: jsonEncode({
               'name': name,
-              'business_type': businessType,
-              'country': country ?? 'Ethiopia',
-              'billing_email': billingEmail,
+              'business_role': businessRole,
+              'entity_type': entityType,
+              'country': country,
+              if (tinNumber != null && tinNumber.isNotEmpty) 'tin_number': tinNumber,
+              if (billingEmail != null && billingEmail.isNotEmpty) 'billing_email': billingEmail,
             }),
           )
           .timeout(_timeout);
-
-      final decoded = jsonDecode(res.body);
-      if (res.statusCode == 201 && decoded['success'] == true) {
-        return {
-          'success': true,
-          'message': decoded['message'],
-          'organization': OrganizationModel.fromJson(decoded['data']),
-        };
-      }
-      return {
-        'success': false,
-        'message': decoded['message'] ?? 'Failed to create workspace',
-      };
-    } catch (e) {
-      return {'success': false, 'message': e.toString()};
-    }
+    });
+    return OrganizationModel.fromJson(_data(res));
   }
 
-  /// Switch active workspace
-  Future<Map<String, dynamic>> switchWorkspace(int organizationId) async {
-    try {
+  /// POST /user/organizations/switch — null switches to Personal.
+  Future<void> switchWorkspace(int? organizationId) async {
+    final res = await guardedRequest(() async {
       final headers = await getHeaders();
-      final url = Uri.parse('${BaseService.baseUrl}/user/organizations/switch');
-      final res = await http
+      return http
           .post(
-            url,
+            Uri.parse('${BaseService.baseUrl}/user/organizations/switch'),
             headers: headers,
             body: jsonEncode({'organization_id': organizationId}),
           )
           .timeout(_timeout);
-
-      final decoded = jsonDecode(res.body);
-      if (res.statusCode == 200 && decoded['success'] == true) {
-        return {
-          'success': true,
-          'message': decoded['message'],
-          'organization': OrganizationModel.fromJson(decoded['data']),
-        };
-      }
-      return {
-        'success': false,
-        'message': decoded['message'] ?? 'Failed to switch workspace',
-      };
-    } catch (e) {
-      return {'success': false, 'message': e.toString()};
-    }
+    });
+    requireSuccess(res);
   }
 
-  /// Get members of an organization
-  Future<List<OrganizationMemberModel>> getMembers(int organizationId) async {
-    try {
+  /// GET /organizations/{id}/members — read-only for members; the server says who can remove.
+  Future<TeamRoster> getMembers(int organizationId) async {
+    final res = await guardedRequest(() async {
       final headers = await getHeaders();
-      final url = Uri.parse('${BaseService.baseUrl}/organizations/$organizationId/members');
-      final res = await http.get(url, headers: headers).timeout(_timeout);
-
-      if (res.statusCode == 200) {
-        final decoded = jsonDecode(res.body);
-        final list = (decoded['data']?['members'] as List? ?? [])
-            .map((m) => OrganizationMemberModel.fromJson(m as Map<String, dynamic>))
-            .toList();
-        return list;
-      }
-    } catch (_) {}
-    return [];
+      return http
+          .get(Uri.parse('${BaseService.baseUrl}/organizations/$organizationId/members'), headers: headers)
+          .timeout(_timeout);
+    });
+    return TeamRoster.fromJson(_data(res));
   }
 
-  /// Add / invite member
-  Future<Map<String, dynamic>> addMember(int organizationId, String email, String role) async {
-    try {
+  /// DELETE /organizations/{id}/members/{userId} — owner only.
+  Future<void> removeMember(int organizationId, int userId) async {
+    final res = await guardedRequest(() async {
       final headers = await getHeaders();
-      final url = Uri.parse('${BaseService.baseUrl}/organizations/$organizationId/members');
-      final res = await http
+      return http
+          .delete(Uri.parse('${BaseService.baseUrl}/organizations/$organizationId/members/$userId'), headers: headers)
+          .timeout(_timeout);
+    });
+    requireSuccess(res);
+  }
+
+  /// POST /user/onboarding-intent — multi-select; an empty list means skipped.
+  /// Returns whether Business setup should follow (the server decides).
+  Future<bool> saveOnboardingIntents(List<String> intents) async {
+    final res = await guardedRequest(() async {
+      final headers = await getHeaders();
+      return http
           .post(
-            url,
+            Uri.parse('${BaseService.baseUrl}/user/onboarding-intent'),
             headers: headers,
-            body: jsonEncode({'email': email, 'role': role}),
+            body: jsonEncode({'intents': intents}),
           )
           .timeout(_timeout);
-
-      final decoded = jsonDecode(res.body);
-      return {
-        'success': res.statusCode == 200 && decoded['success'] == true,
-        'message': decoded['message'] ?? 'Operation completed',
-      };
-    } catch (e) {
-      return {'success': false, 'message': e.toString()};
-    }
-  }
-
-  /// Remove member
-  Future<bool> removeMember(int organizationId, int userId) async {
-    try {
-      final headers = await getHeaders();
-      final url = Uri.parse('${BaseService.baseUrl}/organizations/$organizationId/members/$userId');
-      final res = await http.delete(url, headers: headers).timeout(_timeout);
-      return res.statusCode == 200;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  /// Save onboarding intent (export, buy, learn, events)
-  Future<bool> saveOnboardingIntent(String intent) async {
-    try {
-      final headers = await getHeaders();
-      final url = Uri.parse('${BaseService.baseUrl}/user/onboarding-intent');
-      final res = await http
-          .post(
-            url,
-            headers: headers,
-            body: jsonEncode({'intent': intent}),
-          )
-          .timeout(_timeout);
-      return res.statusCode == 200;
-    } catch (_) {
-      return false;
-    }
+    });
+    return _data(res)['needs_business_setup'] == true;
   }
 }
 
+class WorkspaceSnapshot {
+  final OrganizationModel? current;
+  final List<OrganizationModel> organizations;
+  final List<String> intents;
+  final int maxOwnedBusinesses;
+  final int ownedBusinesses;
+
+  const WorkspaceSnapshot({
+    required this.current,
+    required this.organizations,
+    required this.intents,
+    required this.maxOwnedBusinesses,
+    required this.ownedBusinesses,
+  });
+}
