@@ -1,0 +1,47 @@
+<IfModule mod_headers.c>
+    # Global CORS headers for API & static assets
+    Header set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, HEAD"
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, HEAD"
+    Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma, Range, x-xsrf-token"
+    Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma, Range, x-xsrf-token"
+    Header set Access-Control-Expose-Headers "Content-Length, Content-Range"
+    Header always set Access-Control-Expose-Headers "Content-Length, Content-Range"
+
+    # Security headers
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Block access to hidden files, git, and sensitive extensions
+<FilesMatch "(^\.|\.(env|git|svn|sqlite|sqlite3|db|log|sql|ini|conf|bak|config|sh|py|md|yml|yaml))$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+Options -Indexes -MultiViews
+ServerSignature Off
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>

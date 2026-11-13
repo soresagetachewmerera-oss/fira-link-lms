@@ -1,0 +1,22 @@
+{
+  "name": "Fira Link Academy",
+  "short_name": "Fira Link",
+  "description": "Practical import-export and business education for Ethiopia and East Africa.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#6D1A95",
+  "theme_color": "#6D1A95",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

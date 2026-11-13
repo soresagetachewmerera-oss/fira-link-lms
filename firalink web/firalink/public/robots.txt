@@ -1,0 +1,39 @@
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /programs
+Allow: /courses
+Allow: /free-tools
+Allow: /pricing
+Allow: /blog
+Allow: /contact
+Allow: /faq
+Allow: /privacy
+Allow: /terms
+Allow: /events
+Allow: /tours
+Allow: /storage/tours/
+Allow: /storage/events/
+Allow: /assets/
+
+# Disallow authenticated, administrative and transactional areas
+Disallow: /admin
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /student
+Disallow: /student/
+Disallow: /instructor
+Disallow: /instructor/
+Disallow: /api
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+Disallow: /password
+Disallow: /checkout
+Disallow: /payment/
+Disallow: /enrollment/
+Disallow: /cron/
+Disallow: /storage/framework/
+
+# Sitemaps
+Sitemap: https://fira-link.com/sitemap.xml

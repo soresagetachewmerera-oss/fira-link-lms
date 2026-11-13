@@ -1,0 +1,554 @@
+/**
+ * Custom CSS for the admin panel.
+ *
+ */
+
+/* Badge Pulse Animation for Pending Notifications */
+.badge-pulse {
+    animation: pulse 2s infinite;
+    position: relative;
+}
+
+.badge-pulse::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: pulse-ring 2s infinite;
+    z-index: -1;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+/*# sourceMappingURL=custom.css.map */
+.modal-backdrop.show {
+    display: none;
+}
+
+.profile-photo-xl {
+    max-width: 200px;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.profile-placeholder-xl {
+    width: 200px;
+    height: 200px;
+}
+
+.avatar-sm {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+.avatar-placeholder-sm {
+    width: 40px;
+    height: 40px;
+}
+
+.course-thumb-sm {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+
+.course-thumb-placeholder {
+    width: 60px;
+    height: 60px;
+}
+
+.course-thumb-xs {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+}
+
+.course-thumb-xs-placeholder {
+    width: 50px;
+    height: 50px;
+}
+
+.status-select-inline {
+    min-width: 120px;
+}
+
+.status-select-colored {
+    border: none;
+    font-weight: 600;
+    color: #fff;
+}
+
+.status-select--pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.status-select--completed {
+    background-color: #28a745;
+}
+
+.status-select--failed {
+    background-color: #dc3545;
+}
+
+.status-select--refunded {
+    background-color: #6c757d;
+}
+
+.progress-vertical-lg {
+    height: 30px;
+}
+
+.progress-vertical-md {
+    height: 20px;
+}
+
+.receipt-image {
+    max-width: 100%;
+}
+
+.receipt-image-lg {
+    max-height: 70vh;
+}
+
+.card-body-tall {
+    min-height: 320px;
+}
+
+.chart-wrapper-lg {
+    position: relative;
+    height: 320px;
+    width: 100%;
+}
+
+.chart-wrapper-md {
+    position: relative;
+    height: 260px;
+    width: 100%;
+}
+
+.progress-thin {
+    height: 8px;
+}
+
+.swal-textarea {
+    width: 100%;
+    min-height: 100px;
+    margin-top: 10px;
+}
+/* Floating Sidebar Styles */
+body.sidebar-floating .main-sidebar {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    height: calc(100vh - 40px);
+    width: 250px;
+    border-radius: 15px !important;
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+    background-color: #fff;
+}
+
+body.sidebar-floating .main-content {
+    padding-left: 290px;
+}
+
+body.sidebar-floating .navbar-bg {
+    left: 290px;
+    width: calc(100% - 290px);
+}
+
+body.sidebar-floating .main-navbar {
+    left: 290px;
+    width: calc(100% - 290px);
+}
+
+@media (max-width: 1024px) {
+    body.sidebar-floating .main-sidebar {
+        left: -270px;
+    }
+    
+    body.sidebar-floating.sidebar-show .main-sidebar {
+        left: 20px;
+    }
+    
+    body.sidebar-floating .main-content,
+    body.sidebar-floating .navbar-bg,
+    body.sidebar-floating .main-navbar {
+        padding-left: 30px;
+        left: 0;
+        width: 100%;
+    }
+}
+
+/* ==========================================================================
+   FIRA LINK LMS — ADMIN SIDEBAR MODERNIZATION & RESPONSIVENESS FIX
+   ========================================================================== */
+
+/* 1. Global Reset & Focus Outline Removal (Prevents purple/blue border lines) */
+.main-sidebar,
+.main-sidebar * {
+    box-sizing: border-box;
+}
+
+.main-sidebar .sidebar-menu li,
+.main-sidebar .sidebar-menu li a,
+.main-sidebar .sidebar-menu li a:focus,
+.main-sidebar .sidebar-menu li a:active,
+.main-sidebar .sidebar-menu li a:visited {
+    outline: none !important;
+    box-shadow: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+}
+
+/* Kill Stisla's legacy blue vertical bar on active items */
+body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu > li.active > a:before,
+.main-sidebar .sidebar-menu > li.active > a:before {
+    display: none !important;
+}
+
+/* 2. Desktop Layout & Width Calibration (Ensures titles fit on single line) */
+@media (min-width: 1025px) {
+    body:not(.sidebar-mini) .main-sidebar {
+        width: 270px !important;
+    }
+    body:not(.sidebar-mini) .navbar {
+        left: 270px !important;
+    }
+    body:not(.sidebar-mini) .main-content {
+        padding-left: 300px !important;
+    }
+}
+
+/* 3. Top-Level Sidebar Links */
+.main-sidebar .sidebar-menu {
+    padding: 8px 0 24px 0 !important;
+}
+
+.main-sidebar .sidebar-menu > li {
+    margin: 2px 0 !important;
+    position: relative !important;
+}
+
+/* Fix Stisla's legacy width: 100% on all spans which broke flex layout and badges */
+.main-sidebar .sidebar-menu li a span {
+    margin-top: 0 !important;
+    width: auto !important;
+}
+
+.main-sidebar .sidebar-menu > li > a {
+    height: auto !important;
+    min-height: 44px !important;
+    padding: 10px 38px 10px 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    color: #374151 !important;
+    line-height: 1.3 !important;
+    position: relative !important;
+    border-radius: 8px !important;
+    margin: 2px 8px !important;
+    text-decoration: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.main-sidebar .sidebar-menu > li > a > span:not(.badge) {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    line-height: 1.3 !important;
+}
+
+.main-sidebar .sidebar-menu > li > a:hover {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background-color: #f5f3ff !important;
+    color: #6D1A95 !important;
+}
+
+.main-sidebar .sidebar-menu > li.active > a {
+    background-color: #f3e8ff !important;
+    color: #6D1A95 !important;
+    font-weight: 600 !important;
+}
+
+.main-sidebar .sidebar-menu > li > a i {
+    width: 20px !important;
+    min-width: 20px !important;
+    margin-right: 12px !important;
+    font-size: 15px !important;
+    text-align: center !important;
+    color: #6b7280;
+    flex-shrink: 0 !important;
+    transition: color 0.15s ease;
+}
+
+.main-sidebar .sidebar-menu > li.active > a i,
+.main-sidebar .sidebar-menu > li > a:hover i {
+    color: #6D1A95 !important;
+}
+
+/* 4. Dropdown Caret / Chevron Arrow Rotation */
+.main-sidebar .sidebar-menu li a.has-dropdown:after {
+    content: "\f107" !important;
+    font-family: 'Font Awesome 5 Free' !important;
+    font-weight: 900 !important;
+    position: absolute !important;
+    right: 14px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    font-size: 11px !important;
+    color: #9ca3af !important;
+    transition: transform 0.2s ease, color 0.2s ease !important;
+    pointer-events: none;
+}
+
+.main-sidebar .sidebar-menu li.active > a.has-dropdown:after {
+    transform: translateY(-50%) rotate(180deg) !important;
+    color: #6D1A95 !important;
+}
+
+/* 5. Bulletproof Submenu Layout — Eliminates Overlapping & Clamping Completely */
+.main-sidebar .sidebar-menu li ul.dropdown-menu {
+    position: static !important;
+    float: none !important;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    background-color: #f8fafc !important;
+    padding: 4px 0 6px 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Submenu Items Container */
+.main-sidebar .sidebar-menu li ul.dropdown-menu li {
+    list-style: none !important;
+    margin: 1px 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    display: block !important;
+    position: relative !important;
+    clear: both !important;
+    height: auto !important;
+}
+
+/* Submenu Link Styling */
+body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu li ul.dropdown-menu li a,
+body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu li.active ul.dropdown-menu li a,
+.main-sidebar .sidebar-menu li ul.dropdown-menu li a {
+    height: auto !important;
+    min-height: 36px !important;
+    padding: 8px 16px 8px 46px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #4b5563 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    background-color: transparent !important;
+    border-radius: 6px !important;
+    margin: 1px 8px !important;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    text-decoration: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: calc(100% - 16px) !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu li ul.dropdown-menu li a:hover,
+body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu li.active ul.dropdown-menu li a:hover,
+.main-sidebar .sidebar-menu li ul.dropdown-menu li a:hover {
+    color: #6D1A95 !important;
+    background-color: #f3e8ff !important;
+    font-weight: 600 !important;
+}
+
+.main-sidebar .sidebar-menu li ul.dropdown-menu li.active > a,
+.main-sidebar .sidebar-menu li ul.dropdown-menu li.active a {
+    color: #6D1A95 !important;
+    background-color: #f3e8ff !important;
+    font-weight: 600 !important;
+}
+
+/* Optional Submenu Icons (if present) */
+.main-sidebar .sidebar-menu li ul.dropdown-menu li a i {
+    width: 16px !important;
+    min-width: 16px !important;
+    margin-right: 8px !important;
+    margin-top: 0 !important;
+    font-size: 12px !important;
+    text-align: center !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.main-sidebar .sidebar-menu li ul.dropdown-menu li a span {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    margin-top: 0 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    line-height: 1.35 !important;
+    display: inline-block !important;
+}
+
+/* 6. Badge Pill Badges in Sidebar */
+.badge-sidebar-pill {
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+    margin-right: 4px !important;
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    padding: 2px 6px !important;
+    border-radius: 12px !important;
+    text-transform: uppercase !important;
+    line-height: 1.2 !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+}
+
+.badge-sidebar-pill.badge-purple {
+    background: #6D1A95 !important;
+    color: #ffffff !important;
+}
+
+.badge-sidebar-pill.badge-primary {
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+}
+
+/* 7. Collapsed Sidebar Mini Support */
+body.sidebar-mini .main-sidebar {
+    width: 65px !important;
+}
+
+body.sidebar-mini .navbar {
+    left: 65px !important;
+}
+
+body.sidebar-mini .main-content {
+    padding-left: 95px !important;
+}
+
+body.sidebar-mini .main-sidebar .sidebar-menu > li > a {
+    padding: 0 !important;
+    justify-content: center !important;
+    margin: 2px 4px !important;
+}
+
+body.sidebar-mini .main-sidebar .sidebar-menu > li > a span,
+body.sidebar-mini .main-sidebar .sidebar-menu > li > a .badge,
+body.sidebar-mini .main-sidebar .sidebar-menu > li > a.has-dropdown:after {
+    display: none !important;
+}
+
+body.sidebar-mini .main-sidebar .sidebar-menu > li ul.dropdown-menu {
+    position: absolute !important;
+    left: 65px !important;
+    top: 0 !important;
+    width: 220px !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 8px !important;
+    border: 1px solid #e5e7eb !important;
+    padding: 6px 0 !important;
+    display: none !important;
+    z-index: 1050 !important;
+}
+
+body.sidebar-mini .main-sidebar .sidebar-menu > li:hover > ul.dropdown-menu {
+    display: block !important;
+}
+
+body.sidebar-mini .main-sidebar .sidebar-menu > li ul.dropdown-menu li a {
+    padding: 8px 16px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    color: #4b5563 !important;
+}
+
+body.sidebar-mini .main-sidebar .sidebar-menu > li ul.dropdown-menu li a:hover {
+    background-color: #f3e8ff !important;
+    color: #6D1A95 !important;
+}
+
+/* 8. Full Mobile & Tablet Responsiveness (< 1024px) */
+@media (max-width: 1024px) {
+    .main-sidebar {
+        width: 280px !important;
+        max-width: 85vw !important;
+        left: -280px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+        -webkit-overflow-scrolling: touch !important;
+        transition: left 0.3s ease !important;
+    }
+
+    body.sidebar-show .main-sidebar {
+        left: 0 !important;
+        z-index: 1050 !important;
+    }
+
+    .main-content {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+        width: 100% !important;
+    }
+
+    .navbar {
+        left: 5px !important;
+        right: 0 !important;
+    }
+}
+

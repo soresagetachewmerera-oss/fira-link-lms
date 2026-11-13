@@ -1,0 +1,15 @@
+{
+  "name": "Fira Link LMS",
+  "short_name": "Fira Link",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6D1A95",
+  "icons": [
+    {
+      "src": "/assets/front/img/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

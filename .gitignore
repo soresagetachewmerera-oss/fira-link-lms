@@ -4,20 +4,29 @@ Thumbs.db
 desktop.ini
 
 # Flutter
-Eduex Flutter/.dart_tool/
-Eduex Flutter/.flutter-plugins
-Eduex Flutter/.flutter-plugins-dependencies
-Eduex Flutter/.pub-cache/
-Eduex Flutter/.pub/
-Eduex Flutter/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.pub-cache/
+**/.pub/
+**/build/
+**/android/app/google-services.json
+**/ios/Runner/GoogleService-Info.plist
 
 # Laravel
-Eduex Laravel/Eduex Laravel/vendor/
-Eduex Laravel/Eduex Laravel/node_modules/
-Eduex Laravel/Eduex Laravel/.phpunit.result.cache
-Eduex Laravel/Eduex Laravel/storage/framework/cache/data/*
-Eduex Laravel/Eduex Laravel/storage/framework/sessions/*
-Eduex Laravel/Eduex Laravel/storage/framework/views/*
+**/.env
+**/.env.*
+!**/.env.example
+**/vendor/
+**/node_modules/
+**/.phpunit.result.cache
+**/storage/framework/cache/data/*
+**/storage/framework/sessions/*
+**/storage/framework/views/*
+!**/storage/framework/cache/.gitignore
+!**/storage/framework/sessions/.gitignore
+!**/storage/framework/testing/.gitignore
+!**/storage/framework/views/.gitignore
 
 # IDE
 .idea/
@@ -25,16 +34,43 @@ Eduex Laravel/Eduex Laravel/storage/framework/views/*
 *.swp
 *.swo
 
+# Releases & Packages
 releases/
 *.apk
+*.aab
+*.tar.gz
+*.tar
+*.zip
 
-
+# Logs
 storage/logs/*
 *.log
-
 
 # Database
 *.sqlite
 *.sqlite3
 *.sqlite.bak
-Eduex Laravel/Eduex Laravel/database/database.sqlite
+*.sqlite-shm
+*.sqlite-wal
+**/database/database.sqlite
+
+# Next.js Web Frontend
+fira-link-web/node_modules/
+fira-link-web/.next/
+fira-link-web/out/
+fira-link-web/.pnpm-store/
+
+# Secrets and signing (also covered by per-app .gitignore files)
+**/key.properties
+**/*.jks
+**/*.keystore
+**/google-services.json
+**/GoogleService-Info.plist
+
+# Local scripts (contain server credentials)
+scratch/
+
+# Laravel uploads and private storage (user documents, never commit)
+firalink web/firalink/public/storage/
+firalink web/firalink/storage/app/*
+!firalink web/firalink/storage/app/.gitignore
