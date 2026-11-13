@@ -116,6 +116,31 @@ class EvidenceLevelServerControlledTest extends TestCase
         $this->assertSame('claimed', $listing->fresh()->evidence_level);
     }
 
+    public function test_one_time_reset_command_resets_levels_with_audit_log_only_when_forced(): void
+    {
+        $seller = $this->makeUser();
+        $listing = CoffeeListing::create([
+            'seller_id' => $seller->id,
+            'title' => 'Reset probe',
+            'origin_region' => 'Limu',
+            'processing_method' => 'washed',
+            'grade' => 'grade_2',
+            'total_quantity_bags' => 5,
+            'indicative_price_usd_per_lb' => 4,
+        ]);
+        $listing->forceFill(['evidence_level' => 'inspected'])->save();
+
+        $this->artisan('marketplace:reset-evidence-levels')->assertSuccessful();
+        $this->assertSame('inspected', $listing->fresh()->evidence_level, 'Dry run must not change anything.');
+
+        $this->artisan('marketplace:reset-evidence-levels', ['--force' => true])->assertSuccessful();
+        $this->assertSame('claimed', $listing->fresh()->evidence_level);
+
+        $log = AuditLog::where('action', 'listing_evidence_level_reset')->where('auditable_id', $listing->id)->first();
+        $this->assertNotNull($log);
+        $this->assertSame('inspected', $log->before_state['evidence_level']);
+    }
+
     public function test_only_admin_review_can_raise_evidence_level(): void
     {
         $seller = $this->makeUser();
