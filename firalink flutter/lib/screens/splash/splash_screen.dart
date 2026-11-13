@@ -192,7 +192,6 @@ class _SplashScreenState extends State<SplashScreen>
                                 ),
                                 child: SvgPicture.asset(
                                   'assets/img/logo_white.svg',
-                                  'assets/img/fira_emblem_white.svg',
                                   fit: BoxFit.contain,
                                 ),
                               ),
