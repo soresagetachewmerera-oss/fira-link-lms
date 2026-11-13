@@ -11,6 +11,7 @@ use App\Models\Organization;
 use App\Models\OrganizationVerification;
 use App\Models\UserMarketplaceSubscription;
 use App\Services\MarketplaceSubscriptionService;
+use App\Services\Verification\VerificationReviewService;
 use Illuminate\Http\Request;
 
 class MarketplaceAdminController extends Controller
@@ -51,65 +52,33 @@ class MarketplaceAdminController extends Controller
         return view('admin.marketplace.seller-detail', compact('seller'));
     }
 
+    private function reviews(): VerificationReviewService
+    {
+        return app(VerificationReviewService::class);
+    }
+
     /**
-     * Approve and verify exporter profile.
+     * Approve and verify exporter profile (legacy seller profile). Audited by the review service.
      */
     public function verifySeller(Request $request, int $id)
     {
         $seller = MarketplaceSellerProfile::findOrFail($id);
-        $before = $seller->toArray();
-        $seller->update([
-            'verification_status' => 'verified',
-            'verified_at' => now(),
-            'verification_notes' => $request->input('notes', 'Verified by Admin.'),
-        ]);
-
-        if ($seller->organization) {
-            $seller->organization->syncVerifiedRoles();
-        }
-
-        AuditLog::create([
-            'user_id' => $request->user()?->id,
-            'organization_id' => $seller->organization_id,
-            'action' => 'seller_profile_verified',
-            'auditable_type' => MarketplaceSellerProfile::class,
-            'auditable_id' => $seller->id,
-            'before_state' => $before,
-            'after_state' => $seller->toArray(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
+        $this->reviews()->verifySellerProfile($seller, $request->user(), $request->input('notes'));
 
         return redirect()->back()->with('success', "Exporter '{$seller->company_name}' verified successfully.");
     }
 
     /**
-     * Reject exporter application.
+     * Reject exporter application (legacy seller profile).
      */
     public function rejectSeller(Request $request, int $id)
     {
         $seller = MarketplaceSellerProfile::findOrFail($id);
-        $before = $seller->toArray();
-        $seller->update([
-            'verification_status' => 'rejected',
-            'verification_notes' => $request->input('notes', 'Application rejected. Please submit valid ECTA credentials.'),
-        ]);
-
-        if ($seller->organization) {
-            $seller->organization->syncVerifiedRoles();
-        }
-
-        AuditLog::create([
-            'user_id' => $request->user()?->id,
-            'organization_id' => $seller->organization_id,
-            'action' => 'seller_profile_rejected',
-            'auditable_type' => MarketplaceSellerProfile::class,
-            'auditable_id' => $seller->id,
-            'before_state' => $before,
-            'after_state' => $seller->toArray(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
+        $this->reviews()->rejectSellerProfile(
+            $seller,
+            $request->user(),
+            $request->input('notes', 'Application rejected. Please submit valid ECTA credentials.')
+        );
 
         return redirect()->back()->with('success', "Exporter application rejected.");
     }
@@ -119,31 +88,9 @@ class MarketplaceAdminController extends Controller
      */
     public function verifyOrganizationRole(Request $request, int $id)
     {
+        $request->validate(['license_expires_at' => 'nullable|date|after:today', 'notes' => 'nullable|string|max:1000']);
         $verification = OrganizationVerification::with('organization')->findOrFail($id);
-        $before = $verification->toArray();
-
-        $verification->update([
-            'status' => OrganizationVerification::STATUS_APPROVED,
-            'reviewed_by' => $request->user()?->id,
-            'reviewed_at' => now(),
-            'admin_notes' => $request->input('notes', 'Dossier audited and approved by Compliance Team.'),
-            'rejection_reason' => null,
-            'license_expires_at' => $request->input('license_expires_at', $verification->license_expires_at ?? now()->addYear()),
-        ]);
-
-        $verification->organization->syncVerifiedRoles();
-
-        AuditLog::create([
-            'user_id' => $request->user()?->id,
-            'organization_id' => $verification->organization_id,
-            'action' => 'organization_role_verified',
-            'auditable_type' => OrganizationVerification::class,
-            'auditable_id' => $verification->id,
-            'before_state' => $before,
-            'after_state' => $verification->toArray(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
+        $this->reviews()->approve($verification, $request->user(), $request->input('notes'), $request->input('license_expires_at'));
 
         return redirect()->back()->with('success', "Role '{$verification->target_role}' approved for {$verification->organization->name}.");
     }
@@ -155,28 +102,7 @@ class MarketplaceAdminController extends Controller
     {
         $request->validate(['rejection_reason' => 'required|string|min:5|max:1000']);
         $verification = OrganizationVerification::with('organization')->findOrFail($id);
-        $before = $verification->toArray();
-
-        $verification->update([
-            'status' => OrganizationVerification::STATUS_REJECTED,
-            'reviewed_by' => $request->user()?->id,
-            'reviewed_at' => now(),
-            'rejection_reason' => $request->input('rejection_reason'),
-        ]);
-
-        $verification->organization->syncVerifiedRoles();
-
-        AuditLog::create([
-            'user_id' => $request->user()?->id,
-            'organization_id' => $verification->organization_id,
-            'action' => 'organization_role_rejected',
-            'auditable_type' => OrganizationVerification::class,
-            'auditable_id' => $verification->id,
-            'before_state' => $before,
-            'after_state' => $verification->toArray(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
+        $this->reviews()->reject($verification, $request->user(), $request->input('rejection_reason'));
 
         return redirect()->back()->with('success', "Role '{$verification->target_role}' rejected with documented rationale.");
     }
@@ -188,28 +114,7 @@ class MarketplaceAdminController extends Controller
     {
         $request->validate(['reason' => 'required|string|min:5|max:1000']);
         $verification = OrganizationVerification::with('organization')->findOrFail($id);
-        $before = $verification->toArray();
-
-        $verification->update([
-            'status' => OrganizationVerification::STATUS_SUSPENDED,
-            'reviewed_by' => $request->user()?->id,
-            'reviewed_at' => now(),
-            'admin_notes' => 'Suspended: ' . $request->input('reason'),
-        ]);
-
-        $verification->organization->syncVerifiedRoles();
-
-        AuditLog::create([
-            'user_id' => $request->user()?->id,
-            'organization_id' => $verification->organization_id,
-            'action' => 'organization_role_suspended',
-            'auditable_type' => OrganizationVerification::class,
-            'auditable_id' => $verification->id,
-            'before_state' => $before,
-            'after_state' => $verification->toArray(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
+        $this->reviews()->suspend($verification, $request->user(), $request->input('reason'));
 
         return redirect()->back()->with('success', "Trading privileges for role '{$verification->target_role}' suspended.");
     }

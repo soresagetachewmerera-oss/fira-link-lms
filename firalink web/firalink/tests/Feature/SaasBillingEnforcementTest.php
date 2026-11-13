@@ -31,13 +31,12 @@ class SaasBillingEnforcementTest extends TestCase
             'email' => "seller_limit_{$unique}@example.com",
         ]);
 
-        $sellerProfile = MarketplaceSellerProfile::create([
+        $sellerProfile = tap(MarketplaceSellerProfile::create([
             'user_id' => $user->id,
             'company_name' => 'Limit Exporter ' . $unique,
             'company_slug' => 'limit-exporter-' . $unique,
             'business_type' => 'exporter',
-            'verification_status' => 'verified',
-        ]);
+        ]), fn ($p) => $p->forceFill(['verification_status' => 'verified'])->save());
 
         $org = Organization::create([
             'name' => $sellerProfile->company_name,
@@ -93,13 +92,12 @@ class SaasBillingEnforcementTest extends TestCase
             'email' => "rfq_buyer_{$unique}@example.com",
         ]);
 
-        $sellerProfile = MarketplaceSellerProfile::create([
+        $sellerProfile = tap(MarketplaceSellerProfile::create([
             'user_id' => $seller->id,
             'company_name' => 'RFQ Quota Exporter ' . $unique,
             'company_slug' => 'rfq-exporter-' . $unique,
             'business_type' => 'exporter',
-            'verification_status' => 'verified',
-        ]);
+        ]), fn ($p) => $p->forceFill(['verification_status' => 'verified'])->save());
 
         $org = Organization::create([
             'name' => $sellerProfile->company_name,

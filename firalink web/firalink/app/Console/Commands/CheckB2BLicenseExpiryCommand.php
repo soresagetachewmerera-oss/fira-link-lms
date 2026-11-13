@@ -39,14 +39,11 @@ class CheckB2BLicenseExpiryCommand extends Command
 
         $expiredCount = 0;
         foreach ($expiredVerifications as $v) {
-            $v->update([
-                'status' => OrganizationVerification::STATUS_EXPIRED,
-                'admin_notes' => 'Auto-expired by nightly compliance scheduler.',
-            ]);
+            // Audited status change through the review service (it also re-syncs the organization).
+            app(\App\Services\Verification\VerificationReviewService::class)->expire($v);
 
             $org = $v->organization;
             if ($org) {
-                $org->syncVerifiedRoles();
 
                 // If exporter role expired and no active export rights remain, deactivate public lots
                 if ($v->target_role === OrganizationVerification::ROLE_EXPORTER && !$org->isVerifiedAs('exporter')) {

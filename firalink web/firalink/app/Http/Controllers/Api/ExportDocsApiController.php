@@ -46,32 +46,9 @@ class ExportDocsApiController extends Controller
             return null;
         }
 
-        $org = $user->primaryOrganization();
-        if ($org) {
-            return $org;
-        }
-
-        // Auto-create business organization for user if not yet registered
-        $orgName = ($user->company_name ?: $user->name) . ' Trade Entity';
-        $org = Organization::create([
-            'name' => $orgName,
-            'slug' => Str::slug($orgName) . '-' . $user->id . '-' . Str::random(4),
-            'type' => 'exporter',
-            'country' => 'Ethiopia',
-            'verification_status' => 'pending_review',
-        ]);
-
-        if (class_exists(\App\Models\OrganizationMembership::class)) {
-            \App\Models\OrganizationMembership::firstOrCreate([
-                'organization_id' => $org->id,
-                'user_id' => $user->id,
-            ], [
-                'role' => 'owner',
-                'is_active' => true,
-            ]);
-        }
-
-        return $org;
+        // The user's active business, else their main one. Never created automatically:
+        // without a business the endpoints answer with an empty list or "create a business".
+        return $user->currentOrganization() ?? $user->primaryOrganization();
     }
 
     /**
@@ -349,6 +326,7 @@ class ExportDocsApiController extends Controller
     public function showShipment(int $id, Request $request): JsonResponse
     {
         $org = $this->resolveOrganization($request);
+        abort_unless($org, 404); // where(col, null) would match records with no business
         $shipment = ExportShipment::where('organization_id', $org->id)
             ->with(['documents.template', 'items'])
             ->findOrFail($id);
@@ -366,6 +344,7 @@ class ExportDocsApiController extends Controller
     public function generateAllDocuments(int $id, Request $request): JsonResponse
     {
         $org = $this->resolveOrganization($request);
+        abort_unless($org, 404);
         $shipment = ExportShipment::where('organization_id', $org->id)->findOrFail($id);
 
         // Standard core suite: Commercial Invoice, Packing List, Weight Statement
@@ -722,6 +701,7 @@ class ExportDocsApiController extends Controller
     public function finalizeDocument(int $id, Request $request): JsonResponse
     {
         $org = $this->resolveOrganization($request);
+        abort_unless($org, 404);
         $doc = GeneratedDocument::where('organization_id', $org->id)->findOrFail($id);
 
         // Generate PDF and Excel files on private disk

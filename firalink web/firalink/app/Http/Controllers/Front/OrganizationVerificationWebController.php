@@ -83,7 +83,6 @@ class OrganizationVerificationWebController extends Controller
                 'target_role' => $request->input('target_role'),
             ],
             [
-                'status' => OrganizationVerification::STATUS_PENDING_REVIEW,
                 'tin_number' => $tin,
                 'license_number' => $license,
                 'issuing_authority' => $request->input('issuing_authority', 'ECTA'),
@@ -92,6 +91,10 @@ class OrganizationVerificationWebController extends Controller
                 'verified_attributes' => $request->input('verified_attributes', []),
             ]
         );
+
+        // Status changes only through the review service (audited).
+        app(\App\Services\Verification\VerificationReviewService::class)->submitForReview($verification, $user);
+        $verification->refresh();
 
         AuditLog::create([
             'user_id' => $user->id,
@@ -131,15 +134,11 @@ class OrganizationVerificationWebController extends Controller
             return redirect()->back()->withErrors(['document' => $documents->message($reason)])->withInput();
         }
 
-        $verification = OrganizationVerification::firstOrCreate(
-            [
-                'organization_id' => $org->id,
-                'target_role' => $request->input('target_role'),
-            ],
-            [
-                'status' => OrganizationVerification::STATUS_DRAFT,
-            ]
-        );
+        // New records start as "draft" (database default); status is never set here.
+        $verification = OrganizationVerification::firstOrCreate([
+            'organization_id' => $org->id,
+            'target_role' => $request->input('target_role'),
+        ]);
 
         $file = $request->file('document');
         $ext = ['application/pdf' => 'pdf', 'image/jpeg' => 'jpg', 'image/png' => 'png'][$file->getMimeType()];

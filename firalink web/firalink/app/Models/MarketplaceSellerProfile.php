@@ -42,9 +42,8 @@ class MarketplaceSellerProfile extends Model
         'logo_path',
         'banner_path',
         'license_document_path',
-        'verification_status',
-        'verified_at',
-        'verification_notes',
+        // verification_status, verified_at and verification_notes are NOT fillable:
+        // they change only through App\Services\Verification\VerificationReviewService.
     ];
 
     protected $casts = [
@@ -85,6 +84,12 @@ class MarketplaceSellerProfile extends Model
     public function isVerified(): bool
     {
         return $this->verification_status === 'verified';
+    }
+
+    /** Supplier pages buyers may see: same rule as lots (approved seller business, not suspended). */
+    public function scopeVisibleToBuyers($query)
+    {
+        return $query->whereHas('organization', \App\Services\Verification\VerificationReviewService::approvedSellerConstraint());
     }
 
     public function scopeVerified($query)

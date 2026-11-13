@@ -305,7 +305,7 @@ class MarketplaceSeeder extends Seeder
                 ]
             );
 
-            MarketplaceSellerProfile::updateOrCreate(
+            $profile = MarketplaceSellerProfile::updateOrCreate(
                 ['user_id' => $user->id],
                 [
                     'company_name' => $sData['company_name'],
@@ -325,11 +325,15 @@ class MarketplaceSeeder extends Seeder
                     'address' => $sData['address'],
                     'city' => $sData['city'],
                     'country' => $sData['country'],
-                    'verification_status' => 'verified',
-                    'verified_at' => now(),
-                    'verification_notes' => 'ECTA license and Ethiopian commercial registration verified.',
                 ]
             );
+            // Verification fields are not mass-assignable (slice 2). Demo data only; lots still stay
+            // hidden from buyers until the seller's business has an approved seller verification.
+            $profile->forceFill([
+                'verification_status' => 'verified',
+                'verified_at' => now(),
+                'verification_notes' => 'ECTA license and Ethiopian commercial registration verified.',
+            ])->save();
 
             $plan = MarketplaceSubscriptionPlan::where('slug', $sData['plan_slug'])->first();
             if ($plan) {

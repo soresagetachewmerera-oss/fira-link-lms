@@ -72,6 +72,8 @@ class MarketplaceController extends Controller
     public function toggleSave(Request $request, int $id): JsonResponse
     {
         $user = $request->user();
+        // Hidden lots cannot be saved (404, as if they did not exist).
+        CoffeeListing::visibleToBuyers()->findOrFail($id);
         $isSaved = $this->marketplaceService->toggleSaveListing($user, $id);
 
         return response()->json([
@@ -88,6 +90,7 @@ class MarketplaceController extends Controller
     public function savedListings(Request $request): JsonResponse
     {
         $listings = $request->user()->savedCoffeeListings()
+            ->visibleToBuyers()
             ->with(['primaryImage', 'seller.sellerProfile'])
             ->latest('marketplace_saved_listings.created_at')
             ->paginate(15);
@@ -105,7 +108,8 @@ class MarketplaceController extends Controller
     public function inquire(Request $request, int $id): JsonResponse
     {
         $user = $request->user();
-        $listing = CoffeeListing::findOrFail($id);
+        // Hidden lots cannot receive inquiries.
+        $listing = CoffeeListing::visibleToBuyers()->findOrFail($id);
 
         $validator = Validator::make($request->all(), [
             'inquiry_type' => 'required|in:general,sample_request,price_quote,visit_request',

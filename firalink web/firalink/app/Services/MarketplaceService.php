@@ -21,9 +21,11 @@ class MarketplaceService
      */
     public function getListings(Request $request, int $perPage = 15): LengthAwarePaginator
     {
+        // Only lots of businesses approved as sellers (hidden until approved, checked on the server).
         $query = CoffeeListing::query()
             ->with(['primaryImage', 'seller.sellerProfile', 'organization'])
-            ->where('status', 'active');
+            ->where('status', 'active')
+            ->visibleToBuyers();
 
         // Search Keyword (title, origin, washing station, tasting notes)
         if ($search = $request->input('search')) {
@@ -124,6 +126,22 @@ class MarketplaceService
             })
             ->firstOrFail();
 
+        // Hidden until approved: only the seller and members of the seller's business may open a
+        // lot whose business is not an approved seller. If the check fails, the lot stays hidden.
+        try {
+            $visible = \App\Services\Verification\VerificationReviewService::isApprovedSeller($listing->organization);
+        } catch (\Throwable $e) {
+            report($e);
+            $visible = false;
+        }
+        $isOwnLot = $currentUser && (
+            (int) $listing->seller_id === (int) $currentUser->id
+            || $currentUser->isActiveMemberOf($listing->organization_id)
+        );
+        if (!$visible && !$isOwnLot) {
+            throw (new \Illuminate\Database\Eloquent\ModelNotFoundException())->setModel(CoffeeListing::class);
+        }
+
         // Increment view count
         $listing->increment('views_count');
 
@@ -140,6 +158,7 @@ class MarketplaceService
         $relatedLots = CoffeeListing::query()
             ->with('primaryImage')
             ->where('status', 'active')
+            ->visibleToBuyers()
             ->where('id', '!=', $listing->id)
             ->where(function ($q) use ($listing) {
                 $q->where('origin_region', $listing->origin_region)

@@ -161,7 +161,6 @@ class OrganizationVerificationController extends Controller
                 'target_role' => $request->input('target_role'),
             ],
             [
-                'status' => OrganizationVerification::STATUS_PENDING_REVIEW,
                 'tin_number' => $tin,
                 'license_number' => $license,
                 'issuing_authority' => $request->input('issuing_authority', 'ECTA'),
@@ -172,6 +171,10 @@ class OrganizationVerificationController extends Controller
                 'broker_mandate_expires_at' => $request->input('broker_mandate_expires_at'),
             ]
         );
+
+        // Status changes only through the review service (audited).
+        app(\App\Services\Verification\VerificationReviewService::class)->submitForReview($verification, $user);
+        $verification->refresh();
 
         // Security Audit Trail
         AuditLog::create([
@@ -228,15 +231,11 @@ class OrganizationVerificationController extends Controller
             return response()->json($documents->errorResponse('document', $reason), 422);
         }
 
-        $verification = OrganizationVerification::firstOrCreate(
-            [
-                'organization_id' => $org->id,
-                'target_role' => $request->input('target_role'),
-            ],
-            [
-                'status' => OrganizationVerification::STATUS_DRAFT,
-            ]
-        );
+        // New records start as "draft" (database default); status is never set here.
+        $verification = OrganizationVerification::firstOrCreate([
+            'organization_id' => $org->id,
+            'target_role' => $request->input('target_role'),
+        ]);
 
         $file = $request->file('document');
         // Extension comes from the detected content type, never from the client name.

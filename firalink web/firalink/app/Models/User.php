@@ -56,6 +56,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'active_organization_id',
         'onboarding_intent',
+        'onboarding_intents',
         'is_approved',
         'bio',
         'phone',
@@ -99,6 +100,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'phone_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_approved' => 'boolean',
+            'onboarding_intents' => 'array',
             'must_reset_password' => 'boolean',
             'balance' => 'decimal:2',
         ];
@@ -371,43 +373,31 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(OrganizationMembership::class);
     }
 
+    /** The user has an active membership in this organization. */
+    public function isActiveMemberOf(?int $organizationId): bool
+    {
+        if (!$organizationId) {
+            return false;
+        }
+
+        return OrganizationMembership::where('organization_id', $organizationId)
+            ->where('user_id', $this->id)
+            ->where('is_active', true)
+            ->exists();
+    }
+
+    /**
+     * The user's main business, or null. Never creates one: a business exists only when the
+     * user sets it up (POST /api/user/organizations). Only active memberships count.
+     */
     public function primaryOrganization(): ?Organization
     {
-        if ($this->sellerProfile?->organization) {
-            return $this->sellerProfile->organization;
+        $sellerOrg = $this->sellerProfile?->organization;
+        if ($sellerOrg && $this->isActiveMemberOf($sellerOrg->id)) {
+            return $sellerOrg;
         }
 
-        $org = $this->organizations()->wherePivot('is_active', true)->first();
-        if ($org) {
-            return $org;
-        }
-
-        // Auto-provision an organization for the user if none exists
-        $name = trim($this->name ?: 'Business Entity');
-        $slug = \Illuminate\Support\Str::slug($name);
-        if (empty($slug)) {
-            $slug = 'business-' . $this->id;
-        } elseif (\App\Models\Organization::where('slug', $slug)->exists()) {
-            $slug .= '-' . $this->id;
-        }
-
-        $org = \App\Models\Organization::create([
-            'name' => $name,
-            'slug' => $slug,
-            'country' => 'Ethiopia',
-            'status' => 'active',
-            'is_verified' => false,
-            'verified_roles' => [],
-        ]);
-
-        \App\Models\OrganizationMembership::create([
-            'organization_id' => $org->id,
-            'user_id' => $this->id,
-            'role' => 'owner',
-            'is_active' => true,
-        ]);
-
-        return $org;
+        return $this->organizations()->wherePivot('is_active', true)->orderBy('organization_memberships.created_at')->first();
     }
 
     public function activeOrganization(): BelongsTo
@@ -415,25 +405,39 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(Organization::class, 'active_organization_id');
     }
 
+    /**
+     * The business workspace the user is working in, or null for the Personal space.
+     * The membership is checked every time, so a removed member loses the workspace at once.
+     */
     public function currentOrganization(): ?Organization
     {
-        if ($this->active_organization_id) {
-            $activeOrg = Organization::find($this->active_organization_id);
-            if ($activeOrg) {
-                return $activeOrg;
-            }
+        if (!$this->active_organization_id) {
+            return null;
         }
-        return $this->primaryOrganization();
+
+        if (!$this->isActiveMemberOf($this->active_organization_id)) {
+            // Membership ended: fall back to Personal and forget the stale workspace.
+            $this->forceFill(['active_organization_id' => null])->saveQuietly();
+
+            return null;
+        }
+
+        return Organization::find($this->active_organization_id);
     }
 
-    public function switchOrganization(int $organizationId): bool
+    /**
+     * Switch to a business the user is an active member of, or to Personal with null.
+     * Nobody (admins included) can switch into a business they are not a member of;
+     * admins see other businesses only through admin screens.
+     */
+    public function switchOrganization(?int $organizationId): bool
     {
-        $hasAccess = $this->organizations()->where('organizations.id', $organizationId)->wherePivot('is_active', true)->exists();
-        if (!$hasAccess && !$this->isAdmin()) {
+        if ($organizationId !== null && !$this->isActiveMemberOf($organizationId)) {
             return false;
         }
 
         $this->active_organization_id = $organizationId;
+
         return $this->save();
     }
 

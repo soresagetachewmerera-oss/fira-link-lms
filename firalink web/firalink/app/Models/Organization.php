@@ -12,21 +12,27 @@ class Organization extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * is_verified, verified_roles, status and needs_manual_review are NOT fillable: they change
+     * only through App\Services\Verification\VerificationReviewService (with an audit-log entry).
+     */
     protected $fillable = [
         'name',
         'slug',
         'business_type',
-        'status',
+        'business_role',
+        'entity_type',
+        'tin_number',
         'logo_path',
         'billing_email',
         'country',
-        'is_verified',
-        'verified_roles',
+        'created_by',
     ];
 
     protected $casts = [
         'is_verified' => 'boolean',
         'verified_roles' => 'array',
+        'needs_manual_review' => 'boolean',
     ];
 
     public function verifications(): HasMany
@@ -56,23 +62,40 @@ class Organization extends Model
         return $this->activeVerificationForRole($role) !== null;
     }
 
+    /** Recompute cached verification flags (delegates to the review service, which audits). */
     public function syncVerifiedRoles(): void
     {
-        $approvedRoles = $this->verifications()
-            ->where('status', OrganizationVerification::STATUS_APPROVED)
-            ->where(function ($q) {
-                $q->whereNull('license_expires_at')
-                  ->orWhere('license_expires_at', '>', now());
-            })
-            ->pluck('target_role')
-            ->unique()
-            ->values()
-            ->toArray();
+        app(\App\Services\Verification\VerificationReviewService::class)->syncOrganization($this);
+    }
 
-        $this->update([
-            'is_verified' => count($approvedRoles) > 0,
-            'verified_roles' => $approvedRoles,
-        ]);
+    /**
+     * Status shown for a workspace in the app, derived only from verification records and the
+     * organization's own suspension. Plans, payments and subscriptions never affect it.
+     * One of: suspended, verified, in_review, needs_changes, expired, not_started.
+     */
+    public function workspaceStatus(): string
+    {
+        if ($this->status === 'suspended') {
+            return 'suspended';
+        }
+
+        $statuses = $this->verifications()->get(['status', 'license_expires_at'])->map(function ($v) {
+            if ($v->status === OrganizationVerification::STATUS_APPROVED && $v->license_expires_at && $v->license_expires_at->isPast()) {
+                return OrganizationVerification::STATUS_EXPIRED;
+            }
+
+            return $v->status;
+        });
+
+        return match (true) {
+            $statuses->contains(OrganizationVerification::STATUS_SUSPENDED) => 'suspended',
+            $statuses->contains(OrganizationVerification::STATUS_APPROVED) => 'verified',
+            $statuses->contains(OrganizationVerification::STATUS_PENDING_REVIEW),
+            $statuses->contains(OrganizationVerification::STATUS_UNDER_SCRUTINY) => 'in_review',
+            $statuses->contains(OrganizationVerification::STATUS_REJECTED) => 'needs_changes',
+            $statuses->contains(OrganizationVerification::STATUS_EXPIRED) => 'expired',
+            default => 'not_started',
+        };
     }
 
     public function memberships(): HasMany

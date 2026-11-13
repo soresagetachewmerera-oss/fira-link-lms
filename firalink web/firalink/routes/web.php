@@ -251,7 +251,8 @@ Route::post('/billing/webhook/{provider}', [\App\Http\Controllers\BillingWebhook
 // ==========================================
 // FIRA EXPORT DOCS STUDIO (WEB ROUTES)
 // ==========================================
-Route::prefix('export-docs')->name('export-docs.')->group(function () {
+// Signed-in users only: these pages show a business's own shipments and documents.
+Route::prefix('export-docs')->name('export-docs.')->middleware('auth')->group(function () {
     // Template Marketplace & Catalog
     Route::get('/', [\App\Http\Controllers\ExportDocsWebController::class, 'index'])->name('index');
     Route::get('/templates/{code}/start', [\App\Http\Controllers\ExportDocsWebController::class, 'startFromTemplate'])->name('templates.start');

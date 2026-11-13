@@ -32,14 +32,13 @@ class MarketplaceOwnershipTest extends TestCase
         $seller = $this->makeUser();
         $org = $this->makeOrganization($seller);
         $suffix = Str::lower(Str::random(8));
-        MarketplaceSellerProfile::create([
+        tap(MarketplaceSellerProfile::create([
             'user_id' => $seller->id,
             'organization_id' => $org->id,
             'company_name' => 'Sample Seller ' . $suffix,
             'company_slug' => 'sample-seller-' . $suffix,
             'business_type' => 'exporter',
-            'verification_status' => 'verified',
-        ]);
+        ]), fn ($p) => $p->forceFill(['verification_status' => 'verified'])->save());
         $listing = CoffeeListing::create([
             'seller_id' => $seller->id,
             'organization_id' => $org->id,

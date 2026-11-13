@@ -149,10 +149,14 @@ class MarketplaceSellerController extends Controller
                 $request->file('license_document'),
                 'marketplace/sellers/documents'
             );
-            $profile->verification_status = 'under_review';
         }
 
         $profile->save();
+
+        // A new licence document puts the profile back in review (audited, via the review service).
+        if ($request->hasFile('license_document')) {
+            app(\App\Services\Verification\VerificationReviewService::class)->markSellerProfileUnderReview($profile, $user);
+        }
 
         return response()->json([
             'success' => true,
@@ -494,9 +498,14 @@ class MarketplaceSellerController extends Controller
                 ], 422);
             }
 
-            $org = $user->primaryOrganization();
+            // No automatic business creation: the user sets one up first (Business setup).
+            $org = $user->currentOrganization() ?? $user->primaryOrganization();
             if (!$org) {
-                $org = \App\Models\Organization::createPersonalForUser($user);
+                return response()->json([
+                    'success' => false,
+                    'code' => 'ORGANIZATION_REQUIRED',
+                    'message' => 'Create a business workspace before choosing a plan.',
+                ], 422);
             }
 
             // Enforce RBAC: Only organization owner can manage or purchase billing

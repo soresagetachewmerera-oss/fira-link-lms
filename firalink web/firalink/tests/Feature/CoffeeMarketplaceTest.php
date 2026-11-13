@@ -10,10 +10,15 @@ use App\Models\MarketplaceSubscriptionPlan;
 use App\Models\Organization;
 use App\Models\User;
 use App\Models\UserMarketplaceSubscription;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\Concerns\ApprovesBusinesses;
+use Tests\Concerns\BuildsTradeFixtures;
 use Tests\TestCase;
 
 class CoffeeMarketplaceTest extends TestCase
 {
+    use DatabaseTransactions, BuildsTradeFixtures, ApprovesBusinesses;
+
     /**
      * Test public marketplace catalog web page loads.
      */
@@ -31,8 +36,21 @@ class CoffeeMarketplaceTest extends TestCase
      */
     public function test_marketplace_listing_detail_page_loads(): void
     {
-        $lot = CoffeeListing::first();
-        $this->assertNotNull($lot, 'A seeded coffee listing must exist.');
+        // Lots are visible only when the seller business holds an approved, unexpired seller verification.
+        $seller = $this->makeUser();
+        $org = $this->makeOrganization($seller);
+        $this->approveBusiness($org, 'exporter');
+        $lot = CoffeeListing::create([
+            'seller_id' => $seller->id,
+            'organization_id' => $org->id,
+            'title' => 'Approved Seller Lot ' . uniqid(),
+            'origin_region' => 'Yirgacheffe',
+            'processing_method' => 'washed',
+            'grade' => 'grade_1',
+            'total_quantity_bags' => 10,
+            'indicative_price_usd_per_lb' => 5,
+            'status' => 'active',
+        ])->refresh();
 
         $response = $this->get("/marketplace/listings/{$lot->slug}");
 
@@ -142,9 +160,8 @@ class CoffeeMarketplaceTest extends TestCase
             'slug' => 'buyer-roasters-' . uniqid(),
             'type' => 'buyer',
             'country' => 'Netherlands',
-            'is_verified' => true,
-            'verified_roles' => ['buyer'],
         ]);
+        $this->approveBusiness($buyerOrg, 'buyer');
         $buyer->organizations()->attach($buyerOrg->id, ['role' => 'owner', 'is_active' => true]);
         $buyer->update(['active_organization_id' => $buyerOrg->id]);
         $seller = User::factory()->create([
@@ -155,12 +172,11 @@ class CoffeeMarketplaceTest extends TestCase
         ]);
 
         // Give seller verified profile and pro plan
-        MarketplaceSellerProfile::create([
+        tap(MarketplaceSellerProfile::create([
             'user_id' => $seller->id,
             'company_name' => 'Test Exporter PLC',
             'business_type' => 'exporter',
-            'verification_status' => 'verified',
-        ]);
+        ]), fn ($p) => $p->forceFill(['verification_status' => 'verified'])->save());
 
         $proPlan = MarketplaceSubscriptionPlan::where('slug', 'seller_pro')->first();
         if ($proPlan) {

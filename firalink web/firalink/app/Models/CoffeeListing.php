@@ -93,6 +93,16 @@ class CoffeeListing extends Model
         'sensory_attributes' => 'array',
     ];
 
+    /**
+     * Lots buyers may see: the seller's business has an approved, unexpired seller verification
+     * and is not suspended. Lots without a business are hidden (fail closed).
+     * Slice 3 replaces this with the Tier 1 rule.
+     */
+    public function scopeVisibleToBuyers($query)
+    {
+        return $query->whereHas('organization', \App\Services\Verification\VerificationReviewService::approvedSellerConstraint());
+    }
+
     protected static function boot()
     {
         parent::boot();

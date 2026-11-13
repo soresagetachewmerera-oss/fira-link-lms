@@ -132,6 +132,9 @@ Route::prefix('marketplace')->group(function () {
     Route::post('/subscribe/chapa/verify', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'chapaVerify']);
 });
 
+// Business setup options: entity types, roles, countries (one list, slice 2)
+Route::get('/workspaces/options', [\App\Http\Controllers\Api\OrganizationController::class, 'options']);
+
 // SaaS Dynamic Entitlements API (Server Authority Snapshot)
 Route::get('/org/{id}/entitlements', [\App\Http\Controllers\Api\OrganizationEntitlementApiController::class, 'show']);
 Route::middleware('auth:sanctum')->get('/user/organization/entitlements', [\App\Http\Controllers\Api\OrganizationEntitlementApiController::class, 'current']);

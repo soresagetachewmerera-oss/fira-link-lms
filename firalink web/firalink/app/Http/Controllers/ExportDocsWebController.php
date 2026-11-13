@@ -25,28 +25,23 @@ class ExportDocsWebController extends Controller
     /**
      * Resolve the active organization for the current user.
      */
+    /**
+     * The signed-in user's own business. Never another business: there used to be a fallback to
+     * the first organization in the database, which showed one company's documents to everyone.
+     */
     protected function resolveOrganization(Request $request): Organization
     {
         $user = $request->user();
-        if ($user) {
-            $org = $user->primaryOrganization();
-            if ($org) {
-                return $org;
-            }
+        $org = $user?->currentOrganization() ?? $user?->primaryOrganization();
+
+        if (!$org) {
+            throw new \Illuminate\Http\Exceptions\HttpResponseException(
+                redirect()->route('marketplace.dashboard')
+                    ->with('warning', 'Create a business workspace in the Fira Link app to use the export documents studio.')
+            );
         }
 
-        $first = Organization::first();
-        if ($first) {
-            return $first;
-        }
-
-        return Organization::create([
-            'name' => 'Ethiopian Specialty Coffee Exporters PLC',
-            'slug' => 'ethiopian-specialty-coffee-exporters',
-            'type' => 'exporter',
-            'country' => 'Ethiopia',
-            'verification_status' => 'approved',
-        ]);
+        return $org;
     }
 
     /**

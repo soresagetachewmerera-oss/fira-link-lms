@@ -24,10 +24,13 @@ class OrganizationVerification extends Model
     public const ROLE_BUYER = 'buyer';
     public const ROLE_BROKER = 'broker';
 
+    /**
+     * status, reviewed_by, reviewed_at, admin_notes and rejection_reason are NOT fillable:
+     * they change only through App\Services\Verification\VerificationReviewService.
+     */
     protected $fillable = [
         'organization_id',
         'target_role',
-        'status',
         'tin_number',
         'license_number',
         'license_issued_at',
@@ -36,10 +39,6 @@ class OrganizationVerification extends Model
         'verified_attributes',
         'broker_principal_org_id',
         'broker_mandate_expires_at',
-        'reviewed_by',
-        'reviewed_at',
-        'admin_notes',
-        'rejection_reason',
     ];
 
     protected $casts = [

@@ -81,14 +81,13 @@ class TrustIsNeverForSaleTest extends TestCase
             'email' => "unverified_{$unique}@example.com",
         ]);
 
-        $sellerProfile = MarketplaceSellerProfile::create([
+        $sellerProfile = tap(MarketplaceSellerProfile::create([
             'user_id' => $user->id,
             'company_name' => 'Unverified Coffee Trader ' . $unique,
             'company_slug' => 'unverified-coffee-' . $unique,
             'business_type' => 'exporter',
-            'verification_status' => 'unverified',
             'verification_tier' => 'none',
-        ]);
+        ]), fn ($p) => $p->forceFill(['verification_status' => 'unverified'])->save());
 
         $org = Organization::create([
             'name' => $sellerProfile->company_name,

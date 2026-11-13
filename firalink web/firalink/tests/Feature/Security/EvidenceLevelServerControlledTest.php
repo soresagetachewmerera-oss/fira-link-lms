@@ -31,13 +31,12 @@ class EvidenceLevelServerControlledTest extends TestCase
     {
         $seller = $this->makeUser();
         $suffix = Str::lower(Str::random(8));
-        MarketplaceSellerProfile::create([
+        tap(MarketplaceSellerProfile::create([
             'user_id' => $seller->id,
             'company_name' => 'Verified Exporter ' . $suffix,
             'company_slug' => 'verified-exporter-' . $suffix,
             'business_type' => 'exporter',
-            'verification_status' => 'verified',
-        ]);
+        ]), fn ($p) => $p->forceFill(['verification_status' => 'verified'])->save());
 
         return $seller;
     }
