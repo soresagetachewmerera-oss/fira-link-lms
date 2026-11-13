@@ -156,6 +156,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::get('/{id}', [\App\Http\Controllers\Api\DealRoomController::class, 'show']);
         Route::post('/{id}/sign-contract', [\App\Http\Controllers\Api\DealRoomController::class, 'signContract']);
         Route::post('/{id}/milestones/{milestoneId}/advance', [\App\Http\Controllers\Api\DealRoomController::class, 'advanceMilestone']);
+        // Admin or finance only: confirm a milestone after the bank confirms it
+        Route::post('/{id}/milestones/{milestoneId}/confirm', [\App\Http\Controllers\Api\DealRoomController::class, 'confirmMilestone']);
         Route::post('/{id}/dispute', [\App\Http\Controllers\Api\DealRoomController::class, 'raiseDispute']);
         Route::post('/{id}/complete', [\App\Http\Controllers\Api\DealRoomController::class, 'completeDeal']);
     });

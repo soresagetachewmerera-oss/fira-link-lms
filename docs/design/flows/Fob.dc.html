@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FOB and profit calculator</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box}
+.t{font-size:14px;font-weight:600}
+.d{font-size:12px;line-height:1.5;color:#6B7280}
+.pill{display:inline-flex;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;white-space:nowrap}
+.row{display:flex;align-items:center;gap:12px}
+.ph{background:#EFE9F4;color:#4B5563;display:flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+.inp{box-sizing:border-box;width:100%;height:52px;border:1px solid #E9D5FF;border-radius:16px;padding:0 16px;font-size:14px;font-family:inherit;color:#1E1B4B;background:#FFFFFF}
+.lbl{font-size:13px;font-weight:600;margin:0 0 6px;display:block}
+.btn{display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;font-size:15px;font-weight:600;box-sizing:border-box;width:100%}
+.chip{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:12px;border:1px solid #E9D5FF;background:#FFFFFF;font-size:13px;font-weight:500;white-space:nowrap;flex:none}
+.chip.on{background:#6D1A95;border-color:#6D1A95;color:#FFFFFF}
+.ln{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #F3E8FF;min-height:52px;box-sizing:border-box}
+.ln:first-child{border-top:0}
+.tx{display:flex;gap:8px;overflow:hidden}
+</style>
+</helmet>
+<div id="root" style="width:390px;height:844px;box-sizing:border-box;background:#F9F7FA;position:relative;overflow:hidden;padding:0 20px 24px;display:flex;flex-direction:column;gap:12px">
+
+<div style="height:56px;display:flex;align-items:center;gap:4px;margin:0 -8px;flex:none"><a href="Toolkit.dc.html" aria-label="Back" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#1E1B4B;flex:none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a><div style="font-size:22px;font-weight:700;letter-spacing:-0.3px;flex:1">FOB calculator</div></div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style=""><label class="lbl" for="c1">Purchase price</label><input class="inp" id="c1" type="text" placeholder="[ETB / kg]"></div><div style=""><label class="lbl" for="c2">Volume</label><input class="inp" id="c2" type="text" placeholder="[kg]"></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style=""><label class="lbl" for="c3">Processing and milling</label><input class="inp" id="c3" type="text" placeholder="[ETB]"></div><div style=""><label class="lbl" for="c4">Packing</label><input class="inp" id="c4" type="text" placeholder="[ETB]"></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style=""><label class="lbl" for="c5">Transport to port</label><input class="inp" id="c5" type="text" placeholder="[ETB]"></div><div style=""><label class="lbl" for="c6">Export fees and docs</label><input class="inp" id="c6" type="text" placeholder="[ETB]"></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style=""><label class="lbl" for="c7">Bank charges</label><input class="inp" id="c7" type="text" placeholder="[ETB]"></div><div style=""><label class="lbl" for="c8">Your margin</label><input class="inp" id="c8" type="text" placeholder="[%]"></div></div>
+<div style=""><label class="lbl" for="c9">Exchange rate</label><input class="inp" id="c9" type="text" placeholder="[ETB per USD]"><div class="d" style="margin-top:4px">Your own rate, or the one from [source] on [date].</div></div>
+</div>
+<div style="background:linear-gradient(140deg,#3B0764,#5B1485);border-radius:24px;padding:18px 20px;color:#FFFFFF;flex:none">
+<div style="font-size:12px;color:#E9D5FF">FOB price</div><div style="font-size:28px;font-weight:700;letter-spacing:-0.45px">[USD] <span style="font-size:14px;font-weight:500">per lb</span></div>
+<div style="display:flex;gap:20px;margin-top:10px;font-size:12px;color:#E9D5FF"><div>Total<br><b style="color:#FFFFFF;font-size:15px">[USD]</b></div><div>Profit<br><b style="color:#FFFFFF;font-size:15px">[USD]</b></div><div>Margin<br><b style="color:#FFFFFF;font-size:15px">[%]</b></div></div></div>
+<div class="d">Results come only from the numbers you enter. This is an estimate, not a price guarantee.</div>
+<div style="display:flex;gap:10px;margin-top:auto"><a class="btn" href="Toolkit.dc.html" style="background:#F3E8FF;color:#6D1A95;flex:1">Save</a><a class="btn" href="QuoteRespond.dc.html" style="background:#6D1A95;color:#FFFFFF;flex:1">Make an offer</a></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

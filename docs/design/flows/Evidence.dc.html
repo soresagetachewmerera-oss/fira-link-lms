@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lot evidence level</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.lv{display:flex;align-items:flex-start;gap:14px;box-sizing:border-box;padding:14px 16px;border:1px solid #E9D5FF;border-radius:22px;background:#FFFFFF}
+.lv input{width:22px;height:22px;accent-color:#6D1A95;margin:2px 0 0;flex:none}
+.t{font-size:15px;font-weight:600}
+.d{font-size:12px;line-height:1.5;color:#6B7280;margin-top:3px}
+.m{display:flex;gap:4px;margin-top:8px}
+.m i{width:28px;height:6px;border-radius:3px;background:#E9D5FF;display:block}
+.m i.f{background:#6D1A95}
+.ck{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #E9D5FF;font-size:13px}
+</style>
+</helmet>
+<div style="width:390px;height:1000px;box-sizing:border-box;background:#F9F7FA;padding:0 20px 24px;display:flex;flex-direction:column;gap:12px">
+<div style="height:56px;display:flex;align-items:center;gap:4px;margin:0 -8px">
+<a href="Dossier.dc.html" aria-label="Back" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#1E1B4B"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<div style="font-size:22px;font-weight:700;letter-spacing:-0.3px">Lot evidence</div>
+</div>
+<div style="font-size:12px;font-weight:600;color:#6D1A95">Step 3 of 4 · [Lot name]</div>
+<p style="margin:0;font-size:14px;line-height:1.5;color:#6B7280">How well can you back up this lot? Buyers can filter by level, and the level shows on your lot card.</p>
+<label class="lv"><input type="radio" name="lv"><div><div class="t">Claimed</div><div class="d">You declare the details. Shown with a gray label.</div><div class="m"><i class="f"></i><i></i><i></i><i></i></div></div></label>
+<div class="lv" style="border:2px solid #6D1A95;background:#F3E8FF;flex-direction:column;gap:6px">
+<div style="display:flex;align-items:flex-start;gap:14px;width:100%">
+<input type="radio" name="lv" checked style="width:22px;height:22px;accent-color:#6D1A95;margin:2px 0 0;flex:none">
+<div><div class="t">Documented</div><div class="d">Photos taken inside the app with time, location and your lot code.</div><div class="m"><i class="f"></i><i class="f"></i><i></i><i></i></div></div>
+</div>
+<div style="width:100%;padding-left:36px;box-sizing:border-box;margin-top:6px">
+<div style="font-size:12px;font-weight:600;color:#3B0764;margin-bottom:2px">Photos needed</div>
+<div class="ck"><span style="flex:1">Green beans, close up</span><span style="font-size:12px;font-weight:600;color:#065F46">Captured</span></div>
+<div class="ck"><span style="flex:1">Bags showing the lot code</span><span style="font-size:12px;font-weight:600;color:#065F46">Captured</span></div>
+<a class="ck" href="Capture.dc.html"><span style="flex:1">Warehouse view</span><span style="font-size:12px;font-weight:600;color:#6D1A95">Take photo</span></a>
+</div>
+</div>
+<label class="lv"><input type="radio" name="lv"><div><div class="t">Lab-backed</div><div class="d">Upload a lab or cupping report. We confirm the report with the lab that issued it.</div><div class="m"><i class="f"></i><i class="f"></i><i class="f"></i><i></i></div></div></label>
+<label class="lv"><input type="radio" name="lv"><div><div class="t">Inspected</div><div class="d">An independent inspector confirms the quantity and quality. Cost is set by the inspector.</div><div class="m"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i></div></div></label>
+<div style="background:#FEF3C7;border-radius:16px;padding:12px 14px;font-size:12px;line-height:1.5;color:#92400E">This lot expires on [date]. Renew it with new photos to keep it visible. Gallery photos are not accepted for Documented lots.</div>
+<a href="LotDetail.dc.html" style="margin-top:auto;display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;background:#6D1A95;color:#FFFFFF;font-size:15px;font-weight:600">Review lot</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

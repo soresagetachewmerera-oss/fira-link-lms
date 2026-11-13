@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Deal room</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box;overflow:hidden}
+.hd{padding:14px 16px 8px;font-size:16px;font-weight:600;letter-spacing:-0.15px}
+.row{display:flex;align-items:center;gap:12px;padding:9px 16px;border-top:1px solid #F3E8FF;min-height:50px;box-sizing:border-box}
+.t{font-size:14px;font-weight:600}
+.d{font-size:12px;line-height:1.4;color:#6B7280;margin-top:1px}
+.dot{width:24px;height:24px;border-radius:999px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex:none}
+.pill{display:inline-flex;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600}
+</style>
+</helmet>
+<div style="width:390px;height:1200px;box-sizing:border-box;background:#F9F7FA;padding:0 20px 24px;display:flex;flex-direction:column;gap:12px">
+<div style="height:56px;display:flex;align-items:center;gap:4px;margin:0 -8px">
+<a href="Compare.dc.html" aria-label="Back" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#1E1B4B"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<div style="font-size:22px;font-weight:700;letter-spacing:-0.3px;flex:1">Deal room</div>
+</div>
+<div style="background:linear-gradient(140deg,#3B0764 0%,#5B1485 100%);border-radius:24px;padding:20px;color:#FFFFFF;display:flex;flex-direction:column;gap:8px">
+<div style="font-size:12px;color:#E9D5FF">[Deal name] · [Incoterm]</div>
+<div style="font-size:26px;font-weight:700;letter-spacing:-0.45px">[Contract value]</div>
+<div style="font-size:13px;color:#E9D5FF">[Volume] · [Price] per lb · Ship by [date]</div>
+<div style="display:flex;gap:4px;margin-top:6px"><div style="flex:1;height:6px;border-radius:3px;background:#FFFFFF"></div><div style="flex:1;height:6px;border-radius:3px;background:#C084FC"></div><div style="flex:1;height:6px;border-radius:3px;background:#6B21A8"></div><div style="flex:1;height:6px;border-radius:3px;background:#6B21A8"></div><div style="flex:1;height:6px;border-radius:3px;background:#6B21A8"></div><div style="flex:1;height:6px;border-radius:3px;background:#6B21A8"></div></div>
+<div style="font-size:12px;color:#E9D5FF">Step 2 of 6 · Waiting for deposit</div>
+</div>
+<div class="card" style="padding:12px 16px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:center;gap:10px"><div style="flex:1"><div class="d" style="margin:0">Buyer</div><div class="t">[Buyer business]</div></div><span class="pill" style="background:#D1FAE5;color:#065F46">Verified</span></div>
+<div style="display:flex;align-items:center;gap:10px"><div style="flex:1"><div class="d" style="margin:0">Seller</div><div class="t">[Seller business]</div></div><span class="pill" style="background:#D1FAE5;color:#065F46">Verified · Tier 2</span></div>
+</div>
+<div class="card">
+<div class="hd">Milestones</div>
+<div class="row"><div class="dot" style="background:#6D1A95;color:#FFFFFF"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></div><div style="flex:1"><div class="t">Contract signed</div><div class="d">Both parties, [date]</div></div></div>
+<a class="row" href="Milestones.dc.html" style="background:#F3E8FF"><div class="dot" style="border:3px solid #6D1A95;background:#FFFFFF"></div><div style="flex:1"><div class="t">Payment secured</div><div class="d">Deposit [amount] due [date]</div></div><span style="font-size:12px;font-weight:600;color:#6D1A95">Open</span></a>
+<div class="row"><div class="dot" style="border:2px solid #D8B4FE"></div><div style="flex:1"><div class="t" style="color:#6B7280">Pre-shipment inspection</div></div></div>
+<div class="row"><div class="dot" style="border:2px solid #D8B4FE"></div><div style="flex:1"><div class="t" style="color:#6B7280">Shipped</div></div></div>
+<div class="row"><div class="dot" style="border:2px solid #D8B4FE"></div><div style="flex:1"><div class="t" style="color:#6B7280">Documents released</div></div></div>
+<div class="row"><div class="dot" style="border:2px solid #D8B4FE"></div><div style="flex:1"><div class="t" style="color:#6B7280">Delivered and confirmed</div></div></div>
+</div>
+<div class="card">
+<div class="hd">Documents</div>
+<div class="row"><div style="flex:1"><div class="t">Sales contract</div><div class="d">Signed [date]</div></div><span class="pill" style="background:#D1FAE5;color:#065F46">Signed</span></div>
+<div class="row"><div style="flex:1"><div class="t">Retained sample record</div><div class="d">Seal ID [ID]</div></div><span class="pill" style="background:#F3E8FF;color:#6D1A95">Linked</span></div>
+</div>
+<div class="card">
+<div class="hd">Activity</div>
+<div class="row"><div style="flex:1"><div class="t" style="font-weight:500;font-size:13px">[Seller] signed the contract</div><div class="d">[Date and time]</div></div></div>
+<div class="row"><div style="flex:1"><div class="t" style="font-weight:500;font-size:13px">[Buyer] signed the contract</div><div class="d">[Date and time]</div></div></div>
+</div>
+<div style="display:flex;gap:10px;margin-top:auto">
+<a href="ChatWarning.dc.html" style="flex:1;display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;background:#6D1A95;color:#FFFFFF;font-size:14px;font-weight:600">Open chat</a>
+<a href="Report.dc.html" style="flex:1;display:flex;align-items:center;justify-content:center;height:52px;box-sizing:border-box;border-radius:16px;border:1px solid #E9D5FF;background:#FFFFFF;color:#B91C1C;font-size:14px;font-weight:600">Report a problem</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1200}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -10,6 +10,7 @@ use App\Models\Organization;
 use App\Models\OrganizationVerification;
 use App\Models\TrustReport;
 use App\Models\User;
+use App\Services\PrivateDocumentStore;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -109,7 +110,7 @@ class PublicVerificationController extends Controller
             'reported_user_id' => 'nullable|exists:users,id',
             'reported_organization_id' => 'nullable|exists:organizations,id',
             'reported_listing_id' => 'nullable|exists:coffee_listings,id',
-            'evidence' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'evidence' => 'nullable|file|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -122,7 +123,12 @@ class PublicVerificationController extends Controller
 
         $evidencePath = null;
         if ($request->hasFile('evidence')) {
-            $evidencePath = $request->file('evidence')->store('trust_reports/evidence', 'public');
+            $documents = app(PrivateDocumentStore::class);
+            $reason = $documents->rejectionReason($request->file('evidence'));
+            if ($reason) {
+                return response()->json($documents->errorResponse('evidence', $reason), 422);
+            }
+            $evidencePath = $documents->store($request->file('evidence'), 'trust_reports/evidence');
         }
 
         $report = TrustReport::create([

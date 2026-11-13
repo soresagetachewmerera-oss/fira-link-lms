@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Language picker</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#F9F7FA;padding:96px 20px 40px;display:flex;flex-direction:column;gap:12px">
+<div style="width:56px;height:56px;box-sizing:border-box;border:2px dashed #C084FC;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#6D1A95">Logo</div>
+<h1 style="margin:20px 0 0;font-size:28px;font-weight:700;letter-spacing:-0.45px;line-height:1.2">Choose your language</h1>
+<p style="margin:0;font-size:16px;font-weight:600;color:#6D1A95">ቋንቋዎን ይምረጡ</p>
+<div style="display:flex;flex-direction:column;gap:12px;margin-top:20px">
+<label style="display:flex;align-items:center;gap:14px;height:72px;box-sizing:border-box;padding:0 20px;border:2px solid #6D1A95;border-radius:22px;background:#F3E8FF;font-size:17px;font-weight:600">
+<input type="radio" name="lang" checked style="width:22px;height:22px;accent-color:#6D1A95;margin:0">English
+</label>
+<label style="display:flex;align-items:center;gap:14px;height:72px;box-sizing:border-box;padding:0 20px;border:1px solid #E9D5FF;border-radius:22px;background:#FFFFFF;font-size:17px;font-weight:600">
+<input type="radio" name="lang" style="width:22px;height:22px;accent-color:#6D1A95;margin:0">አማርኛ
+</label>
+</div>
+<p style="margin:8px 0 0;font-size:13px;line-height:1.5;color:#6B7280">You can change this any time in Settings. Shown once, on first launch only.</p>
+<a href="Onboard1.dc.html" style="margin-top:auto;display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;background:#6D1A95;color:#FFFFFF;font-size:15px;font-weight:600">Continue</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

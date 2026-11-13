@@ -247,6 +247,37 @@ class MarketplaceAdminController extends Controller
     }
 
     /**
+     * Admin review: set a lot's evidence level after checking its evidence.
+     * This is the only way evidence_level changes.
+     */
+    public function reviewEvidenceLevel(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'evidence_level' => 'required|in:' . implode(',', CoffeeListing::EVIDENCE_LEVELS),
+            'notes' => 'required|string|min:5|max:1000',
+        ]);
+
+        $listing = CoffeeListing::findOrFail($id);
+        $before = $listing->evidence_level;
+
+        $listing->forceFill(['evidence_level' => $validated['evidence_level']])->save();
+
+        AuditLog::create([
+            'user_id' => $request->user()?->id,
+            'organization_id' => $listing->organization_id,
+            'action' => 'listing_evidence_level_reviewed',
+            'auditable_type' => CoffeeListing::class,
+            'auditable_id' => $listing->id,
+            'before_state' => ['evidence_level' => $before],
+            'after_state' => ['evidence_level' => $listing->evidence_level, 'notes' => $validated['notes']],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return redirect()->back()->with('success', "Evidence level for '{$listing->title}' set to {$listing->evidence_level}.");
+    }
+
+    /**
      * Toggle featured status.
      */
     public function toggleListingFeatured(Request $request, int $id)

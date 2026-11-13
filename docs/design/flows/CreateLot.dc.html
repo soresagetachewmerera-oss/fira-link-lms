@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Create a lot</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box}
+.t{font-size:14px;font-weight:600}
+.d{font-size:12px;line-height:1.5;color:#6B7280}
+.pill{display:inline-flex;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;white-space:nowrap}
+.row{display:flex;align-items:center;gap:12px}
+.ph{background:#EFE9F4;color:#4B5563;display:flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+.inp{box-sizing:border-box;width:100%;height:52px;border:1px solid #E9D5FF;border-radius:16px;padding:0 16px;font-size:14px;font-family:inherit;color:#1E1B4B;background:#FFFFFF}
+.lbl{font-size:13px;font-weight:600;margin:0 0 6px;display:block}
+.btn{display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;font-size:15px;font-weight:600;box-sizing:border-box;width:100%}
+.chip{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:12px;border:1px solid #E9D5FF;background:#FFFFFF;font-size:13px;font-weight:500;white-space:nowrap;flex:none}
+.chip.on{background:#6D1A95;border-color:#6D1A95;color:#FFFFFF}
+.ln{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #F3E8FF;min-height:52px;box-sizing:border-box}
+.ln:first-child{border-top:0}
+.tx{display:flex;gap:8px;overflow:hidden}
+</style>
+</helmet>
+<div id="root" style="width:390px;height:1220px;box-sizing:border-box;background:#F9F7FA;position:relative;overflow:hidden;padding:0 20px 24px;display:flex;flex-direction:column;gap:12px">
+
+<div style="height:56px;display:flex;align-items:center;gap:4px;margin:0 -8px;flex:none"><a href="SellerHome.dc.html" aria-label="Back" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#1E1B4B;flex:none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a><div style="font-size:22px;font-weight:700;letter-spacing:-0.3px;flex:1">Add a lot</div><span style="font-size:13px;font-weight:600;color:#6B7280;padding:0 8px">Save draft</span></div>
+<div style="display:flex;gap:6px;flex:none"><div style="flex:1"><div style="height:6px;border-radius:3px;background:#6D1A95"></div><div style="font-size:10px;margin-top:4px;font-weight:500;color:#6D1A95">Details</div></div><div style="flex:1"><div style="height:6px;border-radius:3px;background:#6D1A95"></div><div style="font-size:10px;margin-top:4px;font-weight:600;color:#6D1A95">Evidence</div></div><div style="flex:1"><div style="height:6px;border-radius:3px;background:#E9D5FF"></div><div style="font-size:10px;margin-top:4px;font-weight:500;color:#6B7280">Price</div></div><div style="flex:1"><div style="height:6px;border-radius:3px;background:#E9D5FF"></div><div style="font-size:10px;margin-top:4px;font-weight:500;color:#6B7280">Review</div></div></div>
+<div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:14px">
+<div class="row" style="justify-content:space-between"><div class="t">1 · Details</div><span class="pill" style="background:#D1FAE5;color:#065F46;">Done</span></div>
+<div style=""><label class="lbl" for="l1">Lot name</label><input class="inp" id="l1" type="text" placeholder="[Lot name]" value="[Lot name]"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style=""><label class="lbl" for="l2">Region</label><input class="inp" id="l2" type="text" placeholder="[Region]"></div><div style=""><label class="lbl" for="l3">Crop year</label><input class="inp" id="l3" type="text" placeholder="[Year]"></div></div>
+<div><div class="lbl">Process</div><div style="display:flex;gap:8px"><span class="chip on">Washed</span><span class="chip">Natural</span><span class="chip">Honey</span></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style=""><label class="lbl" for="l4">Grade</label><input class="inp" id="l4" type="text" placeholder="[G1 to G5]"></div><div style=""><label class="lbl" for="l5">Quantity</label><input class="inp" id="l5" type="text" placeholder="[kg or bags]"></div></div></div>
+<div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;border:2px solid #6D1A95">
+<div class="row" style="justify-content:space-between"><div class="t">2 · Evidence photos</div><span class="pill" style="background:#F3E8FF;color:#6D1A95;">In progress</span></div>
+<div class="d">Take these inside the app. We stamp time, place and lot code on each photo. Photos from the gallery do not count.</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<a href="Capture.dc.html" style="height:96px;border-radius:16px;border:1px dashed #C084FC;background:#F3E8FF;color:#6D1A95;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Bags with lot code</a>
+<a href="Capture.dc.html" style="height:96px;border-radius:16px;border:1px dashed #C084FC;background:#F3E8FF;color:#6D1A95;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Green beans close-up</a>
+<a href="Capture.dc.html" style="height:96px;border-radius:16px;border:1px dashed #C084FC;background:#F3E8FF;color:#6D1A95;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Warehouse view</a>
+<a href="Capture.dc.html" style="height:96px;border-radius:16px;border:1px dashed #D8B4FE;background:#FFFFFF;color:#6B7280;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:600"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg>Lab sheet (optional)</a></div>
+<div class="d">With 3 photos this lot shows as <b style="color:#6D1A95">Documented</b>. A lab sheet lets it reach Lab-backed later.</div></div>
+<div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:14px;background:#FBF7FE">
+<div class="row" style="justify-content:space-between"><div class="t" style="color:#6B7280">3 · Price</div><span class="pill" style="background:#F3F4F6;color:#4B5563;">Next</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style=""><label class="lbl" for="l6">Price per lb (FOB)</label><input class="inp" id="l6" type="text" placeholder="[USD]"></div><div style=""><label class="lbl" for="l7">Minimum order</label><input class="inp" id="l7" type="text" placeholder="[kg]"></div></div>
+<div class="d">Valid for [30] days. Lots expire unless you renew the evidence.</div></div>
+<div style="margin-top:auto"><a class="btn" href="CreateLot.dc.html" style="background:#6D1A95;color:#FFFFFF;">Continue to review</a></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1220}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

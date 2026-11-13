@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Payment milestones</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box;padding:16px;display:flex;flex-direction:column;gap:10px}
+.t{font-size:15px;font-weight:600}
+.d{font-size:12px;line-height:1.5;color:#6B7280}
+.r{display:flex;align-items:flex-start;gap:12px;padding:10px 12px;border:1px solid #E9D5FF;border-radius:16px}
+.r input{width:20px;height:20px;accent-color:#6D1A95;margin:1px 0 0;flex:none}
+.pill{display:inline-flex;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600}
+</style>
+</helmet>
+<div style="width:390px;height:1100px;box-sizing:border-box;background:#F9F7FA;padding:0 20px 24px;display:flex;flex-direction:column;gap:12px">
+<div style="height:56px;display:flex;align-items:center;gap:4px;margin:0 -8px">
+<a href="DealRoom.dc.html" aria-label="Back" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#1E1B4B"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<div style="font-size:22px;font-weight:700;letter-spacing:-0.3px">Payment</div>
+</div>
+<div style="background:linear-gradient(140deg,#3B0764 0%,#5B1485 100%);border-radius:24px;padding:18px 20px;color:#FFFFFF">
+<div style="font-size:12px;color:#E9D5FF">[Deal name] · Contract value</div>
+<div style="font-size:24px;font-weight:700;letter-spacing:-0.3px;margin-top:2px">[Contract value]</div>
+<div style="font-size:12px;color:#E9D5FF;margin-top:4px">Deposit [percent] now · Balance [percent] when documents are released</div>
+</div>
+<div style="background:#F3E8FF;border-radius:16px;padding:12px 14px;font-size:12px;line-height:1.5;color:#3B0764"><span style="font-weight:700">Money moves only through these steps.</span> The next step opens only after the bank confirms the one before it.</div>
+<div class="card" style="border:2px solid #6D1A95">
+<div style="display:flex;align-items:center;justify-content:space-between"><div class="t">1 · Deposit [amount]</div><span class="pill" style="background:#F3E8FF;color:#6D1A95">Waiting for proof</span></div>
+<div class="d">Due [date]</div>
+<div class="r" style="border:2px solid #6D1A95;background:#F3E8FF"><input type="radio" name="m" checked><div><div class="t" style="font-size:14px">Bank transfer</div><div class="d">Pay from your business account.</div></div></div>
+<div class="r"><input type="radio" name="m"><div><div class="t" style="font-size:14px">Letter of credit</div><div class="d">Issued by your bank in the seller's favor.</div></div></div>
+<div style="background:#F9F7FA;border-radius:16px;padding:12px 14px;font-size:13px;line-height:1.6"><span style="color:#6B7280;font-size:12px">Pay to</span><br><span style="font-weight:600">[Seller business name]</span><br>[Bank] · account ending [1234]<br><span style="font-size:12px;color:#065F46;font-weight:600">Matches the seller's verified bank account</span></div>
+<a href="Milestones.dc.html" style="display:flex;align-items:center;justify-content:center;height:48px;border-radius:16px;background:#F3E8FF;color:#6D1A95;font-size:14px;font-weight:600">Upload bank slip or SWIFT copy</a>
+<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="pill" style="background:#F3E8FF;color:#6D1A95">Submitted</span><span style="color:#6B7280">›</span><span class="pill" style="background:#F3F4F6;color:#4B5563">Bank confirms</span><span style="color:#6B7280">›</span><span class="pill" style="background:#F3F4F6;color:#4B5563">Step done</span></div>
+<div class="d">A slip alone is not proof. The deposit counts only after the bank confirms it.</div>
+</div>
+<div class="card" style="gap:4px"><div style="display:flex;align-items:center;justify-content:space-between"><div class="t" style="color:#6B7280">2 · Balance [amount]</div><span class="pill" style="background:#F3F4F6;color:#4B5563">Locked</span></div><div class="d">Opens after documents are released and checked.</div></div>
+<div style="background:#FEF3C7;border-radius:16px;padding:12px 14px;font-size:12px;line-height:1.5;color:#92400E"><span style="font-weight:700">Asked to pay a different account?</span> Stop and report it. A change of bank details pauses payments for [48 hours], and we call the number already on file.</div>
+<a href="Report.dc.html" style="margin-top:auto;text-align:center;font-size:14px;font-weight:600;color:#B91C1C;padding:10px">Report a payment problem</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

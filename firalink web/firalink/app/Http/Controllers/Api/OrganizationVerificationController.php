@@ -211,7 +211,7 @@ class OrganizationVerificationController extends Controller
         $validator = Validator::make($request->all(), [
             'target_role' => 'required|in:exporter,supplier,buyer,broker',
             'document_type' => 'required|in:commercial_reg,sector_license,tin_cert,rep_id,address_proof,broker_mandate',
-            'document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240', // Max 10MB
+            'document' => 'required|file|max:10240', // Max 10MB
         ]);
 
         if ($validator->fails()) {
@@ -220,6 +220,12 @@ class OrganizationVerificationController extends Controller
                 'message' => 'Validation error',
                 'errors' => $validator->errors(),
             ], 422);
+        }
+
+        $documents = app(\App\Services\PrivateDocumentStore::class);
+        $reason = $documents->rejectionReason($request->file('document'));
+        if ($reason) {
+            return response()->json($documents->errorResponse('document', $reason), 422);
         }
 
         $verification = OrganizationVerification::firstOrCreate(
@@ -233,7 +239,8 @@ class OrganizationVerificationController extends Controller
         );
 
         $file = $request->file('document');
-        $ext = $file->getClientOriginalExtension();
+        // Extension comes from the detected content type, never from the client name.
+        $ext = ['application/pdf' => 'pdf', 'image/jpeg' => 'jpg', 'image/png' => 'png'][$file->getMimeType()];
         $safeHash = hash_file('sha256', $file->getRealPath());
         $filename = Str::uuid() . '.' . $ext;
         $folder = "organizations/{$org->id}/verifications";

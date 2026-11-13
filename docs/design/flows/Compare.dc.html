@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Compare quotes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.k{font-size:11px;color:#6B7280}
+.v{font-size:14px;font-weight:600;margin-top:2px}
+.pill{display:inline-flex;align-items:center;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600}
+.chip{height:36px;box-sizing:border-box;border:1px solid #E9D5FF;border-radius:12px;padding:0 14px;display:flex;align-items:center;font-size:13px;font-weight:600;background:#FFFFFF;font-family:inherit;color:#1E1B4B}
+</style>
+</helmet>
+<div style="width:390px;height:1000px;box-sizing:border-box;background:#F9F7FA;padding:0 20px 0;display:flex;flex-direction:column;gap:12px">
+<div style="height:56px;display:flex;align-items:center;gap:4px;margin:0 -8px">
+<a href="LotDetail.dc.html" aria-label="Back" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#1E1B4B"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<div style="font-size:22px;font-weight:700;letter-spacing:-0.3px">Quotes received</div>
+</div>
+<div style="background:linear-gradient(140deg,#3B0764 0%,#5B1485 100%);border-radius:24px;padding:16px 20px;color:#FFFFFF">
+<div style="font-size:12px;color:#E9D5FF">Your RFQ</div>
+<div style="font-size:18px;font-weight:700;letter-spacing:-0.3px;margin-top:2px">[RFQ title]</div>
+<div style="font-size:12px;color:#E9D5FF;margin-top:4px">[Volume] · [Incoterm] · [Destination port] · Ship by [date]</div>
+</div>
+<div style="display:flex;gap:8px"><div class="chip" style="border:2px solid #6D1A95;background:#F3E8FF;color:#6D1A95">Verified only</div><div class="chip">Evidence level</div><div class="chip">Sort: price</div></div>
+<div class="card">
+<div style="display:flex;align-items:center;gap:10px"><input type="checkbox" checked aria-label="Select quote 1" style="width:20px;height:20px;accent-color:#6D1A95;margin:0;flex:none"><div style="font-size:15px;font-weight:600;flex:1">[Seller name]</div><span class="pill" style="background:#D1FAE5;color:#065F46">Verified · Tier 2</span></div>
+<div style="font-size:12px;color:#6B7280">Evidence: Documented · Sample sealed and sent</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px"><div><div class="k">Price per lb</div><div class="v">[Price]</div></div><div><div class="k">Total value</div><div class="v">[Value]</div></div><div><div class="k">Dispatch</div><div class="v">[Days]</div></div></div>
+</div>
+<div class="card">
+<div style="display:flex;align-items:center;gap:10px"><input type="checkbox" checked aria-label="Select quote 2" style="width:20px;height:20px;accent-color:#6D1A95;margin:0;flex:none"><div style="font-size:15px;font-weight:600;flex:1">[Seller name]</div><span class="pill" style="background:#D1FAE5;color:#065F46">Verified · Tier 1</span></div>
+<div style="font-size:12px;color:#6B7280">Evidence: Lab-backed · No sample yet</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px"><div><div class="k">Price per lb</div><div class="v">[Price]</div></div><div><div class="k">Total value</div><div class="v">[Value]</div></div><div><div class="k">Dispatch</div><div class="v">[Days]</div></div></div>
+</div>
+<div class="card">
+<div style="display:flex;align-items:center;gap:10px"><input type="checkbox" aria-label="Select quote 3" style="width:20px;height:20px;accent-color:#6D1A95;margin:0;flex:none"><div style="font-size:15px;font-weight:600;flex:1">[Seller name]</div><span class="pill" style="background:#F3E8FF;color:#6D1A95">Tier 1 in review</span></div>
+<div style="font-size:12px;color:#6B7280">Evidence: Claimed · No sample yet</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px"><div><div class="k">Price per lb</div><div class="v">[Price]</div></div><div><div class="k">Total value</div><div class="v">[Value]</div></div><div><div class="k">Dispatch</div><div class="v">[Days]</div></div></div>
+</div>
+<div style="font-size:12px;line-height:1.5;color:#6B7280">Quotes below the ECTA minimum price are flagged and cannot be accepted. Price rules are checked against a sourced reference only.</div>
+<div style="display:flex;gap:10px;margin:auto -20px 0;padding:12px 20px 24px;background:#FFFFFF;border-top:1px solid #E9D5FF">
+<a href="SampleRequest.dc.html" style="flex:1;display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;background:#F3E8FF;color:#6D1A95;font-size:14px;font-weight:600">Ask for sample</a>
+<a href="DealRoom.dc.html" style="flex:1;display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;background:#6D1A95;color:#FFFFFF;font-size:14px;font-weight:600">Create deal room</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

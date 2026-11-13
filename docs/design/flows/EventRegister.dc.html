@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Register for event</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box}
+.t{font-size:14px;font-weight:600}
+.d{font-size:12px;line-height:1.5;color:#6B7280}
+.pill{display:inline-flex;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;white-space:nowrap}
+.row{display:flex;align-items:center;gap:12px}
+.ph{background:#EFE9F4;color:#4B5563;display:flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+.inp{box-sizing:border-box;width:100%;height:52px;border:1px solid #E9D5FF;border-radius:16px;padding:0 16px;font-size:14px;font-family:inherit;color:#1E1B4B;background:#FFFFFF}
+.lbl{font-size:13px;font-weight:600;margin:0 0 6px;display:block}
+.btn{display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;font-size:15px;font-weight:600;box-sizing:border-box;width:100%}
+.chip{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:12px;border:1px solid #E9D5FF;background:#FFFFFF;font-size:13px;font-weight:500;white-space:nowrap;flex:none}
+.chip.on{background:#6D1A95;border-color:#6D1A95;color:#FFFFFF}
+.ln{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #F3E8FF;min-height:52px;box-sizing:border-box}
+.ln:first-child{border-top:0}
+.tx{display:flex;gap:8px;overflow:hidden}
+</style>
+</helmet>
+<div id="root" style="width:390px;height:930px;box-sizing:border-box;background:#F9F7FA;position:relative;overflow:hidden;padding:0 20px 24px;display:flex;flex-direction:column;gap:12px">
+
+<div style="height:56px;display:flex;align-items:center;gap:4px;margin:0 -8px;flex:none"><a href="EventDetail.dc.html" aria-label="Back" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#1E1B4B;flex:none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a><div style="font-size:22px;font-weight:700;letter-spacing:-0.3px;flex:1">Register</div></div>
+<div class="card" style="padding:12px;display:flex;gap:12px;align-items:center"><div class="ph" style="width:56px;height:56px;border-radius:14px;">[Photo]</div><div style="flex:1"><div class="t">[Event name]</div><div class="d">[Date] · [Venue]</div></div></div>
+<div class="row" style="justify-content:space-between"><div><div class="t">Tickets</div><div class="d">General · [ETB] each</div></div><div style="display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:14px;border:1px solid #E9D5FF;background:#FFFFFF;display:flex;align-items:center;justify-content:center;color:#6D1A95"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg></div><div style="font-size:18px;font-weight:700;min-width:24px;text-align:center">1</div><div style="width:44px;height:44px;border-radius:14px;background:#F3E8FF;display:flex;align-items:center;justify-content:center;color:#6D1A95"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></div></div></div>
+<div style="display:flex;flex-direction:column;gap:14px"><div style=""><label class="lbl" for="e1">Full name</label><input class="inp" id="e1" type="text" placeholder="[Name]"></div><div style=""><label class="lbl" for="e2">Phone</label><input class="inp" id="e2" type="tel" placeholder="+251 9[xx xxx xxx]"></div><div style=""><label class="lbl" for="e3">Company (optional)</label><input class="inp" id="e3" type="text" placeholder="[Company]"></div></div>
+<div class="lbl" style="margin:4px 0 -4px">Pay with</div>
+<label style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:16px;box-sizing:border-box;border:2px solid #6D1A95;background:#F3E8FF"><input type="radio" name="pay" checked style="width:20px;height:20px;accent-color:#6D1A95;margin:1px 0 0;flex:none"><div><div class="t">Chapa</div><div class="d">Mobile money and cards</div></div></label>
+<label style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:16px;box-sizing:border-box;border:1px solid #E9D5FF;background:#FFFFFF"><input type="radio" name="pay" style="width:20px;height:20px;accent-color:#6D1A95;margin:1px 0 0;flex:none"><div><div class="t">Bank transfer</div><div class="d">Upload your slip. Confirmed within [time].</div></div></label>
+<div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:8px"><div class="row" style="justify-content:space-between;font-size:13px"><span>[1] × General</span><span>[ETB]</span></div><div class="row" style="justify-content:space-between;font-size:13px"><span>Service fee</span><span>[ETB]</span></div><div style="height:1px;background:#F3E8FF"></div><div class="row" style="justify-content:space-between;font-size:15px;font-weight:700"><span>Total</span><span>[ETB]</span></div></div>
+<div class="d">Refunds follow the organizer's policy: [policy summary].</div>
+<div style="margin-top:auto"><a class="btn" href="TicketPass.dc.html" style="background:#6D1A95;color:#FFFFFF;">Pay and get ticket</a></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":930}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

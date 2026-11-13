@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Seller home (business workspace)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box}
+.t{font-size:14px;font-weight:600}
+.d{font-size:12px;line-height:1.5;color:#6B7280}
+.pill{display:inline-flex;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;white-space:nowrap}
+.row{display:flex;align-items:center;gap:12px}
+.ph{background:#EFE9F4;color:#4B5563;display:flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+.inp{box-sizing:border-box;width:100%;height:52px;border:1px solid #E9D5FF;border-radius:16px;padding:0 16px;font-size:14px;font-family:inherit;color:#1E1B4B;background:#FFFFFF}
+.lbl{font-size:13px;font-weight:600;margin:0 0 6px;display:block}
+.btn{display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;font-size:15px;font-weight:600;box-sizing:border-box;width:100%}
+.chip{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:12px;border:1px solid #E9D5FF;background:#FFFFFF;font-size:13px;font-weight:500;white-space:nowrap;flex:none}
+.chip.on{background:#6D1A95;border-color:#6D1A95;color:#FFFFFF}
+.ln{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #F3E8FF;min-height:52px;box-sizing:border-box}
+.ln:first-child{border-top:0}
+.tx{display:flex;gap:8px;overflow:hidden}
+</style>
+</helmet>
+<div id="root" style="width:390px;height:1000px;box-sizing:border-box;background:#F9F7FA;position:relative;overflow:hidden;padding:0 20px 120px;display:flex;flex-direction:column;gap:12px">
+
+<div style="display:flex;align-items:center;gap:10px;padding-top:12px;flex:none">
+<a href="Workspace.dc.html" style="height:44px;border-radius:999px;background:#F3E8FF;color:#6D1A95;padding:0 14px;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;flex:1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>[Business name]<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></a>
+<span class="pill" style="background:#F3E8FF;color:#6D1A95;">In review</span><a href="Notifications.dc.html" aria-label="Notifications" style="position:relative;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#1E1B4B;flex:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17V11a6 6 0 1112 0v6l1.5 2h-15z"/><path d="M10 21h4"/></svg><span style="position:absolute;top:9px;right:10px;width:9px;height:9px;border-radius:999px;background:#6D1A95;border:2px solid #F9F7FA"></span></a></div>
+<a href="Dossier.dc.html" style="background:#F3E8FF;border-radius:22px;padding:14px 16px;display:flex;gap:12px;align-items:center;color:#3B0764;flex:none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="3"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><div style="flex:1;font-size:13px;line-height:1.5"><b>Your lots are hidden from buyers.</b><br>They appear after Tier 1 is approved.</div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;flex:none"><div class="card" style="padding:12px 8px;text-align:center"><div style="font-size:22px;font-weight:700">[n]</div><div class="d" style="font-size:11px">Active lots</div></div><div class="card" style="padding:12px 8px;text-align:center"><div style="font-size:22px;font-weight:700">[n]</div><div class="d" style="font-size:11px">Open requests</div></div><div class="card" style="padding:12px 8px;text-align:center"><div style="font-size:22px;font-weight:700">[n]</div><div class="d" style="font-size:11px">Samples to send</div></div></div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px"><div style="font-size:16px;font-weight:600;letter-spacing:-0.15px">To do</div></div>
+<div class="card" style="overflow:hidden">
+<a href="SampleInbox.dc.html" class="ln"><div style="flex:1"><div class="t">Prepare sample for [Buyer business]</div><div class="d">[Lot name] · [250 g] · due [date]</div></div><span class="pill" style="background:#F3E8FF;color:#6D1A95;">Seal and ship</span></a>
+<a href="QuoteRespond.dc.html" class="ln"><div style="flex:1"><div class="t">Answer request: [Product]</div><div class="d">[Volume] · [Port] · closes [date]</div></div><span class="pill" style="background:#F3E8FF;color:#6D1A95;">Quote</span></a>
+<a href="Evidence.dc.html" class="ln"><div style="flex:1"><div class="t">Renew evidence for [Lot name]</div><div class="d">Expires in [n] days</div></div><span class="pill" style="background:#FEF3C7;color:#92400E;">Expiring</span></a></div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px"><div style="font-size:16px;font-weight:600;letter-spacing:-0.15px">My lots</div><a href="CreateLot.dc.html" style="font-size:13px;font-weight:600;color:#6D1A95;min-height:44px;display:flex;align-items:center">Add a lot</a></div>
+<div class="card" style="overflow:hidden">
+<a href="Evidence.dc.html" class="ln"><div class="ph" style="width:52px;height:52px;border-radius:12px;">[Photo]</div><div style="flex:1"><div class="t">[Lot name]</div><div class="d">[Volume] · [Price] /lb</div></div><span class="pill" style="background:#F3E8FF;color:#6D1A95;">Documented</span></a>
+<a href="Evidence.dc.html" class="ln"><div class="ph" style="width:52px;height:52px;border-radius:12px;">[Photo]</div><div style="flex:1"><div class="t">[Lot name]</div><div class="d">[Volume] · [Price] /lb</div></div><span class="pill" style="background:#F3F4F6;color:#4B5563;">Claimed</span></a>
+<a href="Evidence.dc.html" class="ln"><div class="ph" style="width:52px;height:52px;border-radius:12px;">[Photo]</div><div style="flex:1"><div class="t">[Lot name]</div><div class="d">Draft · not published</div></div><span class="pill" style="background:#F3F4F6;color:#4B5563;">Draft</span></a></div>
+<a class="btn" href="CreateLot.dc.html" style="background:#6D1A95;color:#FFFFFF;">Add a lot</a>
+<div style="position:absolute;left:12px;right:12px;bottom:14px;height:72px;border-radius:38px;background:linear-gradient(180deg,#2A1050,#14062E);display:flex;align-items:center;justify-content:space-around;padding:0 6px;box-sizing:border-box"><a href="Home.dc.html" style="width:46px;height:56px;border-radius:20px;background:rgba(255,255,255,0.14);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#FFFFFF;font-size:9.5px;font-weight:600;flex:none"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>Home</a><a href="Market.dc.html" style="width:46px;height:56px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#D8B4FE;font-size:9.5px;font-weight:600;flex:none"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>Market</a><a href="Academy.dc.html" style="width:46px;height:56px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#D8B4FE;font-size:9.5px;font-weight:600;flex:none"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/></svg>Academy</a><a href="FiraAI.dc.html" aria-label="Fira AI" style="width:56px;height:56px;border-radius:999px;margin-top:-26px;background:radial-gradient(circle at 35% 30%,#D8B4FE,#6D1A95 70%);box-shadow:0 0 0 5px #F9F7FA,0 8px 20px rgba(109,26,149,0.45);display:flex;align-items:center;justify-content:center;color:#FFFFFF;flex:none"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM18 16l.8 2.2L21 19l-2.2.8L18 22l-.8-2.2L15 19l2.2-.8z"/></svg></a><a href="Events.dc.html" style="width:46px;height:56px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#D8B4FE;font-size:9.5px;font-weight:600;flex:none"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Events</a><a href="Tours.dc.html" style="width:46px;height:56px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#D8B4FE;font-size:9.5px;font-weight:600;flex:none"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Tours</a><a href="Profile.dc.html" style="width:46px;height:56px;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#D8B4FE;font-size:9.5px;font-weight:600;flex:none"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Profile</a></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Event detail</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box}
+.t{font-size:14px;font-weight:600}
+.d{font-size:12px;line-height:1.5;color:#6B7280}
+.pill{display:inline-flex;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;white-space:nowrap}
+.row{display:flex;align-items:center;gap:12px}
+.ph{background:#EFE9F4;color:#4B5563;display:flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+.inp{box-sizing:border-box;width:100%;height:52px;border:1px solid #E9D5FF;border-radius:16px;padding:0 16px;font-size:14px;font-family:inherit;color:#1E1B4B;background:#FFFFFF}
+.lbl{font-size:13px;font-weight:600;margin:0 0 6px;display:block}
+.btn{display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;font-size:15px;font-weight:600;box-sizing:border-box;width:100%}
+.chip{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:12px;border:1px solid #E9D5FF;background:#FFFFFF;font-size:13px;font-weight:500;white-space:nowrap;flex:none}
+.chip.on{background:#6D1A95;border-color:#6D1A95;color:#FFFFFF}
+.ln{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #F3E8FF;min-height:52px;box-sizing:border-box}
+.ln:first-child{border-top:0}
+.tx{display:flex;gap:8px;overflow:hidden}
+</style>
+</helmet>
+<div id="root" style="width:390px;height:1130px;box-sizing:border-box;background:#F9F7FA;position:relative;overflow:hidden;padding:0 20px 24px;display:flex;flex-direction:column;gap:12px">
+
+<div style="position:relative;margin:0 -20px;flex:none"><div class="ph" style="width:100%;height:230px;border-radius:0px;">[Event photo]</div><a href="Events.dc.html" aria-label="Back" style="position:absolute;left:8px;top:8px;width:44px;height:44px;border-radius:999px;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a><a href="EventDetail.dc.html" aria-label="Share" style="position:absolute;right:8px;top:8px;width:44px;height:44px;border-radius:999px;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.3 11l7.4-3.8M8.3 13l7.4 3.8"/></svg></a></div>
+<div style="flex:none"><div style="font-size:22px;font-weight:700;letter-spacing:-0.3px;line-height:1.25">[Event name]</div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><span class="pill" style="background:#D1FAE5;color:#065F46;">Organizer verified</span><span class="pill" style="background:#F3E8FF;color:#6D1A95;">[n] seats left</span></div></div>
+<div class="card" style="overflow:hidden"><div class="ln"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><div><div class="t">[Day, date]</div><div class="d">[Start] to [End]</div></div></div><div class="ln"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><div style="flex:1"><div class="t">[Venue]</div><div class="d">[Address], Addis Ababa</div></div><span style="font-size:12px;font-weight:600;color:#6D1A95">Map</span></div><div class="ln"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg><div><div class="t">[Organizer]</div><div class="d">[n] past events on Fira Link</div></div></div></div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px"><div style="font-size:16px;font-weight:600;letter-spacing:-0.15px">About</div></div>
+<div style="font-size:14px;line-height:1.6;color:#4B5563">[Two or three lines about the event, who it is for and what you will take away.]</div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px"><div style="font-size:16px;font-weight:600;letter-spacing:-0.15px">Agenda</div></div>
+<div class="card" style="overflow:hidden"><div class="ln"><div class="t" style="color:#6D1A95;width:64px;flex:none">[09:00]</div><div class="t" style="font-weight:500">[Session title]</div></div><div class="ln"><div class="t" style="color:#6D1A95;width:64px;flex:none">[10:30]</div><div class="t" style="font-weight:500">[Session title]</div></div><div class="ln"><div class="t" style="color:#6D1A95;width:64px;flex:none">[13:00]</div><div class="t" style="font-weight:500">[Session title]</div></div></div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px"><div style="font-size:16px;font-weight:600;letter-spacing:-0.15px">Tickets</div></div>
+<label style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:16px;box-sizing:border-box;border:2px solid #6D1A95;background:#F3E8FF"><input type="radio" name="tk" checked style="width:20px;height:20px;accent-color:#6D1A95;margin:1px 0 0;flex:none"><div><div class="t">General · [ETB]</div><div class="d">Entry and materials</div></div></label>
+<label style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:16px;box-sizing:border-box;border:1px solid #E9D5FF;background:#FFFFFF"><input type="radio" name="tk" style="width:20px;height:20px;accent-color:#6D1A95;margin:1px 0 0;flex:none"><div><div class="t">Member · [ETB]</div><div class="d">For Academy members</div></div></label>
+<div style="height:70px;flex:none"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:#FFFFFF;border-top:1px solid #E9D5FF;padding:12px 20px 24px;display:flex;align-items:center;gap:14px;box-sizing:border-box"><div style="flex:1"><div class="d">From</div><div style="font-size:18px;font-weight:700">[ETB]</div></div><div style="flex:1.4"><a class="btn" href="EventRegister.dc.html" style="background:#6D1A95;color:#FFFFFF;">Register</a></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1130}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

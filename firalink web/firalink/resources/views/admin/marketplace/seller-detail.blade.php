@@ -97,7 +97,7 @@
                                 <div class="col-sm-4 font-weight-bold text-muted">License Document:</div>
                                 <div class="col-sm-8">
                                     @if($seller->license_document_path)
-                                        <a href="{{ asset('storage/' . $seller->license_document_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <a href="{{ app(\App\Services\PrivateDocumentStore::class)->adminUrl('seller-license', $seller->id) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-file-pdf"></i> View Submitted ECTA License
                                         </a>
                                     @else

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone sign in</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#F9F7FA;padding:20px 20px 32px;display:flex;flex-direction:column;gap:14px">
+<a href="Onboard3.dc.html" aria-label="Back" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-left:-12px;color:#1E1B4B"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<h1 style="margin:12px 0 0;font-size:28px;font-weight:700;letter-spacing:-0.45px;line-height:1.2">Welcome to Fira Link</h1>
+<p style="margin:0;font-size:14px;line-height:1.5;color:#6B7280">Enter your phone number. We will send a code by SMS. New and returning users use the same step.</p>
+<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+<label for="phone" style="font-size:14px;font-weight:600">Phone number</label>
+<div style="display:flex;gap:8px">
+<button type="button" style="width:96px;height:52px;box-sizing:border-box;border:1px solid #E9D5FF;border-radius:16px;background:#FFFFFF;font-family:inherit;font-size:15px;font-weight:600;color:#1E1B4B;display:flex;align-items:center;justify-content:center;gap:4px">+251<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+<input id="phone" type="tel" placeholder="9XX XXX XXX" style="flex:1;min-width:0;height:52px;box-sizing:border-box;border:1px solid #E9D5FF;border-radius:16px;background:#FFFFFF;padding:0 16px;font-size:15px;font-family:inherit;color:#1E1B4B">
+</div>
+<span style="font-size:12px;color:#6B7280">Outside Ethiopia? Change the country code.</span>
+</div>
+<a href="Otp.dc.html" style="display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;background:#6D1A95;color:#FFFFFF;font-size:15px;font-weight:600;margin-top:4px">Send code</a>
+<div style="display:flex;align-items:center;gap:12px;font-size:13px;color:#6B7280"><div style="flex:1;height:1px;background:#E9D5FF"></div>or<div style="flex:1;height:1px;background:#E9D5FF"></div></div>
+<a href="EmailLogin.dc.html" style="height:52px;border-radius:16px;background:#FFFFFF;border:1px solid #E9D5FF;color:#6D1A95;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;box-sizing:border-box">Continue with email</a>
+<p style="margin:auto 0 0;font-size:12px;line-height:1.5;color:#6B7280;text-align:center">By continuing you accept the Terms of Service and Privacy Policy.</p>
+<a href="Workspace.dc.html" style="text-align:center;font-size:15px;font-weight:600;color:#6D1A95;padding:10px">Explore as guest</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

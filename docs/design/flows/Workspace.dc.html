@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Workspace switcher</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-top:1px solid #E9D5FF}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#F9F7FA;position:relative;overflow:hidden">
+<div style="padding:56px 20px 0;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:center;gap:14px">
+<div style="width:64px;height:64px;border-radius:999px;background:#E9D5FF;flex:none"></div>
+<div><div style="font-size:20px;font-weight:700">[Full name]</div><div style="font-size:13px;color:#6B7280">+251 9XX XXX XXX</div></div>
+</div>
+<div style="display:inline-flex;align-self:flex-start;align-items:center;gap:8px;height:40px;box-sizing:border-box;border:1px solid #E9D5FF;border-radius:999px;background:#FFFFFF;padding:0 16px;font-size:14px;font-weight:600">Personal<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div>
+<div style="height:90px;border-radius:22px;background:#FFFFFF;border:1px solid #E9D5FF"></div>
+<div style="height:90px;border-radius:22px;background:#FFFFFF;border:1px solid #E9D5FF"></div>
+</div>
+<div style="position:absolute;left:0;top:0;width:390px;height:844px;background:rgba(30,27,75,0.5)"></div>
+<div style="position:absolute;left:0;bottom:0;width:390px;box-sizing:border-box;background:#FFFFFF;border-radius:26px 26px 0 0;padding:12px 0 32px">
+<div style="width:40px;height:4px;border-radius:2px;background:#E9D5FF;margin:0 auto 16px"></div>
+<div style="padding:0 20px 12px;font-size:20px;font-weight:700;letter-spacing:-0.3px">Switch workspace</div>
+<div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#F3E8FF">
+<div style="width:22px;height:22px;box-sizing:border-box;border-radius:999px;border:7px solid #6D1A95;flex:none"></div>
+<div style="flex:1"><div style="font-size:15px;font-weight:600">Personal</div><div style="font-size:13px;color:#6B7280">Courses, events and tours</div></div>
+</div>
+<a class="row" href="Dossier.dc.html">
+<div style="width:22px;height:22px;box-sizing:border-box;border-radius:999px;border:2px solid #D8B4FE;flex:none"></div>
+<div style="flex:1"><div style="font-size:15px;font-weight:600">[Business name]</div><div style="font-size:13px;color:#6B7280;margin-top:2px">Exporter</div></div>
+<span class="pill" style="background:#F3E8FF;color:#6D1A95">In review</span>
+</a>
+<a class="row" href="Dossier.dc.html">
+<div style="width:22px;height:22px;box-sizing:border-box;border-radius:999px;border:2px solid #D8B4FE;flex:none"></div>
+<div style="flex:1"><div style="font-size:15px;font-weight:600">[Business name 2]</div><div style="font-size:13px;color:#6B7280;margin-top:2px">Buyer</div></div>
+<span class="pill" style="background:#D1FAE5;color:#065F46"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Verified</span>
+</a>
+<a class="row" href="Business.dc.html" style="color:#6D1A95;font-size:15px;font-weight:600">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add a business
+</a>
+<div class="row" style="font-size:15px;font-weight:600"><div style="flex:1">Team and roles</div><span style="font-size:13px;color:#6B7280;font-weight:400">Owner, manager, staff</span></div>
+<p style="margin:0;padding:12px 20px 0;font-size:12px;line-height:1.5;color:#6B7280;border-top:1px solid #E9D5FF">Switching changes what Home, B2B and Profile show. Your courses and certificates always stay in Personal.</p>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

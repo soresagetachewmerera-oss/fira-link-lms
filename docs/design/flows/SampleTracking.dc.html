@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sample tracking</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box}
+.st{display:flex;gap:14px}
+.rail{display:flex;flex-direction:column;align-items:center;width:28px;flex:none}
+.dot{width:28px;height:28px;border-radius:999px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex:none}
+.line{width:2px;flex:1;background:#E9D5FF;min-height:16px}
+.t{font-size:14px;font-weight:600}
+.d{font-size:12px;line-height:1.5;color:#6B7280;margin-top:2px}
+.body{padding-bottom:18px;flex:1}
+</style>
+</helmet>
+<div style="width:390px;height:1000px;box-sizing:border-box;background:#F9F7FA;padding:0 20px 24px;display:flex;flex-direction:column;gap:12px">
+<div style="height:56px;display:flex;align-items:center;gap:4px;margin:0 -8px">
+<a href="SampleRequest.dc.html" aria-label="Back" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#1E1B4B"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<div style="font-size:22px;font-weight:700;letter-spacing:-0.3px">Sample tracking</div>
+</div>
+<div class="card" style="padding:12px 14px;display:flex;align-items:center;gap:12px">
+<div style="width:48px;height:48px;border-radius:12px;background:#EFE9F4;color:#4B5563;font-size:10px;display:flex;align-items:center;justify-content:center;flex:none">[Photo]</div>
+<div style="flex:1"><div class="t">[Lot name]</div><div class="d">[Business name] · [250 g] · Lot code [code]</div></div>
+<span style="display:inline-flex;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;background:#F3E8FF;color:#6D1A95">In transit</span>
+</div>
+<div class="card" style="padding:18px 16px 0">
+<div class="st"><div class="rail"><div class="dot" style="background:#6D1A95;color:#FFFFFF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></div><div class="line" style="background:#6D1A95"></div></div><div class="body"><div class="t">Requested</div><div class="d">[Date]. Paid [amount] through Chapa.</div></div></div>
+<div class="st"><div class="rail"><div class="dot" style="background:#6D1A95;color:#FFFFFF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></div><div class="line" style="background:#6D1A95"></div></div><div class="body"><div class="t">Prepared and sealed</div><div class="d">[Date]. Seal ID [ID]. Seller keeps a sealed copy and uploaded a photo of it.</div></div></div>
+<div class="st"><div class="rail"><div class="dot" style="background:#6D1A95;color:#FFFFFF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></div><div class="line" style="background:#6D1A95"></div></div><div class="body"><div class="t">Handed to courier</div><div class="d">[Courier] · Tracking [number]</div><a href="SampleTracking.dc.html" style="display:inline-block;margin-top:4px;font-size:12px;font-weight:600;color:#6D1A95">Open courier tracking</a></div></div>
+<div class="st"><div class="rail"><div class="dot" style="border:3px solid #6D1A95;background:#F3E8FF"></div><div class="line"></div></div><div class="body"><div class="t">In transit</div><div class="d">Expected by [date]. We notify you when the courier marks it delivered.</div></div></div>
+<div class="st"><div class="rail"><div class="dot" style="border:2px solid #D8B4FE;background:#FFFFFF"></div><div class="line"></div></div><div class="body"><div class="t" style="color:#6B7280">Delivered</div><div class="d">You confirm that the seal is unbroken.</div></div></div>
+<div class="st"><div class="rail"><div class="dot" style="border:2px solid #D8B4FE;background:#FFFFFF"></div></div><div class="body" style="padding-bottom:18px"><div class="t" style="color:#6B7280">Cupping result</div><div class="d">Record your score and notes, then approve or reject.</div></div></div>
+</div>
+<div style="background:#F3E8FF;border-radius:22px;padding:14px 16px;display:flex;gap:12px;align-items:center;color:#3B0764">
+<div style="width:48px;height:48px;border-radius:12px;background:#E9D5FF;color:#3B0764;font-size:10px;display:flex;align-items:center;justify-content:center;flex:none">[Seal photo]</div>
+<div style="font-size:12px;line-height:1.5"><span style="font-weight:700;font-size:13px">Retained sample</span><br>Seal ID [ID]. If you approve, the seal ID is written into your contract, so the shipped coffee can be compared with it.</div>
+</div>
+<div style="display:flex;gap:10px;margin-top:auto">
+<a href="ChatWarning.dc.html" style="flex:1;display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;background:#F3E8FF;color:#6D1A95;font-size:14px;font-weight:600">Message seller</a>
+<a href="Report.dc.html" style="flex:1;display:flex;align-items:center;justify-content:center;height:52px;box-sizing:border-box;border-radius:16px;border:1px solid #E9D5FF;background:#FFFFFF;color:#B91C1C;font-size:14px;font-weight:600">Report a problem</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

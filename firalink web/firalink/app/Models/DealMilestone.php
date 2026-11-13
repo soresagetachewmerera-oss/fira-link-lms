@@ -17,17 +17,30 @@ class DealMilestone extends Model
         'description',
         'document_path',
         'notes',
-        'status', // pending, in_progress, achieved, waived
+        'status', // pending, in_progress, proof_submitted, achieved, waived
         'due_date',
         'completed_at',
         'verified_by',
         'verified_at',
+        'submitted_by',
+        'submitted_at',
+        'bank_reference',
     ];
+
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_IN_PROGRESS = 'in_progress';
+    public const STATUS_PROOF_SUBMITTED = 'proof_submitted';
+    public const STATUS_ACHIEVED = 'achieved';
+    public const STATUS_WAIVED = 'waived';
+
+    /** Statuses only a confirmation by admin or finance can set. */
+    public const CONFIRMED_STATUSES = [self::STATUS_ACHIEVED, self::STATUS_WAIVED];
 
     protected $casts = [
         'due_date' => 'datetime',
         'completed_at' => 'datetime',
         'verified_at' => 'datetime',
+        'submitted_at' => 'datetime',
     ];
 
     public function dealRoom(): BelongsTo

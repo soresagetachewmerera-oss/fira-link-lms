@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Marketplace filters</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box}
+.t{font-size:14px;font-weight:600}
+.d{font-size:12px;line-height:1.5;color:#6B7280}
+.pill{display:inline-flex;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;white-space:nowrap}
+.row{display:flex;align-items:center;gap:12px}
+.ph{background:#EFE9F4;color:#4B5563;display:flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+.inp{box-sizing:border-box;width:100%;height:52px;border:1px solid #E9D5FF;border-radius:16px;padding:0 16px;font-size:14px;font-family:inherit;color:#1E1B4B;background:#FFFFFF}
+.lbl{font-size:13px;font-weight:600;margin:0 0 6px;display:block}
+.btn{display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;font-size:15px;font-weight:600;box-sizing:border-box;width:100%}
+.chip{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:12px;border:1px solid #E9D5FF;background:#FFFFFF;font-size:13px;font-weight:500;white-space:nowrap;flex:none}
+.chip.on{background:#6D1A95;border-color:#6D1A95;color:#FFFFFF}
+.ln{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #F3E8FF;min-height:52px;box-sizing:border-box}
+.ln:first-child{border-top:0}
+.tx{display:flex;gap:8px;overflow:hidden}
+</style>
+</helmet>
+<div id="root" style="width:390px;height:844px;box-sizing:border-box;background:#F9F7FA;position:relative;overflow:hidden;padding:0 20px 24px;display:flex;flex-direction:column;gap:12px">
+
+<div style="height:90px;background:#EFE9F4;flex:none;margin:0 -20px"></div>
+<div style="height:240px;border-radius:22px;background:#FFFFFF;border:1px solid #E9D5FF"></div>
+<div style="position:absolute;left:0;top:0;right:0;bottom:0;background:rgba(30,27,75,0.5)"></div><div style="position:absolute;left:0;bottom:0;right:0;background:#FFFFFF;border-radius:26px 26px 0 0;padding:12px 20px 28px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px"><div style="width:40px;height:4px;border-radius:2px;background:#E9D5FF;margin:0 auto 6px;flex:none"></div>
+<div class="row" style="justify-content:space-between"><div style="font-size:20px;font-weight:700;letter-spacing:-0.3px">Filters</div><a href="Market.dc.html" style="min-height:44px;display:flex;align-items:center;font-size:14px;font-weight:600;color:#6D1A95">Reset</a></div>
+<div><div class="lbl">Region</div><div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip on">Sidama</span><span class="chip">Yirgacheffe</span><span class="chip">Guji</span><span class="chip">Jimma</span><span class="chip">Harar</span></div></div>
+<div><div class="lbl">Process</div><div style="display:flex;gap:8px"><span class="chip on">Washed</span><span class="chip">Natural</span><span class="chip">Honey</span></div></div>
+<div><div class="lbl">Grade</div><div style="display:flex;gap:8px"><span class="chip">G1</span><span class="chip on">G2</span><span class="chip">G3</span><span class="chip">G4+</span></div></div>
+<div><div class="lbl">Evidence level</div><div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip">Any</span><span class="chip on">Documented +</span><span class="chip">Lab-backed +</span><span class="chip">Inspected</span></div></div>
+<div><div class="lbl">Seller verification</div><div style="display:flex;gap:8px"><span class="chip">Tier 1 +</span><span class="chip on">Tier 2 +</span><span class="chip">Tier 3</span></div></div>
+<div><div class="lbl">Price per lb (indicative FOB)</div><div style="height:6px;border-radius:3px;background:#E9D5FF;position:relative;margin:14px 0 6px"><div style="position:absolute;left:20%;right:30%;top:0;height:6px;border-radius:3px;background:#6D1A95"></div><div style="position:absolute;left:20%;top:-9px;width:24px;height:24px;border-radius:999px;background:#FFFFFF;border:3px solid #6D1A95;box-sizing:border-box;margin-left:-12px"></div><div style="position:absolute;left:70%;top:-9px;width:24px;height:24px;border-radius:999px;background:#FFFFFF;border:3px solid #6D1A95;box-sizing:border-box;margin-left:-12px"></div></div><div class="d" style="display:flex;justify-content:space-between"><span>[Min]</span><span>[Max]</span></div></div>
+<a class="btn" href="Market.dc.html" style="background:#6D1A95;color:#FFFFFF;">Show [24] lots</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

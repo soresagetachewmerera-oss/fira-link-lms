@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Verify a seller</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box;overflow:hidden}
+.hd{padding:14px 16px 8px;font-size:16px;font-weight:600;letter-spacing:-0.15px}
+.row{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-top:1px solid #F3E8FF}
+.n{font-size:14px;font-weight:600;line-height:1.3}
+.s{font-size:12px;line-height:1.4;color:#6B7280;margin-top:2px}
+.st{flex:1;display:flex;flex-direction:column;align-items:center;padding:14px 8px;text-align:center}
+</style>
+</helmet>
+<div style="width:390px;height:1000px;box-sizing:border-box;background:#F9F7FA;padding:0 20px 24px;display:flex;flex-direction:column;gap:12px">
+<div style="height:56px;display:flex;align-items:center;justify-content:space-between;margin:0 -8px 0 -8px">
+<a href="Dossier.dc.html" aria-label="Back" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#1E1B4B"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<div style="font-size:14px;font-weight:600;color:#6D1A95">Fira Link seller check</div>
+<div style="width:44px"></div>
+</div>
+<div class="card" style="padding:16px;display:flex;align-items:center;gap:14px">
+<div style="width:56px;height:56px;border-radius:16px;background:#EFE9F4;color:#4B5563;font-size:11px;display:flex;align-items:center;justify-content:center;flex:none">[Logo]</div>
+<div style="flex:1;min-width:0"><div style="font-size:18px;font-weight:700;letter-spacing:-0.3px">[Business name]</div><div class="s">Exporter · [Region]</div><div class="s">Fira ID [FL-XXXXXX]</div></div>
+<div style="width:56px;height:56px;border-radius:8px;border:1px solid #E9D5FF;color:#4B5563;font-size:10px;display:flex;align-items:center;justify-content:center;flex:none">[QR]</div>
+</div>
+<div style="background:#D1FAE5;border-radius:22px;padding:14px 16px;display:flex;align-items:center;gap:12px;color:#065F46">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+<div><div style="font-size:16px;font-weight:700">Verified · Tier 2</div><div style="font-size:12px;margin-top:2px">Reviewed [date] · Valid until [date]</div></div>
+</div>
+<div class="card">
+<div class="hd">What we checked</div>
+<div class="row"><div style="flex:1"><div class="n">Business license</div><div class="s">Checked [date] · Valid until [date]</div></div></div>
+<div class="row"><div style="flex:1"><div class="n">ECTA exporter certificate</div><div class="s">Checked [date] · Valid until [date]</div></div></div>
+<div class="row"><div style="flex:1"><div class="n">Bank account name matches business</div><div class="s">Checked [date]</div></div></div>
+</div>
+<div class="card" style="padding:14px 16px;background:#F3F4F6;border-color:#E5E7EB">
+<div style="font-size:14px;font-weight:600;color:#374151">What we did not check</div>
+<div style="font-size:12px;line-height:1.6;color:#4B5563;margin-top:4px">Quality of any lot, prices, or whether a shipment follows the law. Verified does not mean compliant.</div>
+</div>
+<div class="card" style="display:flex">
+<div class="st"><div style="font-size:22px;font-weight:700">[n]</div><div class="s">Confirmed deals</div></div>
+<div class="st" style="border-left:1px solid #F3E8FF"><div style="font-size:22px;font-weight:700">[n]</div><div class="s">Open disputes</div></div>
+<div class="st" style="border-left:1px solid #F3E8FF"><div style="font-size:22px;font-weight:700">[year]</div><div class="s">Member since</div></div>
+</div>
+<div style="background:#FEF3C7;border-radius:22px;padding:14px 16px;color:#92400E;font-size:13px;line-height:1.5"><span style="font-weight:700">Never pay outside Fira Link.</span> We never ask you to send money to a person or a personal account.</div>
+<a href="ChatWarning.dc.html" style="margin-top:auto;display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;background:#6D1A95;color:#FFFFFF;font-size:15px;font-weight:600">Message through Fira Link</a>
+<a href="Report.dc.html" style="text-align:center;font-size:14px;font-weight:600;color:#B91C1C;padding:8px">Report this seller</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

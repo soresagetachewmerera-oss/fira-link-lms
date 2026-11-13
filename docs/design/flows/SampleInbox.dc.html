@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Seller sample requests</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box}
+.t{font-size:14px;font-weight:600}
+.d{font-size:12px;line-height:1.5;color:#6B7280}
+.pill{display:inline-flex;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;white-space:nowrap}
+.row{display:flex;align-items:center;gap:12px}
+.ph{background:#EFE9F4;color:#4B5563;display:flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+.inp{box-sizing:border-box;width:100%;height:52px;border:1px solid #E9D5FF;border-radius:16px;padding:0 16px;font-size:14px;font-family:inherit;color:#1E1B4B;background:#FFFFFF}
+.lbl{font-size:13px;font-weight:600;margin:0 0 6px;display:block}
+.btn{display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;font-size:15px;font-weight:600;box-sizing:border-box;width:100%}
+.chip{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:12px;border:1px solid #E9D5FF;background:#FFFFFF;font-size:13px;font-weight:500;white-space:nowrap;flex:none}
+.chip.on{background:#6D1A95;border-color:#6D1A95;color:#FFFFFF}
+.ln{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #F3E8FF;min-height:52px;box-sizing:border-box}
+.ln:first-child{border-top:0}
+.tx{display:flex;gap:8px;overflow:hidden}
+</style>
+</helmet>
+<div id="root" style="width:390px;height:1030px;box-sizing:border-box;background:#F9F7FA;position:relative;overflow:hidden;padding:0 20px 24px;display:flex;flex-direction:column;gap:12px">
+
+<div style="height:56px;display:flex;align-items:center;gap:4px;margin:0 -8px;flex:none"><a href="SellerHome.dc.html" aria-label="Back" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#1E1B4B;flex:none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a><div style="font-size:22px;font-weight:700;letter-spacing:-0.3px;flex:1">Sample requests</div></div>
+<div style="display:flex;gap:6px;background:#F3E8FF;border-radius:16px;padding:4px;flex:none"><div style="flex:1;height:40px;border-radius:12px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#6D1A95">To send [2]</div><div style="flex:1;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#6B7280">Sent</div><div style="flex:1;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#6B7280">Done</div></div>
+<div class="card" style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;border:2px solid #6D1A95">
+<div class="row"><div style="flex:1"><div class="t">[Buyer business]</div><div class="d">[Lot name] · [250 g] · Lot code [code]</div></div><span class="pill" style="background:#D1FAE5;color:#065F46;">Verified</span></div>
+<div class="d">Fee paid by buyer: [amount] through Chapa. Ship by [date].</div>
+<div style="display:flex;flex-direction:column;gap:0">
+<div class="row" style="padding:8px 0"><div style="width:24px;height:24px;border-radius:999px;background:#6D1A95;color:#FFFFFF;display:flex;align-items:center;justify-content:center;flex:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></div><div class="t" style="font-weight:500">Prepare [250 g] from lot [code]</div></div>
+<div class="row" style="padding:8px 0"><div style="width:24px;height:24px;border-radius:999px;border:2px solid #D8B4FE;box-sizing:border-box;flex:none"></div><div class="t">Seal with a Fira Link seal and enter the ID</div></div>
+<div class="row" style="padding:8px 0"><div style="width:24px;height:24px;border-radius:999px;border:2px solid #D8B4FE;box-sizing:border-box;flex:none"></div><div class="t" style="color:#6B7280">Seal and photograph the retained copy</div></div>
+<div class="row" style="padding:8px 0"><div style="width:24px;height:24px;border-radius:999px;border:2px solid #D8B4FE;box-sizing:border-box;flex:none"></div><div class="t" style="color:#6B7280">Hand to courier and add tracking</div></div></div>
+<div style=""><label class="lbl" for="s1">Seal ID</label><input class="inp" id="s1" type="text" placeholder="[Seal ID]"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><a href="Capture.dc.html" style="height:84px;border-radius:16px;border:1px dashed #C084FC;background:#F3E8FF;color:#6D1A95;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:600;text-align:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Sealed sample</a><a href="Capture.dc.html" style="height:84px;border-radius:16px;border:1px dashed #C084FC;background:#F3E8FF;color:#6D1A95;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:600;text-align:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Retained copy</a></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style=""><label class="lbl" for="s2">Courier</label><input class="inp" id="s2" type="text" placeholder="[Courier]"></div><div style=""><label class="lbl" for="s3">Tracking number</label><input class="inp" id="s3" type="text" placeholder="[Number]"></div></div>
+<a class="btn" href="SellerHome.dc.html" style="background:#6D1A95;color:#FFFFFF;">Mark as handed to courier</a>
+<a href="SampleTracking.dc.html" style="font-size:12px;font-weight:600;color:#6D1A95;text-align:center;min-height:32px">See what the buyer sees</a></div>
+<div class="card" style="padding:14px 16px;display:flex;align-items:center;gap:12px"><div style="flex:1"><div class="t">[Buyer business]</div><div class="d">[Lot name] · due [date]</div></div><span class="pill" style="background:#F3E8FF;color:#6D1A95;">Seal and ship</span></div>
+<div style="background:#F3E8FF;border-radius:16px;padding:12px 14px;font-size:12px;line-height:1.5;color:#3B0764"><b>The retained copy protects you too.</b> If a buyer disputes the shipment, the sealed copy is what both sides compare against.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1030}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

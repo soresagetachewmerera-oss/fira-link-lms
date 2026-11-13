@@ -41,6 +41,12 @@ use App\Http\Controllers\Admin\CouponController;
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Private evidence files (bank slips, contracts, lot evidence, report evidence): signed, short-lived links only
+    Route::get('/private-files/{kind}/{id}', [\App\Http\Controllers\Admin\PrivateFileController::class, 'show'])
+        ->middleware('signed')
+        ->whereNumber('id')
+        ->name('private-files.show');
+
     // Coffee B2B Marketplace Management
     Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::get('/sellers', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'sellers'])->name('sellers');
@@ -54,6 +60,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::get('/listings', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'listings'])->name('listings');
         Route::post('/listings/{id}/toggle-status', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'toggleListingStatus'])->name('listings.toggle-status');
         Route::post('/listings/{id}/toggle-featured', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'toggleListingFeatured'])->name('listings.toggle-featured');
+        Route::post('/listings/{id}/evidence-level', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'reviewEvidenceLevel'])->name('listings.evidence-level');
         
         Route::get('/rfqs', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'rfqs'])->name('rfqs');
         

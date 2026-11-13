@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\UserMarketplaceSubscription;
 use App\Services\MarketplaceSubscriptionService;
 use App\Services\PaymentGatewayService;
+use App\Services\PrivateDocumentStore;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -95,7 +96,7 @@ class MarketplaceSellerController extends Controller
             'city' => 'nullable|string|max:100',
             'logo' => 'nullable|image|max:5120', // 5MB
             'banner' => 'nullable|image|max:10240', // 10MB
-            'license_document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'license_document' => 'nullable|file|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -104,6 +105,14 @@ class MarketplaceSellerController extends Controller
                 'message' => 'Validation error',
                 'errors' => $validator->errors(),
             ], 422);
+        }
+
+        $documents = app(PrivateDocumentStore::class);
+        if ($request->hasFile('license_document')) {
+            $reason = $documents->rejectionReason($request->file('license_document'));
+            if ($reason) {
+                return response()->json($documents->errorResponse('license_document', $reason), 422);
+            }
         }
 
         $profile = $user->sellerProfile ?? new MarketplaceSellerProfile(['user_id' => $user->id]);
@@ -136,8 +145,10 @@ class MarketplaceSellerController extends Controller
         }
 
         if ($request->hasFile('license_document')) {
-            $path = $request->file('license_document')->store('marketplace/sellers/documents', 'public');
-            $profile->license_document_path = $path;
+            $profile->license_document_path = $documents->store(
+                $request->file('license_document'),
+                'marketplace/sellers/documents'
+            );
             $profile->verification_status = 'under_review';
         }
 
@@ -230,7 +241,8 @@ class MarketplaceSellerController extends Controller
             'primary_image' => 'nullable|image|max:10240',
             'gallery_images' => 'nullable|array',
             'gallery_images.*' => 'image|max:10240',
-            'cupping_document' => 'nullable|file|mimes:pdf,jpg,png|max:10240',
+            'evidence_document' => 'nullable|file|max:10240',
+            'cupping_document' => 'nullable|file|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -241,16 +253,27 @@ class MarketplaceSellerController extends Controller
             ], 422);
         }
 
+        // Evidence files are checked by content and kept private. Uploading one never
+        // raises the lot's evidence level; only an admin review does.
+        $documents = app(PrivateDocumentStore::class);
+        $evidenceField = $request->hasFile('evidence_document')
+            ? 'evidence_document'
+            : ($request->hasFile('cupping_document') ? 'cupping_document' : null);
+
+        if ($evidenceField) {
+            $reason = $documents->rejectionReason($request->file($evidenceField));
+            if ($reason) {
+                return response()->json($documents->errorResponse($evidenceField, $reason), 422);
+            }
+        }
+
         $pricePerLb = (float) $request->input('indicative_price_usd_per_lb');
         $pricePerMt = round($pricePerLb * 2204.62262, 2);
         $currentOrg = $user->currentOrganization() ?: $user->primaryOrganization();
 
-        $evidenceDocPath = null;
-        if ($request->hasFile('evidence_document')) {
-            $evidenceDocPath = $request->file('evidence_document')->store('marketplace/listings/evidence', 'public');
-        } elseif ($request->hasFile('cupping_document')) {
-            $evidenceDocPath = $request->file('cupping_document')->store('marketplace/listings/evidence', 'public');
-        }
+        $evidenceDocPath = $evidenceField
+            ? $documents->store($request->file($evidenceField), 'marketplace/listings/evidence')
+            : null;
 
         $listing = CoffeeListing::create([
             'seller_id' => $user->id,
@@ -265,7 +288,6 @@ class MarketplaceSellerController extends Controller
             'grade' => $request->input('grade'),
             'screen_size' => $request->input('screen_size'),
             'cupping_score' => $request->input('cupping_score'),
-            'evidence_level' => $request->input('evidence_level', 'claimed'),
             'evidence_document_path' => $evidenceDocPath,
             'moisture_content' => $request->input('moisture_content'),
             'water_activity' => $request->input('water_activity'),

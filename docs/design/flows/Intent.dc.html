@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Intent</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.o{display:flex;align-items:flex-start;gap:14px;box-sizing:border-box;padding:16px 18px;border:1px solid #E9D5FF;border-radius:22px;background:#FFFFFF}
+.o input{width:22px;height:22px;accent-color:#6D1A95;margin:2px 0 0;flex:none}
+.t{font-size:15px;font-weight:600;line-height:1.3}
+.d{font-size:13px;line-height:1.45;color:#6B7280;margin-top:3px}
+.on{border:2px solid #6D1A95;background:#F3E8FF}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#F9F7FA;padding:72px 20px 32px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:12px;font-weight:600;color:#6D1A95">Step 1 of 2</div>
+<h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.45px;line-height:1.2">What brings you to Fira Link?</h1>
+<p style="margin:0 0 8px;font-size:14px;line-height:1.5;color:#6B7280">Pick all that apply. This only decides what you see first. You can change it any time in Profile.</p>
+<label class="o on"><input type="checkbox" checked><div><div class="t">Sell or export coffee</div><div class="d">List lots, answer RFQs, use export tools</div></div></label>
+<label class="o"><input type="checkbox"><div><div class="t">Buy coffee</div><div class="d">Find verified exporters and request quotes</div></div></label>
+<label class="o on"><input type="checkbox" checked><div><div class="t">Learn and get certified</div><div class="d">Courses, live classes and certificates</div></div></label>
+<label class="o"><input type="checkbox"><div><div class="t">Events and farm tours</div><div class="d">Book tickets and tour packages</div></div></label>
+<p style="margin:4px 0 0;font-size:12px;line-height:1.5;color:#6B7280">Choosing sell or buy takes you to business setup next. Other choices go straight to your home screen.</p>
+<a href="Business.dc.html" style="margin-top:auto;display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;background:#6D1A95;color:#FFFFFF;font-size:15px;font-weight:600">Continue</a>
+<a href="Workspace.dc.html" style="text-align:center;font-size:15px;font-weight:600;color:#6D1A95;padding:8px">Skip for now</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

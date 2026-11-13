@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fira AI (Orb)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box}
+.t{font-size:14px;font-weight:600}
+.d{font-size:12px;line-height:1.5;color:#6B7280}
+.pill{display:inline-flex;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;white-space:nowrap}
+.row{display:flex;align-items:center;gap:12px}
+.ph{background:#EFE9F4;color:#4B5563;display:flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+.inp{box-sizing:border-box;width:100%;height:52px;border:1px solid #E9D5FF;border-radius:16px;padding:0 16px;font-size:14px;font-family:inherit;color:#1E1B4B;background:#FFFFFF}
+.lbl{font-size:13px;font-weight:600;margin:0 0 6px;display:block}
+.btn{display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;font-size:15px;font-weight:600;box-sizing:border-box;width:100%}
+.chip{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:12px;border:1px solid #E9D5FF;background:#FFFFFF;font-size:13px;font-weight:500;white-space:nowrap;flex:none}
+.chip.on{background:#6D1A95;border-color:#6D1A95;color:#FFFFFF}
+.ln{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #F3E8FF;min-height:52px;box-sizing:border-box}
+.ln:first-child{border-top:0}
+.tx{display:flex;gap:8px;overflow:hidden}
+</style>
+</helmet>
+<div id="root" style="width:390px;height:844px;box-sizing:border-box;background:#F9F7FA;position:relative;overflow:hidden;padding:0 20px 16px;display:flex;flex-direction:column;gap:12px">
+
+<div style="height:56px;display:flex;align-items:center;gap:8px;margin:0 -8px;flex:none"><a href="Home.dc.html" aria-label="Close" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></a><div style="flex:1"><div style="font-size:17px;font-weight:700">Fira AI</div></div><span class="pill" style="background:#F3E8FF;color:#6D1A95;">[n] questions left today</span></div>
+<div style="display:flex;flex-direction:column;gap:12px;flex:1;overflow:hidden">
+<div style="align-self:flex-end;max-width:260px;background:#6D1A95;color:#FFFFFF;border-radius:18px 18px 4px 18px;padding:10px 14px;font-size:14px;line-height:1.45">What documents do I need to export washed Sidama?</div>
+<div style="align-self:flex-start;max-width:300px;background:#FFFFFF;border:1px solid #E9D5FF;border-radius:18px 18px 18px 4px;padding:12px 14px;font-size:14px;line-height:1.55">[Answer text. A short list of documents.]
+<div style="margin-top:8px;border-top:1px solid #F3E8FF;padding-top:8px;display:flex;gap:6px;align-items:center;font-size:11px;font-weight:600;color:#065F46"><span style="background:#D1FAE5;border-radius:999px;padding:3px 10px">Source</span><span style="color:#4B5563;font-weight:500">[Document name], [date]</span></div></div>
+<div style="align-self:flex-end;max-width:260px;background:#6D1A95;color:#FFFFFF;border-radius:18px 18px 4px 18px;padding:10px 14px;font-size:14px;line-height:1.45">And how much capital do I need?</div>
+<div style="align-self:flex-start;max-width:300px;background:#FFFFFF;border:1px solid #E9D5FF;border-radius:18px 18px 18px 4px;padding:12px 14px;font-size:14px;line-height:1.55">[Answer text with no stored source.]
+<div style="margin-top:8px;border-top:1px solid #F3E8FF;padding-top:8px;font-size:11px;line-height:1.5;color:#92400E;font-weight:600"><span style="background:#FEF3C7;border-radius:999px;padding:3px 10px">General guidance</span><span style="color:#4B5563;font-weight:500"> Not a verified rule. Confirm with [the agency] before you act.</span></div></div></div>
+<div style="display:flex;gap:8px;overflow:hidden;margin:0 -20px;padding:0 20px;flex:none"><span class="chip">Draft an offer</span><span class="chip">Explain FOB vs CIF</span><span class="chip">Check my documents</span></div>
+<div style="display:flex;gap:8px;align-items:center;flex:none"><div style="flex:1;height:52px;border-radius:20px;background:#FFFFFF;border:1px solid #E9D5FF;display:flex;align-items:center;gap:10px;padding:0 16px;color:#6B7280;font-size:14px;box-sizing:border-box">Ask anything about export</div><a href="FiraAI.dc.html" aria-label="Send" style="width:52px;height:52px;border-radius:16px;background:#6D1A95;color:#FFFFFF;display:flex;align-items:center;justify-content:center;flex:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l16-8-6 16-3-6z"/></svg></a></div>
+<div class="d" style="text-align:center;font-size:11px">AI can be wrong. Check important rules with the agency.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

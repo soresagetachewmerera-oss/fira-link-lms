@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Business setup</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.f{height:52px;box-sizing:border-box;border:1px solid #E9D5FF;border-radius:16px;background:#FFFFFF;padding:0 16px;font-size:15px;font-family:inherit;color:#1E1B4B;width:100%}
+.l{font-size:14px;font-weight:600}
+.r{display:flex;align-items:center;justify-content:center;height:44px;box-sizing:border-box;border:1px solid #E9D5FF;border-radius:12px;padding:0 16px;font-size:14px;font-weight:600;background:#FFFFFF;cursor:pointer}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#F9F7FA;padding:20px 20px 32px;display:flex;flex-direction:column;gap:14px">
+<a href="Intent.dc.html" aria-label="Back" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-left:-12px;color:#1E1B4B"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<div style="font-size:12px;font-weight:600;color:#6D1A95">Step 2 of 2</div>
+<h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.45px;line-height:1.2">Set up your business</h1>
+<p style="margin:0;font-size:14px;line-height:1.5;color:#6B7280">Lots and deals belong to a business, not to you personally.</p>
+<div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">
+<label for="biz" class="l">Business name</label>
+<input id="biz" class="f" type="text" placeholder="Name on your trade license">
+</div>
+<fieldset style="border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px">
+<legend class="l" style="padding:0;margin-bottom:8px">Your role</legend>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<label class="r" style="border:2px solid #6D1A95;background:#F3E8FF;color:#6D1A95"><input type="radio" name="role" checked style="position:absolute;opacity:0;width:1px;height:1px">Exporter</label>
+<label class="r"><input type="radio" name="role" style="position:absolute;opacity:0;width:1px;height:1px">Supplier</label>
+<label class="r"><input type="radio" name="role" style="position:absolute;opacity:0;width:1px;height:1px">Broker</label>
+<label class="r"><input type="radio" name="role" style="position:absolute;opacity:0;width:1px;height:1px">Buyer</label>
+</div>
+</fieldset>
+<div style="display:flex;flex-direction:column;gap:8px">
+<label for="ent" class="l">Entity type</label>
+<select id="ent" class="f"><option>Select entity type</option></select>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<label for="ctry" class="l">Country</label>
+<select id="ctry" class="f"><option>Ethiopia</option></select>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<label for="tin" class="l">TIN <span style="font-weight:400;color:#6B7280">(optional now)</span></label>
+<input id="tin" class="f" type="text" inputmode="numeric" placeholder="Tax identification number">
+</div>
+<div style="background:#F3E8FF;border-radius:16px;padding:14px 16px;font-size:13px;line-height:1.5;color:#3B0764">You can browse and prepare drafts now. Public lots and quotes need verification, which you start from your business page. Plans never change verification.</div>
+<a href="Workspace.dc.html" style="margin-top:auto;display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;background:#6D1A95;color:#FFFFFF;font-size:15px;font-weight:600">Create workspace</a>
+<a href="Workspace.dc.html" style="text-align:center;font-size:15px;font-weight:600;color:#6D1A95;padding:6px">Do this later</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

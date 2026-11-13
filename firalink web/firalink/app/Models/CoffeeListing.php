@@ -20,6 +20,13 @@ class CoffeeListing extends Model
 
     protected $table = 'coffee_listings';
 
+    /** Lot evidence levels, lowest to highest. Set only by an admin review action. */
+    public const EVIDENCE_LEVELS = ['claimed', 'documented', 'lab_backed', 'inspected'];
+
+    /**
+     * evidence_level is intentionally NOT fillable: no request may set it.
+     * MarketplaceAdminController::reviewEvidenceLevel() uses forceFill().
+     */
     protected $fillable = [
         'seller_id',
         'organization_id',
@@ -34,7 +41,6 @@ class CoffeeListing extends Model
         'grade',
         'screen_size',
         'cupping_score',
-        'evidence_level',
         'evidence_document_path',
         'moisture_content',
         'water_activity',

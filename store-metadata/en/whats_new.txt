@@ -1,4 +1,0 @@
-- Added full Amharic (አማርኛ) localization across all screens, tools, and courses.
-- Noto Sans Ethiopic typography integration with optimized line heights.
-- Instant bilingual language switching in Profile and Settings.
-- Improved coffee toolkit calculations and offline currency formatting (ETB / ብር).

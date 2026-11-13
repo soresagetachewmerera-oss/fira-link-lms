@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Request a sample</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.f{height:48px;box-sizing:border-box;border:1px solid #E9D5FF;border-radius:16px;background:#FFFFFF;padding:0 16px;font-size:14px;font-family:inherit;color:#1E1B4B;width:100%}
+.l{font-size:13px;font-weight:600;margin-bottom:6px;display:block}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box}
+.r{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid #E9D5FF;border-radius:22px;background:#FFFFFF}
+.r input{width:20px;height:20px;accent-color:#6D1A95;margin:2px 0 0;flex:none}
+.t{font-size:14px;font-weight:600}
+.d{font-size:12px;line-height:1.5;color:#6B7280;margin-top:2px}
+.ch{flex:1;display:flex;align-items:center;justify-content:center;height:44px;box-sizing:border-box;border:1px solid #E9D5FF;border-radius:12px;font-size:14px;font-weight:600;background:#FFFFFF}
+</style>
+</helmet>
+<div style="width:390px;height:1000px;box-sizing:border-box;background:#F9F7FA;padding:0 20px 24px;display:flex;flex-direction:column;gap:12px">
+<div style="height:56px;display:flex;align-items:center;gap:4px;margin:0 -8px">
+<a href="LotDetail.dc.html" aria-label="Back" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#1E1B4B"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+<div style="font-size:22px;font-weight:700;letter-spacing:-0.3px">Request a sample</div>
+</div>
+<div class="card" style="padding:12px 14px;display:flex;align-items:center;gap:12px">
+<div style="width:56px;height:56px;border-radius:12px;background:#EFE9F4;color:#4B5563;font-size:10px;display:flex;align-items:center;justify-content:center;flex:none">[Photo]</div>
+<div style="flex:1"><div style="font-size:14px;font-weight:600">[Lot name]</div><div class="d">[Business name] · Verified · Lot code [code]</div></div>
+</div>
+<div><span class="l">Sample size</span><div style="display:flex;gap:8px"><div class="ch" style="border:2px solid #6D1A95;background:#F3E8FF;color:#6D1A95">250 g</div><div class="ch">500 g</div></div></div>
+<div><label class="l" for="co">Company name</label><input id="co" class="f" type="text" placeholder="[Your company]"></div>
+<div><label class="l" for="ad">Delivery address</label><input id="ad" class="f" type="text" placeholder="Street, city, postal code"></div>
+<div style="display:flex;gap:8px"><div style="flex:1"><label class="l" for="ct">Country</label><select id="ct" class="f"><option>Select</option></select></div><div style="flex:1"><label class="l" for="ph">Phone</label><input id="ph" class="f" type="tel" placeholder="+[code]"></div></div>
+<div><span class="l">Shipping</span>
+<div style="display:flex;flex-direction:column;gap:8px">
+<label class="r" style="border:2px solid #6D1A95;background:#F3E8FF"><input type="radio" name="sh" checked><div><div class="t">Pay shipping in Fira Link</div><div class="d">[Shipping fee] through Chapa. We create the courier booking.</div></div></label>
+<label class="r"><input type="radio" name="sh"><div><div class="t">Use my courier account</div><div class="d">Enter your DHL or FedEx account number. The seller ships on your account.</div></div></label>
+</div></div>
+<div class="card" style="padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:13px">
+<div style="display:flex;justify-content:space-between"><span style="color:#6B7280">Sample fee</span><span style="font-weight:600">[Fee or free]</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#6B7280">Shipping</span><span style="font-weight:600">[Fee]</span></div>
+<div style="display:flex;justify-content:space-between;border-top:1px solid #F3E8FF;padding-top:6px"><span style="font-weight:600">Total</span><span style="font-weight:700">[Total]</span></div>
+</div>
+<div style="background:#F3E8FF;border-radius:16px;padding:12px 14px;font-size:12px;line-height:1.5;color:#3B0764">The seller keeps a sealed copy of this sample under lot code [code]. If the shipped lot differs, both samples can be compared. Never pay a sample or courier fee to a person.</div>
+<a href="SampleTracking.dc.html" style="margin-top:auto;display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;background:#6D1A95;color:#FFFFFF;font-size:15px;font-weight:600">Send request</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

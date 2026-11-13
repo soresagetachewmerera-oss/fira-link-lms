@@ -8,7 +8,7 @@ use App\Models\CoffeeListing;
 use App\Models\DealRoom;
 use App\Models\MarketplaceSample;
 use App\Models\Organization;
-use App\Models\OrganizationMembership;
+use App\Services\PrivateDocumentStore;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -120,13 +120,7 @@ class MarketplaceSampleController extends Controller
         $user = $request->user();
         $sample = MarketplaceSample::with(['listing', 'organization', 'buyer'])->findOrFail($id);
 
-        $isBuyer = $sample->buyer_id === $user->id;
-        $isOrgMember = OrganizationMembership::where('organization_id', $sample->organization_id)
-            ->where('user_id', $user->id)
-            ->where('is_active', true)
-            ->exists();
-
-        if (!$isBuyer && !$isOrgMember && !$user->isAdmin()) {
+        if ($user->cannot('view', $sample)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized access to sample details.',
@@ -147,6 +141,13 @@ class MarketplaceSampleController extends Controller
     {
         $user = $request->user();
         $sample = MarketplaceSample::findOrFail($id);
+
+        if ($user->cannot('dispatch', $sample)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only the seller of this lot can dispatch the sample.',
+            ], 403);
+        }
 
         $validator = Validator::make($request->all(), [
             'courier_name' => 'required|string|max:100', // DHL, FedEx, EMS, Aramex
@@ -203,10 +204,29 @@ class MarketplaceSampleController extends Controller
      */
     public function markDelivered(Request $request, int $id): JsonResponse
     {
+        $user = $request->user();
         $sample = MarketplaceSample::findOrFail($id);
+
+        if ($user->cannot('confirmDelivery', $sample)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only the buyer who requested the sample can confirm delivery.',
+            ], 403);
+        }
+
         $sample->update([
             'status' => MarketplaceSample::STATUS_DELIVERED,
             'delivery_date' => now(),
+        ]);
+
+        AuditLog::create([
+            'user_id' => $user->id,
+            'organization_id' => $sample->organization_id,
+            'action' => 'sample_delivered',
+            'auditable_type' => MarketplaceSample::class,
+            'auditable_id' => $sample->id,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
         ]);
 
         return response()->json([
@@ -225,7 +245,7 @@ class MarketplaceSampleController extends Controller
         $user = $request->user();
         $sample = MarketplaceSample::findOrFail($id);
 
-        if ($sample->buyer_id !== $user->id && !$user->isAdmin()) {
+        if ($user->cannot('evaluate', $sample)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Only the buyer who requested the sample can submit evaluation.',
@@ -236,7 +256,7 @@ class MarketplaceSampleController extends Controller
             'decision' => 'required|in:approved,rejected',
             'cupping_score' => 'required|numeric|min:60|max:100',
             'cupping_notes' => 'nullable|string',
-            'lab_report' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'lab_report' => 'nullable|file|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -247,14 +267,19 @@ class MarketplaceSampleController extends Controller
             ], 422);
         }
 
-        $status = $request->input('decision') === 'approved' 
-            ? MarketplaceSample::STATUS_CUPPED_APPROVED 
-            : MarketplaceSample::STATUS_CUPPED_REJECTED;
-
+        $documents = app(PrivateDocumentStore::class);
         $reportPath = null;
         if ($request->hasFile('lab_report')) {
-            $reportPath = $request->file('lab_report')->store("samples/{$sample->id}/lab", 'public');
+            $reason = $documents->rejectionReason($request->file('lab_report'));
+            if ($reason) {
+                return response()->json($documents->errorResponse('lab_report', $reason), 422);
+            }
+            $reportPath = $documents->store($request->file('lab_report'), "samples/{$sample->id}/lab");
         }
+
+        $status = $request->input('decision') === 'approved'
+            ? MarketplaceSample::STATUS_CUPPED_APPROVED
+            : MarketplaceSample::STATUS_CUPPED_REJECTED;
 
         $sample->update([
             'status' => $status,

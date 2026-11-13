@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tour detail</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#1E1B4B}
+a{text-decoration:none;color:inherit}
+.card{background:#FFFFFF;border:1px solid #E9D5FF;border-radius:22px;box-sizing:border-box}
+.t{font-size:14px;font-weight:600}
+.d{font-size:12px;line-height:1.5;color:#6B7280}
+.pill{display:inline-flex;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600;white-space:nowrap}
+.row{display:flex;align-items:center;gap:12px}
+.ph{background:#EFE9F4;color:#4B5563;display:flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+.inp{box-sizing:border-box;width:100%;height:52px;border:1px solid #E9D5FF;border-radius:16px;padding:0 16px;font-size:14px;font-family:inherit;color:#1E1B4B;background:#FFFFFF}
+.lbl{font-size:13px;font-weight:600;margin:0 0 6px;display:block}
+.btn{display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;font-size:15px;font-weight:600;box-sizing:border-box;width:100%}
+.chip{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:12px;border:1px solid #E9D5FF;background:#FFFFFF;font-size:13px;font-weight:500;white-space:nowrap;flex:none}
+.chip.on{background:#6D1A95;border-color:#6D1A95;color:#FFFFFF}
+.ln{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #F3E8FF;min-height:52px;box-sizing:border-box}
+.ln:first-child{border-top:0}
+.tx{display:flex;gap:8px;overflow:hidden}
+</style>
+</helmet>
+<div id="root" style="width:390px;height:1070px;box-sizing:border-box;background:#F9F7FA;position:relative;overflow:hidden;padding:0 20px 24px;display:flex;flex-direction:column;gap:12px">
+
+<div style="position:relative;margin:0 -20px;flex:none"><div class="ph" style="width:100%;height:240px;border-radius:0px;">[Tour gallery]</div><a href="Tours.dc.html" aria-label="Back" style="position:absolute;left:8px;top:8px;width:44px;height:44px;border-radius:999px;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a><span style="position:absolute;right:12px;bottom:12px;background:rgba(20,6,46,0.7);color:#FFFFFF;font-size:11px;padding:4px 10px;border-radius:999px">1 / [n]</span></div>
+<div style="flex:none"><div style="font-size:22px;font-weight:700;letter-spacing:-0.3px;line-height:1.25">[Tour name]</div><div class="d" style="margin-top:2px">[Region] · [n] days · up to [n] guests</div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><span class="pill" style="background:#D1FAE5;color:#065F46;">Host verified</span><span class="pill" style="background:#F3E8FF;color:#6D1A95;">Small group</span></div></div>
+<div class="card" style="padding:12px 14px;display:flex;gap:12px;align-items:center"><div class="ph" style="width:44px;height:44px;border-radius:999px;">[Logo]</div><div style="flex:1"><div class="t">[Host or farm]</div><div class="d">Hosting since [year]</div></div><a href="ExporterProfile.dc.html" style="font-size:12px;font-weight:600;color:#6D1A95">View</a></div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px"><div style="font-size:16px;font-weight:600;letter-spacing:-0.15px">Itinerary</div></div>
+<div class="card" style="overflow:hidden"><div class="ln" style="align-items:flex-start"><div class="pill" style="background:#F3E8FF;color:#6D1A95">Day 1</div><div><div class="t">[Arrival and farm walk]</div><div class="d">[One line of what happens]</div></div></div><div class="ln" style="align-items:flex-start"><div class="pill" style="background:#F3E8FF;color:#6D1A95">Day 2</div><div><div class="t">[Harvest, washing station, cupping]</div><div class="d">[One line of what happens]</div></div></div><div class="ln" style="align-items:flex-start"><div class="pill" style="background:#F3E8FF;color:#6D1A95">Day 3</div><div><div class="t">[Return to Addis Ababa]</div><div class="d">[One line of what happens]</div></div></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="card" style="padding:14px"><div class="t" style="margin-bottom:6px">Included</div><div class="d">[Transport]<br>[Meals]<br>[Guide]</div></div><div class="card" style="padding:14px"><div class="t" style="margin-bottom:6px">Not included</div><div class="d">[Flights]<br>[Insurance]<br>[Personal items]</div></div></div>
+<div style="background:#F3E8FF;border-radius:16px;padding:12px 14px;font-size:12px;line-height:1.5;color:#3B0764"><b>Cancellation:</b> [policy]. <b>Safety:</b> [emergency contact and what to bring]. Never pay the host directly.</div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px"><div style="font-size:16px;font-weight:600;letter-spacing:-0.15px">Next dates</div></div>
+<div style="display:flex;gap:8px;flex:none"><span class="chip on">[12 Dec]</span><span class="chip">[19 Dec]</span><span class="chip">[9 Jan]</span></div>
+<div style="height:70px;flex:none"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;background:#FFFFFF;border-top:1px solid #E9D5FF;padding:12px 20px 24px;display:flex;align-items:center;gap:14px;box-sizing:border-box"><div style="flex:1"><div class="d">From</div><div style="font-size:18px;font-weight:700">[ETB] <span class="d">/ person</span></div></div><div style="flex:1.2"><a class="btn" href="TourBooking.dc.html" style="background:#6D1A95;color:#FFFFFF;">Book this tour</a></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1070}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

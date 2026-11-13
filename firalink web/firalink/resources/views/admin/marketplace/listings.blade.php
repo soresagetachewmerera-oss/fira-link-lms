@@ -48,6 +48,7 @@
                                     <th>FOB Price</th>
                                     <th>Available</th>
                                     <th>Featured</th>
+                                    <th>Evidence</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -84,6 +85,23 @@
                                             </form>
                                         </td>
                                         <td>
+                                            @if($lot->evidence_document_path)
+                                                <a href="{{ app(\App\Services\PrivateDocumentStore::class)->adminUrl('listing-evidence', $lot->id) }}" target="_blank" rel="noopener" class="d-block text-small mb-1">
+                                                    <i class="fas fa-file-alt"></i> View evidence
+                                                </a>
+                                            @endif
+                                            <form method="POST" action="{{ route('admin.marketplace.listings.evidence-level', $lot->id) }}">
+                                                @csrf
+                                                <select name="evidence_level" class="form-control form-control-sm mb-1" aria-label="Evidence level">
+                                                    @foreach(\App\Models\CoffeeListing::EVIDENCE_LEVELS as $level)
+                                                        <option value="{{ $level }}" @selected($lot->evidence_level === $level)>{{ ucfirst(str_replace('_', ' ', $level)) }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <input type="text" name="notes" class="form-control form-control-sm mb-1" placeholder="Review note (required)" required minlength="5" maxlength="1000">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">Save review</button>
+                                            </form>
+                                        </td>
+                                        <td>
                                             <span class="badge {{ $lot->status === 'active' ? 'badge-success' : 'badge-secondary' }} text-capitalize">
                                                 {{ $lot->status }}
                                             </span>
@@ -99,7 +117,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center py-4 text-muted">No coffee lots found.</td>
+                                        <td colspan="10" class="text-center py-4 text-muted">No coffee lots found.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

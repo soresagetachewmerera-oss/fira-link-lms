@@ -122,8 +122,14 @@ class OrganizationVerificationWebController extends Controller
         $request->validate([
             'target_role' => 'required|in:exporter,supplier,buyer,broker',
             'document_type' => 'required|in:commercial_reg,sector_license,tin_cert,rep_id,address_proof,broker_mandate',
-            'document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'document' => 'required|file|max:10240',
         ]);
+
+        $documents = app(\App\Services\PrivateDocumentStore::class);
+        $reason = $documents->rejectionReason($request->file('document'));
+        if ($reason) {
+            return redirect()->back()->withErrors(['document' => $documents->message($reason)])->withInput();
+        }
 
         $verification = OrganizationVerification::firstOrCreate(
             [
@@ -136,7 +142,7 @@ class OrganizationVerificationWebController extends Controller
         );
 
         $file = $request->file('document');
-        $ext = $file->getClientOriginalExtension();
+        $ext = ['application/pdf' => 'pdf', 'image/jpeg' => 'jpg', 'image/png' => 'png'][$file->getMimeType()];
         $safeHash = hash_file('sha256', $file->getRealPath());
         $filename = Str::uuid() . '.' . $ext;
         $folder = "organizations/{$org->id}/verifications";

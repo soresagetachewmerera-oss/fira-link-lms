@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Document capture</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Montserrat,'Noto Sans Ethiopic',system-ui,sans-serif;color:#FFFFFF}
+a{text-decoration:none;color:inherit}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#0F0B1E;padding:20px 20px 32px;display:flex;flex-direction:column;gap:16px">
+<div style="height:48px;display:flex;align-items:center;justify-content:space-between">
+<a href="Dossier.dc.html" aria-label="Close" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-left:-10px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></a>
+<div style="font-size:16px;font-weight:600">Business license</div>
+<button type="button" aria-label="Flash" style="width:44px;height:44px;border:0;background:none;color:#FFFFFF;display:flex;align-items:center;justify-content:center;margin-right:-10px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></svg></button>
+</div>
+<div style="height:360px;border-radius:22px;background:#19132B;display:flex;align-items:center;justify-content:center;position:relative">
+<div style="width:300px;height:210px;box-sizing:border-box;border:3px solid #C084FC;border-radius:16px;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 24px;font-size:13px;line-height:1.5;color:#E9D5FF">Place the document inside the frame</div>
+<div style="position:absolute;left:20px;bottom:16px;display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#2E1065;color:#E9D5FF;padding:4px 12px;font-size:11px;font-weight:600">Edges detected automatically</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="font-size:14px;font-weight:600">For a clear photo</div>
+<div style="font-size:13px;line-height:1.5;color:#D8B4FE">Lay the paper flat in good light. All four corners, the stamp and the document number must be readable. Photos with glare or cut-off edges are rejected.</div>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding:0 8px">
+<button type="button" style="width:88px;height:48px;border-radius:16px;border:1px solid #581C87;background:#19132B;color:#FFFFFF;font-family:inherit;font-size:13px;font-weight:600">Files</button>
+<a href="Dossier.dc.html" aria-label="Take photo" style="width:76px;height:76px;box-sizing:border-box;border-radius:999px;border:4px solid #FFFFFF;display:flex;align-items:center;justify-content:center"><div style="width:56px;height:56px;border-radius:999px;background:#FFFFFF"></div></a>
+<button type="button" style="width:88px;height:48px;border-radius:16px;border:1px solid #581C87;background:#19132B;color:#FFFFFF;font-family:inherit;font-size:13px;font-weight:600">Multi-page</button>
+</div>
+<p style="margin:0;font-size:12px;line-height:1.5;color:#D8B4FE;text-align:center">Next: review the photo, then enter the document number and expiry date. Your file is stored encrypted and only our reviewers can open it.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

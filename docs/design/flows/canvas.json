@@ -1,0 +1,617 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-13T19:00:00Z"
+ },
+ "title": "Fira Link app flows",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 300,
+   "w": 390,
+   "h": 844,
+   "title": "S-101 Language picker \u00b7 NEW",
+   "is_interactive": true
+  },
+  "Auth.dc.html": {
+   "x": 470,
+   "y": 300,
+   "w": 390,
+   "h": 844,
+   "title": "S-004 Phone sign in \u00b7 MODIFY",
+   "is_interactive": true
+  },
+  "Intent.dc.html": {
+   "x": 940,
+   "y": 300,
+   "w": 390,
+   "h": 844,
+   "title": "S-102 Intent \u00b7 NEW",
+   "is_interactive": true
+  },
+  "Business.dc.html": {
+   "x": 1410,
+   "y": 300,
+   "w": 390,
+   "h": 844,
+   "title": "S-103 Business setup \u00b7 NEW",
+   "is_interactive": true
+  },
+  "Workspace.dc.html": {
+   "x": 1880,
+   "y": 300,
+   "w": 390,
+   "h": 844,
+   "title": "S-105 Workspace switcher \u00b7 NEW",
+   "is_interactive": true
+  },
+  "Dossier.dc.html": {
+   "x": 0,
+   "y": 1564,
+   "w": 390,
+   "h": 1200,
+   "title": "S-021 Verification tiers \u00b7 MODIFY",
+   "is_interactive": true
+  },
+  "Capture.dc.html": {
+   "x": 470,
+   "y": 1564,
+   "w": 390,
+   "h": 844,
+   "title": "S-108 Document capture \u00b7 NEW",
+   "is_interactive": true
+  },
+  "PublicVerify.dc.html": {
+   "x": 940,
+   "y": 1564,
+   "w": 390,
+   "h": 1000,
+   "title": "S-110 Verify a seller (public) \u00b7 NEW",
+   "is_interactive": true
+  },
+  "Evidence.dc.html": {
+   "x": 1410,
+   "y": 1564,
+   "w": 390,
+   "h": 1000,
+   "title": "S-111 Lot evidence level \u00b7 NEW",
+   "is_interactive": true
+  },
+  "LotDetail.dc.html": {
+   "x": 0,
+   "y": 3184,
+   "w": 390,
+   "h": 1300,
+   "title": "S-015 Lot detail \u00b7 MODIFY",
+   "is_interactive": true
+  },
+  "Compare.dc.html": {
+   "x": 470,
+   "y": 3184,
+   "w": 390,
+   "h": 1000,
+   "title": "S-115 Compare quotes \u00b7 NEW",
+   "is_interactive": true
+  },
+  "SampleRequest.dc.html": {
+   "x": 940,
+   "y": 3184,
+   "w": 390,
+   "h": 1000,
+   "title": "S-118 Request a sample \u00b7 NEW",
+   "is_interactive": true
+  },
+  "SampleTracking.dc.html": {
+   "x": 1410,
+   "y": 3184,
+   "w": 390,
+   "h": 1000,
+   "title": "S-119 Sample tracking \u00b7 NEW",
+   "is_interactive": true
+  },
+  "DealRoom.dc.html": {
+   "x": 0,
+   "y": 4904,
+   "w": 390,
+   "h": 1200,
+   "title": "S-117 Deal room \u00b7 NEW",
+   "is_interactive": true
+  },
+  "Milestones.dc.html": {
+   "x": 470,
+   "y": 4904,
+   "w": 390,
+   "h": 1100,
+   "title": "S-122 Payment milestones \u00b7 NEW",
+   "is_interactive": true
+  },
+  "ChatWarning.dc.html": {
+   "x": 940,
+   "y": 4904,
+   "w": 390,
+   "h": 844,
+   "title": "S-129 Off-platform warning \u00b7 NEW",
+   "is_interactive": true
+  },
+  "Report.dc.html": {
+   "x": 1410,
+   "y": 4904,
+   "w": 390,
+   "h": 844,
+   "title": "S-128 Report \u00b7 NEW",
+   "is_interactive": true
+  },
+  "Splash.dc.html": {
+   "x": 0,
+   "y": 6840,
+   "w": 390,
+   "h": 844,
+   "title": "S-001 Splash \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Onboard1.dc.html": {
+   "x": 470,
+   "y": 6840,
+   "w": 390,
+   "h": 844,
+   "title": "S-003 Onboarding 1 of 3 \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Onboard2.dc.html": {
+   "x": 940,
+   "y": 6840,
+   "w": 390,
+   "h": 844,
+   "title": "S-003 Onboarding 2 of 3 \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Onboard3.dc.html": {
+   "x": 1410,
+   "y": 6840,
+   "w": 390,
+   "h": 844,
+   "title": "S-003 Onboarding 3 of 3 \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Otp.dc.html": {
+   "x": 1880,
+   "y": 6840,
+   "w": 390,
+   "h": 844,
+   "title": "S-005 Verify phone code \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "EmailLogin.dc.html": {
+   "x": 0,
+   "y": 7844,
+   "w": 390,
+   "h": 844,
+   "title": "Sign in with email \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Forgot.dc.html": {
+   "x": 470,
+   "y": 7844,
+   "w": 390,
+   "h": 844,
+   "title": "Forgot password \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "ResetCode.dc.html": {
+   "x": 940,
+   "y": 7844,
+   "w": 390,
+   "h": 844,
+   "title": "Reset password code \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "NewPass.dc.html": {
+   "x": 1410,
+   "y": 7844,
+   "w": 390,
+   "h": 844,
+   "title": "Set a new password \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "ResetDone.dc.html": {
+   "x": 1880,
+   "y": 7844,
+   "w": 390,
+   "h": 844,
+   "title": "Password updated \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Home.dc.html": {
+   "x": 0,
+   "y": 9088,
+   "w": 390,
+   "h": 1630,
+   "title": "Home dashboard \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Search.dc.html": {
+   "x": 470,
+   "y": 9088,
+   "w": 390,
+   "h": 844,
+   "title": "Search \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Notifications.dc.html": {
+   "x": 940,
+   "y": 9088,
+   "w": 390,
+   "h": 844,
+   "title": "Notifications \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Market.dc.html": {
+   "x": 1410,
+   "y": 9088,
+   "w": 390,
+   "h": 1320,
+   "title": "B2B Marketplace \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Filters.dc.html": {
+   "x": 1880,
+   "y": 9088,
+   "w": 390,
+   "h": 844,
+   "title": "Marketplace filters \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "ExporterProfile.dc.html": {
+   "x": 0,
+   "y": 10878,
+   "w": 390,
+   "h": 1180,
+   "title": "S-114 Exporter profile (public) \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "RFQ.dc.html": {
+   "x": 470,
+   "y": 10878,
+   "w": 390,
+   "h": 910,
+   "title": "Post a request (RFQ) \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Toolkit.dc.html": {
+   "x": 940,
+   "y": 10878,
+   "w": 390,
+   "h": 844,
+   "title": "Export toolkit \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Fob.dc.html": {
+   "x": 1410,
+   "y": 10878,
+   "w": 390,
+   "h": 844,
+   "title": "FOB and profit calculator \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "SellerHome.dc.html": {
+   "x": 0,
+   "y": 12458,
+   "w": 390,
+   "h": 1000,
+   "title": "Seller home (business workspace) \u00b7 NEW",
+   "is_interactive": true
+  },
+  "CreateLot.dc.html": {
+   "x": 470,
+   "y": 12458,
+   "w": 390,
+   "h": 1220,
+   "title": "Create a lot \u00b7 NEW",
+   "is_interactive": true
+  },
+  "SampleInbox.dc.html": {
+   "x": 940,
+   "y": 12458,
+   "w": 390,
+   "h": 1030,
+   "title": "Seller sample requests \u00b7 NEW",
+   "is_interactive": true
+  },
+  "QuoteRespond.dc.html": {
+   "x": 1410,
+   "y": 12458,
+   "w": 390,
+   "h": 900,
+   "title": "Answer a request (quote) \u00b7 NEW",
+   "is_interactive": true
+  },
+  "Events.dc.html": {
+   "x": 0,
+   "y": 14078,
+   "w": 390,
+   "h": 900,
+   "title": "Events \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "EventDetail.dc.html": {
+   "x": 470,
+   "y": 14078,
+   "w": 390,
+   "h": 1130,
+   "title": "Event detail \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "EventRegister.dc.html": {
+   "x": 940,
+   "y": 14078,
+   "w": 390,
+   "h": 930,
+   "title": "Register for event \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "TicketPass.dc.html": {
+   "x": 1410,
+   "y": 14078,
+   "w": 390,
+   "h": 844,
+   "title": "Ticket \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Tours.dc.html": {
+   "x": 0,
+   "y": 15608,
+   "w": 390,
+   "h": 1140,
+   "title": "Farm tours \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "TourDetail.dc.html": {
+   "x": 470,
+   "y": 15608,
+   "w": 390,
+   "h": 1070,
+   "title": "Tour detail \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "TourBooking.dc.html": {
+   "x": 940,
+   "y": 15608,
+   "w": 390,
+   "h": 970,
+   "title": "Book a tour \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "TourConfirmed.dc.html": {
+   "x": 1410,
+   "y": 15608,
+   "w": 390,
+   "h": 844,
+   "title": "Booking confirmed \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Academy.dc.html": {
+   "x": 0,
+   "y": 17148,
+   "w": 390,
+   "h": 844,
+   "title": "Academy \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Course.dc.html": {
+   "x": 470,
+   "y": 17148,
+   "w": 390,
+   "h": 860,
+   "title": "Course detail \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Lesson.dc.html": {
+   "x": 940,
+   "y": 17148,
+   "w": 390,
+   "h": 844,
+   "title": "Lesson player \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "FiraAI.dc.html": {
+   "x": 1410,
+   "y": 17148,
+   "w": 390,
+   "h": 844,
+   "title": "Fira AI (Orb) \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Profile.dc.html": {
+   "x": 1880,
+   "y": 17148,
+   "w": 390,
+   "h": 1010,
+   "title": "Profile \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  },
+  "Settings.dc.html": {
+   "x": 0,
+   "y": 18318,
+   "w": 390,
+   "h": 844,
+   "title": "Settings \u00b7 MATCH TO YOUR APP",
+   "is_interactive": true
+  }
+ },
+ "order": [
+  "Splash.dc.html",
+  "Main.dc.html",
+  "Onboard1.dc.html",
+  "Onboard2.dc.html",
+  "Onboard3.dc.html",
+  "Auth.dc.html",
+  "Otp.dc.html",
+  "EmailLogin.dc.html",
+  "Forgot.dc.html",
+  "ResetCode.dc.html",
+  "NewPass.dc.html",
+  "ResetDone.dc.html",
+  "Intent.dc.html",
+  "Business.dc.html",
+  "Workspace.dc.html",
+  "Home.dc.html",
+  "Search.dc.html",
+  "Notifications.dc.html",
+  "Market.dc.html",
+  "Filters.dc.html",
+  "ExporterProfile.dc.html",
+  "LotDetail.dc.html",
+  "PublicVerify.dc.html",
+  "Evidence.dc.html",
+  "Dossier.dc.html",
+  "Capture.dc.html",
+  "RFQ.dc.html",
+  "Compare.dc.html",
+  "SampleRequest.dc.html",
+  "SampleTracking.dc.html",
+  "DealRoom.dc.html",
+  "Milestones.dc.html",
+  "ChatWarning.dc.html",
+  "Report.dc.html",
+  "Toolkit.dc.html",
+  "Fob.dc.html",
+  "SellerHome.dc.html",
+  "CreateLot.dc.html",
+  "SampleInbox.dc.html",
+  "QuoteRespond.dc.html",
+  "Events.dc.html",
+  "EventDetail.dc.html",
+  "EventRegister.dc.html",
+  "TicketPass.dc.html",
+  "Tours.dc.html",
+  "TourDetail.dc.html",
+  "TourBooking.dc.html",
+  "TourConfirmed.dc.html",
+  "Academy.dc.html",
+  "Course.dc.html",
+  "Lesson.dc.html",
+  "FiraAI.dc.html",
+  "Profile.dc.html",
+  "Settings.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": 0,
+   "text": "1  Launch, sign up and workspaces",
+   "kind": "title1",
+   "maxW": 2270
+  },
+  "t2": {
+   "x": 0,
+   "y": 1264,
+   "text": "2  Verification and lot evidence",
+   "kind": "title1",
+   "maxW": 1800
+  },
+  "t3": {
+   "x": 0,
+   "y": 2884,
+   "text": "3  Discovery, quotes and samples",
+   "kind": "title1",
+   "maxW": 1800
+  },
+  "t4": {
+   "x": 0,
+   "y": 4604,
+   "text": "4  Deal room and safety",
+   "kind": "title1",
+   "maxW": 1800
+  },
+  "n1": {
+   "x": 2350,
+   "y": 300,
+   "w": 340,
+   "fill": "purple",
+   "text": "Design tokens used (from your app)\nMontserrat. brandPrimary #6D1A95, brandDeep #3B0764, tint #F3E8FF, scaffold #F9F7FA, text #1E1B4B, muted #6B7280.\nRadii: card 22, input and button 16, chip 12.\nPending status is purple on lavender, never amber. Placeholders are in [brackets]."
+  },
+  "n2": {
+   "x": 2350,
+   "y": 860,
+   "w": 340,
+   "fill": "orange",
+   "text": "Entry, tabs, events, tours, academy and profile: redrawn from the IDE spec\nBoards tagged MATCH TO YOUR APP exist in your app. I drew them from the spec and my own assumptions, so compare with your real screens and tell me what differs.\nBoards tagged NEW are screens your app does not have yet."
+  },
+  "n3": {
+   "x": 2350,
+   "y": 1420,
+   "w": 340,
+   "fill": "red",
+   "text": "Flags before building\n1. A bank slip or SWIFT copy can be forged. Treat it as a claim and release the next step only after bank confirmation.\n2. The ECTA price floor needs a real, sourced data feed before the bid builder enforces it.\n3. Show Verified Regulatory Data on AI answers only when they cite a stored source.\n4. The public verify page says what was checked and never says compliant."
+  },
+  "n4": {
+   "x": 2350,
+   "y": 2060,
+   "w": 340,
+   "fill": "green",
+   "text": "Still not drawn\nContract e-sign S-121, inspection and shipping S-123/124, settlement S-125, dispute room S-126, suspended state S-130, unified checkout S-132, document vault S-133, team seats S-107, verification status timeline S-109."
+  },
+  "t5": {
+   "x": 0,
+   "y": 6700,
+   "text": "5  Entry, sign in and password reset",
+   "kind": "title1",
+   "maxW": 2800
+  },
+  "t6": {
+   "x": 0,
+   "y": 8948,
+   "text": "6  Home, search and B2B marketplace",
+   "kind": "title1",
+   "maxW": 2800
+  },
+  "t7": {
+   "x": 0,
+   "y": 12318,
+   "text": "7  Seller side (business workspace)",
+   "kind": "title1",
+   "maxW": 2800
+  },
+  "t8": {
+   "x": 0,
+   "y": 13938,
+   "text": "8  Events",
+   "kind": "title1",
+   "maxW": 2800
+  },
+  "t9": {
+   "x": 0,
+   "y": 15468,
+   "text": "9  Farm tours",
+   "kind": "title1",
+   "maxW": 2800
+  },
+  "t10": {
+   "x": 0,
+   "y": 17008,
+   "text": "10  Academy, Fira AI and account",
+   "kind": "title1",
+   "maxW": 2800
+  },
+  "n5": {
+   "x": 2350,
+   "y": 2700,
+   "w": 340,
+   "fill": "orange",
+   "text": "Assumption to check: bottom dock\nI drew 6 tabs (Home, Market, Academy, Events, Tours, Profile) with the Orb in the center. Replace the labels with your real tabs."
+  },
+  "n6": {
+   "x": 3000,
+   "y": 6840,
+   "w": 340,
+   "fill": "purple",
+   "text": "How to read this canvas\nSections 1 to 4 are the B2B trust flow. Sections 5 to 10 are the rest of the app. Click through in Play mode: every button goes to a real screen."
+  }
+ },
+ "designSystems": []
+}
