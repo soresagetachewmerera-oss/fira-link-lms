@@ -94,6 +94,37 @@ Use the existing Blade layouts, partials and the CSS variables above. Web tokens
   fake success response when a real call fails (`_mockResponse` in `services/marketplace_service.dart` does this today).
 - Never commit secrets: `scratch/` scripts, `android/key.properties`, `*.jks`, `google-services.json`.
 
+## Secrets and rotation
+
+Never commit `.env`, keystores, `key.properties`, `google-services.json` or `scratch/`. Never print secret values in
+logs, reports or chat — refer to them by name only.
+
+The Laravel `.env` was committed to GitHub from 2026-10-10 (commit `1ee9a7c`) until `1fb6925`. It is still in the
+history. These had real values and must be treated as leaked and rotated:
+
+| Service | Name | What rotating it affects |
+|---|---|---|
+| Laravel | `APP_KEY` | Logs out every web session (session and remember-me cookies become invalid). Invalidates every signed URL still in use: email verification links, signed certificate downloads, admin private-file links. Platform settings saved with `SettingsRepository::set(..., encrypted: true)` can no longer be decrypted — check `platform_settings` rows with `is_encrypted = 1` and re-save them after rotating, or set the old key in `APP_PREVIOUS_KEYS` so Laravel can still decrypt them during the switch. Does **not** affect password hashes or Sanctum API tokens (mobile users stay signed in). |
+| Chapa | `CHAPA_SECRET_KEY` | Server-side payment initialize and verify calls. Rotate in the Chapa dashboard, update the server `.env`, then `php artisan config:clear`. Checkouts started just before the switch may fail verification and need a manual check. |
+| Chapa | `CHAPA_PUBLIC_KEY` | Client checkout. Rotate together with the secret key. |
+| Google Gemini | `GEMINI_API_KEY` | Fira AI chat, the export documents AI assistant and coffee market synthesis. Revoke the old key in Google AI Studio, since a leaked key can run up quota and billing. |
+
+`REDIS_PASSWORD` was the `null` placeholder and `SMS_ETHIOPIA_API_KEY` was empty. The `scratch/` scripts
+(credentials for admin accounts and the server) are also in the history and those passwords should be changed too.
+
+Removing these from git history needs a history rewrite and a force push. That is the user's decision; rotation
+is the fix that matters.
+
+## One-time production tasks (not yet run)
+
+Run on the production server, in this order, after deploying slice 0. Run the dry runs first and read the counts.
+
+1. `php artisan migrate` (adds milestone proof and bank-confirmation columns)
+2. `php artisan files:move-evidence-private --dry-run`, then without `--dry-run` — moves bank slips, contracts,
+   dispute and report evidence, lot evidence, seller licenses and lab reports off the public disk.
+3. `php artisan marketplace:reset-evidence-levels`, then with `--force` — sets every lot back to `claimed`
+   (sellers could set the level themselves before slice 0), one audit-log entry per lot. Admins re-review afterwards.
+
 ## 4. Workflow per slice
 
 The user names one slice at a time. Do not start the next slice without their OK.
