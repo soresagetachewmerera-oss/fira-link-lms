@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'phone.verified' => \App\Http\Middleware\EnsurePhoneIsVerified::class,
             'entitlement' => \App\Http\Middleware\EnsureEntitlement::class,
             'verified.role' => \App\Http\Middleware\CheckOrganizationVerified::class,
+            'fresh.auth' => \App\Http\Middleware\EnsureFreshAuth::class,
         ]);
 
         $middleware->web(append: [

@@ -80,7 +80,10 @@ class ProfileController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         if ($request->has('phone')) {
-            $user->phone = $request->phone;
+            // A new number is saved unverified; verify it with POST /api/user/phone.
+            if ($error = $user->setPhoneFromProfile($request->phone)) {
+                return response()->json(['success' => false, 'code' => 'PHONE_TAKEN', 'message' => $error], 422);
+            }
         }
         if ($request->has('bio')) {
             $user->bio = $request->bio;

@@ -49,21 +49,7 @@ class LoginController extends Controller
             ])->withInput();
         }
 
-        // Normalize email aliases between @firalink.com and @eduex.com if needed
-        if (!User::where('email', $credentials['email'])->exists()) {
-            if (str_ends_with($credentials['email'], '@firalink.com')) {
-                $altEmail = str_replace('@firalink.com', '@eduex.com', $credentials['email']);
-                if (User::where('email', $altEmail)->exists()) {
-                    $credentials['email'] = $altEmail;
-                }
-            } elseif (str_ends_with($credentials['email'], '@eduex.com')) {
-                $altEmail = str_replace('@eduex.com', '@firalink.com', $credentials['email']);
-                if (User::where('email', $altEmail)->exists()) {
-                    $credentials['email'] = $altEmail;
-                }
-            }
-        }
-
+        // Exact email only: no @firalink.com / @eduex.com aliasing.
         if (!Auth::validate($credentials)) {
             ToastMagic::warning('Invalid credentials. Please try again.');
             return back()->withErrors([
@@ -80,6 +66,15 @@ class LoginController extends Controller
             return back()->withErrors([
                 'email' => 'Authentication failed.',
             ])->onlyInput('email');
+        }
+
+        // Flagged by auth:flag-weak-passwords: must choose a new password first.
+        if ($user->must_reset_password) {
+            ToastMagic::warning('For your security, choose a new password before signing in.');
+
+            return redirect()->route('password.request')->withErrors([
+                'email' => 'For your security, choose a new password before signing in.',
+            ]);
         }
 
         if (settings('authentication.security.email_verification_required', false) && !$user->hasVerifiedEmail()) {
@@ -129,7 +124,7 @@ class LoginController extends Controller
             $request->session()->forget('impersonating_student_id');
 
             $request->session()->regenerate();
-
+            \App\Services\Auth\FreshAuth::markSession($request->session());
 
             $user = Auth::user();
 

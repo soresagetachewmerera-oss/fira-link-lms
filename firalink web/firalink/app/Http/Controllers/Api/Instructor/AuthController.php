@@ -161,6 +161,14 @@ class AuthController extends Controller
             ], 401);
         }
 
+        if ($user->must_reset_password) {
+            return response()->json([
+                'success' => false,
+                'code' => 'PASSWORD_RESET_REQUIRED',
+                'message' => 'For your security, choose a new password before signing in.',
+            ], 403);
+        }
+
         if ($user->role !== 'instructor') {
             return response()->json([
                 'message' => 'This account is not registered as an instructor.'

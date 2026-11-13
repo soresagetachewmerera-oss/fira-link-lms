@@ -40,6 +40,9 @@ return [
         'api_key'   => env('SMS_ETHIOPIA_API_KEY', ''),
         'sender_id' => env('SMS_ETHIOPIA_SENDER_ID', 'FiraLink'),
         'enabled'   => env('SMS_ETHIOPIA_ENABLED', true),
+        // Fixed 6-digit sign-in code for development. Only honoured when APP_ENV=local
+        // (checked in OtpService::testCodeActive()); ignored in every other environment.
+        'test_code' => env('AUTH_TEST_OTP_CODE'),
     ],
 
     'firebase' => [

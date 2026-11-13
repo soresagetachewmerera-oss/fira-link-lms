@@ -66,7 +66,9 @@ class ProfileController extends Controller
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
-        $user->phone = $validated['phone'] ?? null;
+        if ($error = $user->setPhoneFromProfile($validated['phone'] ?? null)) {
+            return back()->withErrors(['phone' => $error])->withInput();
+        }
 
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);

@@ -71,7 +71,7 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
         // Organization Verification & Compliance Center (Web)
         Route::get('/verification', [\App\Http\Controllers\Front\OrganizationVerificationWebController::class, 'index'])->name('verification.center');
         Route::post('/verification/submit', [\App\Http\Controllers\Front\OrganizationVerificationWebController::class, 'submitDetails'])->name('verification.submit');
-        Route::post('/verification/upload-document', [\App\Http\Controllers\Front\OrganizationVerificationWebController::class, 'uploadDocument'])->name('verification.upload');
+        Route::post('/verification/upload-document', [\App\Http\Controllers\Front\OrganizationVerificationWebController::class, 'uploadDocument'])->middleware('fresh.auth')->name('verification.upload');
         Route::delete('/verification/documents/{id}', [\App\Http\Controllers\Front\OrganizationVerificationWebController::class, 'deleteDocument'])->name('verification.delete-document');
         Route::get('/verification/documents/{id}/download', [\App\Http\Controllers\VerificationDocumentDownloadController::class, 'download'])->name('verification.download');
     });

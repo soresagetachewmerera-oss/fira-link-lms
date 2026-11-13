@@ -31,7 +31,7 @@ class AuthController extends Controller
             'last_name'  => 'required|string|max:255',
             'email'      => 'required|email|unique:users,email',
             'phone'      => 'required|string|min:9|max:20',
-            'password'   => 'required|min:8|confirmed',
+            'password'   => \App\Services\Auth\PasswordRules::rules(),
             'terms'      => 'accepted',
         ]);
 
@@ -109,29 +109,24 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $email = $request->email;
-        $user = User::where('email', $email)->first();
-
-        if (!$user) {
-            if (str_ends_with($email, '@firalink.com')) {
-                $altEmail = str_replace('@firalink.com', '@eduex.com', $email);
-                $user = User::where('email', $altEmail)->first();
-            } elseif (str_ends_with($email, '@eduex.com')) {
-                $altEmail = str_replace('@eduex.com', '@firalink.com', $email);
-                $user = User::where('email', $altEmail)->first();
-            }
-        }
-
-        $isValidPassword = false;
-        if ($user) {
-            $isValidPassword = Hash::check($request->password, $user->password)
-                || (in_array($request->password, ['12345678', 'password']) && (Hash::check('12345678', $user->password) || Hash::check('password', $user->password)));
-        }
+        // Exact email only (no @firalink.com / @eduex.com aliasing) and the exact password only.
+        $user = User::where('email', $request->email)->first();
+        $isValidPassword = $user ? Hash::check($request->password, $user->password) : false;
 
         if (!$user || !$isValidPassword) {
             return response()->json([
-                'message' => 'Invalid login credentials'
+                'code' => 'INVALID_CREDENTIALS',
+                'message' => 'Invalid email or password.'
             ], 401);
+        }
+
+        // Flagged by auth:flag-weak-passwords: no token until a new password is chosen.
+        if ($user->must_reset_password) {
+            return response()->json([
+                'success' => false,
+                'code' => 'PASSWORD_RESET_REQUIRED',
+                'message' => 'For your security, choose a new password before signing in.',
+            ], 403);
         }
 
         // Check for Email Verification
@@ -146,8 +141,18 @@ class AuthController extends Controller
 
         // Check for Mandatory Phone Verification
         if ($user->role !== 'admin' && !$user->hasVerifiedPhone()) {
-            if (empty($user->phone) || config('app.env') === 'local' || empty(config('services.sms_ethiopia.api_key', env('SMS_ETHIOPIA_API_KEY')))) {
+            if (empty($user->phone)) {
+                // No phone on file (older email accounts): nothing to verify.
+            } elseif (app()->environment('local')) {
+                // Development only: environment-enforced, never in production.
                 $user->markPhoneAsVerified();
+            } elseif (!$this->otpService->smsAvailable()) {
+                // Production without SMS: refuse rather than mark the phone verified without a code.
+                return response()->json([
+                    'success' => false,
+                    'code'    => 'SMS_UNAVAILABLE',
+                    'message' => 'SMS is not available right now, so your phone cannot be verified. Try again later.',
+                ], 503);
             } else {
                 $otpResult = $this->otpService->sendToPhone($user->phone ?? '', 'registration', $user);
 
@@ -176,7 +181,9 @@ class AuthController extends Controller
             ]);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $newToken = $user->createToken('auth_token');
+        \App\Services\Auth\FreshAuth::markToken($newToken);
+        $token = $newToken->plainTextToken;
 
         return response()->json([
             'message' => 'Login successful',
@@ -196,17 +203,24 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+        // Same answer for unknown accounts and wrong codes.
+        if (!$user || !$this->otpService->verify($user, $request->code)) {
+            return response()->json(['code' => 'INVALID_CODE', 'message' => 'Invalid or expired code.'], 422);
         }
 
-        if (!$this->otpService->verify($user, $request->code)) {
-            return response()->json(['message' => 'Invalid or expired OTP'], 422);
+        if ($user->must_reset_password) {
+            return response()->json([
+                'success' => false,
+                'code' => 'PASSWORD_RESET_REQUIRED',
+                'message' => 'For your security, choose a new password before signing in.',
+            ], 403);
         }
 
         $this->otpService->clear($user);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $newToken = $user->createToken('auth_token');
+        \App\Services\Auth\FreshAuth::markToken($newToken);
+        $token = $newToken->plainTextToken;
 
         return response()->json([
             'message' => 'Login successful',
@@ -222,19 +236,16 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+        // Same answer whether or not the account exists.
+        if ($user) {
+            try {
+                $this->otpService->send($user);
+            } catch (\Throwable $e) {
+                // Cooldown, hourly cap or lockout: the existing code (if any) stays valid.
+            }
         }
 
-        try {
-            $this->otpService->send($user);
-            return response()->json(['message' => 'OTP resent successfully']);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 429);
-        }
+        return response()->json(['message' => 'If the account exists, a new code is on its way.']);
     }
 
     public function logout(Request $request)
@@ -292,18 +303,23 @@ class AuthController extends Controller
             return response()->json($result, 422);
         }
 
-        $user = $request->user();
-        if (!$user) {
-            $smsService = app(\App\Services\SmsEthiopiaService::class);
-            $normalized = $smsService->normalizePhoneNumber($request->phone);
-            $user = User::where('phone', $request->phone)->orWhere('phone', $normalized)->first();
-        }
+        // Mark the number verified only on the single account that already has it.
+        // This endpoint never changes anyone's phone: that is POST /api/user/phone (fresh auth + code).
+        // Several accounts with the same number: none is marked (manual review).
+        $smsService = app(\App\Services\SmsEthiopiaService::class);
+        $normalized = $smsService->normalizePhoneNumber($request->phone);
+        $accounts = User::where('phone', $request->phone)->orWhere('phone', $normalized)->get();
 
-        if ($user) {
-            $smsService = app(\App\Services\SmsEthiopiaService::class);
-            $user->phone = $smsService->normalizePhoneNumber($request->phone) ?? $request->phone;
-            $user->phone_verified_at = now();
-            $user->save();
+        if ($accounts->count() === 1) {
+            $accounts->first()->forceFill(['phone' => $normalized, 'phone_verified_at' => now()])->save();
+        } elseif ($accounts->count() > 1) {
+            \App\Models\AuditLog::create([
+                'action' => 'phone_verify_blocked_shared_phone',
+                'auditable_type' => User::class,
+                'after_state' => ['user_ids' => $accounts->pluck('id')->all()],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
         }
 
         return response()->json([
@@ -325,18 +341,11 @@ class AuthController extends Controller
         $smsService = app(\App\Services\SmsEthiopiaService::class);
         $normalized = $smsService->normalizePhoneNumber($request->phone);
 
-        $user = User::where('phone', $request->phone)->orWhere('phone', $normalized)->first();
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No account found with this phone number.',
-            ], 404);
-        }
+        // Legacy endpoint kept for older app versions; delegates to the new flow so it gives
+        // the same answer whether or not an account exists.
+        $request->merge(['channel' => 'phone']);
 
-        $result = $this->otpService->sendToPhone($normalized, 'password_reset', $user);
-        $status = $result['success'] ? 200 : ($result['code'] === 'COOLDOWN_ACTIVE' ? 429 : 422);
-
-        return response()->json($result, $status);
+        return app(PasswordResetController::class)->forgot($request);
     }
 
     /**
@@ -347,28 +356,31 @@ class AuthController extends Controller
         $request->validate([
             'phone'    => 'required|string|min:9|max:20',
             'code'     => 'required|string|min:4|max:8',
-            'password' => 'required|min:8|confirmed',
+            'password' => \App\Services\Auth\PasswordRules::rules(),
         ]);
 
         $smsService = app(\App\Services\SmsEthiopiaService::class);
         $normalized = $smsService->normalizePhoneNumber($request->phone);
 
-        $result = $this->otpService->verifyPhone($normalized, $request->code, 'password_reset');
-        if (!$result['success']) {
-            return response()->json($result, 422);
-        }
+        $result = $normalized ? $this->otpService->verifyPhone($normalized, $request->code, 'password_reset') : ['success' => false];
+        $accounts = $normalized ? User::where('phone', $request->phone)->orWhere('phone', $normalized)->get() : collect();
+        $user = $accounts->count() === 1 ? $accounts->first() : null;
 
-        $user = User::where('phone', $request->phone)->orWhere('phone', $normalized)->first();
-        if (!$user) {
+        // One answer for wrong code and unknown account.
+        if (!($result['success'] ?? false) || !$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'User account not found.',
-            ], 404);
+                'code' => 'INVALID_CODE',
+                'message' => 'That code is not correct or has expired.',
+            ], 422);
         }
 
-        $user->password = Hash::make($request->password);
+        $user->forceFill([
+            'password' => Hash::make($request->password),
+            'must_reset_password' => false,
+        ])->setRememberToken(\Illuminate\Support\Str::random(60));
         $user->save();
-        $user->tokens()->delete();
+        \App\Services\Auth\SessionRevoker::revokeAll($user);
 
         return response()->json([
             'success' => true,
@@ -421,8 +433,10 @@ class AuthController extends Controller
             \Log::error('Registration welcome SMS error: ' . $e->getMessage());
         }
 
-        // Generate access token
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Generate access token (fresh: the user just proved the phone with a code)
+        $newToken = $user->createToken('auth_token');
+        \App\Services\Auth\FreshAuth::markToken($newToken);
+        $token = $newToken->plainTextToken;
 
         return response()->json([
             'success'    => true,

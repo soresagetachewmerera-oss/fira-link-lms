@@ -96,8 +96,8 @@ class SettingsController extends Controller
         try {
             $user->name = $request->name;
             $user->email = $request->email;
-            if ($request->has('phone')) {
-                $user->phone = $request->phone;
+            if ($request->has('phone') && ($error = $user->setPhoneFromProfile($request->phone))) {
+                return back()->withErrors(['phone' => $error])->withInput();
             }
 
             $photoFile = $request->file('profile_photo') ?? $request->file('avatar') ?? $request->file('photo');

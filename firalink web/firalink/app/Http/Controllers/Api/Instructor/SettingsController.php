@@ -87,11 +87,15 @@ class SettingsController extends Controller
             ], 422);
         }
 
+        // A new number is saved unverified; verify it with POST /api/user/phone.
+        if ($error = $user->setPhoneFromProfile($request->phone)) {
+            return response()->json(['success' => false, 'code' => 'PHONE_TAKEN', 'message' => $error], 422);
+        }
+
         try {
             $user->update([
                 'name' => $request->name,
                 'email' => $request->email,
-                'phone' => $request->phone,
                 'bio' => $request->bio,
                 'linkedin' => $request->linkedin,
                 'twitter' => $request->twitter,

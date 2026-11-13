@@ -42,17 +42,14 @@ class ForgotPasswordController extends Controller
 
         $request->validate(['email' => 'required|email']);
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        // Always the same answer, so this form cannot reveal whether an account exists.
+        // (Unknown email, throttled and sent all look identical to the visitor.)
+        Password::sendResetLink($request->only('email'));
 
-        if ($status === Password::RESET_LINK_SENT) {
-            ToastMagic::success('Password reset link sent to your email!');
-            return back();
-        }
+        $message = 'If an account matches that email, a reset link is on its way.';
+        ToastMagic::success($message);
 
-        ToastMagic::warning('Unable to send reset link. Please check your email and try again.');
-        return back()->withErrors(['email' => __($status)]);
+        return back()->with('status', $message);
     }
 }
 

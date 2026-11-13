@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 use Tests\Concerns\BuildsTradeFixtures;
+use App\Services\Auth\FreshAuth;
 use Tests\TestCase;
 
 /**
@@ -54,6 +55,7 @@ class PrivateEvidenceUploadTest extends TestCase
     {
         $owner = $this->makeUser();
         $this->makeOrganization($owner);
+        FreshAuth::markUser($owner);
         Sanctum::actingAs($owner);
 
         foreach ([$this->emptyFile('license.pdf'), $this->dummyBytes('license.pdf'), $this->dummyBytes('license.pdf', 20480, '%PDF-1.4'), $this->tinyPng('license.png')] as $file) {

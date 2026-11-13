@@ -60,6 +60,24 @@ Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
     Route::post('/phone/verify/check', [AuthController::class, 'verifyPhoneOtp']);
     Route::post('/password/forgot/otp', [AuthController::class, 'sendPasswordResetOtp']);
     Route::post('/password/reset/otp', [AuthController::class, 'resetPasswordWithOtp']);
+
+    // Phone sign-in: one step for new and returning users (slice 1)
+    Route::post('/phone/start', [\App\Http\Controllers\Api\PhoneAuthController::class, 'start']);
+    Route::post('/phone/email-fallback', [\App\Http\Controllers\Api\PhoneAuthController::class, 'emailFallback']);
+    Route::post('/phone/verify', [\App\Http\Controllers\Api\PhoneAuthController::class, 'verify']);
+    Route::post('/phone/complete', [\App\Http\Controllers\Api\PhoneAuthController::class, 'complete']);
+
+    // Forgot password by phone or email: identical answers whether or not the account exists
+    Route::post('/password/forgot', [\App\Http\Controllers\Api\PasswordResetController::class, 'forgot']);
+    Route::post('/password/verify-code', [\App\Http\Controllers\Api\PasswordResetController::class, 'verifyCode']);
+    Route::post('/password/reset', [\App\Http\Controllers\Api\PasswordResetController::class, 'reset']);
+});
+
+// Fresh authentication for sensitive actions (signed-in users)
+Route::middleware(['auth:sanctum', 'throttle:10,1'])->group(function () {
+    Route::post('/auth/step-up/code', [\App\Http\Controllers\Api\StepUpController::class, 'sendCode']);
+    Route::post('/auth/step-up/verify', [\App\Http\Controllers\Api\StepUpController::class, 'verify']);
+    Route::post('/user/phone', [\App\Http\Controllers\Api\StepUpController::class, 'changePhone'])->middleware('fresh.auth');
 });
 
 Route::get('/home', [HomeController::class, 'index']);
@@ -134,7 +152,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // Profile & Settings
     Route::post('/user/profile', [ProfileController::class, 'updateProfile']);
     Route::post('/user/profile-photo', [ProfileController::class, 'updateProfilePhoto']);
-    Route::post('/user/password', [ProfileController::class, 'updatePassword']);
+    Route::post('/user/password', [ProfileController::class, 'updatePassword'])->middleware('fresh.auth');
     Route::post('/user/delete-request', [ProfileController::class, 'requestDeleteAccount']);
     Route::get('/user/delete-request', [ProfileController::class, 'getDeleteRequestStatus']);
     Route::get('/user/settings/notifications', [ProfileController::class, 'getNotificationSettings']);
@@ -157,7 +175,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('/{id}/sign-contract', [\App\Http\Controllers\Api\DealRoomController::class, 'signContract']);
         Route::post('/{id}/milestones/{milestoneId}/advance', [\App\Http\Controllers\Api\DealRoomController::class, 'advanceMilestone']);
         // Admin or finance only: confirm a milestone after the bank confirms it
-        Route::post('/{id}/milestones/{milestoneId}/confirm', [\App\Http\Controllers\Api\DealRoomController::class, 'confirmMilestone']);
+        Route::post('/{id}/milestones/{milestoneId}/confirm', [\App\Http\Controllers\Api\DealRoomController::class, 'confirmMilestone'])->middleware('fresh.auth');
         Route::post('/{id}/dispute', [\App\Http\Controllers\Api\DealRoomController::class, 'raiseDispute']);
         Route::post('/{id}/complete', [\App\Http\Controllers\Api\DealRoomController::class, 'completeDeal']);
     });
@@ -252,7 +270,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         // Verification & Compliance Dossier (Multi-Role)
         Route::get('/verification/status', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'status']);
         Route::post('/verification/submit', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'submitDetails']);
-        Route::post('/verification/upload-document', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'uploadDocument']);
+        Route::post('/verification/upload-document', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'uploadDocument'])->middleware('fresh.auth');
         Route::delete('/verification/documents/{id}', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'deleteDocument']);
 
         // Green Coffee Samples Pipeline (Crypto-Sealed & Cupping Evaluation)
@@ -346,7 +364,7 @@ Route::prefix('instructor')->group(function () {
             Route::get('/', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'index']);
             Route::post('/profile', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'updateProfile']);
             Route::post('/profile-photo', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'updateProfilePhoto']);
-            Route::post('/password', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'updatePassword']);
+            Route::post('/password', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'updatePassword'])->middleware('fresh.auth');
             Route::post('/delete-request', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'deleteAccount']);
             Route::put('/notifications', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'updateNotifications']);
         });
@@ -399,7 +417,7 @@ Route::prefix('instructor')->group(function () {
         // Earnings & Withdrawals
         Route::get('/earnings', [\App\Http\Controllers\Api\Instructor\EarningsController::class, 'index']);
         Route::get('/withdrawals', [\App\Http\Controllers\Api\Instructor\EarningsController::class, 'withdrawals']);
-        Route::post('/withdrawals', [\App\Http\Controllers\Api\Instructor\EarningsController::class, 'storeWithdrawal']);
+        Route::post('/withdrawals', [\App\Http\Controllers\Api\Instructor\EarningsController::class, 'storeWithdrawal'])->middleware('fresh.auth');
 
         // Coupons
         Route::get('/coupons', [\App\Http\Controllers\Api\Instructor\CouponController::class, 'index']);

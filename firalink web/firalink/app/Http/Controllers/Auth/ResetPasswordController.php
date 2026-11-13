@@ -38,7 +38,7 @@ class ResetPasswordController extends Controller
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
-            'password' => 'required|min:8|confirmed',
+            'password' => \App\Services\Auth\PasswordRules::rules(),
         ]);
 
         $status = Password::reset(
@@ -46,12 +46,13 @@ class ResetPasswordController extends Controller
             function ($user, $password) {
                 $user->forceFill([
                     'password' => Hash::make($password),
+                    'must_reset_password' => false,
                 ])->setRememberToken(Str::random(60));
 
                 $user->save();
 
-                // Revoke all existing API tokens upon password reset
-                $user->tokens()->delete();
+                // Sign out everywhere: every API token and every web session.
+                \App\Services\Auth\SessionRevoker::revokeAll($user);
 
                 event(new PasswordReset($user));
             }

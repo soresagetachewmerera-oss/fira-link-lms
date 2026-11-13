@@ -99,6 +99,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'phone_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_approved' => 'boolean',
+            'must_reset_password' => 'boolean',
             'balance' => 'decimal:2',
         ];
     }
@@ -109,6 +110,41 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasVerifiedPhone(): bool
     {
         return !is_null($this->phone_verified_at);
+    }
+
+    /**
+     * Change the phone from a profile or settings form (no code involved).
+     * A different number is saved UNVERIFIED, so it cannot be used for phone sign-in until it is
+     * verified by code (POST /api/user/phone). Returns an error message if the number belongs to
+     * another account, otherwise null. Does not save.
+     */
+    public function setPhoneFromProfile(?string $phone): ?string
+    {
+        $phone = $phone !== null ? trim($phone) : null;
+        if ($phone === '' ) {
+            $phone = null;
+        }
+
+        $sms = app(\App\Services\SmsEthiopiaService::class);
+        $normalized = $phone ? ($sms->normalizePhoneNumber($phone) ?? $phone) : null;
+        $current = $this->phone ? ($sms->normalizePhoneNumber($this->phone) ?? $this->phone) : null;
+
+        if ($normalized === $current) {
+            return null; // unchanged
+        }
+
+        if ($normalized) {
+            $variants = array_unique(array_filter([$phone, $normalized, '0' . substr($normalized, 3), '+' . $normalized]));
+            $taken = static::whereIn('phone', $variants)->where('id', '!=', $this->id)->exists();
+            if ($taken) {
+                return 'This phone number is linked to another account.';
+            }
+        }
+
+        $this->phone = $normalized;
+        $this->phone_verified_at = null;
+
+        return null;
     }
 
     /**

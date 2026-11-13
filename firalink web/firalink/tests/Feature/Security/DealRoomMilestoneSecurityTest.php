@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Role;
+use App\Services\Auth\FreshAuth;
 use Tests\Concerns\BuildsTradeFixtures;
 use Tests\TestCase;
 
@@ -78,6 +79,7 @@ class DealRoomMilestoneSecurityTest extends TestCase
         $milestone = $this->milestone($deal, 'payment_escrow');
 
         foreach ([$buyer, $seller] as $party) {
+            FreshAuth::markUser($party); // fresh, so the 403 comes from the policy
             Sanctum::actingAs($party);
             $this->postJson($this->confirmUrl($deal, $milestone), ['bank_reference' => 'FAKE-123'])
                 ->assertStatus(403);
@@ -93,6 +95,7 @@ class DealRoomMilestoneSecurityTest extends TestCase
         $buyer->assignRole('finance');
         $milestone = $this->milestone($deal, 'payment_escrow');
 
+        FreshAuth::markUser($buyer);
         Sanctum::actingAs($buyer);
         $this->postJson($this->confirmUrl($deal, $milestone), ['bank_reference' => 'SELF-1'])
             ->assertStatus(403);
@@ -138,6 +141,7 @@ class DealRoomMilestoneSecurityTest extends TestCase
         $admin = $this->makeUser('admin');
         $milestone = $this->milestone($deal, 'payment_escrow');
 
+        FreshAuth::markUser($admin);
         Sanctum::actingAs($admin);
         $this->postJson($this->confirmUrl($deal, $milestone), [])->assertStatus(422);
 
@@ -162,6 +166,7 @@ class DealRoomMilestoneSecurityTest extends TestCase
         $finance->assignRole('finance');
         $milestone = $this->milestone($deal, 'payment_escrow');
 
+        FreshAuth::markUser($finance);
         Sanctum::actingAs($finance);
         $this->postJson($this->confirmUrl($deal, $milestone), ['bank_reference' => 'AWASH-55'])
             ->assertOk();
@@ -174,7 +179,9 @@ class DealRoomMilestoneSecurityTest extends TestCase
         [$deal] = $this->makeDealRoom();
         $milestone = $this->milestone($deal, 'payment_escrow');
 
-        Sanctum::actingAs($this->makeUser());
+        $plain = $this->makeUser();
+        FreshAuth::markUser($plain);
+        Sanctum::actingAs($plain);
         $this->postJson($this->confirmUrl($deal, $milestone), ['bank_reference' => 'X'])->assertStatus(403);
     }
 
@@ -213,7 +220,9 @@ class DealRoomMilestoneSecurityTest extends TestCase
             ->assertStatus(422)
             ->assertJsonPath('code', 'SETTLEMENT_NOT_CONFIRMED');
 
-        Sanctum::actingAs($this->makeUser('admin'));
+        $admin = $this->makeUser('admin');
+        FreshAuth::markUser($admin);
+        Sanctum::actingAs($admin);
         $this->postJson($this->confirmUrl($deal, $this->milestone($deal, 'final_settlement')), ['bank_reference' => 'FINAL-1'])
             ->assertOk();
 

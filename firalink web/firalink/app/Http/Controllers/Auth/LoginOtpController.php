@@ -109,6 +109,7 @@ class LoginOtpController extends Controller
 
         $this->clearImpersonation($request);
         $request->session()->regenerate();
+        \App\Services\Auth\FreshAuth::markSession($request->session());
 
         ToastMagic::success('Welcome back! ' . $user->name);
 
