@@ -186,6 +186,12 @@ Run on the production server **in this order**. Always run the dry run first and
       business and are hidden from sellers; quotes without a lot cannot be accepted. Decide each by hand.
     - The ECTA minimum price check uses only price lists with status `published`. Keep the current list published
       in admin; with none published, quotes show "No reference price" and are not blocked.
+11. Slice 6 (samples). `php artisan migrate` adds the buyer business, encrypted delivery contact and courier account,
+    the unique seal ID with seal photos, and `deal_rooms.sample_seal_id`.
+    - Leave `SAMPLE_PAYMENTS_MOCK` unset (false) in production. Paid samples then show "Payments are not available
+      yet" until the real Chapa payment is built after the Chapa keys are rotated; free samples work. The mock is
+      refused in production even if the flag is set.
+    - Samples requested before slice 6 have no buyer business; only the person who requested them can act on them.
 
 ## 4. Workflow per slice
 
