@@ -37,7 +37,6 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     Route::get('/suppliers', [\App\Http\Controllers\Front\MarketplaceWebController::class, 'suppliers'])->name('suppliers');
     Route::get('/suppliers/{slug}', [\App\Http\Controllers\Front\MarketplaceWebController::class, 'showSupplier'])->name('suppliers.show');
     Route::get('/listings/{slug}', [\App\Http\Controllers\Front\MarketplaceWebController::class, 'show'])->name('show');
-    Route::get('/rfqs', [\App\Http\Controllers\Front\MarketplaceWebController::class, 'rfqs'])->name('rfqs');
     Route::get('/pricing', [\App\Http\Controllers\Front\MarketplaceWebController::class, 'pricing'])->name('pricing');
 
     // Protected Marketplace Actions (Authenticated & Role-Verified)
@@ -52,13 +51,6 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
             ->middleware('verified.role:buyer,broker,exporter,supplier')
             ->name('inquire');
 
-        // RFQs
-        Route::get('/request-coffee', [\App\Http\Controllers\Front\MarketplaceWebController::class, 'createRfq'])
-            ->middleware('verified.role:buyer,broker')
-            ->name('rfqs.create');
-        Route::post('/rfqs', [\App\Http\Controllers\Front\MarketplaceWebController::class, 'storeRfq'])
-            ->middleware('verified.role:buyer,broker')
-            ->name('rfqs.store');
 
 
         // Organization Verification & Compliance Center (Web)

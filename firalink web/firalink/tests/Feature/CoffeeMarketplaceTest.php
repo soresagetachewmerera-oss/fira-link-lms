@@ -61,15 +61,13 @@ class CoffeeMarketplaceTest extends TestCase
     }
 
     /**
-     * Test RFQs tenders page loads.
+     * Slice 5: buyer requests are never public, and there is no web request board.
      */
-    public function test_marketplace_rfq_board_loads(): void
+    public function test_marketplace_rfq_board_is_not_public(): void
     {
-        $response = $this->get('/marketplace/rfqs');
-
-        $response->assertStatus(200);
-        $response->assertSee('Active Buyer RFQs & Tenders', false);
-        $response->assertSee('Post New Buyer RFQ');
+        $this->get('/marketplace/rfqs')->assertStatus(404);
+        $this->get('/marketplace/request-coffee')->assertStatus(404);
+        $this->getJson('/api/marketplace/rfqs')->assertStatus(401);
     }
 
     /**
@@ -177,7 +175,13 @@ class CoffeeMarketplaceTest extends TestCase
             'company_name' => 'Test Exporter PLC',
             'business_type' => 'exporter',
         ]), fn ($p) => $p->forceFill(['verification_status' => 'verified'])->save());
-        $this->approveBusiness($this->makeOrganization($seller), 'exporter');
+        $sellerOrg = $this->approveBusiness($this->makeOrganization($seller), 'exporter');
+        $seller->forceFill(['active_organization_id' => $sellerOrg->id])->save();
+        $lot = CoffeeListing::create([
+            'seller_id' => $seller->id, 'organization_id' => $sellerOrg->id, 'title' => 'Lifecycle lot',
+            'origin_region' => 'Yirgacheffe', 'processing_method' => 'washed', 'grade' => 'grade_1',
+            'total_quantity_bags' => 200, 'available_quantity_bags' => 200, 'indicative_price_usd_per_lb' => 4.5, 'status' => 'active',
+        ]);
 
         $proPlan = MarketplaceSubscriptionPlan::where('slug', 'seller_pro')->first();
         if ($proPlan) {
@@ -193,11 +197,11 @@ class CoffeeMarketplaceTest extends TestCase
         // 1. Buyer creates RFQ
         $rfqResponse = $this->actingAs($buyer, 'sanctum')->postJson('/api/marketplace/rfqs', [
             'title' => 'Lifecycle Test Tender: 100 Bags Washed G1',
-            'target_origin_region' => 'Yirgacheffe',
-            'volume_bags' => 100,
-            'destination_country' => 'Netherlands',
-            'destination_port' => 'Rotterdam',
-            'preferred_incoterm' => 'FOB',
+            'origin_region' => 'Yirgacheffe',
+            'volume_value' => 100,
+            'volume_unit' => 'bags',
+            'destination' => 'Rotterdam',
+            'incoterm' => 'FOB',
         ]);
 
         $rfqResponse->assertStatus(201);
@@ -205,19 +209,18 @@ class CoffeeMarketplaceTest extends TestCase
 
         // 2. Seller submits Quote
         $quoteResponse = $this->actingAs($seller, 'sanctum')->postJson("/api/marketplace/rfqs/{$rfqId}/quote", [
-            'offered_price_usd_per_lb' => 4.30,
-            'quantity_bags' => 100,
-            'payment_terms' => 'LC at sight',
-            'validity_date' => now()->addDays(14)->toDateString(),
+            'listing_id' => $lot->id,
+            'price_usd_per_lb' => 9.30,
+            'volume_bags' => 100,
+            'valid_days' => 14,
+            'ready_to_ship' => now()->addDays(10)->toDateString(),
         ]);
 
         $quoteResponse->assertStatus(201);
         $quoteId = $quoteResponse->json('data.id');
 
         // 3. Buyer accepts Quote
-        $acceptResponse = $this->actingAs($buyer, 'sanctum')->putJson("/api/marketplace/quotes/{$quoteId}/status", [
-            'status' => 'accepted',
-        ]);
+        $acceptResponse = $this->actingAs($buyer, 'sanctum')->postJson("/api/marketplace/quotes/{$quoteId}/accept");
 
         $acceptResponse->assertStatus(200);
         $this->assertEquals('accepted', MarketplaceQuotation::find($quoteId)->status);

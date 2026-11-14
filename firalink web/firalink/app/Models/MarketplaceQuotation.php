@@ -37,10 +37,14 @@ class MarketplaceQuotation extends Model
         'validity_date',
         'terms_and_conditions',
         'sample_available',
-        'status',
-        'accepted_at',
         'pdf_path',
     ];
+
+    public const STATUS_SUBMITTED = 'submitted';
+    public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_NOT_SELECTED = 'not_selected';
+    public const STATUS_DECLINED = 'rejected';
+    public const STATUS_WITHDRAWN = 'withdrawn';
 
     protected $casts = [
         'offered_price_usd_per_lb' => 'decimal:2',
@@ -50,6 +54,7 @@ class MarketplaceQuotation extends Model
         'estimated_shipping_date' => 'date',
         'validity_date' => 'date',
         'accepted_at' => 'datetime',
+        'decided_at' => 'datetime',
     ];
 
     protected static function boot()
@@ -76,6 +81,16 @@ class MarketplaceQuotation extends Model
     public function listing(): BelongsTo
     {
         return $this->belongsTo(CoffeeListing::class, 'listing_id');
+    }
+
+    public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class);
+    }
+
+    public function isOpen(): bool
+    {
+        return $this->status === self::STATUS_SUBMITTED && ($this->validity_date === null || $this->validity_date->gte(now()->startOfDay()));
     }
 
     public function seller(): BelongsTo

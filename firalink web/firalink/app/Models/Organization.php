@@ -139,6 +139,11 @@ class Organization extends Model
         return $this->hasMany(OrganizationMembership::class)->where('is_active', true);
     }
 
+    public function coffeeListings(): HasMany
+    {
+        return $this->hasMany(CoffeeListing::class);
+    }
+
     public function sellerProfile(): HasOne
     {
         return $this->hasOne(MarketplaceSellerProfile::class);

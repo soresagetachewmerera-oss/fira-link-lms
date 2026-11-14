@@ -318,7 +318,12 @@ class DealRoomMilestoneSecurityTest extends TestCase
         $this->postJson('/api/deal-rooms', ['quotation_id' => $quote->id, 'title' => 'Steal', 'target_value_usd' => 1])
             ->assertStatus(403);
 
+        // Slice 5: only an accepted quote opens a deal room.
         Sanctum::actingAs($rfqOwner);
+        $this->postJson('/api/deal-rooms', ['quotation_id' => $quote->id, 'title' => 'Deal', 'target_value_usd' => 10000])
+            ->assertStatus(422)
+            ->assertJsonPath('code', 'QUOTE_NOT_ACCEPTED');
+        $quote->forceFill(['status' => MarketplaceQuotation::STATUS_ACCEPTED])->save();
         $this->postJson('/api/deal-rooms', ['quotation_id' => $quote->id, 'title' => 'Deal', 'target_value_usd' => 10000])
             ->assertStatus(201)
             ->assertJsonPath('data.buyer_id', $rfqOwner->id);

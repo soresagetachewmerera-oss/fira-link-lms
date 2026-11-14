@@ -37,8 +37,6 @@
                             <ul>
                                 <li><a href="{{ route('marketplace.index') }}"><span>Browse Coffee Lots</span><i class="fa-regular fa-arrow-right" aria-hidden="true"></i></a></li>
                                 <li><a href="{{ route('marketplace.suppliers') }}"><span>Exporters &amp; Suppliers</span><i class="fa-regular fa-arrow-right" aria-hidden="true"></i></a></li>
-                                <li><a href="{{ route('marketplace.rfqs.create') }}"><span>Request Coffee (RFQ)</span><i class="fa-regular fa-arrow-right" aria-hidden="true"></i></a></li>
-                                <li><a href="{{ route('marketplace.rfqs') }}"><span>Sourcing Tenders</span><i class="fa-regular fa-arrow-right" aria-hidden="true"></i></a></li>
                                 <li><a href="{{ route('marketplace.pricing') }}"><span>Pricing &amp; Plans</span><i class="fa-regular fa-arrow-right" aria-hidden="true"></i></a></li>
                                 <li><a href="{{ route('marketplace.dashboard') }}"><span>My Marketplace</span><i class="fa-regular fa-arrow-right" aria-hidden="true"></i></a></li>
                             </ul>

@@ -50,9 +50,6 @@
                 </div>
 
                 <div class="flex items-center gap-3 w-full md:w-auto">
-                    <a href="{{ route('marketplace.rfqs.create') }}" class="flex-1 md:flex-initial text-center px-5 py-2.5 rounded-xl bg-[#6D1A95] hover:bg-[#531372] text-white font-bold text-sm shadow-sm transition-all">
-                        Request Custom Quotation
-                    </a>
                 </div>
             </div>
 
@@ -152,9 +149,6 @@
             @if($seller->listings->isEmpty())
                 <div class="bg-white rounded-3xl p-10 text-center border border-gray-200">
                     <p class="text-sm text-gray-500">This exporter currently has no public lots listed.</p>
-                    <a href="{{ route('marketplace.rfqs.create') }}" class="inline-block mt-3 text-xs font-bold text-[#6D1A95] hover:underline">
-                        Request a custom quotation for this exporter &rarr;
-                    </a>
                 </div>
             @else
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

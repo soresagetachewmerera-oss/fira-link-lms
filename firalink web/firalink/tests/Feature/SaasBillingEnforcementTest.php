@@ -116,6 +116,15 @@ class SaasBillingEnforcementTest extends TestCase
         $sellerProfile->update(['organization_id' => $org->id]);
         $seller->organizations()->attach($org->id, ['role' => 'owner', 'is_active' => true]);
         $this->approveBusiness($org, 'exporter');
+        $seller->forceFill(['active_organization_id' => $org->id])->save();
+        $lot = CoffeeListing::create([
+            'seller_id' => $seller->id, 'organization_id' => $org->id, 'title' => 'Quota lot ' . $unique,
+            'origin_region' => 'Yirgacheffe', 'processing_method' => 'washed', 'grade' => 'grade_1',
+            'total_quantity_bags' => 300, 'available_quantity_bags' => 300, 'indicative_price_usd_per_lb' => 4.8, 'status' => 'active',
+        ]);
+        $buyerOrg = Organization::create(['name' => 'Quota Buyer ' . $unique, 'slug' => 'quota-buyer-' . $unique, 'status' => 'active']);
+        $buyer->organizations()->attach($buyerOrg->id, ['role' => 'owner', 'is_active' => true]);
+        $this->approveBusiness($buyerOrg, 'buyer');
 
         // Target RFQ
         $rfq = MarketplaceRfq::create([
@@ -125,9 +134,9 @@ class SaasBillingEnforcementTest extends TestCase
             'volume_bags' => 300,
             'destination_country' => 'Germany',
             'destination_port' => 'Hamburg',
-            'preferred_incoterm' => 'FOB Djibouti',
-            'status' => 'open',
+            'preferred_incoterm' => 'FOB',
         ]);
+        $rfq->forceFill(['buyer_id' => $buyer->id, 'organization_id' => $buyerOrg->id, 'status' => 'open', 'closing_date' => now()->addWeek()])->save();
 
         $entitlementService = app(EntitlementService::class);
         $entitlementService->invalidate($org);
@@ -140,10 +149,12 @@ class SaasBillingEnforcementTest extends TestCase
 
         // Attempt to submit a 6th quotation
         $response = $this->postJson("/api/marketplace/rfqs/{$rfq->id}/quote", [
+            'listing_id' => $lot->id,
             'price_usd_per_lb' => 4.80,
-            'incoterm' => 'FOB Djibouti',
-            'lead_time_days' => 21,
-            'notes' => 'Our best FOB quotation',
+            'volume_bags' => 100,
+            'valid_days' => 14,
+            'ready_to_ship' => now()->addDays(21)->toDateString(),
+            'note' => 'Our best FOB quotation',
         ]);
 
         $response->assertStatus(403);

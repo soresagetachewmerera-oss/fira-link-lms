@@ -31,9 +31,6 @@
                 <a href="{{ route('marketplace.verification.center') }}" class="px-4 py-2.5 rounded-xl bg-purple-800/80 hover:bg-purple-800 text-white font-semibold text-sm border border-purple-400/30 transition-all flex items-center gap-2 shadow-sm">
                     <i class="fas fa-shield-alt"></i> Verification Vault
                 </a>
-                <a href="{{ route('marketplace.rfqs.create') }}" class="px-5 py-2.5 rounded-xl bg-purple-900/60 hover:bg-purple-900 text-white font-semibold text-sm border border-purple-400/30 transition-all">
-                    + Post Buyer RFQ
-                </a>
             </div>
         </div>
     </div>
@@ -268,9 +265,6 @@
                 @if($myRfqs->isEmpty())
                     <div class="text-center py-12">
                         <p class="text-xs text-gray-400">You have not published any procurement tenders.</p>
-                        <a href="{{ route('marketplace.rfqs.create') }}" class="inline-block mt-3 px-4 py-2 rounded-xl bg-[#6D1A95] text-white font-bold text-xs shadow">
-                            + Post Procurement RFQ
-                        </a>
                     </div>
                 @else
                     <div class="space-y-3">

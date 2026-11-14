@@ -41,9 +41,13 @@ class MarketplaceRfq extends Model
         'target_delivery_date',
         'closing_date',
         'specifications',
-        'status',
-        'quotes_count',
+        'volume_value',
+        'volume_unit',
+        'sample_first',
     ];
+
+    /** Volume units a buyer may use; quotes are compared in kg. */
+    public const UNITS_KG = ['bags' => 60, 'kg' => 1, 'mt' => 1000];
 
     protected $casts = [
         'target_cupping_score_min' => 'decimal:2',
@@ -52,6 +56,10 @@ class MarketplaceRfq extends Model
         'quotes_count' => 'integer',
         'target_delivery_date' => 'date',
         'closing_date' => 'date',
+        'closed_at' => 'datetime',
+        'volume_value' => 'decimal:2',
+        'volume_kg' => 'decimal:2',
+        'sample_first' => 'boolean',
     ];
 
     protected static function boot()
@@ -68,6 +76,16 @@ class MarketplaceRfq extends Model
     public function buyer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'buyer_id');
+    }
+
+    public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class);
+    }
+
+    public function isOpen(): bool
+    {
+        return $this->status === 'open' && ($this->closing_date === null || $this->closing_date->gte(now()->startOfDay()));
     }
 
     public function quotations(): HasMany

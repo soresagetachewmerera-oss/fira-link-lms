@@ -39,6 +39,7 @@ class NoPersonalDataInMarketplaceTest extends TestCase
         $seller = $this->makeUser();
         $seller->forceFill(['email' => 'leak-seller@example.test', 'phone' => '251911000111'])->save();
         $org = $this->approveBusiness($this->makeOrganization($seller), 'exporter');
+        $seller->forceFill(['active_organization_id' => $org->id])->save();
         tap(MarketplaceSellerProfile::create([
             'user_id' => $seller->id,
             'organization_id' => $org->id,
@@ -59,16 +60,19 @@ class NoPersonalDataInMarketplaceTest extends TestCase
 
         $buyer = $this->makeUser();
         $buyer->forceFill(['email' => 'leak-buyer@example.test', 'phone' => '251933000333'])->save();
-        $this->approveBusiness($this->makeOrganization($buyer), 'buyer');
+        $buyerOrg = $this->approveBusiness($this->makeOrganization($buyer), 'buyer');
+        $buyer->forceFill(['active_organization_id' => $buyerOrg->id])->save();
         $rfq = MarketplaceRfq::create([
             'buyer_id' => $buyer->id, 'title' => 'Leak probe RFQ', 'volume_bags' => 10,
-            'destination_country' => 'Germany', 'destination_port' => 'Hamburg', 'status' => 'open',
+            'destination_country' => 'Germany', 'destination_port' => 'Hamburg',
         ]);
-        MarketplaceQuotation::create([
-            'rfq_id' => $rfq->id, 'listing_id' => $lot->id, 'seller_id' => $seller->id,
+        $rfq->forceFill(['buyer_id' => $buyer->id, 'organization_id' => $buyerOrg->id, 'status' => 'open', 'closing_date' => now()->addWeek()])->save();
+        $quote = new MarketplaceQuotation([
+            'rfq_id' => $rfq->id, 'listing_id' => $lot->id,
             'offered_price_usd_per_lb' => 4, 'total_price_usd' => 5000, 'quantity_bags' => 10,
-            'validity_date' => now()->addWeek(), 'status' => 'submitted',
+            'validity_date' => now()->addWeek(),
         ]);
+        $quote->forceFill(['seller_id' => $seller->id, 'organization_id' => $org->id, 'status' => 'submitted'])->save();
 
         return [$seller, $buyer, $lot, $rfq];
     }

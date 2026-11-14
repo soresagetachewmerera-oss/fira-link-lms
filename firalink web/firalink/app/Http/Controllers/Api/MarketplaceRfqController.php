@@ -3,348 +3,272 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\CoffeeListing;
 use App\Models\MarketplaceQuotation;
 use App\Models\MarketplaceRfq;
-use App\Services\MarketplaceSubscriptionService;
-use App\Support\BusinessSummary;
+use App\Policies\MarketplaceRfqPolicy;
+use App\Services\Trade\TradeService;
+use App\Services\Verification\VerificationException;
+use Illuminate\Auth\Access\Response as AccessResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * Requests (RFQs) and quotes between businesses (slice 5). Requests are never public: open
+ * requests are for verified seller businesses; quotes are for the buyer business. Each side sees
+ * the other as a business only.
+ */
 class MarketplaceRfqController extends Controller
 {
-    protected MarketplaceSubscriptionService $subscriptionService;
+    private const INCOTERMS = ['FOB', 'CIF', 'CFR', 'EXW'];
 
-    public function __construct(MarketplaceSubscriptionService $subscriptionService)
+    public function __construct(private TradeService $trade)
     {
-        $this->subscriptionService = $subscriptionService;
     }
 
-    /**
-     * GET /api/marketplace/rfqs
-     * Public / open tenders board.
-     */
-    /** An RFQ with its buyer as a business only: never a person's email, phone or account fields. */
-    private function rfqJson(MarketplaceRfq $rfq): array
+    private function denied(AccessResponse $r): JsonResponse
     {
-        $data = $rfq->makeHidden(['buyer'])->toArray();
-        $data['buyer_business'] = BusinessSummary::forUser($rfq->buyer);
-
-        return $data;
+        return response()->json(['success' => false, 'code' => $r->code(), 'message' => $r->message()], $r->code() === 'ORGANIZATION_REQUIRED' ? 404 : 403);
     }
 
+    private function invalid($validator): JsonResponse
+    {
+        return response()->json(['success' => false, 'message' => 'Validation error', 'errors' => $validator->errors()], 422);
+    }
+
+    /** GET /marketplace/rfqs — open requests, for verified seller businesses only. */
     public function index(Request $request): JsonResponse
     {
-        $query = MarketplaceRfq::query()->with('buyer')->open();
+        $can = Gate::inspect('viewOpen', [MarketplaceRfq::class]);
+        if ($can->denied()) {
+            return $this->denied($can);
+        }
+        $own = $request->user()->currentOrganization()?->id;
 
-        if ($origin = $request->input('origin')) {
-            $query->where('target_origin_region', 'LIKE', "%{$origin}%");
+        $query = MarketplaceRfq::with(['organization', 'buyer'])->open()
+            ->whereNotNull('organization_id')
+            ->where('organization_id', '!=', $own);
+        if ($origin = trim((string) $request->input('origin'))) {
+            $query->whereRaw('LOWER(target_origin_region) = ?', [mb_strtolower($origin)]);
         }
 
-        if ($grade = $request->input('grade')) {
-            $query->where('target_grade', $grade);
-        }
+        $page = $query->latest('created_at')->paginate(15);
+        $page->setCollection($page->getCollection()->map(fn ($r) => $this->trade->rfqJson($r)));
 
-        if ($country = $request->input('destination_country')) {
-            $query->where('destination_country', 'LIKE', "%{$country}%");
-        }
-
-        $rfqs = $query->latest('created_at')->paginate(15);
-        $rfqs->setCollection($rfqs->getCollection()->map(fn ($r) => $this->rfqJson($r)));
-
-        return response()->json([
-            'success' => true,
-            'data' => $rfqs,
-        ]);
+        return response()->json(['success' => true, 'data' => $page]);
     }
 
-    /**
-     * GET /api/marketplace/rfqs/{id}
-     * Show single RFQ tender details.
-     */
-    public function show(Request $request, int $id): JsonResponse
+    /** GET /marketplace/my-rfqs — requests of the active business. */
+    public function myRfqs(Request $request): JsonResponse
     {
-        $user = $request->user('sanctum');
-        $rfq = MarketplaceRfq::with('buyer')->findOrFail($id);
-
-        $hasQuoted = false;
-        $myQuote = null;
-        if ($user) {
-            $myQuote = MarketplaceQuotation::where('rfq_id', $rfq->id)
-                ->where('seller_id', $user->id)
-                ->first();
-            $hasQuoted = $myQuote !== null;
+        $org = $request->user()->currentOrganization();
+        if (!$org) {
+            return $this->denied(AccessResponse::deny(__('trade.errors.business_required'), 'ORGANIZATION_REQUIRED'));
         }
+        $page = MarketplaceRfq::with(['organization'])->where('organization_id', $org->id)->latest('created_at')->paginate(15);
+        $page->setCollection($page->getCollection()->map(fn ($r) => $this->trade->rfqJson($r)));
+
+        return response()->json(['success' => true, 'data' => $page]);
+    }
+
+    public function show(Request $request, MarketplaceRfq $rfq): JsonResponse
+    {
+        if (!Gate::allows('view', $rfq)) {
+            return response()->json(['success' => false, 'code' => 'NOT_FOUND'], 404);
+        }
+        $org = $request->user()->currentOrganization();
+        $mine = $org ? MarketplaceQuotation::with(['listing.organization', 'listing.primaryImage', 'organization'])
+            ->where('rfq_id', $rfq->id)->where('organization_id', $org->id)->latest('id')->first() : null;
 
         return response()->json([
             'success' => true,
             'data' => [
-                'rfq' => $this->rfqJson($rfq),
-                'has_quoted' => $hasQuoted,
-                'my_quote' => $myQuote,
+                'rfq' => $this->trade->rfqJson($rfq),
+                'is_own' => $org && (int) $org->id === (int) $rfq->organization_id,
+                'can_quote' => Gate::inspect('quote', [$rfq])->allowed(),
+                'my_quote' => $mine ? $this->trade->quoteJson($mine, false) : null,
             ],
         ]);
     }
 
-    /**
-     * POST /api/marketplace/rfqs
-     * Create new buyer RFQ tender.
-     */
+    /** POST /marketplace/rfqs — a Tier 1 buyer or broker business posts a request. */
     public function store(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $org = $request->user()->currentOrganization();
+        $can = Gate::inspect('create', [MarketplaceRfq::class, $org]);
+        if ($can->denied()) {
+            return $this->denied($can);
+        }
 
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
-            'target_origin_region' => 'nullable|string|max:100',
-            'target_grade' => 'nullable|string|max:50',
-            'target_processing_method' => 'nullable|string|max:50',
-            'target_cupping_score_min' => 'nullable|numeric|min:70|max:100',
-            'volume_bags' => 'required|integer|min:1',
-            'bag_type_preference' => 'nullable|string|max:50',
-            'target_price_usd_per_lb' => 'nullable|numeric|min:0.5',
-            'destination_country' => 'required|string|max:100',
-            'destination_port' => 'required|string|max:100',
-            'preferred_incoterm' => 'nullable|string|max:20',
-            'preferred_payment_terms' => 'nullable|string|max:150',
-            'target_delivery_date' => 'nullable|date|after:today',
-            'closing_date' => 'nullable|date|after:today',
-            'specifications' => 'nullable|string|max:3000',
+            'origin_region' => 'nullable|string|max:100',
+            'grade' => 'nullable|in:grade_1,grade_2,grade_3,grade_4,grade_5,undergrade',
+            'processing_method' => 'nullable|in:washed,natural,honey',
+            'volume_value' => 'required|numeric|min:0.01|max:10000000',
+            'volume_unit' => 'required|in:' . implode(',', array_keys(MarketplaceRfq::UNITS_KG)),
+            'destination' => 'required|string|max:150',
+            'incoterm' => 'required|in:' . implode(',', self::INCOTERMS),
+            'target_price_usd_per_lb' => 'nullable|numeric|min:0.5|max:100',
+            'needed_by' => 'nullable|date|after:today',
+            'sample_first' => 'nullable|boolean',
+            'notes' => 'nullable|string|max:3000',
         ]);
-
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors(),
-            ], 422);
+            return $this->invalid($validator);
+        }
+        if ($kinds = \App\Services\Trade\ContactDetector::find($request->input('notes') . ' ' . $request->input('title'))) {
+            return response()->json(['success' => false, 'code' => 'CONTACT_DETAILS', 'message' => __('trade.errors.contact_details'), 'found' => $kinds, 'errors' => ['notes' => ['contact_details']]], 422);
         }
 
-        $rfq = MarketplaceRfq::create([
-            'buyer_id' => $user->id,
-            'title' => $request->input('title'),
-            'target_origin_region' => $request->input('target_origin_region'),
-            'target_grade' => $request->input('target_grade'),
-            'target_processing_method' => $request->input('target_processing_method'),
-            'target_cupping_score_min' => $request->input('target_cupping_score_min'),
-            'volume_bags' => $request->input('volume_bags'),
-            'bag_type_preference' => $request->input('bag_type_preference', 'jute_with_grainpro'),
-            'target_price_usd_per_lb' => $request->input('target_price_usd_per_lb'),
-            'destination_country' => $request->input('destination_country'),
-            'destination_port' => $request->input('destination_port'),
-            'preferred_incoterm' => $request->input('preferred_incoterm', 'FOB'),
-            'preferred_payment_terms' => $request->input('preferred_payment_terms'),
-            'target_delivery_date' => $request->input('target_delivery_date'),
-            'closing_date' => $request->input('closing_date', now()->addDays(30)),
-            'specifications' => $request->input('specifications'),
-            'status' => 'open',
-        ]);
+        $rfq = $this->trade->createRfq($org, $request->user(), $validator->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'RFQ tender published successfully. Ethiopian verified exporters can now submit competitive bids.',
-            'data' => $rfq,
-        ], 201);
+        return response()->json(['success' => true, 'data' => $this->trade->rfqJson($rfq->load('organization'))], 201);
+    }
+
+    public function close(Request $request, MarketplaceRfq $rfq): JsonResponse
+    {
+        if (!Gate::allows('decide', $rfq)) {
+            return response()->json(['success' => false, 'code' => 'NOT_ALLOWED'], 403);
+        }
+        try {
+            $rfq = $this->trade->closeRfq($rfq, $request->user());
+        } catch (VerificationException $e) {
+            return $e->toResponse();
+        }
+
+        return response()->json(['success' => true, 'data' => $this->trade->rfqJson($rfq)]);
     }
 
     /**
-     * GET /api/marketplace/my-rfqs
-     * Buyer's own published tenders.
+     * GET /marketplace/rfqs/{rfq}/quotes — the buyer compares quotes.
+     * verified_only (default on), min_level (documented|lab_backed|inspected), sort (price|price_desc|newest).
      */
-    public function myRfqs(Request $request): JsonResponse
+    public function rfqQuotes(Request $request, MarketplaceRfq $rfq): JsonResponse
     {
-        $rfqs = $request->user()->marketplaceRfqs()
-            ->withCount('quotations')
-            ->latest('created_at')
-            ->paginate(15);
-
-        return response()->json([
-            'success' => true,
-            'data' => $rfqs,
-        ]);
-    }
-
-    /**
-     * POST /api/marketplace/rfqs/{id}/quote
-     * Submit an exporter quotation to an RFQ tender.
-     */
-    public function submitQuote(Request $request, int $id): JsonResponse
-    {
-        $seller = $request->user();
-        $rfq = MarketplaceRfq::findOrFail($id);
-
-        if ($rfq->status !== 'open') {
-            return response()->json([
-                'success' => false,
-                'message' => 'This RFQ tender is no longer open for bidding.',
-            ], 400);
+        if (!Gate::allows('viewQuotes', $rfq)) {
+            return response()->json(['success' => false, 'code' => 'NOT_FOUND'], 404);
         }
 
-        // Verification Gate (Trust is never for sale)
-        if (!$seller->isVerifiedExporter()) {
-            return response()->json([
-                'success' => false,
-                'code' => 'VERIFICATION_REQUIRED',
-                'required_role' => 'exporter',
-                'message' => 'Only verified exporters may submit quotations to buyer RFQ tenders.',
-            ], 403);
+        $quotes = $rfq->quotations()->with(['listing.organization', 'listing.primaryImage', 'organization', 'seller'])->get()
+            ->map(fn ($q) => $this->trade->quoteJson($q));
+
+        if ($request->boolean('verified_only', true)) {
+            $quotes = $quotes->filter(fn ($q) => ($q['seller_business']['verification_tier'] ?? 0) >= 1);
         }
-
-        // Check subscription allowance
-        $eligibility = $this->subscriptionService->canSubmitQuote($seller);
-        if (!$eligibility['allowed']) {
-            $org = $seller->primaryOrganization();
-            $errorData = $org ? app(\App\Services\EntitlementService::class)->limitReachedResponse($org, 'rfq_responses_per_month') : [
-                'code' => 'limit_reached',
-                'feature' => 'rfq_responses_per_month',
-                'message' => $eligibility['message'],
-            ];
-
-            return response()->json(array_merge(['success' => false], $errorData), 403);
+        $levels = (array) config('verification.lots.levels');
+        if ($min = $request->input('min_level')) {
+            $minIndex = array_search($min, $levels, true);
+            if ($minIndex !== false) {
+                $quotes = $quotes->filter(fn ($q) => array_search($q['lot']['evidence_level'] ?? 'claimed', $levels, true) >= $minIndex);
+            }
         }
-
-        $validator = Validator::make($request->all(), [
-            'offered_price_usd_per_lb' => 'required|numeric|min:0.5',
-            'quantity_bags' => 'required|integer|min:1',
-            'listing_id' => 'nullable|exists:coffee_listings,id',
-            'incoterm' => 'nullable|string|max:50',
-            'port_of_loading' => 'nullable|string|max:50',
-            'port_of_destination' => 'nullable|string|max:100',
-            'payment_terms' => 'nullable|string|max:150',
-            'estimated_shipping_date' => 'nullable|date',
-            'validity_date' => 'required|date|after:today',
-            'terms_and_conditions' => 'nullable|string|max:2000',
-            'sample_available' => 'nullable|boolean',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $bags = (int) $request->input('quantity_bags');
-        $pricePerLb = (float) $request->input('offered_price_usd_per_lb');
-        // Total price = bags * 60kg * 2.20462 lbs * pricePerLb
-        $totalPrice = round($bags * 60 * 2.20462262 * $pricePerLb, 2);
-
-        $quotation = MarketplaceQuotation::create([
-            'rfq_id' => $rfq->id,
-            'listing_id' => $request->input('listing_id'),
-            'seller_id' => $seller->id,
-            'offered_price_usd_per_lb' => $pricePerLb,
-            'total_price_usd' => $totalPrice,
-            'quantity_bags' => $bags,
-            'incoterm' => $request->input('incoterm', 'FOB Djibouti'),
-            'port_of_loading' => $request->input('port_of_loading', 'Djibouti'),
-            'port_of_destination' => $request->input('port_of_destination', $rfq->destination_port),
-            'payment_terms' => $request->input('payment_terms', 'Irrevocable LC at sight'),
-            'estimated_shipping_date' => $request->input('estimated_shipping_date'),
-            'validity_date' => $request->input('validity_date'),
-            'terms_and_conditions' => $request->input('terms_and_conditions'),
-            'sample_available' => $request->boolean('sample_available', true),
-            'status' => 'submitted',
-        ]);
-
-        $org = $seller->primaryOrganization();
-        if ($org) {
-            app(\App\Services\EntitlementService::class)->consume($org, 'rfq_responses_per_month', 1);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Your quotation was delivered to the buyer successfully.',
-            'data' => $quotation,
-        ], 201);
-    }
-
-    /**
-     * GET /api/marketplace/rfqs/{id}/quotes
-     * List all quotes received for an RFQ (only buyer owner can view).
-     */
-    public function rfqQuotes(Request $request, int $id): JsonResponse
-    {
-        $user = $request->user();
-        $rfq = MarketplaceRfq::where('id', $id)->where('buyer_id', $user->id)->firstOrFail();
-
-        $quotes = $rfq->quotations()
-            ->with(['seller', 'listing.primaryImage', 'listing.organization'])
-            ->latest('created_at')
-            ->get()
-            ->map(function ($q) {
-                // The seller as a business only: never a person's email or phone.
-                $data = $q->makeHidden(['seller'])->toArray();
-                $data['seller_business'] = BusinessSummary::of($q->listing?->organization) ?? BusinessSummary::forUser($q->seller);
-
-                return $data;
-            });
+        $quotes = match ($request->input('sort', 'price')) {
+            'price_desc' => $quotes->sortByDesc('price_usd_per_lb'),
+            'newest' => $quotes->sortByDesc('created_at'),
+            default => $quotes->sortBy('price_usd_per_lb'),
+        };
 
         return response()->json([
             'success' => true,
             'data' => [
-                'rfq' => $this->rfqJson($rfq),
-                'quotes' => $quotes,
+                'rfq' => $this->trade->rfqJson($rfq),
+                'can_decide' => Gate::allows('decide', $rfq),
+                'quotes' => $quotes->values(),
             ],
         ]);
     }
 
-    /**
-     * GET /api/marketplace/my-quotes
-     * Exporter's submitted quotations across all RFQs.
-     */
-    public function myQuotes(Request $request): JsonResponse
+    /** POST /marketplace/rfqs/{rfq}/quote — a verified seller business quotes with one of its lots. */
+    public function submitQuote(Request $request, MarketplaceRfq $rfq): JsonResponse
     {
-        $quotes = $request->user()->marketplaceQuotations()
-            ->with(['rfq', 'listing.primaryImage'])
-            ->latest('created_at')
-            ->paginate(15);
+        $org = $request->user()->currentOrganization();
+        $can = Gate::inspect('quote', [$rfq, $org]);
+        if ($can->denied()) {
+            return $this->denied($can);
+        }
 
-        return response()->json([
-            'success' => true,
-            'data' => $quotes,
+        $validator = Validator::make($request->all(), [
+            'listing_id' => 'required|integer',
+            'price_usd_per_lb' => 'required|numeric|min:0.5|max:100',
+            'volume_bags' => 'required|integer|min:1|max:100000',
+            'valid_days' => 'required|integer|min:1|max:60',
+            'ready_to_ship' => 'required|date|after_or_equal:today',
+            'note' => 'nullable|string|max:2000',
         ]);
+        if ($validator->fails()) {
+            return $this->invalid($validator);
+        }
+
+        try {
+            $quote = $this->trade->submitQuote($rfq, $org, $request->user(), $validator->validated());
+        } catch (VerificationException $e) {
+            return $e->toResponse();
+        }
+
+        return response()->json(['success' => true, 'data' => $this->trade->quoteJson($quote->load(['listing.organization', 'organization']), false)], 201);
     }
 
-    /**
-     * PUT /api/marketplace/quotes/{id}/status
-     * Buyer accepts or declines a quotation.
-     */
-    public function updateQuoteStatus(Request $request, int $id): JsonResponse
+    /** GET /marketplace/my-quotes — quotes sent by the active business. */
+    public function myQuotes(Request $request): JsonResponse
     {
-        $user = $request->user();
-        $quote = MarketplaceQuotation::with('rfq')->findOrFail($id);
+        $org = $request->user()->currentOrganization();
+        if (!$org) {
+            return $this->denied(AccessResponse::deny(__('trade.errors.business_required'), 'ORGANIZATION_REQUIRED'));
+        }
+        $page = MarketplaceQuotation::with(['rfq.organization', 'listing.organization', 'listing.primaryImage', 'organization'])
+            ->where('organization_id', $org->id)->latest('created_at')->paginate(15);
+        $page->setCollection($page->getCollection()->map(fn ($q) => $this->trade->quoteJson($q, false) + [
+            'rfq' => $q->rfq ? $this->trade->rfqJson($q->rfq) : null,
+        ]));
 
-        if ($quote->rfq->buyer_id !== $user->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized. Only the RFQ owner can accept or decline quotes.',
-            ], 403);
+        return response()->json(['success' => true, 'data' => $page]);
+    }
+
+    public function accept(Request $request, MarketplaceQuotation $quote): JsonResponse
+    {
+        if (!$quote->rfq || !Gate::allows('decide', $quote->rfq)) {
+            return response()->json(['success' => false, 'code' => 'NOT_ALLOWED', 'message' => __('trade.errors.not_allowed')], 403);
+        }
+        try {
+            $quote = $this->trade->accept($quote, $request->user());
+        } catch (VerificationException $e) {
+            return $e->toResponse();
         }
 
-        $status = $request->input('status');
-        if (!in_array($status, ['accepted', 'rejected'])) {
-            return response()->json([
-                'success' => false,
-                'message' => "Invalid status. Must be 'accepted' or 'rejected'.",
-            ], 422);
+        return response()->json(['success' => true, 'data' => $this->trade->quoteJson($quote)]);
+    }
+
+    public function decline(Request $request, MarketplaceQuotation $quote): JsonResponse
+    {
+        if (!$quote->rfq || !Gate::allows('decide', $quote->rfq)) {
+            return response()->json(['success' => false, 'code' => 'NOT_ALLOWED', 'message' => __('trade.errors.not_allowed')], 403);
+        }
+        try {
+            $quote = $this->trade->decline($quote, $request->user());
+        } catch (VerificationException $e) {
+            return $e->toResponse();
         }
 
-        $quote->update([
-            'status' => $status,
-            'accepted_at' => $status === 'accepted' ? now() : null,
-        ]);
+        return response()->json(['success' => true, 'data' => $this->trade->quoteJson($quote)]);
+    }
 
-        if ($status === 'accepted') {
-            $quote->rfq->update(['status' => 'fulfilled']);
-        }
+    /** GET /marketplace/rfqs/prefill?listing=ID — "Request quote" from a lot: origin, process, grade. */
+    public function prefill(Request $request): JsonResponse
+    {
+        $lot = CoffeeListing::visibleToBuyers()->find((int) $request->query('listing'));
 
         return response()->json([
             'success' => true,
-            'message' => "Quotation marked as {$status}.",
-            'data' => $quote,
+            'data' => $lot ? [
+                'title' => trim($lot->origin_region . ' ' . str_replace('_', ' ', (string) $lot->processing_method) . ' ' . str_replace('grade_', 'G', (string) $lot->grade)),
+                'origin_region' => $lot->origin_region,
+                'processing_method' => in_array($lot->processing_method, ['washed', 'natural', 'honey'], true) ? $lot->processing_method : null,
+                'grade' => $lot->grade,
+                'incoterm' => 'FOB',
+            ] : null,
         ]);
     }
 }
-

@@ -138,10 +138,11 @@ class MarketplaceOwnershipTest extends TestCase
 
         Sanctum::actingAs($this->makeUser());
         $this->getJson("/api/marketplace/rfqs/{$rfq->id}/quotes")->assertStatus(404);
-        $this->putJson("/api/marketplace/quotes/{$quote->id}/status", ['status' => 'accepted'])->assertStatus(403);
+        $this->postJson("/api/marketplace/quotes/{$quote->id}/accept")->assertStatus(403);
 
         Sanctum::actingAs($seller);
-        $this->putJson("/api/marketplace/quotes/{$quote->id}/status", ['status' => 'accepted'])->assertStatus(403);
+        $this->postJson("/api/marketplace/quotes/{$quote->id}/accept")->assertStatus(403);
+        $this->postJson("/api/marketplace/quotes/{$quote->id}/decline")->assertStatus(403);
         $this->assertNotSame('accepted', $quote->fresh()->status);
     }
 

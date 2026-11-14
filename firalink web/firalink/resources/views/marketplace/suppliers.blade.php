@@ -42,9 +42,6 @@
                     <a href="{{ route('marketplace.index') }}" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm transition-all border border-white/20">
                         Browse Coffee Lots
                     </a>
-                    <a href="{{ route('marketplace.rfqs.create') }}" class="px-5 py-2.5 rounded-xl bg-white text-[#6D1A95] font-bold text-sm hover:bg-purple-50 transition-all shadow-md">
-                        Post Procurement RFQ
-                    </a>
                 </div>
             </div>
         </div>

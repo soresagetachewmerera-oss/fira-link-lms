@@ -91,8 +91,26 @@ class DealRoomController extends Controller
             ? MarketplaceQuotation::with(['rfq', 'listing'])->find($request->input('quotation_id'))
             : null;
 
-        if ($quotation && (int) $quotation->rfq?->buyer_id !== (int) $user->id) {
-            return $this->forbidden('Only the buyer who posted the request can open a deal room from this quote.');
+        if ($quotation) {
+            $rfq = $quotation->rfq;
+            $isBuyerSide = $rfq && ($rfq->organization_id
+                ? \App\Policies\MarketplaceRfqPolicy::manages($user, $rfq->organization_id)
+                : (int) $rfq->buyer_id === (int) $user->id);
+            if (!$isBuyerSide) {
+                return $this->forbidden('Only the buyer who posted the request can open a deal room from this quote.');
+            }
+            // Slice 5: a deal room starts from an accepted quote only.
+            if ($quotation->status !== MarketplaceQuotation::STATUS_ACCEPTED) {
+                return response()->json([
+                    'success' => false,
+                    'code' => 'QUOTE_NOT_ACCEPTED',
+                    'message' => 'Accept this quote before opening a deal room.',
+                ], 422);
+            }
+            $existing = DealRoom::where('rfq_id', $quotation->rfq_id)->where('organization_id', $quotation->organization_id ?? $quotation->listing?->organization_id)->first();
+            if ($existing) {
+                return response()->json(['success' => true, 'data' => $existing->load(['organization', 'listing', 'milestones'])]);
+            }
         }
 
         $listing = $quotation?->listing

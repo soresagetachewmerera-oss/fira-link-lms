@@ -331,7 +331,6 @@
                     <div class="mkt-rfq-icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6M8 4h7l4 4v12H5V4h3Z"/></svg></div>
                     <h3>Need a specific volume?</h3>
                     <p>Publish a sourcing request and receive offers from verified exporters.</p>
-                    <a href="{{ route('marketplace.rfqs') }}" class="mkt-btn">Post buyer RFQ</a>
                 </div>
             </aside>
 

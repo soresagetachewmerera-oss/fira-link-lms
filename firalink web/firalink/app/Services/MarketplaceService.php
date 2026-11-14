@@ -77,6 +77,34 @@ class MarketplaceService
             $query->where('crop_year', $cropYear);
         }
 
+        // Slice 5 filters (several values each): regions[], processes[], grades[] (g4_plus = grade 4,
+        // 5 and under grade), min_level (lot evidence) and min_tier (seller business tier).
+        $list = fn (string $key) => array_values(array_filter(array_map(
+            fn ($v) => mb_strtolower(trim((string) $v)),
+            (array) $request->input($key, [])
+        )));
+        if ($regions = $list('regions')) {
+            $query->whereIn(\Illuminate\Support\Facades\DB::raw('LOWER(origin_region)'), $regions);
+        }
+        if ($processes = $list('processes')) {
+            $query->whereIn('processing_method', $processes);
+        }
+        if ($grades = $list('grades')) {
+            if (in_array('g4_plus', $grades, true)) {
+                $grades = array_merge(array_diff($grades, ['g4_plus']), ['grade_4', 'grade_5', 'undergrade']);
+            }
+            $query->whereIn('grade', $grades);
+        }
+        $levels = (array) config('verification.lots.levels');
+        $minLevel = array_search($request->input('min_level'), $levels, true);
+        if ($minLevel !== false && $minLevel > 0) {
+            $query->whereIn('evidence_level', array_slice($levels, $minLevel));
+        }
+        $minTier = (int) $request->input('min_tier', 0);
+        if ($minTier > 1) {
+            $query->whereHas('organization', fn ($o) => $o->where('verification_tier', '>=', min($minTier, 3)));
+        }
+
         // Featured only
         if ($request->boolean('featured_only')) {
             $query->featured();

@@ -135,7 +135,6 @@
                 </div>
                 <div class="prices-actions">
                     <a href="{{ route('marketplace.index') }}" class="prices-btn prices-btn-secondary">Browse coffee lots</a>
-                    <a href="{{ route('marketplace.rfqs') }}" class="prices-btn prices-btn-primary">View buyer requests</a>
                 </div>
             </div>
         </div>

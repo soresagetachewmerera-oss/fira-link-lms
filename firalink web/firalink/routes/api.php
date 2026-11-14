@@ -260,21 +260,32 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('/listings/{id}/inquire', [\App\Http\Controllers\Api\MarketplaceController::class, 'inquire'])->middleware('verified.role:buyer,broker,exporter,supplier');
         Route::get('/inquiries', [\App\Http\Controllers\Api\MarketplaceController::class, 'myInquiries']);
 
-        // RFQs & Tenders
-        // Requests are never public: signed-in users only (narrowed to verified businesses in slice 5).
-        Route::get('/rfqs', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'index']);
-        Route::get('/rfqs/{id}', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'show'])->whereNumber('id');
-        Route::post('/rfqs', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'store'])->middleware('verified.role:buyer,broker');
-        Route::get('/my-rfqs', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'myRfqs']);
-        Route::get('/rfqs/{id}/quotes', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'rfqQuotes']);
-        Route::post('/rfqs/{id}/quote', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'submitQuote'])->middleware('verified.role:exporter,supplier,broker');
-        Route::get('/my-quotes', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'myQuotes']);
-        Route::put('/quotes/{id}/status', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'updateQuoteStatus']);
+        // Requests (RFQs) and quotes (slice 5): between businesses, checked by MarketplaceRfqPolicy.
+        // Requests are never public; open requests are for verified seller businesses only.
+        Route::controller(\App\Http\Controllers\Api\MarketplaceRfqController::class)->group(function () {
+            Route::get('/rfqs', 'index');
+            Route::get('/rfqs/prefill', 'prefill');
+            Route::get('/rfqs/{rfq}', 'show')->whereNumber('rfq');
+            Route::post('/rfqs', 'store');
+            Route::post('/rfqs/{rfq}/close', 'close')->whereNumber('rfq');
+            Route::get('/my-rfqs', 'myRfqs');
+            Route::get('/rfqs/{rfq}/quotes', 'rfqQuotes')->whereNumber('rfq');
+            Route::post('/rfqs/{rfq}/quote', 'submitQuote')->whereNumber('rfq');
+            Route::get('/my-quotes', 'myQuotes');
+            Route::post('/quotes/{quote}/accept', 'accept')->whereNumber('quote');
+            Route::post('/quotes/{quote}/decline', 'decline')->whereNumber('quote');
+        });
 
         // Seller Inventory & Profile
         Route::get('/seller/profile', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'profile']);
         Route::post('/seller/profile', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'updateProfile']);
         // Seller lots (slice 4): owned by the active business; drafts until Tier 1; level from reviewed evidence.
+        // Exporters tab and exporter profile (S-114): signed-in users only, rate-limited.
+        Route::middleware('throttle:60,1')->controller(\App\Http\Controllers\Api\ExporterController::class)->group(function () {
+            Route::get('/exporters', 'index');
+            Route::get('/exporters/{organization}', 'show')->whereNumber('organization');
+        });
+
         Route::prefix('seller/lots')->controller(\App\Http\Controllers\Api\SellerLotController::class)->group(function () {
             Route::get('/', 'index');
             Route::post('/', 'store');

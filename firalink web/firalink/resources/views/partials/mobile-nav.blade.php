@@ -33,8 +33,6 @@
                             <ul id="mobile-marketplace-menu" class="fira-mobile-submenu">
                                 <li><a href="{{ route('marketplace.index') }}">Browse Coffee Lots</a></li>
                                 <li><a href="{{ route('marketplace.suppliers') }}">Exporters &amp; Suppliers</a></li>
-                                <li><a href="{{ route('marketplace.rfqs.create') }}">Request Coffee (RFQ)</a></li>
-                                <li><a href="{{ route('marketplace.rfqs') }}">Sourcing Tenders</a></li>
                                 <li><a href="{{ route('marketplace.pricing') }}">Pricing &amp; Plans</a></li>
                                 <li><a href="{{ route('marketplace.dashboard') }}">My Marketplace</a></li>
                             </ul>
