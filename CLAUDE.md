@@ -179,6 +179,13 @@ Run on the production server **in this order**. Always run the dry run first and
    - `php artisan marketplace:move-lot-reports-private` (dry run, read the count), then with `--force`: lab and
      cupping reports leave the public disk and wait in the review queue as unconfirmed lab reports.
    - Lot levels are now computed from reviewed evidence only; the old admin "set level" form is gone.
+10. Slice 5 (requests and quotes). `php artisan migrate` adds the business (`organization_id`) to requests and
+    quotes, the request volume unit and "sample first". Requests are no longer public, and the web request pages
+    are removed.
+    - `php artisan marketplace:report-trade-without-business` — report only. Requests made before slice 5 have no
+      business and are hidden from sellers; quotes without a lot cannot be accepted. Decide each by hand.
+    - The ECTA minimum price check uses only price lists with status `published`. Keep the current list published
+      in admin; with none published, quotes show "No reference price" and are not blocked.
 
 ## 4. Workflow per slice
 
