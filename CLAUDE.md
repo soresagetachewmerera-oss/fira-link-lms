@@ -171,6 +171,14 @@ Run on the production server **in this order**. Always run the dry run first and
    - Every admin and reviewer must set up an authenticator app at next sign-in (`/staff/two-factor/setup`) and save
      the recovery codes. If one loses both: `php artisan admin:reset-2fa <email>`.
    - The scheduler must run (`* * * * * php artisan schedule:run`): `verification:expire-and-remind` runs daily at 06:00.
+9. Slice 4 (lots and evidence). `php artisan migrate` adds lot codes (back-filled for existing lots), lot evidence
+   and evidence pages. Check that the PHP `gd` and `exif` extensions are installed on the server: without `exif`,
+   evidence photos are refused; without `gd`, approving a photo fails (both fail closed).
+   - `php artisan marketplace:report-lots-without-business` — report only. Lots without a business are hidden and
+     nobody can edit them; decide each by hand.
+   - `php artisan marketplace:move-lot-reports-private` (dry run, read the count), then with `--force`: lab and
+     cupping reports leave the public disk and wait in the review queue as unconfirmed lab reports.
+   - Lot levels are now computed from reviewed evidence only; the old admin "set level" form is gone.
 
 ## 4. Workflow per slice
 
