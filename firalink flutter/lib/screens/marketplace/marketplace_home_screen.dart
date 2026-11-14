@@ -13,6 +13,7 @@ import '../../widgets/workspace_status_pill.dart';
 import '../../router/app_router.dart';
 import '../../models/trade_model.dart';
 import 'exporters_screen.dart';
+import 'samples_screen.dart';
 import 'widgets/market_filters_sheet.dart';
 import 'widgets/verification_prompt_dialog.dart';
 class MarketplaceHomeScreen extends StatefulWidget {
@@ -145,6 +146,12 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
         ),
         centerTitle: false,
         actions: [
+          IconButton(
+            key: const Key('open-samples'),
+            icon: const Icon(Icons.science_outlined),
+            tooltip: context.l10n.samplesTitle,
+            onPressed: () => _openSignedIn(const SamplesScreen(), context.l10n.samplesTitle),
+          ),
           IconButton(
             key: const Key('open-exporters'),
             icon: const Icon(Icons.business_outlined),

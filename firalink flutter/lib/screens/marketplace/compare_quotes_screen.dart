@@ -9,6 +9,8 @@ import '../../widgets/fira_error_state.dart';
 import '../../widgets/trade_labels.dart';
 import '../../widgets/verification_labels.dart';
 import '../deal_room/deal_room_hub_screen.dart';
+import 'request_sample_screen.dart';
+import 'sample_tracking_screen.dart';
 
 /// Quotes received for one request. The server says which quotes can be accepted: never below
 /// the ECTA minimum from a sourced price list, never from a seller who is not verified now.
@@ -230,6 +232,27 @@ class _CompareQuotesScreenState extends State<CompareQuotesScreen> {
               LotLevelChip(level: q.lot?.evidenceLevel ?? 'claimed'),
             ]),
             if (q.lot != null) Text('${q.lot!.title} · ${q.lot!.lotCode}', style: TextStyle(color: fira.mutedText, fontSize: 12)),
+            Text(
+              q.sampleStatus == null
+                  ? l10n.compareNoSample
+                  : (q.sampleStatus == 'dispatched'
+                      ? l10n.compareSampleSent
+                      : l10n.translate('compareSampleStatus', {'status': SampleLabels.status(l10n, q.sampleStatus!)})),
+              key: Key('sample-line-${q.id}'),
+              style: TextStyle(fontSize: 12, color: q.sampleStatus == null ? fira.mutedText : fira.pending),
+            ),
+            if (q.sampleStatus == null && q.lot != null && q.status == 'submitted')
+              TextButton(
+                key: Key('ask-sample-${q.id}'),
+                style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                onPressed: () async {
+                  await Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => RequestSampleScreen(listingId: q.lot!.id, lotTitle: q.lot!.title, lotCode: q.lot!.lotCode, sellerName: q.seller?.name),
+                  ));
+                  _load();
+                },
+                child: Text(l10n.compareAskSample),
+              ),
             const SizedBox(height: 12),
             Row(children: [
               _stat(l10n.comparePricePerLb, '\$${q.pricePerLb.toStringAsFixed(2)}'),

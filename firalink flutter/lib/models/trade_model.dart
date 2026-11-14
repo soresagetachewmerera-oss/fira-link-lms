@@ -156,6 +156,7 @@ class TradeQuote {
     this.reference,
     this.blocker,
     this.rfq,
+    this.sampleStatus,
   });
 
   final int id;
@@ -180,6 +181,9 @@ class TradeQuote {
   final String? blocker;
   final Rfq? rfq;
 
+  /// The buyer business's latest sample of this lot (requested, fee_paid, dispatched, ...), or null.
+  final String? sampleStatus;
+
   factory TradeQuote.fromJson(Map<String, dynamic> j) => TradeQuote(
         id: _i(j['id']) ?? 0,
         rfqId: _i(j['rfq_id']) ?? 0,
@@ -198,6 +202,7 @@ class TradeQuote {
         reference: ReferencePrice.fromJson(j['reference_price']),
         blocker: j['blocker']?.toString(),
         rfq: j['rfq'] is Map<String, dynamic> ? Rfq.fromJson(j['rfq'] as Map<String, dynamic>) : null,
+        sampleStatus: j['sample'] is Map ? (j['sample'] as Map)['status']?.toString() : null,
       );
 }
 

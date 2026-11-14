@@ -11,6 +11,7 @@ import '../../theme/fira_colors.dart';
 import '../../widgets/fira_error_state.dart';
 import '../../widgets/workspace_status_pill.dart';
 import 'create_rfq_screen.dart';
+import 'request_sample_screen.dart';
 import 'widgets/lot_evidence_summary_card.dart';
 import 'widgets/verification_prompt_dialog.dart';
 
@@ -104,170 +105,19 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
   void _showSampleDialog() {
     final auth = context.read<AuthProvider>();
     if (!auth.isAuthenticated) {
-      VerificationPromptDialog.showAuthRequired(
-        context,
-        actionDescription: 'request direct green coffee samples from exporters',
-      );
+      VerificationPromptDialog.showAuthRequired(context, actionDescription: context.l10n.lotRequestSample);
       return;
     }
-
-    final addressCtrl = TextEditingController();
-    final courierCtrl = TextEditingController();
-    final messageCtrl = TextEditingController(text: 'We request a 200g-300g green coffee sample for quality evaluation.');
-    String? validationError;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 20,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-        ),
-        decoration: BoxDecoration(
-          color: Theme.of(ctx).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Request Coffee Sample', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text('Provide your delivery destination. The exporter will courier sample parcel upon approval.',
-                  style: TextStyle(fontSize: 12, color: Colors.grey)),
-              const SizedBox(height: 16),
-              TextField(
-                controller: addressCtrl,
-                maxLines: 2,
-                decoration: InputDecoration(
-                  labelText: 'Delivery Address *',
-                  hintText: 'Company, street, city, postal code, country',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: courierCtrl,
-                decoration: InputDecoration(
-                  labelText: 'Courier Account (DHL / FedEx)',
-                  hintText: 'Optional freight account number',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: messageCtrl,
-                maxLines: 2,
-                decoration: InputDecoration(
-                  labelText: 'Notes for Exporter',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-              const SizedBox(height: 18),
-              StatefulBuilder(
-                builder: (dialogCtx, setDialogState) {
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (validationError != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: Text(
-                            validationError ?? '',
-                            style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            if (addressCtrl.text.trim().isEmpty) {
-                              setDialogState(() {
-                                validationError = 'Please enter a valid shipping destination.';
-                              });
-                              return;
-                            }
-                            Navigator.pop(ctx);
-                            final http.Response res;
-                            try {
-                              res = await _marketplaceService.submitInquiry(_listing['id'], {
-                                'inquiry_type': 'sample_request',
-                                'subject': 'Sample Request for ${_listing['title']}',
-                                'message': messageCtrl.text.trim(),
-                                'shipping_address': addressCtrl.text.trim(),
-                                'courier_account': courierCtrl.text.trim(),
-                              });
-                            } catch (e) {
-                              if (mounted) showFiraActionError(context, e);
-                              return;
-                            }
-                            if (res.statusCode == 200 || res.statusCode == 201) {
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Sample request dispatched to exporter!'), backgroundColor: Colors.green),
-                                );
-                              }
-                            } else if (res.statusCode == 401) {
-                              if (mounted) {
-                                VerificationPromptDialog.showAuthRequired(
-                                  context,
-                                  actionDescription: 'request green coffee samples',
-                                );
-                              }
-                            } else if (res.statusCode == 403) {
-                              if (mounted) {
-                                try {
-                                  final data = jsonDecode(res.body);
-                                  VerificationPromptDialog.showVerificationRequired(
-                                    context,
-                                    role: 'buyer',
-                                    status: data['verification_status'],
-                                    message: data['message'],
-                                  );
-                                } catch (_) {
-                                  VerificationPromptDialog.showVerificationRequired(
-                                    context,
-                                    role: 'buyer',
-                                  );
-                                }
-                              }
-                            } else {
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Failed to submit sample request. Please try again.'), backgroundColor: Colors.red),
-                                );
-                              }
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          ),
-                          child: const Text('Submit Request', style: TextStyle(fontWeight: FontWeight.bold)),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
+    final org = _listing['organization'];
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => RequestSampleScreen(
+        listingId: (_listing['id'] as num).toInt(),
+        lotTitle: (_listing['title'] ?? '').toString(),
+        lotCode: _listing['lot_code']?.toString(),
+        sellerName: org is Map ? org['name']?.toString() : null,
+        feeUsd: double.tryParse('${_listing['sample_cost_usd'] ?? 0}') ?? 0,
       ),
-    );
+    ));
   }
 
   void _showInquiryDialog() {
