@@ -2,6 +2,7 @@ import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart' show XFile;
 
 import '../../l10n/app_localizations.dart';
@@ -17,6 +18,16 @@ import '../../widgets/verification_labels.dart';
 typedef ScanPages = Future<List<UploadFile>?> Function(int maxPages);
 typedef PickFile = Future<UploadFile?> Function();
 
+/// Sends the captured document. Defaults to the verification dossier upload; lot lab reports
+/// pass their own.
+typedef DocumentUpload = Future<http.Response> Function({
+  required List<UploadFile> pages,
+  String? documentNumber,
+  DateTime? issuedAt,
+  DateTime? expiresAt,
+  Map<String, String> details,
+});
+
 /// Capture one verification document: camera scanner (edges detected) or a PDF/image file,
 /// then the number, dates and details the document type needs. Returns true when sent.
 class DocumentCaptureScreen extends StatefulWidget {
@@ -27,6 +38,7 @@ class DocumentCaptureScreen extends StatefulWidget {
     this.service,
     this.scanPages,
     this.pickFile,
+    this.upload,
   });
 
   final DossierDocument document;
@@ -34,6 +46,7 @@ class DocumentCaptureScreen extends StatefulWidget {
   final VerificationService? service;
   final ScanPages? scanPages;
   final PickFile? pickFile;
+  final DocumentUpload? upload;
 
   @override
   State<DocumentCaptureScreen> createState() => _DocumentCaptureScreenState();
@@ -167,14 +180,22 @@ class _DocumentCaptureScreenState extends State<DocumentCaptureScreen> {
     try {
       final res = await FreshAuthSheet.run(
         context,
-        () => _service.uploadDocument(
-          documentType: _doc.type,
-          pages: _pages,
-          documentNumber: _doc.requiresNumber ? _number.text.trim() : null,
-          issuedAt: _issuedAt,
-          expiresAt: _doc.requiresExpiry ? _expiresAt : null,
-          details: {for (final e in _fields.entries) e.key: e.value.text.trim()},
-        ),
+        () {
+          final details = {for (final e in _fields.entries) e.key: e.value.text.trim()};
+          final number = _doc.requiresNumber ? _number.text.trim() : null;
+          final expires = _doc.requiresExpiry ? _expiresAt : null;
+          final upload = widget.upload;
+          return upload != null
+              ? upload(pages: _pages, documentNumber: number, issuedAt: _issuedAt, expiresAt: expires, details: details)
+              : _service.uploadDocument(
+                  documentType: _doc.type,
+                  pages: _pages,
+                  documentNumber: number,
+                  issuedAt: _issuedAt,
+                  expiresAt: expires,
+                  details: details,
+                );
+        },
       );
       requireSuccess(res);
       if (!mounted) return;

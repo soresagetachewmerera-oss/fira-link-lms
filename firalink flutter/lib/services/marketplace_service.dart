@@ -154,12 +154,6 @@ class MarketplaceService extends BaseService {
   /// Update seller profile
   Future<http.Response> updateSellerProfile(Map<String, dynamic> data) => _post('/marketplace/seller/profile', data);
 
-  /// Get seller's active lots
-  Future<http.Response> getSellerListings() => _get('/marketplace/seller/listings');
-
-  /// Create new coffee lot
-  Future<http.Response> createListing(Map<String, dynamic> data) => _post('/marketplace/seller/listings', data);
-
   /// Get available subscription plans
   Future<http.Response> getSubscriptionPlans() => _get('/marketplace/plans');
 

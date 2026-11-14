@@ -5,8 +5,8 @@ import '../../services/marketplace_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/fira_error_state.dart';
 import '../../router/app_router.dart';
-import 'widgets/quota_limit_sheet.dart';
 import 'organization_verification_screen.dart';
+import 'widgets/seller_lots_section.dart';
 
 class SellerPortalScreen extends StatefulWidget {
   const SellerPortalScreen({super.key});
@@ -19,7 +19,6 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
   final MarketplaceService _marketplaceService = MarketplaceService();
   dynamic _profileData;
   Map<String, dynamic>? _entitlementsData;
-  List<dynamic> _myListings = [];
   bool _isLoading = true;
   Object? _loadError;
 
@@ -36,7 +35,6 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
     });
     try {
       final resProf = requireSuccess(await _marketplaceService.getSellerProfile());
-      final resList = requireSuccess(await _marketplaceService.getSellerListings());
       final resEnt = await _marketplaceService.getOrganizationEntitlements();
 
       final profile = jsonDecode(resProf.body)['data'];
@@ -50,14 +48,10 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
         throw ApiException.fromResponse(resEnt);
       }
 
-      final raw = jsonDecode(resList.body)['data'];
-      final listings = raw is List ? raw : (raw is Map && raw['data'] is List ? raw['data'] as List : <dynamic>[]);
-
       if (!mounted) return;
       setState(() {
         _profileData = profile;
         _entitlementsData = entitlements;
-        _myListings = listings;
         _isLoading = false;
       });
     } catch (e) {
@@ -67,77 +61,6 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
         _isLoading = false;
       });
     }
-  }
-
-  void _handleAddLot() {
-    // 1. Verification Gate (Trust is never for sale)
-    final org = _entitlementsData?['organization'];
-    final profile = _profileData is Map ? _profileData : null;
-    final isVerified = org?['is_verified'] == true || profile?['is_verified'] == true;
-
-    if (!isVerified) {
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Row(
-            children: [
-              Icon(Icons.shield_outlined, color: Color(0xFF6D1A95)),
-              SizedBox(width: 8),
-              Text('Verification Required', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          content: const Text(
-            'Trust is Never For Sale: Only verified Ethiopian exporters and producers may publish live export lots. Please submit your ECTA credentials to proceed.',
-            style: TextStyle(fontSize: 13, height: 1.4),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6D1A95),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              onPressed: () {
-                Navigator.pop(ctx);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const OrganizationVerificationScreen(),
-                  ),
-                ).then((_) => _fetchSellerData());
-              },
-              child: const Text('Verify Now', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-
-    // 2. Check if lot quota is reached
-    final ent = _entitlementsData?['entitlements'];
-    final usage = _entitlementsData?['usage'];
-    final activeLotsLimit = ent?['active_lots'] ?? _profileData?['listing_quota']?['limit'] ?? 3;
-    final activeLotsUsed = usage?['active_lots'] ?? _profileData?['listing_quota']?['active_count'] ?? _myListings.length;
-
-    final limitInt = activeLotsLimit is int ? activeLotsLimit : int.tryParse(activeLotsLimit.toString()) ?? 3;
-    final usedInt = activeLotsUsed is int ? activeLotsUsed : int.tryParse(activeLotsUsed.toString()) ?? 0;
-
-    if (limitInt != -1 && usedInt >= limitInt) {
-      QuotaLimitSheet.show(context, {
-        'feature': 'active_lots',
-        'limit': limitInt,
-        'used': usedInt,
-        'message': 'You have reached your limit of $limitInt active coffee lots on your current plan.',
-      });
-      return;
-    }
-
-    Navigator.pushNamed(context, AppRouter.marketplaceCreateListing).then((_) => _fetchSellerData());
   }
 
   Widget _buildMeterCard({
@@ -273,7 +196,7 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
 
     // Usage counts
     final activeLotsLimit = ent?['active_lots'] ?? _profileData?['listing_quota']?['limit'] ?? 3;
-    final activeLotsUsed = usage?['active_lots'] ?? _profileData?['listing_quota']?['active_count'] ?? _myListings.length;
+    final activeLotsUsed = usage?['active_lots'] ?? _profileData?['listing_quota']?['active_count'] ?? 0;
     final rfqLimit = ent?['rfq_responses_per_month'] ?? 5;
     final rfqUsed = usage?['rfq_responses_per_month'] ?? 0;
     final seatsLimit = ent?['seats'] ?? 2;
@@ -624,109 +547,8 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
 
               const SizedBox(height: 28),
 
-              // Active Lots Section Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('My Active Coffee Lots', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  ElevatedButton.icon(
-                    onPressed: _handleAddLot,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      elevation: 0,
-                    ),
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Add Lot', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 14),
-
-              if (_myListings.isEmpty)
-                Container(
-                  padding: const EdgeInsets.all(32),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: isDark ? AppTheme.surfaceDark : Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: isDark ? Colors.white10 : Colors.grey.shade200),
-                  ),
-                  child: Column(
-                    children: [
-                      const Icon(Icons.coffee_outlined, size: 40, color: Colors.grey),
-                      const SizedBox(height: 10),
-                      const Text('You have no published lots yet.', style: TextStyle(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Add your washing station micro-lots to receive international inquiries and sample requests.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                )
-              else
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _myListings.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final lot = _myListings[index];
-                    final cuppingScore = lot['cupping_score'];
-                    final price = lot['indicative_price_usd_per_lb'];
-
-                    return Card(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      color: isDark ? AppTheme.surfaceDark : Colors.white,
-                      elevation: 0,
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
-                          child: const Icon(Icons.coffee, color: AppTheme.primary),
-                        ),
-                        title: Text(
-                          lot['title'] ?? 'Coffee Lot #${lot['id']}',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                        ),
-                        subtitle: Text(
-                          '${lot['origin_region'] ?? "Ethiopia"} • \$${price ?? "N/A"}/lb • ${lot['available_quantity_bags'] ?? lot['total_quantity_bags'] ?? "N/A"} Bags',
-                          style: const TextStyle(fontSize: 11, color: Colors.grey),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (cuppingScore != null)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.primary.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  '$cuppingScore Q',
-                                  style: const TextStyle(
-                                    color: AppTheme.primary,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            const SizedBox(width: 4),
-                            const Icon(Icons.chevron_right, size: 18),
-                          ],
-                        ),
-                        onTap: () {
-                          Navigator.pushNamed(context, AppRouter.coffeeListingDetail, arguments: lot['slug'] ?? lot['id']);
-                        },
-                      ),
-                    );
-                  },
-                ),
+              // Lots of the active business (slice 4): drafts, levels, hidden-until-Tier-1 banner.
+              const SellerLotsSection(),
             ],
           ),
         ),

@@ -58,6 +58,17 @@ class VerificationService extends BaseService {
     });
   }
 
+  /// DELETE /marketplace/verification/documents/{id}: withdraw a document still in review.
+  Future<void> withdrawDocument(int documentId) async {
+    final res = await guardedRequest(() async {
+      final headers = await getHeaders();
+      return http
+          .delete(Uri.parse('${BaseService.baseUrl}/marketplace/verification/documents/$documentId'), headers: headers)
+          .timeout(_timeout);
+    });
+    requireSuccess(res);
+  }
+
   /// GET /sellers/{firaId}. Unknown IDs throw ApiException with code NOT_FOUND.
   Future<PublicSeller> getPublicSeller(String firaId) async {
     final res = await guardedRequest(() async {

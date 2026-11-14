@@ -5,8 +5,12 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_exception.dart';
 import '../../services/marketplace_service.dart';
+import '../../l10n/app_localizations.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/fira_colors.dart';
 import '../../widgets/fira_error_state.dart';
+import '../../widgets/workspace_status_pill.dart';
+import 'widgets/lot_evidence_summary_card.dart';
 import 'widgets/verification_prompt_dialog.dart';
 
 class CoffeeListingDetailScreen extends StatefulWidget {
@@ -23,6 +27,7 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
 
   dynamic _listing;
   dynamic _benchmark;
+  Map<String, dynamic>? _evidence;
   bool _isSaved = false;
   bool _isLoading = true;
   Object? _loadError;
@@ -50,6 +55,7 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
         setState(() {
           _listing = data['data']['listing'];
           _benchmark = data['data']['official_benchmark'];
+          _evidence = data['data']['evidence'] is Map<String, dynamic> ? data['data']['evidence'] : null;
           _isSaved = data['data']['is_saved'] ?? false;
           _isLoading = false;
         });
@@ -480,7 +486,10 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
     final sensoryAttributes = _listing['sensory_attributes'] as Map<String, dynamic>? ?? {};
     final seller = _listing['seller'];
     final sellerProfile = seller?['seller_profile'];
-    final companyName = sellerProfile?['company_name'] ?? seller?['name'] ?? 'Verified Exporter';
+    final org = _listing['organization'];
+    final companyName = (org?['name'] ?? sellerProfile?['company_name'] ?? seller?['name'] ?? '').toString();
+    final tier = int.tryParse('${org?['verification_tier'] ?? ''}');
+    final role = (org?['business_role'] ?? org?['business_type'])?.toString();
     final license = sellerProfile?['export_license_no'];
 
     return Scaffold(
@@ -769,6 +778,14 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(companyName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                  if (role != null && role.isNotEmpty)
+                                    Text(WorkspaceLabels.businessRole(context.l10n, role), style: TextStyle(fontSize: 12, color: context.fira.mutedText)),
+                                  if (tier != null && tier > 0)
+                                    Text(
+                                      context.l10n.translate('sellerVerifiedTier', {'tier': tier}),
+                                      key: const Key('detail-tier'),
+                                      style: TextStyle(fontSize: 12, color: context.fira.success, fontWeight: FontWeight.w600),
+                                    ),
                                   if (license != null)
                                     Text('ECTA License: $license', style: const TextStyle(fontSize: 11, color: Colors.grey)),
                                 ],
@@ -780,6 +797,11 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                       ],
                     ),
                   ),
+
+                  if (_evidence != null) ...[
+                    const SizedBox(height: 16),
+                    LotEvidenceSummaryCard(evidence: _evidence!),
+                  ],
 
                   const SizedBox(height: 100), // Spacing for bottom bar
                 ],

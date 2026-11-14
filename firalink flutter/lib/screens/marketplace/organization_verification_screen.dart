@@ -69,6 +69,29 @@ class _OrganizationVerificationScreenState extends State<OrganizationVerificatio
     if (sent == true) _load();
   }
 
+  Future<void> _withdraw(DossierDocument doc) async {
+    final l10n = context.l10n;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        content: Text(l10n.verifyWithdrawConfirm),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+          TextButton(key: const Key('confirm-withdraw'), onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.verifyWithdraw)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    try {
+      await _service.withdrawDocument(doc.documentId!);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.verifyWithdrawn)));
+      _load();
+    } catch (e) {
+      if (mounted) showFiraActionError(context, e);
+    }
+  }
+
   void _preview(VerificationDossier d) {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => PublicSellerVerificationScreen(firaId: d.firaId, service: _service)),
@@ -193,7 +216,11 @@ class _OrganizationVerificationScreenState extends State<OrganizationVerificatio
                 title: Text(VerificationLabels.docType(l10n, doc.type)),
                 subtitle: _subtitle(context, doc) == null ? null : Text(_subtitle(context, doc)!),
                 trailing: DocumentStatePill(state: doc.state),
-                onTap: d.canManage && doc.state != 'in_review' ? () => _open(doc) : null,
+                onTap: !d.canManage
+                    ? null
+                    : doc.state == 'in_review'
+                        ? (doc.documentId != null ? () => _withdraw(doc) : null)
+                        : () => _open(doc),
               ),
             ),
         ],

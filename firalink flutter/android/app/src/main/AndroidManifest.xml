@@ -14,6 +14,10 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
+    <!-- Lot evidence photos record where they were taken (asked only when taking one) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <!-- Remove unused broad permissions to satisfy Google Play Policy -->
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove" />

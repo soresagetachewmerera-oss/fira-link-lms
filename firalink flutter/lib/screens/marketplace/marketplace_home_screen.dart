@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/fira_colors.dart';
 import '../../widgets/fira_error_state.dart';
+import '../../widgets/verification_labels.dart';
 import '../../widgets/workspace_status_pill.dart';
 import '../../router/app_router.dart';
 import 'widgets/verification_prompt_dialog.dart';
@@ -496,6 +497,7 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
     final org = lot['organization'];
     final sellerName = (org?['name'] ?? lot['seller']?['seller_profile']?['company_name'] ?? lot['seller']?['name'] ?? '').toString();
     final role = (org?['business_role'] ?? org?['business_type'])?.toString();
+    final tier = int.tryParse('${org?['verification_tier'] ?? ''}');
     final sellerLine = [
       if (sellerName.isNotEmpty) sellerName,
       if (role != null && role.isNotEmpty) WorkspaceLabels.businessRole(context.l10n, role),
@@ -596,6 +598,23 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                ],
+              ),
+              const SizedBox(height: 6),
+
+              // Lot evidence level and business tier: two separate labels, both from the server.
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  LotLevelChip(key: Key('lot-level-${lot['id']}'), level: (lot['evidence_level'] ?? 'claimed').toString()),
+                  if (tier != null && tier > 0)
+                    Text(
+                      context.l10n.translate('sellerVerifiedTier', {'tier': tier}),
+                      key: Key('lot-tier-${lot['id']}'),
+                      style: TextStyle(fontSize: 11, color: context.fira.success, fontWeight: FontWeight.w600),
+                    ),
                 ],
               ),
 

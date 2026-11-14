@@ -64,6 +64,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Fira Link records where you take lot evidence photos, so buyers know the photos were taken at your warehouse.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Fira Link uses the camera to photograph payment receipts and to scan your business documents for verification.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

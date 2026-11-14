@@ -42,7 +42,7 @@ import '../screens/marketplace/coffee_listing_detail_screen.dart';
 import '../screens/marketplace/marketplace_rfqs_screen.dart';
 import '../screens/marketplace/create_rfq_screen.dart';
 import '../screens/marketplace/seller_portal_screen.dart';
-import '../screens/marketplace/create_listing_screen.dart';
+import '../screens/marketplace/create_lot_screen.dart';
 import '../screens/marketplace/marketplace_pricing_screen.dart';
 import '../screens/marketplace/organization_verification_screen.dart';
 import '../screens/marketplace/export_docs_studio_screen.dart';
@@ -234,7 +234,7 @@ class AppRouter {
       case marketplaceSellerPortal:
         return const SellerPortalScreen();
       case marketplaceCreateListing:
-        return const CreateListingScreen();
+        return const CreateLotScreen();
       case marketplacePricing:
         return const MarketplacePricingScreen();
       case marketplaceVerification:

@@ -37,6 +37,8 @@ class VerificationLabels {
         return l10n.docTypeWarehouse;
       case 'supplier_operating_license':
         return l10n.docTypeSupplierOperatingLicense;
+      case 'lab_report':
+        return l10n.kindLabReport;
       default:
         return type;
     }
@@ -74,6 +76,14 @@ class VerificationLabels {
         return l10n.reasonWrongDocument;
       case 'number_unreadable':
         return l10n.reasonNumberUnreadable;
+      case 'lot_code_not_visible':
+        return l10n.reasonLotCodeNotVisible;
+      case 'wrong_subject':
+        return l10n.reasonWrongSubject;
+      case 'not_taken_in_app':
+        return l10n.reasonNotTakenInApp;
+      case 'lab_not_confirmed':
+        return l10n.reasonLabNotConfirmed;
       default:
         return (text == null || text.isEmpty) ? null : text;
     }
@@ -89,6 +99,47 @@ class VerificationLabels {
         return l10n.captureFieldWarehouseAddress;
       default:
         return field;
+    }
+  }
+
+  static String level(AppLocalizations l10n, String level) {
+    switch (level) {
+      case 'documented':
+        return l10n.levelDocumented;
+      case 'lab_backed':
+        return l10n.levelLabBacked;
+      case 'inspected':
+        return l10n.levelInspected;
+      default:
+        return l10n.levelClaimed;
+    }
+  }
+
+  static String lotKind(AppLocalizations l10n, String kind) {
+    switch (kind) {
+      case 'photo_bags':
+        return l10n.kindPhotoBags;
+      case 'photo_beans':
+        return l10n.kindPhotoBeans;
+      case 'photo_warehouse':
+        return l10n.kindPhotoWarehouse;
+      default:
+        return l10n.kindLabReport;
+    }
+  }
+
+  static String lotStatus(AppLocalizations l10n, String status) {
+    switch (status) {
+      case 'active':
+        return l10n.lotStatusActive;
+      case 'paused':
+        return l10n.lotStatusPaused;
+      case 'archived':
+        return l10n.lotStatusArchived;
+      case 'sold_out':
+        return l10n.lotStatusSoldOut;
+      default:
+        return l10n.lotStatusDraft;
     }
   }
 
@@ -136,6 +187,32 @@ class DocumentStatePill extends StatelessWidget {
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
       child: Text(
         VerificationLabels.state(context.l10n, state),
+        style: TextStyle(color: fg, fontSize: 11, fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+}
+
+/// Lot evidence level. Claimed is gray, as the flow says; higher levels use the brand colours.
+/// Always shown apart from the business tier.
+class LotLevelChip extends StatelessWidget {
+  const LotLevelChip({super.key, required this.level});
+
+  final String level;
+
+  @override
+  Widget build(BuildContext context) {
+    final fira = context.fira;
+    final (Color fg, Color bg) = switch (level) {
+      'documented' || 'lab_backed' || 'inspected' => (fira.brandPrimary, fira.brandTint),
+      _ => (fira.mutedText, fira.chipUnselectedBg),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
+      child: Text(
+        VerificationLabels.level(context.l10n, level),
         style: TextStyle(color: fg, fontSize: 11, fontWeight: FontWeight.w700),
       ),
     );

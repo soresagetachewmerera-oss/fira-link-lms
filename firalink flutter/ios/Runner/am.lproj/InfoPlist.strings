@@ -3,3 +3,4 @@
 "NSCameraUsageDescription" = "ፊራ ሊንክ የክፍያ ደረሰኞችን ፎቶ ለማንሳት እና የንግድዎን ሰነዶች ለማረጋገጫ ለመቃኘት ካሜራውን ይጠቀማል።";
 "NSPhotoLibraryUsageDescription" = "ፊራ ሊንክ የቤት ስራዎችን እና የመገለጫ ፎቶዎችን ለመጫን የፎቶ ማዕከለ-ስዕላት ፍቃድ ይፈልጋል።";
 "NSMicrophoneUsageDescription" = "ፊራ ሊንክ ለይነተገናኝ ትምህርቶች እና የድምጽ ማስታወሻዎች የማይክሮፎን ፍቃድ ይፈልጋል።";
+"NSLocationWhenInUseUsageDescription" = "ፊራ ሊንክ የምርት ማስረጃ ፎቶዎችን የሚያነሱበትን ቦታ ይመዘግባል፤ ገዢዎች ፎቶዎቹ በመጋዘንዎ መነሳታቸውን እንዲያውቁ።";
