@@ -52,14 +52,14 @@ class MarketplaceOwnershipTest extends TestCase
             'indicative_price_usd_per_lb' => 5,
         ]);
         $buyer = $this->makeUser();
-        $sample = MarketplaceSample::create([
+        $sample = new MarketplaceSample(['listing_id' => $listing->id, 'quantity_grams' => 250, 'courier_carrier' => 'dhl']);
+        $sample->forceFill([
             'sample_reference' => 'SMP-T' . Str::upper(Str::random(7)),
-            'listing_id' => $listing->id,
             'organization_id' => $org->id,
             'buyer_id' => $buyer->id,
             'status' => MarketplaceSample::STATUS_FEE_PAID,
             'shipping_address' => 'Hamburg',
-        ]);
+        ])->save();
 
         return [$sample, $buyer, $seller];
     }
@@ -81,10 +81,14 @@ class MarketplaceOwnershipTest extends TestCase
     {
         [$sample, , $seller] = $this->makeSample();
 
+        \Illuminate\Support\Facades\Storage::fake('verification');
         Sanctum::actingAs($seller);
-        $this->postJson("/api/marketplace/samples/{$sample->id}/dispatch", [
-            'courier_name' => 'DHL', 'waybill_number' => 'W1', 'retained_sample_seal_no' => 'S1',
-        ])->assertOk();
+        $this->post("/api/marketplace/samples/{$sample->id}/dispatch", [
+            'seal_id' => 'FL-SEAL-' . Str::upper(Str::random(6)),
+            'sealed_photo' => $this->realPng('sealed.png'),
+            'retained_photo' => $this->realPng('retained.png'),
+            'tracking_number' => 'W1',
+        ], ['Accept' => 'application/json'])->assertOk();
 
         $this->assertSame(MarketplaceSample::STATUS_DISPATCHED, $sample->fresh()->status);
     }
@@ -93,14 +97,15 @@ class MarketplaceOwnershipTest extends TestCase
     {
         [$sample, $buyer, $seller] = $this->makeSample();
 
+        $sample->forceFill(['status' => MarketplaceSample::STATUS_DISPATCHED])->save();
         foreach ([$this->makeUser(), $seller] as $notBuyer) {
             Sanctum::actingAs($notBuyer);
-            $this->postJson("/api/marketplace/samples/{$sample->id}/delivered")->assertStatus(403);
+            $this->postJson("/api/marketplace/samples/{$sample->id}/delivered", ['seal_intact' => true])->assertStatus(403);
         }
-        $this->assertSame(MarketplaceSample::STATUS_FEE_PAID, $sample->fresh()->status);
+        $this->assertSame(MarketplaceSample::STATUS_DISPATCHED, $sample->fresh()->status);
 
         Sanctum::actingAs($buyer);
-        $this->postJson("/api/marketplace/samples/{$sample->id}/delivered")->assertOk();
+        $this->postJson("/api/marketplace/samples/{$sample->id}/delivered", ['seal_intact' => true])->assertOk();
         $this->assertSame(MarketplaceSample::STATUS_DELIVERED, $sample->fresh()->status);
     }
 
@@ -109,7 +114,7 @@ class MarketplaceOwnershipTest extends TestCase
         [$sample] = $this->makeSample();
         Sanctum::actingAs($this->makeUser());
 
-        $this->getJson("/api/marketplace/samples/{$sample->id}")->assertStatus(403);
+        $this->getJson("/api/marketplace/samples/{$sample->id}")->assertStatus(404);
         $this->postJson("/api/marketplace/samples/{$sample->id}/evaluate", ['decision' => 'approved', 'cupping_score' => 86])
             ->assertStatus(403);
     }

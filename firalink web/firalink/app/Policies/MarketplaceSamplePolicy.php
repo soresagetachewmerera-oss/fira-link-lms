@@ -3,43 +3,51 @@
 namespace App\Policies;
 
 use App\Models\MarketplaceSample;
-use App\Models\OrganizationMembership;
 use App\Models\User;
 
+/**
+ * Samples are between two businesses. Members of either business can view a sample; the buyer
+ * business's owner or manager pays, confirms delivery and records the cupping result; the seller
+ * business's owner or manager seals and ships. Admins do not act for either side.
+ */
 class MarketplaceSamplePolicy
 {
-    private function isBuyer(User $user, MarketplaceSample $sample): bool
+    private function isBuyerSide(User $user, MarketplaceSample $sample, bool $manage): bool
     {
-        return (int) $sample->buyer_id === (int) $user->id;
-    }
+        if ($sample->buyer_organization_id) {
+            return $manage
+                ? MarketplaceRfqPolicy::manages($user, $sample->buyer_organization_id)
+                : MarketplaceRfqPolicy::role($user, $sample->buyer_organization_id) !== null;
+        }
 
-    private function isSellerMember(User $user, MarketplaceSample $sample): bool
-    {
-        return OrganizationMembership::where('organization_id', $sample->organization_id)
-            ->where('user_id', $user->id)
-            ->where('is_active', true)
-            ->exists();
+        // Samples requested before they belonged to a business.
+        return (int) $sample->buyer_id === (int) $user->id;
     }
 
     public function view(User $user, MarketplaceSample $sample): bool
     {
-        return $user->isAdmin() || $this->isBuyer($user, $sample) || $this->isSellerMember($user, $sample);
+        return $this->isBuyerSide($user, $sample, false) || MarketplaceRfqPolicy::role($user, $sample->organization_id) !== null;
     }
 
-    /** Only the seller's organization ships its own samples. */
+    /** Seal and hand to the courier: the seller business's owner or manager. */
     public function dispatch(User $user, MarketplaceSample $sample): bool
     {
-        return $this->isSellerMember($user, $sample);
+        return MarketplaceRfqPolicy::manages($user, $sample->organization_id);
     }
 
-    /** The buyer confirms delivery (and that the seal is unbroken). */
+    /** Pay, cancel, confirm delivery and record the cupping result: the buyer business. */
+    public function buyerAct(User $user, MarketplaceSample $sample): bool
+    {
+        return $this->isBuyerSide($user, $sample, true);
+    }
+
     public function confirmDelivery(User $user, MarketplaceSample $sample): bool
     {
-        return $this->isBuyer($user, $sample) || $user->isAdmin();
+        return $this->buyerAct($user, $sample);
     }
 
     public function evaluate(User $user, MarketplaceSample $sample): bool
     {
-        return $this->isBuyer($user, $sample) || $user->isAdmin();
+        return $this->buyerAct($user, $sample);
     }
 }

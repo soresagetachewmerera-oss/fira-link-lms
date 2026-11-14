@@ -6,7 +6,7 @@ use Illuminate\Notifications\Notification;
 
 /**
  * In-app notice to a business owner about a request or quote.
- * Events: quote_received, quote_accepted, quote_not_selected, quote_declined. English and Amharic.
+ * Events: quote_received, quote_accepted, quote_not_selected, quote_declined and sample_* events. English and Amharic.
  */
 class TradeUpdate extends Notification
 {
@@ -21,7 +21,7 @@ class TradeUpdate extends Notification
 
     public function toArray(object $notifiable): array
     {
-        $replace = ['rfq' => $this->params['rfq'] ?? '', 'seller' => $this->params['seller'] ?? ''];
+        $replace = array_map(fn ($v) => (string) $v, array_intersect_key($this->params, array_flip(['rfq', 'seller', 'buyer', 'lot'])) + ['rfq' => '', 'seller' => '', 'buyer' => '', 'lot' => '']);
 
         return [
             'type' => 'trade',

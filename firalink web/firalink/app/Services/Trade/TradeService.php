@@ -268,6 +268,18 @@ class TradeService
         ];
     }
 
+    /** The buyer business's latest sample of this lot, for Compare ("Sample sealed and sent"). */
+    private function sampleFor(?int $listingId, ?int $buyerOrgId): ?array
+    {
+        if (!$listingId || !$buyerOrgId) {
+            return null;
+        }
+        $s = \App\Models\MarketplaceSample::where('listing_id', $listingId)->where('buyer_organization_id', $buyerOrgId)
+            ->where('status', '!=', \App\Models\MarketplaceSample::STATUS_CANCELLED)->latest('id')->first();
+
+        return $s ? ['id' => $s->id, 'status' => $s->status, 'seal_id' => $s->seal_id] : null;
+    }
+
     /** One quote as the buyer compares it: business, tier, lot level, price check. */
     public function quoteJson(MarketplaceQuotation $quote, bool $forBuyer = true): array
     {
@@ -303,6 +315,7 @@ class TradeService
                 'evidence_level' => $lot->evidence_level ?? 'claimed',
                 'primary_image_url' => $lot->primaryImage?->url,
             ] : null,
+            'sample' => $this->sampleFor($lot?->id, $quote->rfq?->organization_id),
             'reference_price' => $reference,
             'below_minimum' => $reference !== null && $price + 0.0001 < $reference['minimum_usd_per_lb'],
             'can_accept' => $forBuyer && $quote->status === MarketplaceQuotation::STATUS_SUBMITTED && $blocker === null,

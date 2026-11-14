@@ -304,13 +304,19 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('/verification/documents', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'uploadDocument'])->middleware('fresh.auth');
         Route::delete('/verification/documents/{id}', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'deleteDocument']);
 
-        // Green Coffee Samples Pipeline (Crypto-Sealed & Cupping Evaluation)
-        Route::get('/samples', [\App\Http\Controllers\Api\MarketplaceSampleController::class, 'index']);
-        Route::post('/samples', [\App\Http\Controllers\Api\MarketplaceSampleController::class, 'store']);
-        Route::get('/samples/{id}', [\App\Http\Controllers\Api\MarketplaceSampleController::class, 'show']);
-        Route::post('/samples/{id}/dispatch', [\App\Http\Controllers\Api\MarketplaceSampleController::class, 'dispatchSample'])->middleware('verified.role:exporter,supplier');
-        Route::post('/samples/{id}/delivered', [\App\Http\Controllers\Api\MarketplaceSampleController::class, 'markDelivered']);
-        Route::post('/samples/{id}/evaluate', [\App\Http\Controllers\Api\MarketplaceSampleController::class, 'evaluateSample']);
+        // Samples (slice 6): between businesses, checked by MarketplaceSamplePolicy.
+        Route::controller(\App\Http\Controllers\Api\MarketplaceSampleController::class)->group(function () {
+            Route::get('/samples', 'index');
+            Route::post('/samples', 'store');
+            Route::get('/samples/{sample}', 'show')->whereNumber('sample');
+            Route::get('/samples/{sample}/photos/{kind}', 'photo')->whereNumber('sample')->whereIn('kind', ['sealed', 'retained'])
+                ->middleware('signed')->name('api.samples.photo');
+            Route::post('/samples/{sample}/pay', 'pay')->whereNumber('sample');
+            Route::post('/samples/{sample}/cancel', 'cancel')->whereNumber('sample');
+            Route::post('/samples/{sample}/dispatch', 'dispatchSample')->whereNumber('sample');
+            Route::post('/samples/{sample}/delivered', 'markDelivered')->whereNumber('sample');
+            Route::post('/samples/{sample}/evaluate', 'evaluateSample')->whereNumber('sample');
+        });
 
         // Subscriptions & Upgrades
         Route::post('/subscribe', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'subscribe']);

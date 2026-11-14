@@ -153,6 +153,13 @@ class DealRoomController extends Controller
             'status' => DealRoom::STATUS_ACTIVE,
         ]);
 
+        // Slice 6: an approved sample's seal ID goes into the contract, so the shipped coffee can
+        // be compared with the retained copy.
+        $buyerOrgId = $quotation?->rfq?->organization_id ?? $user->currentOrganization()?->id;
+        if ($seal = \App\Services\Trade\SampleService::approvedSealFor($listing?->id, $buyerOrgId)) {
+            $dealRoom->forceFill(['sample_seal_id' => $seal])->save();
+        }
+
         // Provision standard 5 export milestones
         $standardMilestones = [
             [

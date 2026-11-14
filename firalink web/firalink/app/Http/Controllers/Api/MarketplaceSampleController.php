@@ -3,310 +3,228 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
 use App\Models\CoffeeListing;
-use App\Models\DealRoom;
+use App\Models\MarketplaceRfq;
 use App\Models\MarketplaceSample;
-use App\Models\Organization;
-use App\Services\PrivateDocumentStore;
+use App\Services\Trade\SampleService;
+use App\Services\Verification\VerificationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
+/**
+ * Samples (slice 6): a Tier 1 buyer business requests a sample of a published lot, pays the fee
+ * (mocked until Chapa is live), the seller seals it (seal ID plus photos of the sample and the
+ * retained copy) and ships on the buyer's courier account; the buyer confirms the seal and cups.
+ */
 class MarketplaceSampleController extends Controller
 {
+    public function __construct(private SampleService $samples)
+    {
+    }
+
+    private function forbidden(string $code = 'NOT_ALLOWED'): JsonResponse
+    {
+        return response()->json(['success' => false, 'code' => $code, 'message' => __('trade.errors.not_allowed')], 403);
+    }
+
+    private function load(MarketplaceSample $s): MarketplaceSample
+    {
+        return $s->load(['listing.primaryImage', 'organization', 'buyerOrganization']);
+    }
+
     /**
-     * GET /api/marketplace/samples
-     * List samples requested by buyer or received by exporter.
+     * GET /marketplace/samples?side=buyer|seller&tab=to_send|sent|done
+     * Buyer: samples the active business requested. Seller: requests for the active business's lots.
      */
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $org = $user->currentOrganization() ?: $user->primaryOrganization();
-        $orgId = $org?->id;
+        $org = $user->currentOrganization();
+        if (!$org) {
+            return response()->json(['success' => false, 'code' => 'ORGANIZATION_REQUIRED', 'message' => __('trade.errors.business_required')], 404);
+        }
+        $side = $request->input('side') === 'seller' ? 'seller' : 'buyer';
+        $query = MarketplaceSample::with(['listing.primaryImage', 'organization', 'buyerOrganization'])
+            ->where($side === 'seller' ? 'organization_id' : 'buyer_organization_id', $org->id);
 
-        $samples = MarketplaceSample::with(['listing', 'organization', 'buyer'])
-            ->where(function ($q) use ($user, $orgId) {
-                $q->where('buyer_id', $user->id);
-                if ($orgId) {
-                    $q->orWhere('organization_id', $orgId);
-                }
-            })
-            ->latest()
-            ->get();
+        $tabs = [
+            'to_send' => [MarketplaceSample::STATUS_FEE_PAID],
+            'sent' => [MarketplaceSample::STATUS_DISPATCHED],
+            'done' => [MarketplaceSample::STATUS_DELIVERED, MarketplaceSample::STATUS_CUPPED_APPROVED, MarketplaceSample::STATUS_CUPPED_REJECTED, MarketplaceSample::STATUS_CANCELLED],
+            'awaiting_payment' => [MarketplaceSample::STATUS_REQUESTED],
+        ];
+        if ($side === 'seller' && isset($tabs[$request->input('tab')])) {
+            $query->whereIn('status', $tabs[$request->input('tab')]);
+        }
+        $counts = $side === 'seller'
+            ? collect($tabs)->map(fn ($statuses) => MarketplaceSample::where('organization_id', $org->id)->whereIn('status', $statuses)->count())
+            : null;
 
         return response()->json([
             'success' => true,
-            'data' => $samples,
+            'data' => [
+                'side' => $side,
+                'counts' => $counts,
+                'samples' => $query->latest()->get()->map(fn ($s) => $this->samples->json($s, $user))->values(),
+            ],
         ]);
     }
 
-    /**
-     * POST /api/marketplace/samples
-     * Buyer requests green coffee pre-shipment/type sample.
-     */
+    /** POST /marketplace/samples — request a sample of a published lot. */
     public function store(Request $request): JsonResponse
     {
         $user = $request->user();
-
-        $validator = Validator::make($request->all(), [
-            'listing_id' => 'required|exists:coffee_listings,id',
-            'quantity_grams' => 'nullable|integer|min:100|max:2000',
-            'shipping_address' => 'required|string|max:500',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $listing = CoffeeListing::findOrFail($request->input('listing_id'));
-
-        $orgId = $listing->organization_id;
-        if (!$orgId && $listing->seller) {
-            $orgId = $listing->seller->primaryOrganization()?->id;
-        }
-
-        if (!$orgId) {
-            return response()->json([
-                'success' => false,
-                'message' => 'The exporter of this listing does not have an active organization configured.',
-            ], 422);
-        }
-
-        $sampleRef = 'SMP-' . strtoupper(Str::random(7));
-        $feeAmount = (float) ($listing->sample_cost_usd ?? 0.0);
-
-        $sample = MarketplaceSample::create([
-            'sample_reference' => $sampleRef,
-            'listing_id' => $listing->id,
-            'organization_id' => $orgId,
-            'buyer_id' => $user->id,
-            'status' => $feeAmount > 0 ? MarketplaceSample::STATUS_REQUESTED : MarketplaceSample::STATUS_FEE_PAID,
-            'quantity_grams' => $request->input('quantity_grams', 250),
-            'shipping_address' => $request->input('shipping_address'),
-            'fee_amount_usd' => $feeAmount,
-            'payment_status' => $feeAmount > 0 ? 'unpaid' : 'waived',
-        ]);
-
-        AuditLog::create([
-            'user_id' => $user->id,
-            'organization_id' => $orgId,
-            'action' => 'sample_requested',
-            'auditable_type' => MarketplaceSample::class,
-            'auditable_id' => $sample->id,
-            'after_state' => $sample->toArray(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => "Sample request '{$sample->sample_reference}' submitted successfully.",
-            'data' => $sample->load(['listing', 'organization', 'buyer']),
-        ], 201);
-    }
-
-    /**
-     * GET /api/marketplace/samples/{id}
-     * Show sample details, tracking, and cupping outcome.
-     */
-    public function show(Request $request, int $id): JsonResponse
-    {
-        $user = $request->user();
-        $sample = MarketplaceSample::with(['listing', 'organization', 'buyer'])->findOrFail($id);
-
-        if ($user->cannot('view', $sample)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized access to sample details.',
-            ], 403);
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $sample,
-        ]);
-    }
-
-    /**
-     * POST /api/marketplace/samples/{id}/dispatch
-     * Exporter dispatches sample with courier tracking and sealed hash.
-     */
-    public function dispatchSample(Request $request, int $id): JsonResponse
-    {
-        $user = $request->user();
-        $sample = MarketplaceSample::findOrFail($id);
-
-        if ($user->cannot('dispatch', $sample)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Only the seller of this lot can dispatch the sample.',
-            ], 403);
+        $org = $user->currentOrganization();
+        $can = Gate::inspect('create', [MarketplaceRfq::class, $org]);
+        if ($can->denied()) {
+            return response()->json(['success' => false, 'code' => $can->code(), 'message' => $can->message()], $can->code() === 'ORGANIZATION_REQUIRED' ? 404 : 403);
         }
 
         $validator = Validator::make($request->all(), [
-            'courier_name' => 'required|string|max:100', // DHL, FedEx, EMS, Aramex
-            'waybill_number' => 'required|string|max:100',
-            'retained_sample_seal_no' => 'required|string|max:100',
-            'dispatch_date' => 'nullable|date',
+            'listing_id' => 'required|integer',
+            'quantity_grams' => 'required|in:' . implode(',', MarketplaceSample::SIZES),
+            'delivery_company' => 'required|string|max:200',
+            'delivery_address' => 'required|string|max:500',
+            'delivery_country' => 'required|string|max:100',
+            'delivery_phone' => ['required', 'string', 'max:30', 'regex:/^\+?[0-9 ()-]{7,30}$/'],
+            'courier_carrier' => 'required|in:' . implode(',', MarketplaceSample::CARRIERS),
+            'courier_account' => 'required|string|max:40',
         ]);
-
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors(),
-            ], 422);
+            return response()->json(['success' => false, 'message' => 'Validation error', 'errors' => $validator->errors()], 422);
         }
 
-        $sealNo = $request->input('retained_sample_seal_no');
-        $sealHash = hash('sha256', $sealNo . '-' . $sample->sample_reference . '-' . $sample->listing_id);
+        $lot = CoffeeListing::with('organization')->find((int) $request->input('listing_id'));
+        if (!$lot) {
+            return response()->json(['success' => false, 'code' => 'SAMPLE_NOT_AVAILABLE', 'message' => __('trade.errors.sample_not_available')], 422);
+        }
 
-        $sample->update([
-            'courier_name' => $request->input('courier_name'),
-            'waybill_number' => $request->input('waybill_number'),
-            'retained_sample_seal_no' => $sealNo,
-            'retained_sample_seal_hash' => $sealHash,
-            'dispatch_date' => $request->input('dispatch_date', now()),
-            'status' => MarketplaceSample::STATUS_DISPATCHED,
-        ]);
+        try {
+            $sample = $this->samples->request($lot, $org, $user, $validator->validated());
+        } catch (VerificationException $e) {
+            return $e->toResponse();
+        }
 
-        AuditLog::create([
-            'user_id' => $user->id,
-            'organization_id' => $sample->organization_id,
-            'action' => 'sample_dispatched',
-            'auditable_type' => MarketplaceSample::class,
-            'auditable_id' => $sample->id,
-            'after_state' => [
-                'waybill' => $sample->waybill_number,
-                'seal_no' => $sample->retained_sample_seal_no,
-                'seal_hash' => $sample->retained_sample_seal_hash,
-            ],
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
+        return response()->json(['success' => true, 'data' => $this->samples->json($this->load($sample), $user)], 201);
+    }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Sample dispatched with cryptographic seal recorded.',
-            'data' => $sample,
+    public function show(Request $request, MarketplaceSample $sample): JsonResponse
+    {
+        if (!Gate::allows('view', $sample)) {
+            return response()->json(['success' => false, 'code' => 'NOT_FOUND'], 404);
+        }
+        $data = $this->samples->json($this->load($sample), $request->user(), $request->boolean('shipping'));
+        if ($data['has_photos']) {
+            foreach (['sealed', 'retained'] as $kind) {
+                $data['photos'][$kind] = URL::temporarySignedRoute('api.samples.photo', now()->addMinutes(10), ['sample' => $sample->id, 'kind' => $kind]);
+            }
+        }
+
+        return response()->json(['success' => true, 'data' => $data]);
+    }
+
+    /** Signed, short-lived link to a seal photo, for members of either business. */
+    public function photo(Request $request, MarketplaceSample $sample, string $kind)
+    {
+        abort_unless(Gate::allows('view', $sample), 404);
+        $path = $this->samples->photoPath($sample, $kind);
+        abort_unless($path, 404);
+
+        return Storage::disk(SampleService::DISK)->response($path, $kind . '.' . pathinfo($path, PATHINFO_EXTENSION), [
+            'Cache-Control' => 'no-store, private',
+            'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 
-    /**
-     * POST /api/marketplace/samples/{id}/delivered
-     * Mark sample delivered.
-     */
-    public function markDelivered(Request $request, int $id): JsonResponse
+    private function act(Request $request, MarketplaceSample $sample, string $ability, callable $action): JsonResponse
     {
-        $user = $request->user();
-        $sample = MarketplaceSample::findOrFail($id);
-
-        if ($user->cannot('confirmDelivery', $sample)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Only the buyer who requested the sample can confirm delivery.',
-            ], 403);
+        if (!Gate::allows($ability, $sample)) {
+            return $this->forbidden();
+        }
+        try {
+            $sample = $action();
+        } catch (VerificationException $e) {
+            return $e->toResponse();
         }
 
-        $sample->update([
-            'status' => MarketplaceSample::STATUS_DELIVERED,
-            'delivery_date' => now(),
-        ]);
-
-        AuditLog::create([
-            'user_id' => $user->id,
-            'organization_id' => $sample->organization_id,
-            'action' => 'sample_delivered',
-            'auditable_type' => MarketplaceSample::class,
-            'auditable_id' => $sample->id,
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Sample marked as delivered.',
-            'data' => $sample,
-        ]);
+        return response()->json(['success' => true, 'data' => $this->samples->json($this->load($sample), $request->user())]);
     }
 
-    /**
-     * POST /api/marketplace/samples/{id}/evaluate
-     * Buyer cups and approves or rejects sample.
-     */
-    public function evaluateSample(Request $request, int $id): JsonResponse
+    public function pay(Request $request, MarketplaceSample $sample): JsonResponse
     {
-        $user = $request->user();
-        $sample = MarketplaceSample::findOrFail($id);
+        return $this->act($request, $sample, 'buyerAct', fn () => $this->samples->pay($sample, $request->user()));
+    }
 
-        if ($user->cannot('evaluate', $sample)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Only the buyer who requested the sample can submit evaluation.',
-            ], 403);
+    public function cancel(Request $request, MarketplaceSample $sample): JsonResponse
+    {
+        return $this->act($request, $sample, 'buyerAct', fn () => $this->samples->cancel($sample, $request->user()));
+    }
+
+    /** POST /marketplace/samples/{sample}/dispatch (multipart: seal_id, sealed_photo, retained_photo, tracking_number) */
+    public function dispatchSample(Request $request, MarketplaceSample $sample): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'seal_id' => 'required|string|max:40',
+            'sealed_photo' => 'required|file|max:10240',
+            'retained_photo' => 'required|file|max:10240',
+            'tracking_number' => 'required|string|max:60',
+        ]);
+        if (!Gate::allows('dispatch', $sample)) {
+            return $this->forbidden();
+        }
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => 'Validation error', 'errors' => $validator->errors()], 422);
         }
 
+        return $this->act($request, $sample, 'dispatch', fn () => $this->samples->dispatch(
+            $sample,
+            $request->user(),
+            (string) $request->input('seal_id'),
+            $request->file('sealed_photo'),
+            $request->file('retained_photo'),
+            (string) $request->input('tracking_number'),
+        ));
+    }
+
+    /** POST /marketplace/samples/{sample}/delivered — the buyer received it and says whether the seal was intact. */
+    public function markDelivered(Request $request, MarketplaceSample $sample): JsonResponse
+    {
+        $validator = Validator::make($request->all(), ['seal_intact' => 'required|boolean']);
+        if (!Gate::allows('confirmDelivery', $sample)) {
+            return $this->forbidden();
+        }
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => 'Validation error', 'errors' => $validator->errors()], 422);
+        }
+
+        return $this->act($request, $sample, 'confirmDelivery', fn () => $this->samples->confirmDelivery($sample, $request->user(), $request->boolean('seal_intact')));
+    }
+
+    /** POST /marketplace/samples/{sample}/evaluate — cupping score and notes, approve or reject. */
+    public function evaluateSample(Request $request, MarketplaceSample $sample): JsonResponse
+    {
         $validator = Validator::make($request->all(), [
             'decision' => 'required|in:approved,rejected',
             'cupping_score' => 'required|numeric|min:60|max:100',
-            'cupping_notes' => 'nullable|string',
-            'lab_report' => 'nullable|file|max:10240',
+            'cupping_notes' => 'nullable|string|max:2000',
         ]);
-
+        if (!Gate::allows('evaluate', $sample)) {
+            return $this->forbidden();
+        }
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors(),
-            ], 422);
+            return response()->json(['success' => false, 'message' => 'Validation error', 'errors' => $validator->errors()], 422);
         }
 
-        $documents = app(PrivateDocumentStore::class);
-        $reportPath = null;
-        if ($request->hasFile('lab_report')) {
-            $reason = $documents->rejectionReason($request->file('lab_report'));
-            if ($reason) {
-                return response()->json($documents->errorResponse('lab_report', $reason), 422);
-            }
-            $reportPath = $documents->store($request->file('lab_report'), "samples/{$sample->id}/lab");
-        }
-
-        $status = $request->input('decision') === 'approved'
-            ? MarketplaceSample::STATUS_CUPPED_APPROVED
-            : MarketplaceSample::STATUS_CUPPED_REJECTED;
-
-        $sample->update([
-            'status' => $status,
-            'cupping_score' => $request->input('cupping_score'),
-            'cupping_notes' => $request->input('cupping_notes'),
-            'lab_report_path' => $reportPath ?? $sample->lab_report_path,
-        ]);
-
-        AuditLog::create([
-            'user_id' => $user->id,
-            'organization_id' => $sample->organization_id,
-            'action' => 'sample_evaluated',
-            'auditable_type' => MarketplaceSample::class,
-            'auditable_id' => $sample->id,
-            'after_state' => [
-                'status' => $status,
-                'cupping_score' => $sample->cupping_score,
-            ],
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => "Sample cupping evaluation recorded as {$status}.",
-            'data' => $sample,
-        ]);
+        return $this->act($request, $sample, 'evaluate', fn () => $this->samples->evaluate(
+            $sample,
+            $request->user(),
+            (string) $request->input('decision'),
+            (float) $request->input('cupping_score'),
+            $request->input('cupping_notes'),
+        ));
     }
 }
-
