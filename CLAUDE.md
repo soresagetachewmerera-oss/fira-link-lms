@@ -115,7 +115,15 @@ history. These had real values and must be treated as leaked and rotated:
 Removing these from git history needs a history rewrite and a force push. That is the user's decision; rotation
 is the fix that matters.
 
+**Rotate `APP_KEY` before real verification data is stored in production, because the old key was committed to GitHub.**
+Document numbers on verification documents are encrypted with it.
+
 Other auth secrets and settings:
+
+- `ID_HASH_KEY`: dedicated secret for the keyed hash of owner ID numbers (finds one owner behind several
+  businesses, blocks self-review). Never derived from `APP_KEY`, never committed. Generate a long random value
+  once and keep it: changing it makes old hashes unmatchable. Without it, owner ID uploads are refused (fail closed).
+- `VERIFICATION_ADMIN_EMAIL`: receives an email for each new verification submission and the daily pending summary.
 
 - `AUTH_TEST_OTP_CODE` (fixed sign-in code) must **never** be set in production. It is honoured only when
   `APP_ENV=local`, but keep it out of every non-local `.env` anyway.
@@ -155,6 +163,14 @@ Run on the production server **in this order**. Always run the dry run first and
    automatically.
 7. Rotate the leaked secrets listed above. Rotate `APP_KEY` last, after confirming everything else works: it signs
    every web user out and voids signed links.
+8. Slice 3 (verification tiers). `php artisan migrate` adds document review columns, document pages, Fira IDs and
+   Tier 3 grants; existing verification documents become `legacy` and no longer count.
+   - Set `ID_HASH_KEY` and `VERIFICATION_ADMIN_EMAIL` in the server `.env`, then `php artisan config:clear`.
+   - `php artisan verification:drop-legacy-approvals` (dry run, read the counts), then with `--force`: every
+     business approved before slice 3 drops to Tier 0 and its lots are hidden until its documents are reviewed.
+   - Every admin and reviewer must set up an authenticator app at next sign-in (`/staff/two-factor/setup`) and save
+     the recovery codes. If one loses both: `php artisan admin:reset-2fa <email>`.
+   - The scheduler must run (`* * * * * php artisan schedule:run`): `verification:expire-and-remind` runs daily at 06:00.
 
 ## 4. Workflow per slice
 
