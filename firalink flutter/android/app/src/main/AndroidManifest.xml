@@ -26,7 +26,10 @@
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:usesCleartextTraffic="false"
-        android:localeConfig="@xml/locales_config">
+        android:localeConfig="@xml/locales_config"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        tools:replace="android:fullBackupContent,android:dataExtractionRules"
+        tools:remove="android:theme">
         <activity
             android:name=".MainActivity"
             android:exported="true"
