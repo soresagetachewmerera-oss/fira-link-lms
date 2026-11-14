@@ -60,13 +60,6 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
             ->middleware('verified.role:buyer,broker')
             ->name('rfqs.store');
 
-        // Publishing Coffee Lots
-        Route::get('/publish-coffee', [\App\Http\Controllers\Front\MarketplaceWebController::class, 'createListing'])
-            ->middleware('verified.role:exporter,supplier')
-            ->name('listings.create');
-        Route::post('/publish-coffee', [\App\Http\Controllers\Front\MarketplaceWebController::class, 'storeListing'])
-            ->middleware('verified.role:exporter,supplier')
-            ->name('listings.store');
 
         // Organization Verification & Compliance Center (Web)
         Route::get('/verification', [\App\Http\Controllers\Front\OrganizationVerificationWebController::class, 'index'])->name('verification.center');

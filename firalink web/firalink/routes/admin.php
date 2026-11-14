@@ -59,6 +59,12 @@ Route::middleware(['auth', 'staff.2fa', 'can:review-verifications'])->prefix('ad
     Route::post('/businesses/{organization}/tier3/revoke', 'revokeTier3')->name('tier3.revoke');
     Route::post('/businesses/{organization}/suspend', 'suspend')->name('suspend');
     Route::post('/businesses/{organization}/unsuspend', 'unsuspend')->name('unsuspend');
+    // Lot evidence (slice 4): same queue, same two-factor and self-review rules.
+    Route::get('/lots/{id}', 'lot')->whereNumber('id')->name('lot');
+    Route::get('/lot-pages/{lotPage}', 'lotPage')->middleware('signed')->name('lot-page');
+    Route::post('/evidence/{evidence}/approve', 'approveEvidence')->name('evidence.approve');
+    Route::post('/evidence/{evidence}/changes', 'requestEvidenceChanges')->name('evidence.changes');
+    Route::post('/evidence/{evidence}/reject', 'rejectEvidence')->name('evidence.reject');
 });
 
 Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('admin.')->group(function () {
@@ -79,7 +85,6 @@ Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('a
         Route::get('/listings', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'listings'])->name('listings');
         Route::post('/listings/{id}/toggle-status', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'toggleListingStatus'])->name('listings.toggle-status');
         Route::post('/listings/{id}/toggle-featured', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'toggleListingFeatured'])->name('listings.toggle-featured');
-        Route::post('/listings/{id}/evidence-level', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'reviewEvidenceLevel'])->name('listings.evidence-level');
         
         Route::get('/rfqs', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'rfqs'])->name('rfqs');
         

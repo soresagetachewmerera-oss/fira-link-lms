@@ -490,12 +490,10 @@ class User extends Authenticatable implements MustVerifyEmail
             return true;
         }
 
-        $org = $this->primaryOrganization();
-        if ($org && $org->isVerifiedAs('exporter')) {
-            return true;
-        }
+        // Tier 1+ in the active business only; the legacy seller-profile flag no longer counts.
+        $org = $this->currentOrganization() ?: $this->primaryOrganization();
 
-        return $this->sellerProfile?->isVerified() ?? false;
+        return $org !== null && $org->isVerifiedAs('exporter');
     }
 
     public function isVerifiedBuyer(): bool

@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Models\LotEvidence;
 use App\Models\VerificationDocument;
+use App\Services\Lots\LotEvidenceService;
 use App\Services\Verification\DocumentReviewService;
 use Illuminate\Console\Command;
 
@@ -13,7 +15,7 @@ class ExpireVerificationDocuments extends Command
 
     protected $description = 'Expire verification documents, send expiry reminders and the daily pending summary';
 
-    public function handle(DocumentReviewService $reviews): int
+    public function handle(DocumentReviewService $reviews, LotEvidenceService $lotEvidence): int
     {
         $expired = 0;
         VerificationDocument::where('status', VerificationDocument::STATUS_APPROVED)
@@ -39,9 +41,37 @@ class ExpireVerificationDocuments extends Command
                 });
         }
 
-        $pending = VerificationDocument::where('status', VerificationDocument::STATUS_IN_REVIEW)->count();
+        // Lot evidence (slice 4): approved photos expire; the lot level drops; owners are reminded.
+        $lotsExpired = 0;
+        LotEvidence::where('status', LotEvidence::STATUS_APPROVED)
+            ->whereNotNull('expires_at')
+            ->whereDate('expires_at', '<', now()->toDateString())
+            ->with('listing')
+            ->each(function (LotEvidence $ev) use ($lotEvidence, &$lotsExpired) {
+                $lotEvidence->expire($ev);
+                $lotsExpired++;
+            });
+        foreach ((array) config('verification.lots.reminder_days_before_expiry', []) as $days) {
+            LotEvidence::where('status', LotEvidence::STATUS_APPROVED)
+                ->whereNotNull('expires_at')
+                ->whereDate('expires_at', '>=', now()->toDateString())
+                ->whereDate('expires_at', '<=', now()->addDays((int) $days)->toDateString())
+                ->with('listing')
+                ->each(function (LotEvidence $ev) use ($lotEvidence, $days, &$reminded) {
+                    $before = count($ev->reminders_sent ?? []);
+                    $lotEvidence->remindExpiring($ev, (int) $days);
+                    $reminded += count($ev->reminders_sent ?? []) > $before ? 1 : 0;
+                });
+        }
+        $expired += $lotsExpired;
+
+        $pending = VerificationDocument::where('status', VerificationDocument::STATUS_IN_REVIEW)->count()
+            + LotEvidence::where('status', LotEvidence::STATUS_IN_REVIEW)->count();
         if ($pending > 0) {
-            $oldest = VerificationDocument::where('status', VerificationDocument::STATUS_IN_REVIEW)->min('submitted_at');
+            $oldest = collect([
+                VerificationDocument::where('status', VerificationDocument::STATUS_IN_REVIEW)->min('submitted_at'),
+                LotEvidence::where('status', LotEvidence::STATUS_IN_REVIEW)->min('submitted_at'),
+            ])->filter()->min();
             $reviews->alertAdmin('summary', ['count' => $pending, 'date' => \Illuminate\Support\Carbon::parse($oldest)->toDateString()]);
         }
 

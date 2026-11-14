@@ -15,12 +15,17 @@ class LocalDemoSellerSeederTest extends TestCase
 
     public function test_it_refuses_to_run_outside_local(): void
     {
+        // A developer database may already hold demo data from a local run: nothing may change.
+        $users = User::count();
+        $orgs = Organization::withTrashed()->count();
+        $lots = CoffeeListing::withTrashed()->count();
         foreach (['production', 'testing', 'staging'] as $env) {
             $this->app['env'] = $env;
             app(LocalDemoSellerSeeder::class)->run();
 
-            $this->assertFalse(User::where('email', LocalDemoSellerSeeder::SELLER_EMAIL)->exists(), $env);
-            $this->assertFalse(Organization::withTrashed()->where('slug', LocalDemoSellerSeeder::ORG_SLUG)->exists(), $env);
+            $this->assertSame($users, User::count(), $env);
+            $this->assertSame($orgs, Organization::withTrashed()->count(), $env);
+            $this->assertSame($lots, CoffeeListing::withTrashed()->count(), $env);
         }
     }
 

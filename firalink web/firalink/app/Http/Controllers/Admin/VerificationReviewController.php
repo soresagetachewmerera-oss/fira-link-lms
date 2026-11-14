@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\CoffeeListing;
+use App\Models\LotEvidence;
+use App\Models\LotEvidencePage;
 use App\Models\Organization;
 use App\Models\VerificationDocument;
 use App\Models\VerificationDocumentPage;
 use App\Services\Auth\StaffTwoFactor;
+use App\Services\Lots\LotEvidenceService;
 use App\Services\Verification\DocumentReviewService;
 use App\Services\Verification\TierService;
 use App\Services\Verification\VerificationException;
@@ -18,19 +22,103 @@ use Illuminate\Support\Facades\URL;
 /** Single review queue (oldest first). Every decision goes through DocumentReviewService. */
 class VerificationReviewController extends Controller
 {
-    public function __construct(private DocumentReviewService $reviews)
+    public function __construct(private DocumentReviewService $reviews, private LotEvidenceService $lotEvidence)
     {
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $tab = $request->query('tab') === 'lots' ? 'lots' : 'business';
         $documents = VerificationDocument::with(['organization', 'submitter'])
             ->where('status', VerificationDocument::STATUS_IN_REVIEW)
             ->orderBy('submitted_at')
             ->orderBy('id')
-            ->paginate(30);
+            ->paginate(30, ['*'], 'page');
+        $evidence = LotEvidence::with(['listing', 'organization'])
+            ->where('status', LotEvidence::STATUS_IN_REVIEW)
+            ->orderBy('submitted_at')
+            ->orderBy('id')
+            ->paginate(30, ['*'], 'lots_page');
 
-        return view('admin.verification-review.index', ['documents' => $documents]);
+        return view('admin.verification-review.index', ['documents' => $documents, 'evidence' => $evidence, 'tab' => $tab]);
+    }
+
+    // ── Lot evidence (slice 4) ──────────────────────────────────────────────
+
+    public function lot(Request $request, int $id)
+    {
+        $lot = CoffeeListing::withTrashed()->with('organization')->findOrFail($id);
+        $items = $lot->evidence()->current()->with('pages')->orderBy('kind')->orderByDesc('id')->get();
+
+        $pageUrls = [];
+        foreach ($items as $ev) {
+            foreach ($ev->pages as $page) {
+                $pageUrls[$page->id] = URL::temporarySignedRoute('admin.verification-review.lot-page', now()->addMinutes(10), ['lotPage' => $page->id]);
+            }
+        }
+
+        return view('admin.verification-review.lot', [
+            'lot' => $lot,
+            'items' => $items,
+            'pageUrls' => $pageUrls,
+            'conflict' => $lot->organization ? DocumentReviewService::conflictReason($request->user(), $lot->organization) : null,
+        ]);
+    }
+
+    /** Streams one lot evidence page (signed, 10 minutes, audited). */
+    public function lotPage(Request $request, LotEvidencePage $lotPage)
+    {
+        $disk = $lotPage->file_disk ?: LotEvidenceService::DISK;
+        abort_unless($lotPage->file_path && Storage::disk($disk)->exists($lotPage->file_path), 404);
+
+        AuditLog::create([
+            'user_id' => $request->user()->id,
+            'organization_id' => $lotPage->evidence?->organization_id,
+            'action' => 'lot_evidence_page_viewed',
+            'auditable_type' => LotEvidence::class,
+            'auditable_id' => $lotPage->lot_evidence_id,
+            'after_state' => ['page' => $lotPage->page_number],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return Storage::disk($disk)->response($lotPage->file_path, 'evidence-' . $lotPage->page_number . '.' . pathinfo($lotPage->file_path, PATHINFO_EXTENSION), [
+            'Cache-Control' => 'no-store, private',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
+    private function runLot(Request $request, LotEvidence $evidence, callable $action)
+    {
+        try {
+            $action();
+        } catch (VerificationException $e) {
+            if ($request->expectsJson()) {
+                return $e->toResponse();
+            }
+
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('admin.verification-review.lot', $evidence->listing_id)->with('success', __('verification.admin.done'));
+    }
+
+    public function approveEvidence(Request $request, LotEvidence $evidence)
+    {
+        return $this->runLot($request, $evidence, fn () => $this->lotEvidence->approve($evidence, $request->user(), (array) $request->input('checks', [])));
+    }
+
+    public function requestEvidenceChanges(Request $request, LotEvidence $evidence)
+    {
+        return $this->runLot($request, $evidence, fn () => $this->lotEvidence->requestChanges($evidence, $request->user(), $request->input('reason_code'), $request->input('reason')));
+    }
+
+    public function rejectEvidence(Request $request, LotEvidence $evidence)
+    {
+        return $this->runLot($request, $evidence, fn () => $this->lotEvidence->reject($evidence, $request->user(), $request->input('reason_code'), $request->input('reason')));
     }
 
     public function business(Request $request, int $id)

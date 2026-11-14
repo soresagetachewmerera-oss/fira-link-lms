@@ -38,7 +38,8 @@ class EvidenceLevelServerControlledTest extends TestCase
             'company_slug' => 'verified-exporter-' . $suffix,
             'business_type' => 'exporter',
         ]), fn ($p) => $p->forceFill(['verification_status' => 'verified'])->save());
-        $this->approveBusiness($this->makeOrganization($seller), 'exporter');
+        $org = $this->approveBusiness($this->makeOrganization($seller), 'exporter');
+        $seller->forceFill(['active_organization_id' => $org->id])->save();
 
         return $seller;
     }
@@ -60,41 +61,51 @@ class EvidenceLevelServerControlledTest extends TestCase
         $seller = $this->verifiedSeller();
         Sanctum::actingAs($seller);
 
-        $res = $this->postJson('/api/marketplace/seller/listings', $this->lotPayload(['evidence_level' => 'inspected']));
-        $res->assertStatus(201);
+        $res = $this->postJson('/api/marketplace/seller/lots', $this->lotPayload(['evidence_level' => 'inspected', 'status' => 'active']));
+        $res->assertStatus(201)->assertJsonPath('data.evidence_level', 'claimed')->assertJsonPath('data.status', 'draft');
 
-        $listing = CoffeeListing::where('seller_id', $seller->id)->latest('id')->firstOrFail();
+        $listing = CoffeeListing::findOrFail($res->json('data.id'));
+        $this->assertSame('claimed', $listing->evidence_level);
+
+        $this->putJson("/api/marketplace/seller/lots/{$listing->id}", ['title' => 'Renamed', 'origin_region' => 'Sidama', 'evidence_level' => 'lab_backed'])->assertOk();
         $this->assertSame('claimed', $listing->fresh()->evidence_level);
     }
 
     public function test_uploading_lab_evidence_does_not_raise_the_level_and_is_private(): void
     {
+        Storage::fake('verification');
         $seller = $this->verifiedSeller();
         Sanctum::actingAs($seller);
+        $lotId = $this->postJson('/api/marketplace/seller/lots', $this->lotPayload())->json('data.id');
 
-        $this->post('/api/marketplace/seller/listings', $this->lotPayload([
+        $res = $this->post("/api/marketplace/seller/lots/{$lotId}/evidence/lab-report", [
+            'pages' => [$this->realPdf('lab-report.pdf')],
+            'lab_name' => 'ECTA Central Lab',
             'evidence_level' => 'lab_backed',
-            'evidence_document' => $this->realPdf('lab-report.pdf'),
-        ]), ['Accept' => 'application/json'])->assertStatus(201);
+        ], ['Accept' => 'application/json'])->assertStatus(201);
 
-        $listing = CoffeeListing::where('seller_id', $seller->id)->latest('id')->firstOrFail()->fresh();
-        $this->assertSame('claimed', $listing->evidence_level);
-        Storage::disk('local')->assertExists($listing->evidence_document_path);
-        Storage::disk('public')->assertMissing($listing->evidence_document_path);
+        $this->assertSame('claimed', CoffeeListing::findOrFail($lotId)->evidence_level);
+        $page = \App\Models\LotEvidence::findOrFail($res->json('data.evidence_id'))->pages()->firstOrFail();
+        Storage::disk('verification')->assertExists($page->file_path);
+        Storage::disk('public')->assertMissing($page->file_path);
     }
 
     public function test_dummy_evidence_document_is_rejected(): void
     {
+        Storage::fake('verification');
         $seller = $this->verifiedSeller();
         Sanctum::actingAs($seller);
+        $lotId = $this->postJson('/api/marketplace/seller/lots', $this->lotPayload())->json('data.id');
 
-        $this->post('/api/marketplace/seller/listings', $this->lotPayload([
-            'evidence_document' => $this->dummyBytes('lab.pdf', 20480, '%PDF-1.7'),
-        ]), ['Accept' => 'application/json'])
+        $this->post("/api/marketplace/seller/lots/{$lotId}/evidence/lab-report", [
+            'pages' => [$this->dummyBytes('lab.pdf', 20480, '%PDF-1.7')],
+            'lab_name' => 'Lab',
+        ], ['Accept' => 'application/json'])
             ->assertStatus(422)
             ->assertJsonPath('code', 'FILE_REJECTED');
 
-        $this->assertSame(0, CoffeeListing::where('seller_id', $seller->id)->count());
+        $this->assertSame(0, \App\Models\LotEvidence::where('listing_id', $lotId)->count());
+        $this->assertSame([], Storage::disk('verification')->allFiles());
     }
 
     public function test_evidence_level_is_not_mass_assignable(): void
@@ -142,36 +153,14 @@ class EvidenceLevelServerControlledTest extends TestCase
         $this->assertSame('inspected', $log->before_state['evidence_level']);
     }
 
-    public function test_only_admin_review_can_raise_evidence_level(): void
+    public function test_there_is_no_route_that_sets_a_level_directly(): void
     {
-        $seller = $this->makeUser();
-        $listing = CoffeeListing::create([
-            'seller_id' => $seller->id,
-            'title' => 'Review probe',
-            'origin_region' => 'Guji',
-            'processing_method' => 'natural',
-            'grade' => 'grade_1',
-            'total_quantity_bags' => 5,
-            'indicative_price_usd_per_lb' => 5,
-        ]);
-        $url = route('admin.marketplace.listings.evidence-level', $listing->id);
-        $payload = ['evidence_level' => 'documented', 'notes' => 'Checked 3 in-app photos'];
+        $this->assertFalse(\Illuminate\Support\Facades\Route::has('admin.marketplace.listings.evidence-level'));
 
-        // The seller, and any non-admin, is refused.
-        $this->actingAs($seller)->post($url, $payload)->assertStatus(403);
-        $this->assertSame('claimed', $listing->fresh()->evidence_level);
-
-        $admin = $this->makeUser('admin');
-
-        // A review note and a known level are required.
-        $this->actingAsStaff($admin)->post($url, ['evidence_level' => 'platinum', 'notes' => 'x'])->assertSessionHasErrors(['evidence_level', 'notes']);
-
-        $this->actingAsStaff($admin)->post($url, $payload)->assertRedirect();
-        $this->assertSame('documented', $listing->fresh()->evidence_level);
-
-        $this->assertTrue(AuditLog::where('action', 'listing_evidence_level_reviewed')
-            ->where('auditable_id', $listing->id)
-            ->where('user_id', $admin->id)
-            ->exists());
+        $seller = $this->verifiedSeller();
+        Sanctum::actingAs($seller);
+        $lotId = $this->postJson('/api/marketplace/seller/lots', $this->lotPayload())->json('data.id');
+        $this->postJson("/api/marketplace/seller/lots/{$lotId}/level", ['evidence_level' => 'inspected'])->assertStatus(404);
+        $this->assertSame('claimed', CoffeeListing::findOrFail($lotId)->evidence_level);
     }
 }

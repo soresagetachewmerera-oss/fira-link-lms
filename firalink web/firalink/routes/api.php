@@ -273,8 +273,19 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         // Seller Inventory & Profile
         Route::get('/seller/profile', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'profile']);
         Route::post('/seller/profile', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'updateProfile']);
-        Route::get('/seller/listings', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'myListings']);
-        Route::post('/seller/listings', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'storeListing'])->middleware('verified.role:exporter,supplier');
+        // Seller lots (slice 4): owned by the active business; drafts until Tier 1; level from reviewed evidence.
+        Route::prefix('seller/lots')->controller(\App\Http\Controllers\Api\SellerLotController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::get('/{lot}', 'show')->whereNumber('lot');
+            Route::put('/{lot}', 'update')->whereNumber('lot');
+            Route::delete('/{lot}', 'destroy')->whereNumber('lot');
+            Route::post('/{lot}/publish', 'publish')->whereNumber('lot');
+            Route::post('/{lot}/pause', 'pause')->whereNumber('lot');
+            Route::post('/{lot}/evidence/photos', 'storePhoto')->whereNumber('lot');
+            Route::post('/{lot}/evidence/lab-report', 'storeLabReport')->whereNumber('lot');
+            Route::delete('/{lot}/evidence/{evidence}', 'withdrawEvidence')->whereNumber('lot')->whereNumber('evidence');
+        });
 
         // Verification & Compliance Dossier (Multi-Role)
         Route::get('/verification/status', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'status']);

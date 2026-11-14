@@ -70,7 +70,12 @@ class CoffeeListing extends Model
         'inquiries_count',
     ];
 
+    // A private file path; evidence is served through review links only.
+    protected $hidden = ['evidence_document_path'];
+
     protected $casts = [
+        'evidence_valid_until' => 'datetime',
+        'published_at' => 'datetime',
         'cupping_score' => 'decimal:2',
         'moisture_content' => 'decimal:2',
         'water_activity' => 'decimal:2',
@@ -93,14 +98,41 @@ class CoffeeListing extends Model
         'sensory_attributes' => 'array',
     ];
 
+    /** Published lot statuses buyers can see (drafts, paused and archived lots never show). */
+    public const BUYER_VISIBLE_STATUSES = ['active'];
+
     /**
-     * Lots buyers may see: the seller's business has an approved, unexpired seller verification
-     * and is not suspended. Lots without a business are hidden (fail closed).
-     * Slice 3 replaces this with the Tier 1 rule.
+     * Lots buyers may see: published, and the seller's business is Tier 1 or higher, still valid,
+     * not suspended and a seller role. Lots without a business are hidden (fail closed).
      */
     public function scopeVisibleToBuyers($query)
     {
-        return $query->whereHas('organization', \App\Services\Verification\VerificationReviewService::approvedSellerConstraint());
+        return $query->whereIn('status', self::BUYER_VISIBLE_STATUSES)
+            ->whereHas('organization', \App\Services\Verification\VerificationReviewService::approvedSellerConstraint());
+    }
+
+    public function isVisibleToBuyers(): bool
+    {
+        return in_array($this->status, self::BUYER_VISIBLE_STATUSES, true)
+            && \App\Services\Verification\VerificationReviewService::isApprovedSeller($this->organization);
+    }
+
+    public function evidence(): HasMany
+    {
+        return $this->hasMany(LotEvidence::class, 'listing_id');
+    }
+
+    public static function generateLotCode(): string
+    {
+        $alphabet = \App\Services\Verification\FiraId::ALPHABET;
+        do {
+            $code = 'L-';
+            for ($i = 0; $i < 6; $i++) {
+                $code .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+            }
+        } while (static::withTrashed()->where('lot_code', $code)->exists());
+
+        return $code;
     }
 
     protected static function boot()
@@ -110,6 +142,9 @@ class CoffeeListing extends Model
         static::creating(function ($listing) {
             if (empty($listing->slug) && !empty($listing->title)) {
                 $listing->slug = Str::slug($listing->title) . '-' . Str::random(6);
+            }
+            if (empty($listing->lot_code)) {
+                $listing->lot_code = static::generateLotCode();
             }
         });
     }

@@ -88,4 +88,23 @@ return [
 
     // Public seller lookup (by Fira ID only).
     'public_lookup_per_minute' => (int) env('VERIFICATION_PUBLIC_LOOKUP_PER_MINUTE', 30),
+
+    /*
+    | Lot evidence levels (slice 4). The level is computed by App\Services\Lots\LotLevelService
+    | from evidence a reviewer approved; nobody picks it. Inspected is defined but not reachable
+    | until there is an inspector flow.
+    */
+    'lots' => [
+        'levels' => ['claimed', 'documented', 'lab_backed', 'inspected'],
+        'photo_kinds' => ['photo_bags', 'photo_beans', 'photo_warehouse'],
+        // Documented: every photo kind approved. Lab-backed: Documented plus an approved lab report.
+        'lab_report_checks' => ['lab_contacted'],
+        'photo_kind_checks' => ['photo_bags' => ['lot_code_visible']],
+        'documented_valid_days' => (int) env('LOT_EVIDENCE_VALID_DAYS', 30),
+        // In-app photos only: the EXIF capture time must exist and be this recent when uploaded.
+        'photo_max_age_hours' => 24,
+        'photo_mimes' => ['image/jpeg', 'image/png'],
+        'reminder_days_before_expiry' => [7],
+        'reasons' => ['blurry_photo', 'lot_code_not_visible', 'wrong_subject', 'not_taken_in_app', 'lab_not_confirmed', 'number_unreadable'],
+    ],
 ];

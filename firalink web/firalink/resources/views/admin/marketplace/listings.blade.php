@@ -90,16 +90,9 @@
                                                     <i class="fas fa-file-alt"></i> View evidence
                                                 </a>
                                             @endif
-                                            <form method="POST" action="{{ route('admin.marketplace.listings.evidence-level', $lot->id) }}">
-                                                @csrf
-                                                <select name="evidence_level" class="form-control form-control-sm mb-1" aria-label="Evidence level">
-                                                    @foreach(\App\Models\CoffeeListing::EVIDENCE_LEVELS as $level)
-                                                        <option value="{{ $level }}" @selected($lot->evidence_level === $level)>{{ ucfirst(str_replace('_', ' ', $level)) }}</option>
-                                                    @endforeach
-                                                </select>
-                                                <input type="text" name="notes" class="form-control form-control-sm mb-1" placeholder="Review note (required)" required minlength="5" maxlength="1000">
-                                                <button type="submit" class="btn btn-sm btn-outline-primary">Save review</button>
-                                            </form>
+                                            {{-- Slice 4: the level is computed from reviewed evidence; review it in the queue. --}}
+                                            <span class="badge badge-light">{{ __('lots.levels.' . ($lot->evidence_level ?? 'claimed')) }}</span>
+                                            <a href="{{ route('admin.verification-review.lot', $lot->id) }}" class="d-block text-small mt-1">{{ __('lots.admin.open_lot') }}</a>
                                         </td>
                                         <td>
                                             <span class="badge {{ $lot->status === 'active' ? 'badge-success' : 'badge-secondary' }} text-capitalize">

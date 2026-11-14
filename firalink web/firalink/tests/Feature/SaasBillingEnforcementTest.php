@@ -62,25 +62,30 @@ class SaasBillingEnforcementTest extends TestCase
                 'indicative_price_usd_per_lb' => 4.50,
                 'available_bags' => 100,
                 'status' => 'active',
+                'organization_id' => $org->id,
             ]);
         }
 
         $entitlementService = app(EntitlementService::class);
         $entitlementService->invalidate($org);
 
-        // Attempting to post a 4th lot must be blocked
-        $response = $this->actingAs($user)->post('/marketplace/publish-coffee', [
+        // A 4th lot can be drafted, but publishing it is blocked by the plan's lot count.
+        $user->forceFill(['active_organization_id' => $org->id])->save();
+        Sanctum::actingAs($user);
+        $lotId = $this->postJson('/api/marketplace/seller/lots', [
             'title' => '4th Lot Exceeding Limit',
             'origin_region' => 'Sidama',
-            'grade' => 'Grade 2',
-            'processing_method' => 'Natural',
+            'crop_year' => '2025/2026',
+            'grade' => 'grade_2',
+            'processing_method' => 'natural',
+            'total_quantity_bags' => 50,
+            'minimum_order_bags' => 10,
             'indicative_price_usd_per_lb' => 4.20,
-            'available_bags' => 50,
-        ]);
+        ])->assertStatus(201)->json('data.id');
 
-        // Assert blocked with quota redirect
-        $response->assertSessionHas('error');
-        $this->assertEquals(3, CoffeeListing::where('seller_id', $user->id)->count());
+        $this->postJson("/api/marketplace/seller/lots/{$lotId}/publish")->assertStatus(403)->assertJsonPath('success', false);
+        $this->assertSame('draft', CoffeeListing::findOrFail($lotId)->status);
+        $this->assertEquals(3, CoffeeListing::where('organization_id', $org->id)->where('status', 'active')->count());
     }
 
     /**

@@ -88,9 +88,8 @@ class EntitlementService
         }
 
         if ($featureKey === 'active_lots') {
-            // Check lots owned by this organization's members
-            $memberUserIds = $org->memberships()->pluck('user_id');
-            return CoffeeListing::whereIn('seller_id', $memberUserIds)->where('status', 'active')->count();
+            // Published lots of this business (lots belong to the business, not to a person).
+            return CoffeeListing::where('organization_id', $org->id)->where('status', 'active')->count();
         }
 
         if ($featureKey === 'active_deal_rooms') {
@@ -383,8 +382,7 @@ class EntitlementService
         $newLotLimit = (int) ($lotEntitlement?->value ?? 3);
 
         if ($newLotLimit !== -1) {
-            $memberUserIds = $org->memberships()->pluck('user_id');
-            $activeLots = CoffeeListing::whereIn('seller_id', $memberUserIds)
+            $activeLots = CoffeeListing::where('organization_id', $org->id)
                 ->where('status', 'active')
                 ->latest('updated_at')
                 ->get();

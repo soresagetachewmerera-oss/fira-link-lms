@@ -113,7 +113,8 @@ class MarketplaceService
     {
         $listing = CoffeeListing::query()
             ->with([
-                'media',
+                // Photos only: lab reports and other documents are never public.
+                'media' => fn ($q) => $q->where('media_type', 'image'),
                 'seller.sellerProfile',
                 'organization',
             ])
@@ -126,18 +127,15 @@ class MarketplaceService
             })
             ->firstOrFail();
 
-        // Hidden until approved: only the seller and members of the seller's business may open a
-        // lot whose business is not an approved seller. If the check fails, the lot stays hidden.
+        // Hidden until published by a Tier 1+ seller business: otherwise only active members of the
+        // lot's business may open it. If the check fails, the lot stays hidden.
         try {
-            $visible = \App\Services\Verification\VerificationReviewService::isApprovedSeller($listing->organization);
+            $visible = $listing->isVisibleToBuyers();
         } catch (\Throwable $e) {
             report($e);
             $visible = false;
         }
-        $isOwnLot = $currentUser && (
-            (int) $listing->seller_id === (int) $currentUser->id
-            || $currentUser->isActiveMemberOf($listing->organization_id)
-        );
+        $isOwnLot = $currentUser && $listing->organization_id && $currentUser->isActiveMemberOf($listing->organization_id);
         if (!$visible && !$isOwnLot) {
             throw (new \Illuminate\Database\Eloquent\ModelNotFoundException())->setModel(CoffeeListing::class);
         }
@@ -169,6 +167,7 @@ class MarketplaceService
 
         return [
             'listing' => $listing,
+            'evidence' => app(\App\Services\Lots\LotLevelService::class)->publicSummary($listing),
             'is_saved' => $isSaved,
             'official_benchmark' => $benchmark,
             'related_lots' => $relatedLots,
