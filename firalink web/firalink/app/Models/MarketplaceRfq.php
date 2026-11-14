@@ -20,6 +20,9 @@ class MarketplaceRfq extends Model
 
     protected $table = 'marketplace_rfqs';
 
+    // The buyer is shown as a business (BusinessSummary), never as a user record.
+    protected $hidden = ['buyer'];
+
     protected $fillable = [
         'buyer_id',
         'rfq_number',

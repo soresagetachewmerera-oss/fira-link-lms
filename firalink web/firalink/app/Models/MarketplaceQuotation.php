@@ -18,6 +18,9 @@ class MarketplaceQuotation extends Model
 
     protected $table = 'marketplace_quotations';
 
+    // The seller is shown as a business (BusinessSummary), never as a user record.
+    protected $hidden = ['seller'];
+
     protected $fillable = [
         'rfq_id',
         'listing_id',

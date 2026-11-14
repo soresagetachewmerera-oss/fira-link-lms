@@ -63,17 +63,13 @@ class _RfqQuotationComparisonScreenState
   }
 
   String _sellerName(dynamic quote) {
-    final seller = quote['seller'];
-    final profile = seller is Map ? seller['seller_profile'] : null;
-    return (profile is Map ? profile['company_name'] : null)?.toString() ??
-        (seller is Map ? seller['name'] : null)?.toString() ??
-        '';
+    final business = quote['seller_business'];
+    return (business is Map ? business['name'] : null)?.toString() ?? '';
   }
 
   bool _sellerVerified(dynamic quote) {
-    final seller = quote['seller'];
-    final profile = seller is Map ? seller['seller_profile'] : null;
-    return profile is Map && profile['verification_status'] == 'verified';
+    final business = quote['seller_business'];
+    return business is Map && ((business['verification_tier'] as num?) ?? 0) >= 1;
   }
 
   Future<void> _acceptAndOpenDealRoom(dynamic quote) async {

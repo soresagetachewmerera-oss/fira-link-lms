@@ -70,8 +70,9 @@ class CoffeeListing extends Model
         'inquiries_count',
     ];
 
-    // A private file path; evidence is served through review links only.
-    protected $hidden = ['evidence_document_path'];
+    // Never in JSON: a private file path, and the person behind the lot (their user record and
+    // seller profile hold email, phone, TIN and document paths). Buyers see the business only.
+    protected $hidden = ['evidence_document_path', 'seller', 'seller_profile', 'sellerProfile'];
 
     protected $casts = [
         'evidence_valid_until' => 'datetime',

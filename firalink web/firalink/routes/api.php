@@ -126,8 +126,6 @@ Route::prefix('marketplace')->group(function () {
     Route::get('/listings/{idOrSlug}', [\App\Http\Controllers\Api\MarketplaceController::class, 'show']);
     Route::get('/filters', [\App\Http\Controllers\Api\MarketplaceController::class, 'filters']);
     Route::get('/plans', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'plans']);
-    Route::get('/rfqs', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'index']);
-    Route::get('/rfqs/{id}', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'show']);
     Route::get('/subscribe/chapa/callback', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'chapaVerify'])->name('api.marketplace.chapa.callback');
     Route::post('/subscribe/chapa/verify', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'chapaVerify']);
 });
@@ -263,6 +261,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::get('/inquiries', [\App\Http\Controllers\Api\MarketplaceController::class, 'myInquiries']);
 
         // RFQs & Tenders
+        // Requests are never public: signed-in users only (narrowed to verified businesses in slice 5).
+        Route::get('/rfqs', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'index']);
+        Route::get('/rfqs/{id}', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'show'])->whereNumber('id');
         Route::post('/rfqs', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'store'])->middleware('verified.role:buyer,broker');
         Route::get('/my-rfqs', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'myRfqs']);
         Route::get('/rfqs/{id}/quotes', [\App\Http\Controllers\Api\MarketplaceRfqController::class, 'rfqQuotes']);

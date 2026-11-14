@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MarketplaceQuotation;
 use App\Models\MarketplaceRfq;
 use App\Services\MarketplaceSubscriptionService;
+use App\Support\BusinessSummary;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -23,11 +24,18 @@ class MarketplaceRfqController extends Controller
      * GET /api/marketplace/rfqs
      * Public / open tenders board.
      */
+    /** An RFQ with its buyer as a business only: never a person's email, phone or account fields. */
+    private function rfqJson(MarketplaceRfq $rfq): array
+    {
+        $data = $rfq->makeHidden(['buyer'])->toArray();
+        $data['buyer_business'] = BusinessSummary::forUser($rfq->buyer);
+
+        return $data;
+    }
+
     public function index(Request $request): JsonResponse
     {
-        $query = MarketplaceRfq::query()
-            ->with('buyer')
-            ->open();
+        $query = MarketplaceRfq::query()->with('buyer')->open();
 
         if ($origin = $request->input('origin')) {
             $query->where('target_origin_region', 'LIKE', "%{$origin}%");
@@ -42,6 +50,7 @@ class MarketplaceRfqController extends Controller
         }
 
         $rfqs = $query->latest('created_at')->paginate(15);
+        $rfqs->setCollection($rfqs->getCollection()->map(fn ($r) => $this->rfqJson($r)));
 
         return response()->json([
             'success' => true,
@@ -70,7 +79,7 @@ class MarketplaceRfqController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'rfq' => $rfq,
+                'rfq' => $this->rfqJson($rfq),
                 'has_quoted' => $hasQuoted,
                 'my_quote' => $myQuote,
             ],
@@ -261,14 +270,21 @@ class MarketplaceRfqController extends Controller
         $rfq = MarketplaceRfq::where('id', $id)->where('buyer_id', $user->id)->firstOrFail();
 
         $quotes = $rfq->quotations()
-            ->with(['seller.sellerProfile', 'listing.primaryImage'])
+            ->with(['seller', 'listing.primaryImage', 'listing.organization'])
             ->latest('created_at')
-            ->get();
+            ->get()
+            ->map(function ($q) {
+                // The seller as a business only: never a person's email or phone.
+                $data = $q->makeHidden(['seller'])->toArray();
+                $data['seller_business'] = BusinessSummary::of($q->listing?->organization) ?? BusinessSummary::forUser($q->seller);
+
+                return $data;
+            });
 
         return response()->json([
             'success' => true,
             'data' => [
-                'rfq' => $rfq,
+                'rfq' => $this->rfqJson($rfq),
                 'quotes' => $quotes,
             ],
         ]);
