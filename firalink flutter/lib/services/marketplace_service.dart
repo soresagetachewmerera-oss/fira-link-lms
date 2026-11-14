@@ -13,7 +13,8 @@ import 'base_service.dart';
 class MarketplaceService extends BaseService {
   static const Duration _timeout = Duration(milliseconds: 10000);
 
-  Future<http.Response> _get(String path, [Map<String, String>? query]) {
+  /// Values may be a String or a list of Strings (sent as repeated `key[]` parameters).
+  Future<http.Response> _get(String path, [Map<String, dynamic>? query]) {
     return guardedRequest(() async {
       final headers = await getHeaders();
       final uri = Uri.parse('${BaseService.baseUrl}$path').replace(queryParameters: query);
@@ -92,8 +93,11 @@ class MarketplaceService extends BaseService {
     double? minScore,
     String? sort,
     int page = 1,
+    int? perPage,
+    Map<String, dynamic> filters = const {},
   }) {
-    final queryParams = <String, String>{'page': page.toString()};
+    final queryParams = <String, dynamic>{'page': page.toString(), ...filters};
+    if (perPage != null) queryParams['per_page'] = perPage.toString();
     if (search != null && search.isNotEmpty) queryParams['search'] = search;
     if (origin != null && origin != 'all' && origin != 'All') queryParams['origin'] = origin;
     if (processing != null && processing != 'all' && processing != 'All') queryParams['processing'] = processing;
@@ -122,31 +126,6 @@ class MarketplaceService extends BaseService {
 
   /// Get inquiries
   Future<http.Response> getInquiries({String view = 'all'}) => _get('/marketplace/inquiries', {'view': view});
-
-  /// Get open buyer RFQs
-  Future<http.Response> getRfqs({String? origin, String? destinationCountry, int page = 1}) {
-    return _get('/marketplace/rfqs', {
-      'page': page.toString(),
-      if (origin?.isNotEmpty == true) 'origin': origin!,
-      if (destinationCountry?.isNotEmpty == true) 'destination_country': destinationCountry!,
-    });
-  }
-
-  /// Get single RFQ detail
-  Future<http.Response> getRfqDetail(int id) => _get('/marketplace/rfqs/$id');
-
-  /// Publish a buyer RFQ
-  Future<http.Response> submitRfq(Map<String, dynamic> data) => _post('/marketplace/rfqs', data);
-
-  /// Submit an exporter quotation for an RFQ
-  Future<http.Response> submitQuote(int rfqId, Map<String, dynamic> data) =>
-      _post('/marketplace/rfqs/$rfqId/quote', data);
-
-  /// Get quotations received for an RFQ
-  Future<http.Response> getRfqQuotes(int rfqId) => _get('/marketplace/rfqs/$rfqId/quotes');
-
-  /// Get exporter's submitted quotes
-  Future<http.Response> getMyQuotes() => _get('/marketplace/my-quotes');
 
   /// Get seller profile & quota status
   Future<http.Response> getSellerProfile() => _get('/marketplace/seller/profile');

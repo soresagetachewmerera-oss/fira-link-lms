@@ -10,6 +10,7 @@ import '../../theme/app_theme.dart';
 import '../../theme/fira_colors.dart';
 import '../../widgets/fira_error_state.dart';
 import '../../widgets/workspace_status_pill.dart';
+import 'create_rfq_screen.dart';
 import 'widgets/lot_evidence_summary_card.dart';
 import 'widgets/verification_prompt_dialog.dart';
 
@@ -802,6 +803,22 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                     const SizedBox(height: 16),
                     LotEvidenceSummaryCard(evidence: _evidence!),
                   ],
+
+                  const SizedBox(height: 16),
+                  FilledButton.tonalIcon(
+                    key: const Key('lot-request-quote'),
+                    onPressed: () {
+                      if (!context.read<AuthProvider>().isAuthenticated) {
+                        VerificationPromptDialog.showAuthRequired(context, actionDescription: context.l10n.exporterRequestQuote);
+                        return;
+                      }
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => CreateRfqScreen(prefillListingId: (_listing['id'] as num?)?.toInt()),
+                      ));
+                    },
+                    icon: const Icon(Icons.request_quote_outlined),
+                    label: Text(context.l10n.exporterRequestQuote),
+                  ),
 
                   const SizedBox(height: 100), // Spacing for bottom bar
                 ],

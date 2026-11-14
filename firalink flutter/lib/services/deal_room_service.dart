@@ -102,7 +102,8 @@ class DealRoomService extends BaseService {
             )
             .timeout(_timeout);
       });
-      final result = _result(res, okStatus: 201);
+      // 201: a new deal room; 200: the deal room already opened from this quote.
+      final result = _result(res, okStatus: res.statusCode == 200 ? 200 : 201);
       if (result['success'] == true) {
         result['deal_room'] = DealRoomModel.fromJson(result['data'] as Map<String, dynamic>);
       }

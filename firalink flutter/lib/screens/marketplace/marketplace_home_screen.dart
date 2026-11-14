@@ -11,6 +11,9 @@ import '../../widgets/fira_error_state.dart';
 import '../../widgets/verification_labels.dart';
 import '../../widgets/workspace_status_pill.dart';
 import '../../router/app_router.dart';
+import '../../models/trade_model.dart';
+import 'exporters_screen.dart';
+import 'widgets/market_filters_sheet.dart';
 import 'widgets/verification_prompt_dialog.dart';
 class MarketplaceHomeScreen extends StatefulWidget {
   const MarketplaceHomeScreen({super.key});
@@ -28,6 +31,7 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
   Object? _loadError;
   String? _selectedOrigin;
   String? _selectedProcess;
+  MarketFilters _filters = const MarketFilters();
 
   final List<String> _origins = [
     'All Origins',
@@ -63,6 +67,7 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
         search: _searchController.text.trim(),
         origin: (_selectedOrigin == null || _selectedOrigin == 'All Origins') ? null : _selectedOrigin,
         processing: (_selectedProcess == null || _selectedProcess == 'All Processes') ? null : _selectedProcess?.toLowerCase(),
+        filters: _filters.toQuery(),
       ));
 
       final data = jsonDecode(res.body);
@@ -90,6 +95,32 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
     }
   }
 
+  /// How many lots match these filters (for "Show [n] lots"), from the server's total.
+  Future<int?> _countLots(MarketFilters filters) async {
+    try {
+      final res = requireSuccess(await _marketplaceService.getListings(perPage: 1, filters: filters.toQuery()));
+      final data = jsonDecode(res.body)['data'];
+      return data is Map ? (data['total'] as num?)?.toInt() : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _openFilters() async {
+    final chosen = await MarketFiltersSheet.show(context, initial: _filters, countLots: _countLots);
+    if (chosen == null || !mounted) return;
+    setState(() => _filters = chosen);
+    _fetchListings();
+  }
+
+  void _openSignedIn(Widget screen, String actionDescription) {
+    if (!context.read<AuthProvider>().isAuthenticated) {
+      VerificationPromptDialog.showAuthRequired(context, actionDescription: actionDescription);
+      return;
+    }
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+  }
+
   void _openSellerPortal() {
     final auth = context.read<AuthProvider>();
     if (!auth.isAuthenticated) {
@@ -115,8 +146,14 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
         centerTitle: false,
         actions: [
           IconButton(
+            key: const Key('open-exporters'),
+            icon: const Icon(Icons.business_outlined),
+            tooltip: context.l10n.marketExporters,
+            onPressed: () => _openSignedIn(const ExportersScreen(), context.l10n.marketExporters),
+          ),
+          IconButton(
             icon: const Icon(Icons.receipt_long_outlined),
-            tooltip: 'Buyer RFQs',
+            tooltip: context.l10n.marketRequests,
             onPressed: () => Navigator.pushNamed(context, AppRouter.marketplaceRfqs),
           ),
           IconButton(
@@ -415,6 +452,31 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
               ),
             ),
 
+            // Verified sellers only (always: lots show only for Tier 1 businesses) and the filters.
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: Row(
+                  children: [
+                    Chip(
+                      key: const Key('verified-sellers-only'),
+                      avatar: Icon(Icons.verified, size: 16, color: context.fira.success),
+                      label: Text(context.l10n.marketVerifiedOnly),
+                    ),
+                    const Spacer(),
+                    OutlinedButton.icon(
+                      key: const Key('open-filters'),
+                      onPressed: _openFilters,
+                      icon: const Icon(Icons.tune),
+                      label: Text(_filters.isEmpty
+                          ? context.l10n.marketFilters
+                          : context.l10n.translate('marketFiltersCount', {'n': _filters.count})),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
             // Listings Grid
             if (_isLoading)
               const SliverFillRemaining(
@@ -459,6 +521,19 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
                   ),
                 ),
               ),
+
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 160),
+                child: Column(
+                  children: [
+                    Text(context.l10n.marketCantFind, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 4),
+                    Text(context.l10n.marketPostRequestHint, textAlign: TextAlign.center, style: TextStyle(color: context.fira.mutedText)),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -479,7 +554,7 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
           },
           backgroundColor: AppTheme.primary,
           icon: const Icon(Icons.add_shopping_cart, color: Colors.white),
-          label: const Text('Post RFQ', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          label: Text(context.l10n.marketPostRequest, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         ),
       ),
     );
