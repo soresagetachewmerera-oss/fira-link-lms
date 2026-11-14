@@ -1,5 +1,5 @@
 "CFBundleDisplayName" = "ፊራ ሊንክ አካዳሚ";
 "CFBundleName" = "ፊራ ሊንክ";
-"NSCameraUsageDescription" = "ፊራ ሊንክ የመገለጫ ፎቶዎችን ለማንሳት እና የQR ኮዶችን ለመቃኘት ካሜራውን መጠቀም ይፈልጋል።";
+"NSCameraUsageDescription" = "ፊራ ሊንክ የክፍያ ደረሰኞችን ፎቶ ለማንሳት እና የንግድዎን ሰነዶች ለማረጋገጫ ለመቃኘት ካሜራውን ይጠቀማል።";
 "NSPhotoLibraryUsageDescription" = "ፊራ ሊንክ የቤት ስራዎችን እና የመገለጫ ፎቶዎችን ለመጫን የፎቶ ማዕከለ-ስዕላት ፍቃድ ይፈልጋል።";
 "NSMicrophoneUsageDescription" = "ፊራ ሊንክ ለይነተገናኝ ትምህርቶች እና የድምጽ ማስታወሻዎች የማይክሮፎን ፍቃድ ይፈልጋል።";
