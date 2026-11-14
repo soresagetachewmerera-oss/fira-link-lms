@@ -7,29 +7,6 @@ import 'base_service.dart';
 class TrustSafetyService extends BaseService {
   static const Duration _timeout = Duration(milliseconds: 12000);
 
-  /// Public registry lookup for seller verification by slug, ID, or TIN
-  Future<Map<String, dynamic>> verifySeller(String query) async {
-    try {
-      final headers = await getHeaders();
-      final url = Uri.parse('${BaseService.baseUrl}/verify-seller/$query');
-      final res = await http.get(url, headers: headers).timeout(_timeout);
-
-      final decoded = jsonDecode(res.body);
-      if (res.statusCode == 200 && decoded['success'] == true) {
-        return {
-          'success': true,
-          'data': decoded['data'],
-        };
-      }
-      return {
-        'success': false,
-        'message': decoded['message'] ?? 'Seller not verified or not found',
-      };
-    } catch (e) {
-      return {'success': false, 'message': e.toString()};
-    }
-  }
-
   /// Submit Trust & Safety incident or scam report
   Future<Map<String, dynamic>> submitReport({
     required String reason,

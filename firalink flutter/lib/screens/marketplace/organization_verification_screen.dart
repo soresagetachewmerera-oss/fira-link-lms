@@ -1,646 +1,265 @@
-import 'dart:convert';
-import 'dart:typed_data';
-import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
-import '../../services/api_exception.dart';
-import '../../services/marketplace_service.dart';
-import '../../services/upload_file.dart';
-import '../../widgets/auth/fresh_auth_sheet.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:share_plus/share_plus.dart';
+
+import '../../l10n/app_localizations.dart';
+import '../../models/verification_model.dart';
+import '../../services/verification_service.dart';
+import '../../theme/fira_colors.dart';
 import '../../widgets/fira_error_state.dart';
+import '../../widgets/verification_labels.dart';
+import '../../widgets/workspace_status_pill.dart';
+import 'document_capture_screen.dart';
+import 'public_seller_verification_screen.dart';
 
+/// Verification dossier for the active business: tiers, per-document review states and the
+/// public page. Tier and states come from the server; nothing here can change them.
 class OrganizationVerificationScreen extends StatefulWidget {
-  final String? initialRole;
+  const OrganizationVerificationScreen({super.key, this.service});
 
-  const OrganizationVerificationScreen({super.key, this.initialRole});
+  final VerificationService? service;
 
   @override
   State<OrganizationVerificationScreen> createState() => _OrganizationVerificationScreenState();
 }
 
 class _OrganizationVerificationScreenState extends State<OrganizationVerificationScreen> {
-  final MarketplaceService _marketplaceService = MarketplaceService();
-  bool _isLoading = true;
-  Object? _loadError;
-  String _selectedRole = 'exporter';
-  Map<String, dynamic>? _orgData;
-  Map<String, dynamic>? _checklistData;
-
-  final _tinController = TextEditingController();
-  final _licenseController = TextEditingController();
-  final _authorityController = TextEditingController();
-  final _expiryController = TextEditingController();
-  bool _isSubmitting = false;
-
-  final Map<String, Map<String, dynamic>> _roleMeta = {
-    'exporter': {
-      'title': 'Licensed Coffee Exporter',
-      'icon': Icons.directions_boat,
-      'desc': 'ECTA-licensed export entity authorized to issue international FOB/CIF contracts.',
-    },
-    'supplier': {
-      'title': 'Washing Station / Estate',
-      'icon': Icons.agriculture,
-      'desc': 'Wet/dry mill operator with certified Ethiopian origin traceability and processing.',
-    },
-    'buyer': {
-      'title': 'International Buyer / Roaster',
-      'icon': Icons.coffee,
-      'desc': 'Commercial specialty green coffee importer, roaster, or wholesale distributor.',
-    },
-    'broker': {
-      'title': 'Certified Trade Broker / Agent',
-      'icon': Icons.handshake,
-      'desc': 'Intermediary operating under notarized Letter of Representation (LoR).',
-    },
-  };
+  late final VerificationService _service = widget.service ?? VerificationService();
+  VerificationDossier? _dossier;
+  Object? _error;
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    if (widget.initialRole != null && _roleMeta.containsKey(widget.initialRole)) {
-      _selectedRole = widget.initialRole!;
-    }
-    _loadVerificationStatus();
+    _load();
   }
 
-  @override
-  void dispose() {
-    _tinController.dispose();
-    _licenseController.dispose();
-    _authorityController.dispose();
-    _expiryController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadVerificationStatus() async {
+  Future<void> _load() async {
     setState(() {
-      _isLoading = true;
-      _loadError = null;
+      _loading = true;
+      _error = null;
     });
     try {
-      final res = requireSuccess(await _marketplaceService.getVerificationStatus());
-      final decoded = jsonDecode(res.body);
-      final data = decoded['data'] ?? {};
+      final d = await _service.getDossier();
       if (!mounted) return;
       setState(() {
-        _orgData = data['organization'];
-        _checklistData = data['checklist'];
-        _updateFormFieldsForRole(_selectedRole);
-        _isLoading = false;
+        _dossier = d;
+        _loading = false;
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _loadError = e;
-        _isLoading = false;
+        _error = e;
+        _loading = false;
       });
     }
   }
 
-  void _updateFormFieldsForRole(String role) {
-    final roleData = _checklistData?[role];
-    final vData = roleData?['data'];
-    if (vData != null) {
-      _tinController.text = vData['tin_number'] ?? '';
-      _licenseController.text = vData['license_number'] ?? '';
-      _authorityController.text = vData['issuing_authority'] ?? (role == 'exporter' ? 'ECTA' : 'Ministry of Trade');
-      _expiryController.text = vData['license_expires_at'] ?? '';
-    } else {
-      _tinController.clear();
-      _licenseController.clear();
-      _authorityController.text = role == 'exporter' ? 'ECTA' : 'Ministry of Trade';
-      _expiryController.clear();
-    }
-  }
-
-  Future<void> _submitDossier() async {
-    if (_tinController.text.trim().isEmpty && _licenseController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter at least your TIN or License number.'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
-      return;
-    }
-
-    setState(() => _isSubmitting = true);
-    final payload = {
-      'target_role': _selectedRole,
-      'tin_number': _tinController.text.trim(),
-      'license_number': _licenseController.text.trim(),
-      'issuing_authority': _authorityController.text.trim(),
-      if (_expiryController.text.trim().isNotEmpty) 'license_expires_at': _expiryController.text.trim(),
-    };
-
-    final http.Response res;
-    try {
-      res = await _marketplaceService.submitVerificationDetails(payload);
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-        showFiraActionError(context, e);
-      }
-      return;
-    }
-    if (!mounted) return;
-    setState(() => _isSubmitting = false);
-
-    if (mounted) {
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${_roleMeta[_selectedRole]!['title']} dossier submitted for audit.'),
-            backgroundColor: Colors.green.shade700,
-          ),
-        );
-        _loadVerificationStatus();
-      } else {
-        showFiraActionError(context, ApiException.fromResponse(res));
-      }
-    }
-  }
-
-  void _showDocumentUploadDialog(String docType, String docLabel) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Upload $docLabel',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Files are vaulted with SHA-256 integrity hash on secure non-public storage. Formats: PDF, JPG, PNG (Max 10MB).',
-                style: TextStyle(fontSize: 12, color: Colors.black54),
-              ),
-              const SizedBox(height: 20),
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF6D1A95).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.camera_alt_outlined, color: Color(0xFF6D1A95)),
-                ),
-                title: const Text('Capture with Camera', style: TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: const Text('Take a photo of physical license or ID', style: TextStyle(fontSize: 12)),
-                onTap: () async {
-                  Navigator.pop(ctx);
-                  final picker = ImagePicker();
-                  final picked = await picker.pickImage(source: ImageSource.camera, imageQuality: 85);
-                  if (picked != null) {
-                    final bytes = await picked.readAsBytes();
-                    _performDocumentUpload(docType, docLabel, bytes, picked.name);
-                  }
-                },
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF6D1A95).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.file_present_outlined, color: Color(0xFF6D1A95)),
-                ),
-                title: const Text('Browse Files or PDF', style: TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: const Text('Select scanned certificate or official document', style: TextStyle(fontSize: 12)),
-                onTap: () async {
-                  Navigator.pop(ctx);
-                  final file = await UploadFile.pickDocument();
-                  if (file != null) {
-                    _performDocumentUpload(docType, docLabel, file.bytes, file.name);
-                  }
-                },
-              ),
-            ],
-          ),
+  Future<void> _open(DossierDocument doc) async {
+    final sent = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => DocumentCaptureScreen(
+          document: doc,
+          expectedReviewDays: _dossier?.expectedReviewDays ?? 3,
+          service: _service,
         ),
       ),
     );
+    if (sent == true) _load();
   }
 
-  Future<void> _performDocumentUpload(
-    String docType,
-    String docLabel,
-    List<int> fileBytes,
-    String fileName,
-  ) async {
-    final localRejection = UploadFile(name: fileName, bytes: Uint8List.fromList(fileBytes)).localRejection;
-    if (localRejection != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(FiraErrorText.fileRejection(context, localRejection))),
-      );
-      return;
-    }
+  void _preview(VerificationDossier d) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => PublicSellerVerificationScreen(firaId: d.firaId, service: _service)),
+    );
+  }
 
-    setState(() => _isLoading = true);
-    try {
-      // Sensitive action: the server may ask the user to confirm it is them first.
-      final res = await FreshAuthSheet.run(
-        context,
-        () => _marketplaceService.uploadVerificationDocument(
-          targetRole: _selectedRole,
-          documentType: docType,
-          fileBytes: fileBytes,
-          filename: fileName,
-        ),
-      );
-      if (mounted) {
-        if (res.statusCode == 200 || res.statusCode == 201) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('$docLabel securely vaulted and hashed.'),
-              backgroundColor: Colors.green.shade700,
-            ),
-          );
-          _loadVerificationStatus();
-        } else {
-          showFiraActionError(context, ApiException.fromResponse(res));
-        }
-      }
-    } catch (e) {
-      if (mounted) showFiraActionError(context, e);
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+  Future<void> _share(VerificationDossier d) async {
+    final text = context.l10n.translate('verifyShareText', {'name': d.businessName, 'url': d.publicUrl});
+    await SharePlus.instance.share(ShareParams(text: text));
+  }
+
+  String _tierTitle(AppLocalizations l10n, VerificationDossier d, DossierTier t) {
+    if (t.tier == 1) return l10n.verifyTier1Title;
+    if (t.tier == 2) return d.businessRole == 'exporter' ? l10n.verifyTier2ExportTitle : l10n.verifyTier2OperationsTitle;
+    return l10n.verifyTier3Title;
+  }
+
+  String? _subtitle(BuildContext context, DossierDocument doc) {
+    final l10n = context.l10n;
+    String date(DateTime? x) => VerificationLabels.date(context, x);
+    switch (doc.state) {
+      case 'approved':
+        return doc.expiresAt != null ? l10n.translate('verifyDocValidUntil', {'date': date(doc.expiresAt)}) : l10n.verifyDocNoExpiry;
+      case 'in_review':
+        final submitted = l10n.translate('verifyDocSubmitted', {'date': date(doc.submittedAt)});
+        return doc.approvedCopyCounts ? '$submitted\n${l10n.verifyDocOldCopyCounts}' : submitted;
+      case 'needs_changes':
+      case 'rejected':
+        return VerificationLabels.reason(l10n, doc.reasonCode, doc.reason);
+      case 'expired':
+        return l10n.translate('verifyDocExpiredOn', {'date': date(doc.expiresAt)});
+      default:
+        return VerificationLabels.hint(l10n, doc.type);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    const brandPurple = Color(0xFF6D1A95);
-    final roleInfo = _roleMeta[_selectedRole]!;
-    final roleData = _checklistData?[_selectedRole];
-    final status = (roleData?['status'] ?? 'unsubmitted').toString().toLowerCase();
-
-    Color statusColor;
-    switch (status) {
-      case 'approved':
-        statusColor = Colors.green.shade600;
-        break;
-      case 'pending_review':
-        statusColor = Colors.amber.shade700;
-        break;
-      case 'under_scrutiny':
-        statusColor = Colors.purple.shade700;
-        break;
-      case 'rejected':
-        statusColor = Colors.redAccent;
-        break;
-      case 'expired':
-        statusColor = Colors.orange.shade800;
-        break;
-      default:
-        statusColor = Colors.grey.shade600;
-    }
-
+    final l10n = context.l10n;
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        title: const Text('Compliance & Verification Vault', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        backgroundColor: brandPurple,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: brandPurple))
-          : _loadError != null
-          ? FiraErrorState(error: _loadError, onRetry: _loadVerificationStatus)
-          : RefreshIndicator(
-              onRefresh: _loadVerificationStatus,
-              color: brandPurple,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: AppBar(title: Text(l10n.verifyTitle)),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+              ? FiraErrorState(error: _error, onRetry: _load)
+              : RefreshIndicator(onRefresh: _load, child: _body(context, _dossier!)),
+    );
+  }
+
+  Widget _body(BuildContext context, VerificationDossier d) {
+    final l10n = context.l10n;
+    final fira = context.fira;
+    final nextTier = d.tier < d.maxTier ? d.tier + 1 : d.tier;
+    final progress = d.tier >= d.maxTier
+        ? l10n.translate('verifyTierReached', {'tier': d.tier, 'max': d.maxTier})
+        : l10n.translate('verifyTierProgress', {'tier': nextTier, 'max': d.maxTier});
+    final fix = d.canManage ? d.firstToFix : null;
+
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+      children: [
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    // Organization Header Card
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF1E072A), Color(0xFF6D1A95)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: const Row(
-                                  children: [
-                                    Icon(Icons.security, color: Colors.white, size: 12),
-                                    SizedBox(width: 4),
-                                    Text('TRUST IS NEVER FOR SALE', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                                  ],
-                                ),
-                              ),
-                              const Spacer(),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: (_orgData?['is_verified'] == true) ? Colors.green.shade600 : Colors.amber.shade700,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  (_orgData?['is_verified'] == true) ? 'VERIFIED ENTITY' : 'UNVERIFIED',
-                                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            _orgData?['name'] ?? 'Organization',
-                            style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Jurisdiction: ${_orgData?['country'] ?? 'Ethiopia'} • Role-Based Legal Audit',
-                            style: TextStyle(color: Colors.purple.shade100, fontSize: 12),
-                          ),
-                        ],
+                    Expanded(
+                      child: Text(
+                        '${d.businessName} · ${WorkspaceLabels.businessRole(l10n, d.businessRole)}',
+                        style: TextStyle(color: fira.mutedText),
                       ),
                     ),
-
-                    const SizedBox(height: 20),
-
-                    // Role Selector Tabs
-                    const Text('Select Trading Role to Verify', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
-                    const SizedBox(height: 10),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: _roleMeta.entries.map((entry) {
-                          final isSelected = _selectedRole == entry.key;
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: ChoiceChip(
-                              avatar: Icon(
-                                entry.value['icon'] as IconData,
-                                size: 16,
-                                color: isSelected ? Colors.white : Colors.grey.shade700,
-                              ),
-                              label: Text(entry.key.toUpperCase()),
-                              selected: isSelected,
-                              selectedColor: brandPurple,
-                              labelStyle: TextStyle(
-                                color: isSelected ? Colors.white : Colors.grey.shade800,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11,
-                              ),
-                              onSelected: (val) {
-                                if (val) {
-                                  setState(() {
-                                    _selectedRole = entry.key;
-                                    _updateFormFieldsForRole(entry.key);
-                                  });
-                                }
-                              },
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Active Role Status Banner
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade200),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(roleInfo['icon'] as IconData, color: brandPurple, size: 28),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(roleInfo['title'] as String, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                Text(roleInfo['desc'] as String, style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: statusColor.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: statusColor),
-                            ),
-                            child: Text(
-                              status.replaceAll('_', ' ').toUpperCase(),
-                              style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // License & Identity Credentials Form
-                    const Text('License & Tax Credentials', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade200),
-                      ),
-                      child: Column(
-                        children: [
-                          TextField(
-                            controller: _tinController,
-                            decoration: const InputDecoration(
-                              labelText: 'Tax Identification Number (TIN)',
-                              labelStyle: TextStyle(fontSize: 13),
-                              prefixIcon: Icon(Icons.numbers, size: 18),
-                              border: OutlineInputBorder(),
-                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          TextField(
-                            controller: _licenseController,
-                            decoration: InputDecoration(
-                              labelText: _selectedRole == 'exporter' ? 'ECTA Export License No.' : 'Operating License / Reg No.',
-                              labelStyle: const TextStyle(fontSize: 13),
-                              prefixIcon: const Icon(Icons.badge, size: 18),
-                              border: const OutlineInputBorder(),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          TextField(
-                            controller: _authorityController,
-                            decoration: const InputDecoration(
-                              labelText: 'Issuing Authority (e.g. ECTA, MoTI)',
-                              labelStyle: TextStyle(fontSize: 13),
-                              prefixIcon: Icon(Icons.account_balance, size: 18),
-                              border: OutlineInputBorder(),
-                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          TextField(
-                            controller: _expiryController,
-                            decoration: const InputDecoration(
-                              labelText: 'License Expiry Date (YYYY-MM-DD)',
-                              labelStyle: TextStyle(fontSize: 13),
-                              prefixIcon: Icon(Icons.event, size: 18),
-                              border: OutlineInputBorder(),
-                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Required Legal Documents Checklist
-                    const Text('Required Compliance Documents', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
-                    const SizedBox(height: 8),
-
-                    Builder(
-                      builder: (ctx) {
-                        final requiredDocs = (roleData?['required_documents'] as List<dynamic>?) ?? [];
-                        if (requiredDocs.isEmpty) {
-                          return const Text('No documents specified for this role.', style: TextStyle(fontSize: 12, color: Colors.grey));
-                        }
-
-                        final vData = roleData?['data'];
-                        final uploadedDocs = (vData?['documents'] as List<dynamic>?) ?? [];
-
-                        return Column(
-                          children: requiredDocs.map((req) {
-                            final type = req['type']?.toString() ?? '';
-                            final label = req['label']?.toString() ?? '';
-                            final matchingDoc = uploadedDocs.firstWhere(
-                              (d) => d['document_type'] == type && d['is_valid'] == true,
-                              orElse: () => null,
-                            );
-
-                            final hasUploaded = matchingDoc != null;
-
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 10),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: hasUploaded ? Colors.green.shade200 : Colors.grey.shade200),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                      color: hasUploaded ? Colors.green.shade50 : Colors.grey.shade100,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Icon(
-                                      hasUploaded ? Icons.check_circle : Icons.upload_file,
-                                      color: hasUploaded ? Colors.green.shade700 : Colors.grey.shade400,
-                                      size: 18,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                        Text(
-                                          hasUploaded ? '${matchingDoc['original_filename']} (${matchingDoc['file_size_kb']} KB)' : 'Required for regulatory approval',
-                                          style: TextStyle(fontSize: 11, color: hasUploaded ? Colors.grey.shade600 : Colors.amber.shade800),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  TextButton.icon(
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: brandPurple,
-                                      textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                                    ),
-                                    onPressed: () => _showDocumentUploadDialog(type, label),
-                                    icon: Icon(hasUploaded ? Icons.refresh : Icons.cloud_upload, size: 14),
-                                    label: Text(hasUploaded ? 'Replace' : 'Upload'),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        );
-                      },
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Submit Action Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: brandPurple,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          elevation: 2,
-                        ),
-                        onPressed: _isSubmitting ? null : _submitDossier,
-                        icon: _isSubmitting
-                            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                            : const Icon(Icons.send, color: Colors.white, size: 18),
-                        label: Text(
-                          _isSubmitting ? 'Submitting Dossier...' : 'Submit ${_roleMeta[_selectedRole]!['title']} Dossier for Audit',
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
+                    WorkspaceStatusPill(status: d.status),
                   ],
                 ),
+                const SizedBox(height: 8),
+                Text(progress, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.translate('verifyCounts', {
+                    'approved': d.counts['approved'] ?? 0,
+                    'inReview': d.counts['in_review'] ?? 0,
+                    'needsChanges': d.counts['needs_changes'] ?? 0,
+                    'notUploaded': d.counts['not_uploaded'] ?? 0,
+                  }),
+                  style: TextStyle(color: fira.mutedText),
+                ),
+                const SizedBox(height: 8),
+                Text(l10n.translate('verifyExpectedReview', {'days': d.expectedReviewDays}), style: TextStyle(color: fira.mutedText)),
+                if (!d.canManage) ...[
+                  const SizedBox(height: 8),
+                  Text(l10n.verifyNotManager, style: TextStyle(color: fira.pending)),
+                ],
+              ],
+            ),
+          ),
+        ),
+        for (final t in d.tiers) ...[
+          const SizedBox(height: 20),
+          Text(_tierTitle(l10n, d, t), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+          if (t.beingConfirmed) ...[
+            const SizedBox(height: 4),
+            Text(l10n.verifyTier2BeingConfirmed, style: TextStyle(color: fira.mutedText)),
+          ],
+          if (t.tier == 3)
+            Card(
+              child: ListTile(
+                title: Text(t.activeUntil != null
+                    ? l10n.translate('verifyTier3ActiveUntil', {'date': VerificationLabels.date(context, t.activeUntil)})
+                    : l10n.verifyTier3After),
+                subtitle: Text(l10n.verifyTier3Body),
               ),
             ),
+          for (final doc in t.documents)
+            Card(
+              child: ListTile(
+                key: Key('doc-${doc.type}'),
+                title: Text(VerificationLabels.docType(l10n, doc.type)),
+                subtitle: _subtitle(context, doc) == null ? null : Text(_subtitle(context, doc)!),
+                trailing: DocumentStatePill(state: doc.state),
+                onTap: d.canManage && doc.state != 'in_review' ? () => _open(doc) : null,
+              ),
+            ),
+        ],
+        const SizedBox(height: 20),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.verifyBuyersSeeTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Text(l10n.verifyBuyersSeeBody, style: TextStyle(color: fira.mutedText)),
+                if (d.hasPublicPage) ...[
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      if (d.qrSvgUrl != null)
+                        SvgPicture.network(d.qrSvgUrl!, width: 96, height: 96, placeholderBuilder: (_) => const SizedBox(width: 96, height: 96)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(l10n.verifyFiraId, style: TextStyle(color: fira.mutedText)),
+                            SelectableText(d.firaId!, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    children: [
+                      OutlinedButton(onPressed: () => _preview(d), child: Text(l10n.verifyPreview)),
+                      FilledButton.icon(
+                        key: const Key('share-verification-link'),
+                        onPressed: () => _share(d),
+                        icon: const Icon(Icons.share_outlined),
+                        label: Text(l10n.verifyShareLink),
+                      ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Text(
+                  d.reviewedAt != null
+                      ? l10n.translate('verifyMeaning', {'date': VerificationLabels.date(context, d.reviewedAt)})
+                      : l10n.verifyMeaningNoDate,
+                  style: TextStyle(color: fira.mutedText, fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (fix != null) ...[
+          const SizedBox(height: 20),
+          FilledButton(
+            key: const Key('fix-document'),
+            onPressed: () => _open(fix),
+            child: Text(l10n.translate('verifyFix', {'document': VerificationLabels.docType(l10n, fix.type)})),
+          ),
+        ],
+      ],
     );
   }
 }
-

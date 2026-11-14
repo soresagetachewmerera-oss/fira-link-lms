@@ -1,295 +1,270 @@
 import 'package:flutter/material.dart';
-import '../../services/trust_safety_service.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+import '../../l10n/app_localizations.dart';
+import '../../models/verification_model.dart';
+import '../../services/api_exception.dart';
+import '../../services/verification_service.dart';
+import '../../theme/fira_colors.dart';
+import '../../widgets/fira_error_state.dart';
+import '../../widgets/verification_labels.dart';
+import '../../widgets/workspace_status_pill.dart';
 import '../trust_safety/report_modal.dart';
 
+/// Public seller check by Fira ID only (same data as the web page /verify/{firaId}).
+/// Never shows TIN, ID numbers, phone numbers or documents; the server does not send them.
 class PublicSellerVerificationScreen extends StatefulWidget {
-  final String query; // slug, id, or TIN
+  const PublicSellerVerificationScreen({super.key, this.firaId, this.service});
 
-  const PublicSellerVerificationScreen({super.key, required this.query});
+  final String? firaId;
+  final VerificationService? service;
 
   @override
-  State<PublicSellerVerificationScreen> createState() =>
-      _PublicSellerVerificationScreenState();
+  State<PublicSellerVerificationScreen> createState() => _PublicSellerVerificationScreenState();
 }
 
-class _PublicSellerVerificationScreenState
-    extends State<PublicSellerVerificationScreen> {
-  final TrustSafetyService _service = TrustSafetyService();
-  bool _isLoading = true;
-  Map<String, dynamic>? _data;
-  String? _error;
+class _PublicSellerVerificationScreenState extends State<PublicSellerVerificationScreen> {
+  late final VerificationService _service = widget.service ?? VerificationService();
+  late final TextEditingController _id = TextEditingController(text: widget.firaId ?? '');
+  PublicSeller? _seller;
+  Object? _error;
+  bool _notFound = false;
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchVerification();
+    if ((widget.firaId ?? '').trim().isNotEmpty) _lookup();
   }
 
-  Future<void> _fetchVerification() async {
-    setState(() => _isLoading = true);
-    final res = await _service.verifySeller(widget.query);
-    if (mounted) {
+  @override
+  void dispose() {
+    _id.dispose();
+    super.dispose();
+  }
+
+  Future<void> _lookup() async {
+    final id = _id.text.trim();
+    if (id.isEmpty) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+      _notFound = false;
+    });
+    try {
+      final s = await _service.getPublicSeller(id);
+      if (!mounted) return;
       setState(() {
-        if (res['success'] == true) {
-          _data = res['data'];
-        } else {
-          _error = res['message'];
-        }
-        _isLoading = false;
+        _seller = s;
+        _loading = false;
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _seller = null;
+        _notFound = e.statusCode == 404;
+        _error = _notFound ? null : e;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _seller = null;
+        _error = e;
+        _loading = false;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF6D1A95);
-
+    final l10n = context.l10n;
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'Verification Registry',
-          style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.flag_outlined, color: Colors.redAccent),
-            tooltip: 'Report Entity',
-            onPressed: () {
-              final org = _data?['organization'];
-              ReportModal.show(
-                context,
-                reportedOrganizationId: org?['id'],
-                targetTitle: org?['name'] ?? 'Organization',
-              );
-            },
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: primaryColor))
+      appBar: AppBar(title: Text(l10n.sellerCheckTitle)),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.gpp_bad_outlined, size: 56, color: Colors.redAccent),
-                        const SizedBox(height: 16),
-                        Text(
-                          _error!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Always verify trade partners on Fira Link before signing contracts or paying advances.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.grey, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Header Card
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.green.shade200),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.green.withValues(alpha: 0.06),
-                              blurRadius: 16,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                color: Colors.green.shade50,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.verified_user, color: Colors.green, size: 36),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              _data?['organization']?['name'] ?? 'Verified Organization',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              '${_data?['organization']?['business_type']?.toString().toUpperCase()} • ${_data?['organization']?['country']}',
-                              style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
-                            ),
-                            const SizedBox(height: 16),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.green.shade100,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.check_circle, color: Colors.green, size: 16),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'OFFICIALLY VERIFIED EXPORTER',
-                                    style: TextStyle(
-                                      color: Colors.green.shade900,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Trust Metrics
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildMetricTile(
-                              title: 'Trust Score',
-                              value: '${_data?['trust_summary']?['trust_score'] ?? 98}%',
-                              color: Colors.green,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildMetricTile(
-                              title: 'Dispute Rate',
-                              value: '${_data?['trust_summary']?['dispute_rate'] ?? 0.0}%',
-                              color: Colors.blue,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildMetricTile(
-                              title: 'Active Lots',
-                              value: '${_data?['organization']?['active_listings_count'] ?? 0}',
-                              color: primaryColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Verification Dossier Items
-                      const Text(
-                        'Verified Regulatory Credentials',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
-                      ),
-                      const SizedBox(height: 12),
-
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.grey.shade200),
-                        ),
-                        child: Column(
-                          children: [
-                            _buildCredRow(
-                              'Issuing Authority',
-                              'ECTA (Ethiopian Coffee & Tea Authority)',
-                              Icons.account_balance,
-                            ),
-                            const Divider(height: 24),
-                            _buildCredRow(
-                              'Commercial Registration',
-                              'Ministry of Trade & Regional Integration',
-                              Icons.assignment,
-                            ),
-                            const Divider(height: 24),
-                            _buildCredRow(
-                              'Cryptographic Vault',
-                              'SHA-256 Vault Hash Authenticated',
-                              Icons.lock_outline,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-
-                      ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColor,
-                          foregroundColor: Colors.white,
-                          minimumSize: const Size.fromHeight(50),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        ),
-                        icon: const Icon(Icons.coffee_outlined),
-                        label: const Text('Browse Exporter Coffee Lots', style: TextStyle(fontWeight: FontWeight.bold)),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                ),
+              ? FiraErrorState(error: _error, onRetry: _lookup)
+              : _seller != null
+                  ? _profile(context, _seller!)
+                  : _search(context),
     );
   }
 
-  Widget _buildMetricTile({required String title, required String value, required Color color}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        children: [
-          Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
-          const SizedBox(height: 2),
-          Text(title, style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCredRow(String title, String val, IconData icon) {
-    return Row(
+  Widget _search(BuildContext context) {
+    final l10n = context.l10n;
+    return ListView(
+      padding: const EdgeInsets.all(20),
       children: [
-        Icon(icon, size: 20, color: const Color(0xFF6D1A95)),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-              Text(val, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-            ],
-          ),
+        if (_notFound) ...[
+          Text(l10n.sellerCheckNotFound, key: const Key('seller-not-found'), style: TextStyle(color: context.fira.danger)),
+          const SizedBox(height: 12),
+        ],
+        TextField(
+          controller: _id,
+          textCapitalization: TextCapitalization.characters,
+          maxLength: 20,
+          decoration: InputDecoration(labelText: l10n.sellerCheckEnterId, hintText: l10n.sellerCheckIdHint),
+          onSubmitted: (_) => _lookup(),
         ),
-        const Icon(Icons.check_circle, color: Colors.green, size: 18),
+        const SizedBox(height: 8),
+        FilledButton(onPressed: _lookup, child: Text(l10n.sellerCheckButton)),
       ],
     );
   }
-}
 
+  Widget _profile(BuildContext context, PublicSeller s) {
+    final l10n = context.l10n;
+    final fira = context.fira;
+    String date(DateTime? d) => VerificationLabels.date(context, d);
+    final place = [if ((s.city ?? '').isNotEmpty) s.city!, if ((s.country ?? '').isNotEmpty) s.country!].join(' · ');
+    final verified = s.status == 'verified';
+
+    final (String badge, Color fg, Color bg) = switch (s.status) {
+      'verified' => (l10n.translate('sellerVerifiedTier', {'tier': s.tier ?? 1}), fira.success, fira.success.withValues(alpha: 0.12)),
+      'suspended' => (l10n.sellerSuspended, fira.danger, fira.danger.withValues(alpha: 0.10)),
+      _ => (l10n.sellerExpired, fira.mutedText, fira.chipUnselectedBg),
+    };
+
+    return RefreshIndicator(
+      onRefresh: _lookup,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(s.name, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                        const SizedBox(height: 4),
+                        Text(
+                          [WorkspaceLabels.businessRole(l10n, s.businessRole), if (place.isNotEmpty) place].join(' · '),
+                          style: TextStyle(color: fira.mutedText),
+                        ),
+                        const SizedBox(height: 4),
+                        Text('${l10n.verifyFiraId} ${s.firaId}', style: TextStyle(color: fira.mutedText)),
+                        const SizedBox(height: 12),
+                        Container(
+                          key: const Key('seller-status'),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
+                          child: Text(badge, style: TextStyle(color: fg, fontWeight: FontWeight.w700)),
+                        ),
+                        if (verified) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            [
+                              l10n.translate('sellerReviewed', {'date': date(s.reviewedAt)}),
+                              if (s.validUntil != null) l10n.translate('verifyDocValidUntil', {'date': date(s.validUntil)}),
+                            ].join(' · '),
+                            style: TextStyle(color: fira.mutedText, fontSize: 13),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  if (s.qrSvgUrl.isNotEmpty)
+                    SvgPicture.network(s.qrSvgUrl, width: 96, height: 96, placeholderBuilder: (_) => const SizedBox(width: 96, height: 96)),
+                ],
+              ),
+            ),
+          ),
+          if (verified) ...[
+            const SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.sellerWhatWeChecked, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    for (final item in s.checked)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(Icons.check_circle_outline, color: fira.success),
+                        title: Text(VerificationLabels.check(l10n, item.check) ?? VerificationLabels.docType(l10n, item.documentType)),
+                        subtitle: Text([
+                          l10n.translate('sellerCheckedOn', {'date': date(item.checkedAt)}),
+                          if (item.validUntil != null) l10n.translate('verifyDocValidUntil', {'date': date(item.validUntil)}),
+                        ].join(' · ')),
+                      ),
+                    if (s.vetted) Text(l10n.sellerVetted, style: TextStyle(color: fira.mutedText)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.sellerWhatWeDidNotCheck, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 4),
+                    Text(l10n.sellerNotCheckedBody),
+                    const SizedBox(height: 8),
+                    Text(
+                      s.reviewedAt != null ? l10n.translate('verifyMeaning', {'date': date(s.reviewedAt)}) : l10n.verifyMeaningNoDate,
+                      style: TextStyle(color: fira.mutedText, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 16),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: s.confirmedDeals > 0
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('${s.confirmedDeals}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20)),
+                              Text(l10n.sellerConfirmedDeals, style: TextStyle(color: fira.mutedText)),
+                            ],
+                          )
+                        : Text(l10n.sellerNoDeals, key: const Key('seller-no-deals'), style: TextStyle(color: fira.mutedText)),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text('${s.memberSince}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20)),
+                      Text(l10n.sellerMemberSince, style: TextStyle(color: fira.mutedText)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            color: fira.brandTint,
+            child: ListTile(
+              leading: Icon(Icons.shield_outlined, color: fira.brandPrimary),
+              title: Text(l10n.sellerNeverPayOutside, style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(l10n.sellerNeverAskMoney),
+            ),
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: () => ReportModal.show(context, targetTitle: '${s.name} (${s.firaId})'),
+            icon: const Icon(Icons.flag_outlined),
+            label: Text(l10n.sellerReport),
+          ),
+        ],
+      ),
+    );
+  }
+}

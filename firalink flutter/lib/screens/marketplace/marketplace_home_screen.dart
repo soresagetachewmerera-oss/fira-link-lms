@@ -4,8 +4,11 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_exception.dart';
 import '../../services/marketplace_service.dart';
+import '../../l10n/app_localizations.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/fira_colors.dart';
 import '../../widgets/fira_error_state.dart';
+import '../../widgets/workspace_status_pill.dart';
 import '../../router/app_router.dart';
 import 'widgets/verification_prompt_dialog.dart';
 class MarketplaceHomeScreen extends StatefulWidget {
@@ -490,7 +493,13 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
     final price = lot['indicative_price_usd_per_lb'] ?? '0.00';
     final availableBags = lot['available_quantity_bags'] ?? 0;
     final primaryImageUrl = lot['primary_image']?['url'];
-    final sellerName = lot['seller']?['seller_profile']?['company_name'] ?? lot['seller']?['name'] ?? 'Verified Exporter';
+    final org = lot['organization'];
+    final sellerName = (org?['name'] ?? lot['seller']?['seller_profile']?['company_name'] ?? lot['seller']?['name'] ?? '').toString();
+    final role = (org?['business_role'] ?? org?['business_type'])?.toString();
+    final sellerLine = [
+      if (sellerName.isNotEmpty) sellerName,
+      if (role != null && role.isNotEmpty) WorkspaceLabels.businessRole(context.l10n, role),
+    ].join(' · ');
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -578,11 +587,11 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
               // Seller Credential
               Row(
                 children: [
-                  const Icon(Icons.verified, size: 14, color: Colors.green),
+                  Icon(Icons.verified, size: 14, color: context.fira.success),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      sellerName,
+                      sellerLine,
                       style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
                       overflow: TextOverflow.ellipsis,
                     ),

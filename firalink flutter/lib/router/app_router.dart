@@ -238,8 +238,7 @@ class AppRouter {
       case marketplacePricing:
         return const MarketplacePricingScreen();
       case marketplaceVerification:
-        final role = arguments is String ? arguments : null;
-        return OrganizationVerificationScreen(initialRole: role);
+        return const OrganizationVerificationScreen();
       case exportDocsStudio:
         return const ExportDocsStudioScreen();
       case languageChoice:
@@ -253,8 +252,7 @@ class AppRouter {
         final id = arguments is int ? arguments : 1;
         return SampleTrackingScreen(sampleId: id);
       case publicVerification:
-        final query = arguments is String ? arguments : '';
-        return PublicSellerVerificationScreen(query: query);
+        return PublicSellerVerificationScreen(firaId: arguments is String ? arguments : null);
       case createWorkspace:
         return const CreateWorkspaceScreen();
       default:

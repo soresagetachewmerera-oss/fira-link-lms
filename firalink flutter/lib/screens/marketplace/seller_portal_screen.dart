@@ -106,7 +106,7 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const OrganizationVerificationScreen(initialRole: 'exporter'),
+                    builder: (_) => const OrganizationVerificationScreen(),
                   ),
                 ).then((_) => _fetchSellerData());
               },
@@ -378,7 +378,7 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const OrganizationVerificationScreen(initialRole: 'exporter'),
+                                builder: (_) => const OrganizationVerificationScreen(),
                               ),
                             ).then((_) => _fetchSellerData());
                           },
@@ -494,7 +494,7 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const OrganizationVerificationScreen(initialRole: 'exporter'),
+                              builder: (_) => const OrganizationVerificationScreen(),
                             ),
                           ).then((_) => _fetchSellerData());
                         },

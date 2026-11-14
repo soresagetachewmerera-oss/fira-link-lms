@@ -12,7 +12,6 @@ import 'base_service.dart';
 /// state. Screens must catch [ApiException] and show an error state with retry.
 class MarketplaceService extends BaseService {
   static const Duration _timeout = Duration(milliseconds: 10000);
-  static const Duration _uploadTimeout = Duration(seconds: 30);
 
   Future<http.Response> _get(String path, [Map<String, String>? query]) {
     return guardedRequest(() async {
@@ -29,14 +28,6 @@ class MarketplaceService extends BaseService {
       return http
           .post(uri, headers: headers, body: body == null ? null : jsonEncode(body))
           .timeout(_timeout);
-    });
-  }
-
-  Future<http.Response> _delete(String path) {
-    return guardedRequest(() async {
-      final headers = await getHeaders();
-      final uri = Uri.parse('${BaseService.baseUrl}$path');
-      return http.delete(uri, headers: headers).timeout(_timeout);
     });
   }
 
@@ -175,40 +166,4 @@ class MarketplaceService extends BaseService {
   /// Initialize subscription
   Future<http.Response> subscribe(Map<String, dynamic> data) => _post('/marketplace/subscribe', data);
 
-  /// Fetch full organization verification state and document checklist
-  Future<http.Response> getVerificationStatus() => _get('/marketplace/verification/status');
-
-  /// Submit role-specific verification details (TIN, license, authority)
-  Future<http.Response> submitVerificationDetails(Map<String, dynamic> data) =>
-      _post('/marketplace/verification/submit', data);
-
-  /// Upload a verification document (real file bytes) to the private vault
-  Future<http.Response> uploadVerificationDocument({
-    required String targetRole,
-    required String documentType,
-    required List<int> fileBytes,
-    required String filename,
-  }) {
-    return guardedRequest(() async {
-      final token = await getToken();
-      final url = Uri.parse('${BaseService.baseUrl}/marketplace/verification/upload-document');
-      final request = http.MultipartRequest('POST', url);
-
-      request.headers.addAll({
-        'Accept': 'application/json',
-        if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
-      });
-
-      request.fields['target_role'] = targetRole;
-      request.fields['document_type'] = documentType;
-      request.files.add(http.MultipartFile.fromBytes('document', fileBytes, filename: filename));
-
-      final streamedRes = await request.send().timeout(_uploadTimeout);
-      return http.Response.fromStream(streamedRes);
-    });
-  }
-
-  /// Delete a draft verification document
-  Future<http.Response> deleteVerificationDocument(int documentId) =>
-      _delete('/marketplace/verification/documents/$documentId');
 }

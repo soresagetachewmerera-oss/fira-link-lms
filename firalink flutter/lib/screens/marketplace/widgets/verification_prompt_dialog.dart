@@ -226,11 +226,7 @@ class VerificationPromptDialog {
                     child: ElevatedButton.icon(
                       onPressed: () {
                         Navigator.pop(ctx);
-                        Navigator.pushNamed(
-                          context,
-                          AppRouter.marketplaceVerification,
-                          arguments: role.toLowerCase(),
-                        );
+                        Navigator.pushNamed(context, AppRouter.marketplaceVerification);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primary,
