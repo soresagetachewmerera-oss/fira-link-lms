@@ -71,35 +71,22 @@
                                         </td>
                                         <td>{{ $seller->washing_station_count }} Mills</td>
                                         <td>
-                                            @if($seller->verification_status === 'verified')
-                                                <div class="badge badge-success"><i class="fas fa-check-circle mr-1"></i> Verified</div>
-                                            @elseif($seller->verification_status === 'under_review')
-                                                <div class="badge badge-warning"><i class="fas fa-clock mr-1"></i> Under Review</div>
-                                            @elseif($seller->verification_status === 'rejected')
-                                                <div class="badge badge-danger">Rejected</div>
+                                            {{-- Slice 3: the tier comes only from reviewed documents. --}}
+                                            @php($org = $seller->organization)
+                                            @if($org && $org->status === 'suspended')
+                                                <div class="badge badge-danger">{{ __('verification.public.suspended') }}</div>
+                                            @elseif($org && $org->hasActiveTier(1))
+                                                <div class="badge badge-success">{{ __('verification.public.verified_tier', ['tier' => $org->verification_tier]) }}</div>
                                             @else
-                                                <div class="badge badge-secondary">Pending</div>
+                                                <div class="badge badge-secondary">{{ __('verification.statuses.not_uploaded') }}</div>
                                             @endif
                                         </td>
                                         <td>
-                                            <div class="btn-group">
-                                                @if($seller->verification_status !== 'verified')
-                                                    <form method="POST" action="{{ route('admin.marketplace.sellers.verify', $seller->id) }}" class="d-inline">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-sm btn-success" title="Approve & Grant Verified Badge">
-                                                            <i class="fas fa-check"></i> Verify
-                                                        </button>
-                                                    </form>
-                                                @endif
-                                                @if($seller->verification_status !== 'rejected')
-                                                    <form method="POST" action="{{ route('admin.marketplace.sellers.reject', $seller->id) }}" class="d-inline ml-1">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-sm btn-danger" title="Reject" onclick="return confirm('Reject this application?')">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </form>
-                                                @endif
-                                            </div>
+                                            @if($org)
+                                                <a href="{{ route('admin.verification-review.business', $org->id) }}" class="btn btn-sm btn-primary">
+                                                    {{ __('verification.admin.open_business') }}
+                                                </a>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty

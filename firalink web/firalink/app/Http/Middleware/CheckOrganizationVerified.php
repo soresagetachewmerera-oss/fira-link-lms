@@ -86,14 +86,9 @@ class CheckOrganizationVerified
         // 2. Multi-Role Verification Check
         $isAllowed = false;
         foreach ($allowedRoles as $role) {
-            // Check modern organization verification
+            // Slice 3: Tier 1+ in this business role, computed from reviewed documents only.
+            // (The legacy seller-profile flag no longer counts.)
             if ($org && $org->isVerifiedAs($role)) {
-                $isAllowed = true;
-                break;
-            }
-
-            // Legacy backward-compatibility for sellers
-            if (($role === 'exporter' || $role === 'supplier' || $role === 'seller') && ($user->sellerProfile?->isVerified() ?? false)) {
                 $isAllowed = true;
                 break;
             }
@@ -103,50 +98,14 @@ class CheckOrganizationVerified
             return $next($request);
         }
 
-        // Determine current verification status across the allowed roles
-        $verifications = $org ? $org->verifications()->whereIn('target_role', $allowedRoles)->get() : collect();
-        
-        $currentStatus = 'unsubmitted';
-        $activeRecord = null;
-
-        // Priority order for status reporting
-        $statusPriority = [
-            OrganizationVerification::STATUS_UNDER_SCRUTINY => 5,
-            OrganizationVerification::STATUS_PENDING_REVIEW => 4,
-            OrganizationVerification::STATUS_SUSPENDED => 3,
-            OrganizationVerification::STATUS_EXPIRED => 2,
-            OrganizationVerification::STATUS_REJECTED => 1,
-        ];
-
-        $highestPriority = 0;
-        foreach ($verifications as $v) {
-            $p = $statusPriority[$v->status] ?? 0;
-            if ($p > $highestPriority) {
-                $highestPriority = $p;
-                $currentStatus = $v->status;
-                $activeRecord = $v;
-            }
-        }
-
-        $roleLabels = array_map(function ($r) {
-            return match ($r) {
-                'exporter' => 'Licensed Exporter',
-                'supplier' => 'Coffee Supplier',
-                'buyer' => 'Coffee Buyer',
-                'broker' => 'Coffee Broker',
-                default => ucfirst($r),
-            };
-        }, $allowedRoles);
-
-        $joinedRoles = implode(' or ', $roleLabels);
-
+        // Status from the computed tier and the documents (slice 3), never from a plan.
+        $currentStatus = $org ? $org->workspaceStatus() : 'not_started';
         $msg = match ($currentStatus) {
-            OrganizationVerification::STATUS_PENDING_REVIEW => "Your {$joinedRoles} verification dossier is under compliance review by Fira Link.",
-            OrganizationVerification::STATUS_UNDER_SCRUTINY => "Your {$joinedRoles} credentials are being audited with regulatory authorities (ECTA/MoTI).",
-            OrganizationVerification::STATUS_REJECTED => "Your {$joinedRoles} verification was rejected. Reason: " . ($activeRecord?->rejection_reason ?? 'Please resubmit valid credentials.'),
-            OrganizationVerification::STATUS_EXPIRED => "Your {$joinedRoles} credentials or license have expired. Please submit renewal documents.",
-            OrganizationVerification::STATUS_SUSPENDED => "Your {$joinedRoles} trading permissions are temporarily suspended.",
-            default => "Trust is Never For Sale: Only verified {$joinedRoles} accounts may execute this action. Please complete verification onboarding.",
+            'in_review' => 'Your verification documents are in review.',
+            'needs_changes' => 'Some verification documents need changes. Open Verification to fix them.',
+            'expired' => 'Your verification expired. Upload the renewed documents.',
+            'suspended' => 'This business is suspended by Fira Link.',
+            default => 'Tier 1 verification is required for this action. Paid plans never buy verification.',
         };
 
         if ($request->expectsJson()) {

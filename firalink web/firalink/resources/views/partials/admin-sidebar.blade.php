@@ -38,13 +38,16 @@
                 </ul>
             </li>
 
-            <li class="dropdown {{ request()->routeIs('admin.marketplace.*') ? 'active' : '' }}">
+            <li class="dropdown {{ request()->routeIs('admin.marketplace.*', 'admin.verification-review.*') ? 'active' : '' }}">
                 <a href="javascript:void(0)" class="nav-link has-dropdown">
                     <i class="fas fa-store" style="color: #6D1A95;"></i>
                     <span>Coffee Marketplace</span>
                     <span class="badge badge-sidebar-pill badge-purple">B2B</span>
                 </a>
                 <ul class="dropdown-menu">
+                    <li class="{{ request()->routeIs('admin.verification-review.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.verification-review.index') }}">{{ __('verification.admin.queue_title') }}</a>
+                    </li>
                     <li class="{{ request()->routeIs('admin.marketplace.sellers*') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('admin.marketplace.sellers') }}">Exporters &amp; Verification</a>
                     </li>

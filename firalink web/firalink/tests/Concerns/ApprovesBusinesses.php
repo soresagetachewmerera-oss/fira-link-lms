@@ -5,24 +5,70 @@ namespace Tests\Concerns;
 use App\Models\Organization;
 use App\Models\OrganizationVerification;
 use App\Models\User;
-use App\Services\Verification\VerificationReviewService;
+use App\Models\VerificationDocument;
+use App\Services\Auth\StaffTwoFactor;
+use App\Services\Verification\TierService;
+use Laravel\Fortify\Fortify;
 
 /**
- * Approve a business for a role the way production does: through the verification-review
- * service (verification fields are not mass-assignable).
+ * Fixtures for verified businesses and signed-in staff. Tiers come only from approved,
+ * unexpired documents, so this writes approved Tier 1 documents and lets TierService compute.
  */
 trait ApprovesBusinesses
 {
-    protected function approveBusiness(Organization $org, string $role = 'exporter', ?\DateTimeInterface $expires = null): OrganizationVerification
+    protected function approveBusiness(Organization $org, string $role = 'exporter', ?\DateTimeInterface $expires = null, int $tier = 1): Organization
     {
-        $verification = OrganizationVerification::firstOrCreate([
-            'organization_id' => $org->id,
-            'target_role' => $role,
-        ]);
+        if ($org->business_role !== $role) {
+            $org->forceFill(['business_role' => $role])->save();
+        }
+        $container = OrganizationVerification::firstOrCreate(['organization_id' => $org->id, 'target_role' => $role]);
 
-        $admin = User::where('role', 'admin')->first()
-            ?? User::factory()->create(['email' => 'reviewer_' . uniqid() . '@example.test', 'role' => 'admin']);
+        $types = TierService::requiredDocuments($org, 1);
+        if ($tier >= 2) {
+            $types = array_merge($types, TierService::requiredDocuments($org, 2));
+        }
+        foreach ($types as $type) {
+            $config = TierService::documentTypeConfig($type);
+            $doc = VerificationDocument::create([
+                'organization_verification_id' => $container->id,
+                'organization_id' => $org->id,
+                'document_type' => $type,
+                'file_path' => 'test/' . $type . '.pdf',
+                'file_disk' => 'verification',
+                'original_filename' => $type . '.pdf',
+                'file_size_kb' => 40,
+                'mime_type' => 'application/pdf',
+                'is_valid' => true,
+                'expires_at' => ($config['expires'] ?? false) ? ($expires ?? now()->addYear()) : null,
+                'submitted_at' => now(),
+            ]);
+            $doc->forceFill([
+                'tier' => (int) $config['tier'],
+                'status' => VerificationDocument::STATUS_APPROVED,
+                'reviewed_at' => now(),
+            ])->save();
+        }
 
-        return app(VerificationReviewService::class)->approve($verification, $admin, 'Approved in test', $expires ?? now()->addYear());
+        return app(TierService::class)->recompute($org)->refresh();
+    }
+
+    /** A staff user with an enrolled authenticator who passed the code in this session. */
+    protected function actingAsStaff(User $user): static
+    {
+        $this->enrolStaffTwoFactor($user);
+
+        return $this->actingAs($user)->withSession([StaffTwoFactor::SESSION_USER => $user->id]);
+    }
+
+    /** Returns the plain TOTP secret. */
+    protected function enrolStaffTwoFactor(User $user, string $secret = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP'): string
+    {
+        $user->forceFill([
+            'two_factor_secret' => Fortify::currentEncrypter()->encrypt($secret),
+            'two_factor_recovery_codes' => Fortify::currentEncrypter()->encrypt(json_encode(['recovery-one-1111', 'recovery-two-2222'])),
+            'two_factor_confirmed_at' => now(),
+        ])->save();
+
+        return $secret;
     }
 }

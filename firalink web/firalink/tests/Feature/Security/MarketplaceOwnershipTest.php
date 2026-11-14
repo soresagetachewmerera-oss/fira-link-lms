@@ -14,6 +14,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\ApprovesBusinesses;
 use Tests\Concerns\BuildsTradeFixtures;
 use Tests\TestCase;
 
@@ -22,7 +23,7 @@ use Tests\TestCase;
  */
 class MarketplaceOwnershipTest extends TestCase
 {
-    use DatabaseTransactions, BuildsTradeFixtures;
+    use DatabaseTransactions, BuildsTradeFixtures, ApprovesBusinesses;
 
     /**
      * @return array{0: MarketplaceSample, 1: \App\Models\User, 2: \App\Models\User} sample, buyer, seller
@@ -39,6 +40,7 @@ class MarketplaceOwnershipTest extends TestCase
             'company_slug' => 'sample-seller-' . $suffix,
             'business_type' => 'exporter',
         ]), fn ($p) => $p->forceFill(['verification_status' => 'verified'])->save());
+        $this->approveBusiness($org, 'exporter');
         $listing = CoffeeListing::create([
             'seller_id' => $seller->id,
             'organization_id' => $org->id,

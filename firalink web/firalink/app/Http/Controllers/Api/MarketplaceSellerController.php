@@ -59,7 +59,9 @@ class MarketplaceSellerController extends Controller
                     'legal_name' => $org->legal_name,
                     'slug' => $org->slug,
                     'business_type' => $org->business_type,
-                    'verification_tier' => $org->verification_tier,
+                    // Computed from reviewed documents (slice 3); 0 when expired or suspended.
+                    'verification_tier' => $org->status !== 'suspended' && $org->hasActiveTier(1) ? (int) $org->verification_tier : 0,
+                    'business_role' => $org->roleKey(),
                     'is_verified' => (bool) $org->is_verified,
                     'my_role' => $org->memberships()->where('user_id', $user->id)->value('role') ?? 'owner',
                 ] : null,

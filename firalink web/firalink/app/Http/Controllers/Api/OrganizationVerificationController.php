@@ -4,317 +4,239 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
-use App\Models\BannedIdentity;
 use App\Models\Organization;
-use App\Models\OrganizationVerification;
+use App\Models\OrganizationMembership;
+use App\Models\User;
 use App\Models\VerificationDocument;
+use App\Services\Verification\DocumentReviewService;
+use App\Services\Verification\PublicSellerProfile;
+use App\Services\Verification\TierService;
+use App\Services\Verification\VerificationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
+/**
+ * Verification dossier (slice 3) for the active business: tiers, per-document states and
+ * uploads. Status and tier are read-only here; they change only through review services.
+ */
 class OrganizationVerificationController extends Controller
 {
+    private function organization(Request $request): ?Organization
+    {
+        $user = $request->user();
+
+        return $user->currentOrganization() ?: $user->primaryOrganization();
+    }
+
+    /** Owner or manager of the business (no admin bypass: admins review, they do not upload). */
+    private function canManage(User $user, Organization $org): bool
+    {
+        return OrganizationMembership::where('organization_id', $org->id)
+            ->where('user_id', $user->id)
+            ->where('is_active', true)
+            ->whereIn('role', [OrganizationMembership::ROLE_OWNER, OrganizationMembership::ROLE_MANAGER])
+            ->exists();
+    }
+
+    private function noBusiness(): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'code' => 'ORGANIZATION_REQUIRED',
+            'message' => 'Create or switch to a business workspace first.',
+        ], 404);
+    }
+
+    private function documentJson(string $type, int $tier, $docs): array
+    {
+        $config = TierService::documentTypeConfig($type) ?? [];
+        $latest = $docs->firstWhere('document_type', $type);
+        $counting = $docs->first(fn ($d) => $d->document_type === $type
+            && $d->status === VerificationDocument::STATUS_APPROVED && !$d->isExpiredNow());
+
+        $state = $latest ? $latest->status : 'not_uploaded';
+        if ($state === VerificationDocument::STATUS_APPROVED && $latest->isExpiredNow()) {
+            $state = VerificationDocument::STATUS_EXPIRED;
+        }
+
+        return [
+            'type' => $type,
+            'tier' => $tier,
+            'state' => $state,
+            'document_id' => $latest?->id,
+            'reason' => in_array($state, ['needs_changes', 'rejected'], true) ? $latest->review_reason : null,
+            'reason_code' => in_array($state, ['needs_changes', 'rejected'], true) ? $latest->review_reason_code : null,
+            'submitted_at' => $latest?->submitted_at?->toIso8601String(),
+            'reviewed_at' => $latest?->reviewed_at?->toIso8601String(),
+            'expires_at' => $latest?->expires_at?->toDateString(),
+            'pages' => $latest ? $latest->pages()->count() : 0,
+            // An earlier approved copy keeps counting while a replacement is in review.
+            'approved_until' => $counting && $counting->id !== $latest?->id ? $counting->expires_at?->toDateString() ?? 'no_expiry' : null,
+            'requires_expiry' => (bool) ($config['expires'] ?? false),
+            'requires_number' => (bool) ($config['number'] ?? false),
+            'fields' => $config['fields'] ?? [],
+            'camera_only' => (bool) ($config['camera_only'] ?? false),
+            'min_pages' => (int) ($config['min_pages'] ?? 1),
+            'max_pages' => (int) config('verification.upload.max_pages', 10),
+        ];
+    }
+
     /**
      * GET /api/marketplace/verification/status
-     * Fetch complete verification state, roles, and document checklist for the user's organization.
      */
     public function status(Request $request): JsonResponse
     {
-        $user = $request->user();
-        $org = $user->currentOrganization() ?: $user->primaryOrganization();
-
+        $org = $this->organization($request);
         if (!$org) {
-            return response()->json([
-                'success' => false,
-                'code' => 'ORGANIZATION_REQUIRED',
-                'message' => 'No active organization found. Please register or join an organization first.',
-            ], 404);
+            return $this->noBusiness();
         }
 
-        $verifications = $org->verifications()
-            ->with(['documents' => fn($q) => $q->where('is_valid', true), 'brokerPrincipal'])
-            ->get()
-            ->keyBy('target_role');
+        $docs = $org->verificationDocuments()->current()->orderByDesc('id')->get();
+        $tiers = [];
+        $counts = ['approved' => 0, 'in_review' => 0, 'needs_changes' => 0, 'not_uploaded' => 0];
 
-        $checklist = [
-            OrganizationVerification::ROLE_EXPORTER => [
-                'label' => 'Licensed Coffee Exporter',
-                'description' => 'ECTA-licensed export entity capable of issuing FOB/CIF contracts and managing export logistics.',
-                'required_documents' => [
-                    ['type' => VerificationDocument::TYPE_COMMERCIAL_REG, 'label' => 'MoTI Commercial Registration Certificate'],
-                    ['type' => VerificationDocument::TYPE_SECTOR_LICENSE, 'label' => 'ECTA Coffee Export Competence Certificate (Current Season)'],
-                    ['type' => VerificationDocument::TYPE_TIN_CERT, 'label' => 'Tax Identification Number (TIN) & VAT Certificate'],
-                    ['type' => VerificationDocument::TYPE_REP_ID, 'label' => 'Authorized Signatory Passport / National ID'],
-                ],
-                'status' => $verifications->get(OrganizationVerification::ROLE_EXPORTER)?->status ?? 'unsubmitted',
-                'data' => $verifications->get(OrganizationVerification::ROLE_EXPORTER),
-            ],
-            OrganizationVerification::ROLE_SUPPLIER => [
-                'label' => 'Washing Station / Commercial Farm',
-                'description' => 'Coffee producer or wet/dry mill operator with certified origin processing infrastructure.',
-                'required_documents' => [
-                    ['type' => VerificationDocument::TYPE_COMMERCIAL_REG, 'label' => 'Business License / Cooperative Certificate'],
-                    ['type' => VerificationDocument::TYPE_SECTOR_LICENSE, 'label' => 'Washing Station / Farm Operating License'],
-                    ['type' => VerificationDocument::TYPE_REP_ID, 'label' => 'Manager / Representative Kebele or National ID'],
-                ],
-                'status' => $verifications->get(OrganizationVerification::ROLE_SUPPLIER)?->status ?? 'unsubmitted',
-                'data' => $verifications->get(OrganizationVerification::ROLE_SUPPLIER),
-            ],
-            OrganizationVerification::ROLE_BUYER => [
-                'label' => 'International Coffee Buyer / Roaster',
-                'description' => 'Commercial green coffee importer, roaster, or distributor registered outside Ethiopia.',
-                'required_documents' => [
-                    ['type' => VerificationDocument::TYPE_COMMERCIAL_REG, 'label' => 'Certificate of Incorporation / Good Standing'],
-                    ['type' => VerificationDocument::TYPE_TIN_CERT, 'label' => 'Corporate Tax ID / VAT / EIN Registration'],
-                    ['type' => VerificationDocument::TYPE_ADDRESS_PROOF, 'label' => 'Proof of Operating Business Address (< 90 Days)'],
-                ],
-                'status' => $verifications->get(OrganizationVerification::ROLE_BUYER)?->status ?? 'unsubmitted',
-                'data' => $verifications->get(OrganizationVerification::ROLE_BUYER),
-            ],
-            OrganizationVerification::ROLE_BROKER => [
-                'label' => 'Certified Coffee Broker / Agent',
-                'description' => 'Commercial intermediary representing verified exporters or buyers under formal agency mandate.',
-                'required_documents' => [
-                    ['type' => VerificationDocument::TYPE_COMMERCIAL_REG, 'label' => 'Agency / Brokerage Business License'],
-                    ['type' => VerificationDocument::TYPE_BROKER_MANDATE, 'label' => 'Notarized Letter of Representation (LoR) from Verified Exporter'],
-                    ['type' => VerificationDocument::TYPE_REP_ID, 'label' => 'Agent Passport / National ID'],
-                ],
-                'status' => $verifications->get(OrganizationVerification::ROLE_BROKER)?->status ?? 'unsubmitted',
-                'data' => $verifications->get(OrganizationVerification::ROLE_BROKER),
-            ],
-        ];
+        foreach ([1, 2] as $t) {
+            $required = TierService::requiredDocuments($org, $t);
+            if ($t === 2 && $required === []) {
+                continue;
+            }
+            $items = array_map(fn ($type) => $this->documentJson($type, $t, $docs), $required);
+            foreach ($items as $item) {
+                $bucket = match ($item['state']) {
+                    'approved' => 'approved',
+                    'in_review' => 'in_review',
+                    'needs_changes', 'rejected', 'expired' => 'needs_changes',
+                    default => 'not_uploaded',
+                };
+                $counts[$bucket]++;
+            }
+            $tiers[] = [
+                'tier' => $t,
+                'being_confirmed' => (bool) config("verification.tiers.{$t}.being_confirmed", false),
+                'documents' => $items,
+            ];
+        }
+
+        $maxTier = TierService::maxTier($org);
+        if ($maxTier === 3) {
+            $grant = $org->tier3Grants()->active()->latest('granted_at')->first();
+            $tiers[] = ['tier' => 3, 'requires_tier' => 2, 'active_until' => $grant?->expires_at?->toDateString(), 'documents' => []];
+        }
+
+        $hasPublicPage = $org->fira_id && $org->tier1_first_granted_at;
 
         return response()->json([
             'success' => true,
             'data' => [
-                'organization' => [
+                'business' => [
                     'id' => $org->id,
                     'name' => $org->name,
-                    'is_verified' => $org->is_verified,
-                    'verified_roles' => $org->verified_roles ?? [],
-                    'country' => $org->country,
+                    'business_role' => $org->roleKey(),
+                    'entity_type' => $org->entity_type,
+                    'status' => $org->workspaceStatus(),
                 ],
-                'checklist' => $checklist,
+                'tier' => $org->hasActiveTier(1) ? (int) $org->verification_tier : 0,
+                'max_tier' => $maxTier,
+                'valid_until' => $org->verification_valid_until?->toDateString(),
+                'reviewed_at' => $org->verification_reviewed_at?->toDateString(),
+                'public_status' => $hasPublicPage ? PublicSellerProfile::status($org) : null,
+                'fira_id' => $hasPublicPage ? $org->fira_id : null,
+                'public_url' => $hasPublicPage ? route('verify.show', $org->fira_id) : null,
+                'qr_svg_url' => $hasPublicPage ? route('verify.qr', $org->fira_id) : null,
+                'expected_review_business_days' => (int) config('verification.expected_review_business_days'),
+                'counts' => $counts,
+                'tiers' => $tiers,
+                'can_manage' => $this->canManage($request->user(), $org),
             ],
         ]);
     }
 
     /**
-     * POST /api/marketplace/verification/submit
-     * Submit role-specific business details for compliance audit.
-     */
-    public function submitDetails(Request $request): JsonResponse
-    {
-        $user = $request->user();
-        $org = $user->currentOrganization() ?: $user->primaryOrganization();
-
-        if (!$org || !$org->canManageBilling($user)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Only the organization owner or manager can submit verification dossiers.',
-            ], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'target_role' => 'required|in:exporter,supplier,buyer,broker',
-            'tin_number' => 'nullable|string|max:100',
-            'license_number' => 'nullable|string|max:100',
-            'issuing_authority' => 'nullable|string|max:150',
-            'license_issued_at' => 'nullable|date',
-            'license_expires_at' => 'nullable|date|after:license_issued_at',
-            'verified_attributes' => 'nullable|array',
-            'broker_principal_org_id' => 'nullable|exists:organizations,id',
-            'broker_mandate_expires_at' => 'nullable|date|after:today',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        // 1. Sanctions Screening
-        $tin = $request->input('tin_number');
-        $license = $request->input('license_number');
-
-        $isBanned = BannedIdentity::where(function ($q) use ($tin, $license, $org) {
-            if ($tin) $q->orWhere('tin_number', $tin);
-            if ($license) $q->orWhere('license_number', $license);
-            $q->orWhere('company_name', 'LIKE', '%' . $org->name . '%');
-        })->exists();
-
-        if ($isBanned) {
-            return response()->json([
-                'success' => false,
-                'code' => 'BANNED_IDENTITY',
-                'message' => 'This business identity or tax registration has been barred from the platform.',
-            ], 403);
-        }
-
-        $verification = OrganizationVerification::updateOrCreate(
-            [
-                'organization_id' => $org->id,
-                'target_role' => $request->input('target_role'),
-            ],
-            [
-                'tin_number' => $tin,
-                'license_number' => $license,
-                'issuing_authority' => $request->input('issuing_authority', 'ECTA'),
-                'license_issued_at' => $request->input('license_issued_at'),
-                'license_expires_at' => $request->input('license_expires_at'),
-                'verified_attributes' => $request->input('verified_attributes', []),
-                'broker_principal_org_id' => $request->input('broker_principal_org_id'),
-                'broker_mandate_expires_at' => $request->input('broker_mandate_expires_at'),
-            ]
-        );
-
-        // Status changes only through the review service (audited).
-        app(\App\Services\Verification\VerificationReviewService::class)->submitForReview($verification, $user);
-        $verification->refresh();
-
-        // Security Audit Trail
-        AuditLog::create([
-            'user_id' => $user->id,
-            'organization_id' => $org->id,
-            'action' => 'verification_dossier_submitted',
-            'auditable_type' => OrganizationVerification::class,
-            'auditable_id' => $verification->id,
-            'after_state' => $verification->toArray(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => "Verification dossier for {$verification->target_role} submitted successfully. Compliance audit in progress.",
-            'data' => $verification->load('documents'),
-        ]);
-    }
-
-    /**
-     * POST /api/marketplace/verification/upload-document
-     * Securely upload verification document to private non-public disk vault.
+     * POST /api/marketplace/verification/documents (multipart)
+     * document_type, pages[] (1–10 images or PDFs), document_number, issued_at, expires_at, details[...]
      */
     public function uploadDocument(Request $request): JsonResponse
     {
         $user = $request->user();
-        $org = $user->currentOrganization() ?: $user->primaryOrganization();
-
-        if (!$org || !$org->canManageBilling($user)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Only the organization owner or manager can upload legal verification documents.',
-            ], 403);
+        $org = $this->organization($request);
+        if (!$org) {
+            return $this->noBusiness();
+        }
+        if (!$this->canManage($user, $org)) {
+            return response()->json(['success' => false, 'code' => 'NOT_ALLOWED', 'message' => 'Only the owner or a manager can upload verification documents.'], 403);
         }
 
         $validator = Validator::make($request->all(), [
-            'target_role' => 'required|in:exporter,supplier,buyer,broker',
-            'document_type' => 'required|in:commercial_reg,sector_license,tin_cert,rep_id,address_proof,broker_mandate',
-            'document' => 'required|file|max:10240', // Max 10MB
+            'document_type' => 'required|string|max:60',
+            'pages' => 'required|array|min:1|max:' . (int) config('verification.upload.max_pages', 10),
+            'pages.*' => 'required|file|max:10240',
+            'document_number' => 'nullable|string|max:80',
+            'issued_at' => 'nullable|date',
+            'expires_at' => 'nullable|date',
+            'details' => 'nullable|array',
+            'details.*' => 'nullable|string|max:255',
         ]);
-
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors(),
-            ], 422);
+            return response()->json(['success' => false, 'message' => 'Validation error', 'errors' => $validator->errors()], 422);
         }
 
-        $documents = app(\App\Services\PrivateDocumentStore::class);
-        $reason = $documents->rejectionReason($request->file('document'));
-        if ($reason) {
-            return response()->json($documents->errorResponse('document', $reason), 422);
+        try {
+            $doc = app(DocumentReviewService::class)->submit(
+                $org,
+                $user,
+                $request->input('document_type'),
+                $request->file('pages', []),
+                $request->input('document_number'),
+                $request->input('issued_at'),
+                $request->input('expires_at'),
+                (array) $request->input('details', [])
+            );
+        } catch (VerificationException $e) {
+            return $e->toResponse();
         }
-
-        // New records start as "draft" (database default); status is never set here.
-        $verification = OrganizationVerification::firstOrCreate([
-            'organization_id' => $org->id,
-            'target_role' => $request->input('target_role'),
-        ]);
-
-        $file = $request->file('document');
-        // Extension comes from the detected content type, never from the client name.
-        $ext = ['application/pdf' => 'pdf', 'image/jpeg' => 'jpg', 'image/png' => 'png'][$file->getMimeType()];
-        $safeHash = hash_file('sha256', $file->getRealPath());
-        $filename = Str::uuid() . '.' . $ext;
-        $folder = "organizations/{$org->id}/verifications";
-
-        // Store file strictly on private 'verification' disk
-        $path = $file->storeAs($folder, $filename, 'verification');
-
-        // Mark any previous document of this type as invalid/superseded
-        $verification->documents()
-            ->where('document_type', $request->input('document_type'))
-            ->update(['is_valid' => false]);
-
-        $doc = VerificationDocument::create([
-            'organization_verification_id' => $verification->id,
-            'document_type' => $request->input('document_type'),
-            'file_path' => $path,
-            'file_disk' => 'verification',
-            'original_filename' => $file->getClientOriginalName(),
-            'file_size_kb' => (int) round($file->getSize() / 1024),
-            'mime_type' => $file->getMimeType(),
-            'verification_hash' => $safeHash,
-            'is_valid' => true,
-        ]);
-
-        AuditLog::create([
-            'user_id' => $user->id,
-            'organization_id' => $org->id,
-            'action' => 'verification_document_uploaded',
-            'auditable_type' => VerificationDocument::class,
-            'auditable_id' => $doc->id,
-            'after_state' => [
-                'document_type' => $doc->document_type,
-                'filename' => $doc->original_filename,
-                'size_kb' => $doc->file_size_kb,
-            ],
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Document securely vaulted and attached to verification dossier.',
-            'data' => $doc,
+            'data' => [
+                'document_id' => $doc->id,
+                'type' => $doc->document_type,
+                'state' => $doc->status,
+                'pages' => $doc->pages()->count(),
+                'expected_review_business_days' => (int) config('verification.expected_review_business_days'),
+            ],
         ], 201);
     }
 
     /**
-     * DELETE /api/marketplace/verification/documents/{id}
-     * Remove an uploaded document from draft dossier.
+     * DELETE /api/marketplace/verification/documents/{id} — withdraw a document still in review.
      */
     public function deleteDocument(Request $request, int $id): JsonResponse
     {
         $user = $request->user();
-        $org = $user->currentOrganization() ?: $user->primaryOrganization();
+        $org = $this->organization($request);
+        $doc = VerificationDocument::findOrFail($id);
 
-        $doc = VerificationDocument::with('verification')->findOrFail($id);
-
-        if (!$user->isAdmin() && (!$org || $doc->verification->organization_id !== $org->id)) {
+        if (!$org || (int) $doc->organization_id !== (int) $org->id || !$this->canManage($user, $org)) {
             return response()->json(['success' => false, 'message' => 'Unauthorized.'], 403);
         }
-
-        if (!$user->isAdmin() && $doc->verification->status === OrganizationVerification::STATUS_APPROVED) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Approved documents cannot be removed. Contact compliance for amendments.',
-            ], 400);
+        if ($doc->status !== VerificationDocument::STATUS_IN_REVIEW) {
+            return response()->json(['success' => false, 'code' => 'NOT_IN_REVIEW', 'message' => 'Only documents still in review can be withdrawn.'], 409);
         }
 
+        AuditLog::create([
+            'user_id' => $user->id,
+            'organization_id' => $org->id,
+            'action' => 'verification_document_withdrawn',
+            'auditable_type' => VerificationDocument::class,
+            'auditable_id' => $doc->id,
+            'before_state' => ['document_type' => $doc->document_type, 'status' => $doc->status],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
         $doc->deletePhysicalFile();
         $doc->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Document removed successfully.',
-        ]);
+        return response()->json(['success' => true]);
     }
 }
-

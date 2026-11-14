@@ -177,6 +177,7 @@ class CoffeeMarketplaceTest extends TestCase
             'company_name' => 'Test Exporter PLC',
             'business_type' => 'exporter',
         ]), fn ($p) => $p->forceFill(['verification_status' => 'verified'])->save());
+        $this->approveBusiness($this->makeOrganization($seller), 'exporter');
 
         $proPlan = MarketplaceSubscriptionPlan::where('slug', 'seller_pro')->first();
         if ($proPlan) {

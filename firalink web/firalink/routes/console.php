@@ -16,3 +16,6 @@ Schedule::command('subscriptions:process-lifecycle')->hourly();
 
 // B2B Regulatory License Audit & Seasonal Expiration Tracker
 Schedule::command('b2b:check-license-expiry')->daily();
+
+// Verification: expire documents, expiry reminders (30 and 7 days), daily pending summary to the admin
+Schedule::command('verification:expire-and-remind')->dailyAt('06:00');

@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'entitlement' => \App\Http\Middleware\EnsureEntitlement::class,
             'verified.role' => \App\Http\Middleware\CheckOrganizationVerified::class,
             'fresh.auth' => \App\Http\Middleware\EnsureFreshAuth::class,
+            'staff.2fa' => \App\Http\Middleware\EnsureStaffTwoFactor::class,
         ]);
 
         $middleware->web(append: [

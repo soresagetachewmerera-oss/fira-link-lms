@@ -74,6 +74,12 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(160)->by($request->user()?->id ?: $request->ip());
         });
+        // Public seller lookup by Fira ID (API and web page): per IP, no listing endpoint exists.
+        RateLimiter::for('public-seller', function (Request $request) {
+            return Limit::perMinute((int) config('verification.public_lookup_per_minute', 30))->by('public-seller|' . $request->ip());
+        });
+        // Verification review: admins, plus users given the Spatie "reviewer" role.
+        \Illuminate\Support\Facades\Gate::define('review-verifications', fn ($user) => \App\Services\Auth\StaffTwoFactor::isStaff($user));
         Paginator::useBootstrap();
         Schema::defaultStringLength(191);
 

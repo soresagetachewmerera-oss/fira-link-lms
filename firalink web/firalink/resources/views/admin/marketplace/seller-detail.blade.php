@@ -47,14 +47,16 @@
                             <span class="badge badge-secondary mb-2">{{ ucfirst(str_replace('_', ' ', $seller->business_type ?? 'Exporter')) }}</span>
                             
                             <div class="mt-2">
-                                @if($seller->verification_status === 'verified')
-                                    <span class="badge badge-success px-3 py-2"><i class="fas fa-check-circle"></i> Verified Exporter</span>
-                                @elseif($seller->verification_status === 'under_review')
-                                    <span class="badge badge-info px-3 py-2"><i class="fas fa-search"></i> Under Review</span>
-                                @elseif($seller->verification_status === 'rejected')
-                                    <span class="badge badge-danger px-3 py-2"><i class="fas fa-times-circle"></i> Rejected</span>
+                                @php($org = $seller->organization)
+                                @if($org && $org->status === 'suspended')
+                                    <span class="badge badge-danger px-3 py-2">{{ __('verification.public.suspended') }}</span>
+                                @elseif($org && $org->hasActiveTier(1))
+                                    <span class="badge badge-success px-3 py-2">{{ __('verification.public.verified_tier', ['tier' => $org->verification_tier]) }}</span>
                                 @else
-                                    <span class="badge badge-warning px-3 py-2"><i class="fas fa-clock"></i> Pending Verification</span>
+                                    <span class="badge badge-secondary px-3 py-2">{{ __('verification.statuses.not_uploaded') }}</span>
+                                @endif
+                                @if($org)
+                                    <div class="mt-2"><a href="{{ route('admin.verification-review.business', $org->id) }}" class="btn btn-sm btn-primary">{{ __('verification.admin.open_business') }}</a></div>
                                 @endif
                             </div>
 
@@ -75,14 +77,6 @@
                         <div class="col-md-9 pl-4">
                             <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                                 <h5 class="text-dark mb-0">Licensing & Regulatory Compliance</h5>
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#verifyModal">
-                                        <i class="fas fa-check"></i> Verify Exporter
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-danger ml-2" data-toggle="modal" data-target="#rejectModal">
-                                        <i class="fas fa-ban"></i> Reject Application
-                                    </button>
-                                </div>
                             </div>
 
                             <div class="row mb-3">
@@ -140,88 +134,6 @@
                                 <div class="col-sm-8">{{ $seller->company_bio ?? 'No company bio provided.' }}</div>
                             </div>
 
-                            @if($seller->organization && $seller->organization->verifications->count() > 0)
-                                <div class="border-top pt-3 mt-3">
-                                    <h6 class="text-dark font-weight-bold mb-3"><i class="fas fa-shield-alt text-purple mr-1"></i> Multi-Role Compliance Vault Dossiers</h6>
-                                    @foreach($seller->organization->verifications as $v)
-                                        <div class="card border mb-3 bg-light">
-                                            <div class="card-body p-3">
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <div>
-                                                        <span class="badge badge-primary text-uppercase">{{ $v->target_role }}</span>
-                                                        <span class="badge badge-{{ $v->status === 'approved' ? 'success' : ($v->status === 'rejected' ? 'danger' : 'warning') }} ml-1">
-                                                            {{ strtoupper($v->status) }}
-                                                        </span>
-                                                        <span class="small text-muted ml-2">TIN: <strong>{{ $v->tin_number ?? 'N/A' }}</strong> | License: <strong>{{ $v->license_number ?? 'N/A' }}</strong></span>
-                                                    </div>
-                                                    <div>
-                                                        @if($v->status !== 'approved')
-                                                            <form action="{{ route('admin.marketplace.verifications.verify', $v->id) }}" method="POST" class="d-inline">
-                                                                @csrf
-                                                                <button type="submit" class="btn btn-sm btn-success mr-1">
-                                                                    <i class="fas fa-check"></i> Approve Role
-                                                                </button>
-                                                            </form>
-                                                        @endif
-                                                        @if($v->status !== 'rejected')
-                                                            <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#rejectRoleModal{{ $v->id }}">
-                                                                <i class="fas fa-times"></i> Reject
-                                                            </button>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                                <!-- Documents in Vault -->
-                                                <div class="small mt-2">
-                                                    <strong>Vaulted Documents ({{ $v->documents->where('is_valid', true)->count() }}):</strong>
-                                                    <div class="d-flex flex-wrap mt-1">
-                                                        @forelse($v->documents->where('is_valid', true) as $vDoc)
-                                                            <a href="{{ route('marketplace.verification.download', $vDoc->id) }}" class="btn btn-xs btn-outline-dark mr-2 mb-1" target="_blank">
-                                                                <i class="fas fa-file-contract text-primary mr-1"></i>
-                                                                {{ ucfirst(str_replace('_', ' ', $vDoc->document_type)) }} ({{ $vDoc->file_size_kb }} KB)
-                                                            </a>
-                                                        @empty
-                                                            <span class="text-muted italic">No legal documents vaulted yet.</span>
-                                                        @endforelse
-                                                    </div>
-                                                </div>
-
-                                                @if($v->rejection_reason)
-                                                    <div class="alert alert-danger p-2 mt-2 mb-0 small">
-                                                        <strong>Rejection Rationale:</strong> {{ $v->rejection_reason }}
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <!-- Reject Role Modal -->
-                                        <div class="modal fade" id="rejectRoleModal{{ $v->id }}" tabindex="-1" role="dialog" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <form action="{{ route('admin.marketplace.verifications.reject', $v->id) }}" method="POST">
-                                                        @csrf
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Reject {{ ucfirst($v->target_role) }} Verification</h5>
-                                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <p>Document the specific reason for rejecting {{ $seller->company_name }}'s {{ $v->target_role }} credentials.</p>
-                                                            <div class="form-group">
-                                                                <label>Rejection Reason (Required):</label>
-                                                                <textarea name="rejection_reason" class="form-control" rows="3" required placeholder="Expired ECTA license, missing tax clearance, or mismatch in corporate registry..."></textarea>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                            <button type="submit" class="btn btn-danger">Confirm Rejection</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
                         </div>
                     </div>
 
@@ -291,60 +203,5 @@
         </div>
     </div>
 
-    <!-- Verify Modal -->
-    <div class="modal fade" id="verifyModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <form action="{{ route('admin.marketplace.sellers.verify', $seller->id) }}" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title">Approve & Verify Exporter</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p>You are verifying <strong>{{ $seller->company_name }}</strong>. This will grant them official Ethiopian exporter status and allow international buyers to submit RFQs and contracts.</p>
-                        <div class="form-group">
-                            <label>Audit & Verification Notes (Optional):</label>
-                            <textarea name="notes" class="form-control" rows="3" placeholder="ECTA credentials verified against National Bank of Ethiopia Registry..."></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">Verify Exporter</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Reject Modal -->
-    <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <form action="{{ route('admin.marketplace.sellers.reject', $seller->id) }}" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title">Reject Exporter Application</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Please provide a reason for rejecting <strong>{{ $seller->company_name }}</strong>'s application.</p>
-                        <div class="form-group">
-                            <label>Reason for Rejection (Required):</label>
-                            <textarea name="notes" class="form-control" rows="3" placeholder="Invalid ECTA license number or missing TIN documentation..." required></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Confirm Rejection</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 @endsection
 

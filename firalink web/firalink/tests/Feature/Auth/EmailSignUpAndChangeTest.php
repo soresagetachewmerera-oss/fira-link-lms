@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\ApprovesBusinesses;
 use Tests\TestCase;
 
 /**
@@ -18,7 +19,7 @@ use Tests\TestCase;
  */
 class EmailSignUpAndChangeTest extends TestCase
 {
-    use DatabaseTransactions;
+    use DatabaseTransactions, ApprovesBusinesses;
 
     protected function setUp(): void
     {
@@ -179,11 +180,11 @@ class EmailSignUpAndChangeTest extends TestCase
         ]);
         $base = ['name' => $admin->name, 'email' => $admin->email, 'password' => 'AdminNew1', 'password_confirmation' => 'AdminNew1'];
 
-        $this->actingAs($admin)->put(route('admin.profile.update'), $base)->assertSessionHasErrors('current_password');
-        $this->actingAs($admin)->put(route('admin.profile.update'), $base + ['current_password' => 'wrong'])->assertSessionHasErrors('current_password');
+        $this->actingAsStaff($admin)->put(route('admin.profile.update'), $base)->assertSessionHasErrors('current_password');
+        $this->actingAsStaff($admin)->put(route('admin.profile.update'), $base + ['current_password' => 'wrong'])->assertSessionHasErrors('current_password');
         $this->assertTrue(Hash::check('AdminOld1', $admin->fresh()->password));
 
-        $this->actingAs($admin)->put(route('admin.profile.update'), $base + ['current_password' => 'AdminOld1'])->assertSessionHasNoErrors();
+        $this->actingAsStaff($admin)->put(route('admin.profile.update'), $base + ['current_password' => 'AdminOld1'])->assertSessionHasNoErrors();
         $this->assertTrue(Hash::check('AdminNew1', $admin->fresh()->password));
     }
 
@@ -196,7 +197,7 @@ class EmailSignUpAndChangeTest extends TestCase
         ]);
         $new = 'adm2new_' . Str::lower(Str::random(8)) . '@example.test';
 
-        $this->actingAs($admin)->put(route('admin.profile.update'), ['name' => $admin->name, 'email' => $new])
+        $this->actingAsStaff($admin)->put(route('admin.profile.update'), ['name' => $admin->name, 'email' => $new])
             ->assertSessionHasErrors('current_password');
         $this->assertNotSame($new, $admin->fresh()->email);
     }

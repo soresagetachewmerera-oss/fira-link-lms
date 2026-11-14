@@ -17,6 +17,7 @@ class SetLocale
     {
         return \Illuminate\Support\Facades\Cache::rememberForever('active_system_locales', function () {
             $allLocales = [
+                'am' => ['name' => 'Amharic', 'native' => 'አማርኛ', 'flag' => ''],
                 'en' => ['name' => 'English', 'native' => 'English', 'flag' => '🇺🇸'],
                 'bn' => ['name' => 'Bengali', 'native' => 'বাংলা',  'flag' => '🇧🇩'],
                 'es' => ['name' => 'Spanish', 'native' => 'Español', 'flag' => '🇪🇸'],
@@ -71,13 +72,33 @@ class SetLocale
             return $next($request);
         }
 
-        // The public website strictly displays English only
-        $locale = 'en';
+        // Public website: English, or Amharic where pages have Amharic text (?lang=am, then the
+        // remembered choice, then the browser's language). Strings without Amharic fall back to English.
+        $locale = $this->resolvePublicLocale($request);
         App::setLocale($locale);
-        View::share('currentLocale', 'en');
+        View::share('currentLocale', $locale);
         View::share('availableLocales', []);
 
         return $next($request);
+    }
+
+    public const PUBLIC_LOCALES = ['en', 'am'];
+
+    protected function resolvePublicLocale(Request $request): string
+    {
+        $lang = $request->query('lang');
+        if (is_string($lang) && in_array($lang, self::PUBLIC_LOCALES, true)) {
+            if ($request->hasSession()) {
+                $request->session()->put('public_locale', $lang);
+            }
+
+            return $lang;
+        }
+        if ($request->hasSession() && in_array($request->session()->get('public_locale'), self::PUBLIC_LOCALES, true)) {
+            return $request->session()->get('public_locale');
+        }
+
+        return $request->getPreferredLanguage(self::PUBLIC_LOCALES) === 'am' ? 'am' : 'en';
     }
 
     /**

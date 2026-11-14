@@ -17,10 +17,13 @@ use App\Models\WebhookCall;
 use App\Services\Billing\BillingService;
 use App\Services\EntitlementService;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\ApprovesBusinesses;
 use Tests\TestCase;
 
 class SaasBillingEnforcementTest extends TestCase
 {
+    use ApprovesBusinesses;
+
     /**
      * Test lot creation is blocked when active_lots limit reached.
      */
@@ -45,6 +48,7 @@ class SaasBillingEnforcementTest extends TestCase
         ]);
         $sellerProfile->update(['organization_id' => $org->id]);
         $user->organizations()->attach($org->id, ['role' => 'owner', 'is_active' => true]);
+        $this->approveBusiness($org, 'exporter');
 
         // Starter tier has a limit of 3 active lots. Let's create 3 active lots for this seller.
         for ($i = 1; $i <= 3; $i++) {
@@ -106,6 +110,7 @@ class SaasBillingEnforcementTest extends TestCase
         ]);
         $sellerProfile->update(['organization_id' => $org->id]);
         $seller->organizations()->attach($org->id, ['role' => 'owner', 'is_active' => true]);
+        $this->approveBusiness($org, 'exporter');
 
         // Target RFQ
         $rfq = MarketplaceRfq::create([

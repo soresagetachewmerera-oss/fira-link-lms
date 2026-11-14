@@ -92,6 +92,12 @@ Route::post('/free-tools/calculate', [\App\Http\Controllers\Front\FreeToolsContr
 Route::post('/free-tools/save-calculation', [\App\Http\Controllers\Front\FreeToolsController::class, 'saveCalculation'])->name('free-tools.save-calculation');
 Route::post('/free-tools/ask-advisor', [\App\Http\Controllers\Front\FreeToolsController::class, 'askAdvisor'])->name('free-tools.ask-advisor');
 
+// Public seller check by Fira ID (slice 3): shareable page with link preview, noindex, rate-limited.
+Route::middleware('throttle:public-seller')->group(function () {
+    Route::get('/verify', [\App\Http\Controllers\Front\PublicSellerWebController::class, 'index'])->name('verify.index');
+    Route::get('/verify/{firaId}', [\App\Http\Controllers\Front\PublicSellerWebController::class, 'show'])->name('verify.show');
+    Route::get('/verify/{firaId}/qr.svg', [\App\Http\Controllers\Front\PublicSellerWebController::class, 'qr'])->name('verify.qr');
+});
 Route::match(['get', 'post'], '/verify-certificate', [CertificateVerificationController::class, 'verify'])->name('verify-certificate');
 
 // Sitemap XML route

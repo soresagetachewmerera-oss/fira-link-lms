@@ -38,7 +38,30 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\CouponController;
 
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+// Staff two-factor (admins and reviewers): setup, recovery codes once, sign-in code.
+Route::middleware(['auth'])->prefix('staff/two-factor')->name('staff.two-factor.')->controller(\App\Http\Controllers\Admin\StaffTwoFactorController::class)->group(function () {
+    Route::get('/setup', 'setup')->name('setup');
+    Route::post('/setup', 'confirm')->middleware('throttle:6,1')->name('confirm');
+    Route::get('/recovery-codes', 'recovery')->name('recovery');
+    Route::get('/', 'challenge')->name('challenge');
+    Route::post('/', 'verify')->middleware('throttle:6,1')->name('verify');
+});
+
+// Verification review queue: admins and reviewers, two-factor required. Decisions are audited.
+Route::middleware(['auth', 'staff.2fa', 'can:review-verifications'])->prefix('admin/verification-review')->name('admin.verification-review.')->controller(\App\Http\Controllers\Admin\VerificationReviewController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/businesses/{id}', 'business')->whereNumber('id')->name('business');
+    Route::get('/pages/{page}', 'page')->middleware('signed')->name('page');
+    Route::post('/documents/{document}/approve', 'approve')->name('approve');
+    Route::post('/documents/{document}/changes', 'requestChanges')->name('changes');
+    Route::post('/documents/{document}/reject', 'reject')->name('reject');
+    Route::post('/businesses/{organization}/tier3', 'grantTier3')->name('tier3.grant');
+    Route::post('/businesses/{organization}/tier3/revoke', 'revokeTier3')->name('tier3.revoke');
+    Route::post('/businesses/{organization}/suspend', 'suspend')->name('suspend');
+    Route::post('/businesses/{organization}/unsuspend', 'unsuspend')->name('unsuspend');
+});
+
+Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Private evidence files (bank slips, contracts, lot evidence, report evidence): signed, short-lived links only
@@ -51,11 +74,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::get('/sellers', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'sellers'])->name('sellers');
         Route::get('/sellers/{id}', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'showSeller'])->name('sellers.show');
-        Route::post('/sellers/{id}/verify', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'verifySeller'])->name('sellers.verify');
-        Route::post('/sellers/{id}/reject', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'rejectSeller'])->name('sellers.reject');
-        Route::post('/verifications/{id}/verify', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'verifyOrganizationRole'])->name('verifications.verify');
-        Route::post('/verifications/{id}/reject', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'rejectOrganizationRole'])->name('verifications.reject');
-        Route::post('/verifications/{id}/suspend', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'suspendOrganizationRole'])->name('verifications.suspend');
+        // Slice 3: verification decisions happen only in the verification review queue (per document, audited).
         
         Route::get('/listings', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'listings'])->name('listings');
         Route::post('/listings/{id}/toggle-status', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'toggleListingStatus'])->name('listings.toggle-status');

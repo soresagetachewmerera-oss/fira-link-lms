@@ -106,28 +106,12 @@ class VerificationReviewService
     }
 
     /**
-     * Recompute the organization's cached flags from its verification records.
-     * Only verification records can make a business verified.
+     * Recompute the organization's tier and cached flags. Since slice 3 only approved,
+     * unexpired documents count (TierService); role-level records no longer verify anyone.
      */
     public function syncOrganization(Organization $org, ?User $actor = null): Organization
     {
-        $approvedRoles = $org->verifications()
-            ->where('status', OrganizationVerification::STATUS_APPROVED)
-            ->where(fn ($q) => $q->whereNull('license_expires_at')->orWhere('license_expires_at', '>', now()))
-            ->pluck('target_role')
-            ->unique()
-            ->values()
-            ->toArray();
-
-        $after = ['is_verified' => count($approvedRoles) > 0, 'verified_roles' => $approvedRoles];
-        $before = ['is_verified' => (bool) $org->is_verified, 'verified_roles' => $org->verified_roles ?? []];
-
-        if ($before != $after) {
-            $org->forceFill($after)->save();
-            $this->audit($actor, $org->id, 'organization_verification_flags_synced', Organization::class, $org->id, $before, $after);
-        }
-
-        return $org;
+        return app(TierService::class)->recompute($org, $actor);
     }
 
     public function setOrganizationStatus(Organization $org, string $status, User $admin, string $reason): Organization
@@ -182,36 +166,24 @@ class VerificationReviewService
     }
 
     /**
-     * Query constraint on an Organization query: approved, unexpired seller verification and
-     * not suspended. Used by the listing and supplier scopes so API and web share one rule.
+     * Hidden until Tier 1: query constraint on an Organization query (Tier 1+, still valid, not
+     * suspended, seller role). Used by the listing and supplier scopes so API and web share one rule.
      */
     public static function approvedSellerConstraint(): \Closure
     {
-        return function ($org) {
-            $org->where('status', '!=', 'suspended')
-                ->whereHas('verifications', function ($v) {
-                    $v->whereIn('target_role', BusinessRole::SELLER_ROLES)
-                        ->where('status', OrganizationVerification::STATUS_APPROVED)
-                        ->where(fn ($q) => $q->whereNull('license_expires_at')->orWhere('license_expires_at', '>', now()));
-                });
+        $tier1 = TierService::tier1Constraint();
+
+        return function ($org) use ($tier1) {
+            $tier1($org);
+            // Same rule as Organization::roleKey(): legacy records without business_role count as sellers unless typed buyer.
+            $org->where(fn ($q) => $q->whereIn('business_role', BusinessRole::SELLER_ROLES)
+                ->orWhere(fn ($l) => $l->whereNull('business_role')->where(fn ($t) => $t->whereNull('business_type')->orWhere('business_type', '!=', 'buyer'))));
         };
     }
 
-    /**
-     * Visible to buyers: an approved, unexpired seller verification (exporter, supplier or broker),
-     * read from the verification records themselves (not the cached flags), and the organization
-     * not suspended. Slice 3 replaces this with the Tier 1 rule.
-     */
+    /** Visible to buyers: Tier 1 or higher, still valid, not suspended, a seller role. */
     public static function isApprovedSeller(?Organization $org): bool
     {
-        if (!$org || $org->status === 'suspended') {
-            return false;
-        }
-
-        return $org->verifications()
-            ->whereIn('target_role', BusinessRole::SELLER_ROLES)
-            ->where('status', OrganizationVerification::STATUS_APPROVED)
-            ->where(fn ($q) => $q->whereNull('license_expires_at')->orWhere('license_expires_at', '>', now()))
-            ->exists();
+        return TierService::isVisibleToBuyers($org) && in_array($org->roleKey(), BusinessRole::SELLER_ROLES, true);
     }
 }

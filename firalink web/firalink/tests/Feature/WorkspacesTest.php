@@ -300,13 +300,13 @@ class WorkspacesTest extends TestCase
         $owner = $this->makeUser();
         $org = $this->makeOrganization($owner);
 
-        $v = $this->approveBusiness($org, 'exporter');
+        $this->approveBusiness($org, 'exporter');
 
         $org->refresh();
         $this->assertTrue((bool) $org->is_verified);
         $this->assertContains('exporter', $org->verified_roles);
         $this->assertSame('verified', $org->workspaceStatus());
-        $this->assertTrue(AuditLog::where('action', 'organization_role_verified')->where('auditable_id', $v->id)->exists());
+        $this->assertTrue(AuditLog::where('action', 'verification_tier_recomputed')->where('auditable_id', $org->id)->exists());
     }
 
     public function test_workspace_status_comes_from_verification_not_from_a_plan(): void
@@ -328,8 +328,13 @@ class WorkspacesTest extends TestCase
             ->assertJsonPath('data.organizations.0.visible_to_buyers', false);
 
         $v = OrganizationVerification::firstOrCreate(['organization_id' => $org->id, 'target_role' => 'exporter']);
-        app(\App\Services\Verification\VerificationReviewService::class)->submitForReview($v, $owner);
+        $doc = \App\Models\VerificationDocument::create([
+            'organization_verification_id' => $v->id, 'organization_id' => $org->id, 'document_type' => 'tin_certificate',
+            'file_path' => 'test/tin.pdf', 'file_disk' => 'verification', 'original_filename' => 'tin.pdf',
+            'file_size_kb' => 40, 'mime_type' => 'application/pdf', 'submitted_at' => now(),
+        ]);
         $this->assertSame('in_review', $org->fresh()->workspaceStatus());
+        $doc->forceFill(['status' => \App\Models\VerificationDocument::STATUS_SUPERSEDED])->save();
 
         $this->approveBusiness($org, 'exporter', now()->subDay());
         $this->assertSame('expired', $org->fresh()->workspaceStatus());
@@ -373,6 +378,9 @@ class WorkspacesTest extends TestCase
         $this->approveBusiness($org, 'buyer');
         $this->assertFalse(CoffeeListing::visibleToBuyers()->whereKey($lot->id)->exists());
 
+        $seller = $this->makeUser();
+        $org = $this->makeOrganization($seller);
+        $lot = $this->makeLot($seller, $org);
         $this->approveBusiness($org, 'exporter', now()->subDay());
         $this->assertFalse(CoffeeListing::visibleToBuyers()->whereKey($lot->id)->exists());
         $this->getJson("/api/marketplace/listings/{$lot->id}")->assertStatus(404);

@@ -46,8 +46,8 @@ class FreshAuthSensitiveActionsTest extends TestCase
         $this->makeOrganization($owner);
         $this->staleTokenFor($owner);
 
-        $this->post('/api/marketplace/verification/upload-document', [
-            'target_role' => 'exporter', 'document_type' => 'commercial_reg', 'document' => $this->realPdf(),
+        $this->post('/api/marketplace/verification/documents', [
+            'document_type' => 'trade_license', 'document_number' => 'N-1', 'expires_at' => now()->addYear()->toDateString(), 'pages' => [$this->realPdf()],
         ], ['Accept' => 'application/json'])->assertStatus(403)->assertJsonPath('code', 'FRESH_AUTH_REQUIRED');
 
         $this->postJson('/api/user/phone', ['phone' => '0911223344', 'code' => '123456'])
@@ -74,13 +74,13 @@ class FreshAuthSensitiveActionsTest extends TestCase
         $this->postJson('/api/auth/step-up/verify', ['code' => '000000' === $code ? '111111' : '000000'])->assertStatus(422);
         $this->postJson('/api/auth/step-up/verify', ['code' => $code])->assertOk()->assertJsonPath('fresh_for_minutes', 10);
 
-        $this->post('/api/marketplace/verification/upload-document', [
-            'target_role' => 'exporter', 'document_type' => 'commercial_reg', 'document' => $this->realPdf(),
+        $this->post('/api/marketplace/verification/documents', [
+            'document_type' => 'trade_license', 'document_number' => 'N-1', 'expires_at' => now()->addYear()->toDateString(), 'pages' => [$this->realPdf()],
         ], ['Accept' => 'application/json'])->assertStatus(201);
 
         $this->travel(11)->minutes();
-        $this->post('/api/marketplace/verification/upload-document', [
-            'target_role' => 'exporter', 'document_type' => 'tin_cert', 'document' => $this->realPdf(),
+        $this->post('/api/marketplace/verification/documents', [
+            'document_type' => 'tin_certificate', 'document_number' => 'N-1', 'expires_at' => now()->addYear()->toDateString(), 'pages' => [$this->realPdf()],
         ], ['Accept' => 'application/json'])->assertStatus(403)->assertJsonPath('code', 'FRESH_AUTH_REQUIRED');
     }
 

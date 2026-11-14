@@ -13,8 +13,9 @@ class Organization extends Model
     use HasFactory, SoftDeletes;
 
     /**
-     * is_verified, verified_roles, status and needs_manual_review are NOT fillable: they change
-     * only through App\Services\Verification\VerificationReviewService (with an audit-log entry).
+     * is_verified, verified_roles, status, needs_manual_review, verification_tier,
+     * verification_valid_until, verification_reviewed_at, tier1_first_granted_at and fira_id are
+     * NOT fillable: they change only through the verification services (with an audit-log entry).
      */
     protected $fillable = [
         'name',
@@ -29,15 +30,51 @@ class Organization extends Model
         'created_by',
     ];
 
+    // Never in JSON: organizations are embedded in public lot and supplier responses.
+    protected $hidden = ['tin_number', 'billing_email', 'created_by', 'needs_manual_review'];
+
     protected $casts = [
         'is_verified' => 'boolean',
         'verified_roles' => 'array',
         'needs_manual_review' => 'boolean',
+        'verification_tier' => 'integer',
+        'verification_valid_until' => 'datetime',
+        'verification_reviewed_at' => 'datetime',
+        'tier1_first_granted_at' => 'datetime',
     ];
 
     public function verifications(): HasMany
     {
         return $this->hasMany(OrganizationVerification::class);
+    }
+
+    public function verificationDocuments(): HasMany
+    {
+        return $this->hasMany(VerificationDocument::class);
+    }
+
+    public function tier3Grants(): HasMany
+    {
+        return $this->hasMany(VerificationTier3Grant::class);
+    }
+
+    /** exporter, supplier, broker or buyer (legacy records fall back to business_type). */
+    public function roleKey(): string
+    {
+        $role = $this->business_role ?: $this->business_type;
+
+        if (in_array($role, \App\Support\BusinessRole::values(), true)) {
+            return $role;
+        }
+
+        return 'exporter'; // legacy seller types (cooperative, commercial_farm, ...)
+    }
+
+    /** Tier 1 or higher now: valid tier and not past its valid-until date. */
+    public function hasActiveTier(int $tier = 1): bool
+    {
+        return (int) $this->verification_tier >= $tier
+            && ($this->verification_valid_until === null || $this->verification_valid_until->isFuture());
     }
 
     public function activeVerificationForRole(string $role): ?OrganizationVerification
@@ -53,24 +90,21 @@ class Organization extends Model
             ->first();
     }
 
+    /** Verified for a role = Tier 1 or higher in that business role (slice 3). */
     public function isVerifiedAs(string $role): bool
     {
-        if ($this->is_verified && is_array($this->verified_roles) && in_array($role, $this->verified_roles)) {
-            return true;
-        }
-
-        return $this->activeVerificationForRole($role) !== null;
+        return $this->status !== 'suspended' && $this->roleKey() === $role && $this->hasActiveTier(1);
     }
 
-    /** Recompute cached verification flags (delegates to the review service, which audits). */
+    /** Recompute the tier and cached flags (TierService audits every change). */
     public function syncVerifiedRoles(): void
     {
-        app(\App\Services\Verification\VerificationReviewService::class)->syncOrganization($this);
+        app(\App\Services\Verification\TierService::class)->recompute($this);
     }
 
     /**
-     * Status shown for a workspace in the app, derived only from verification records and the
-     * organization's own suspension. Plans, payments and subscriptions never affect it.
+     * Status shown for a workspace in the app, derived only from the computed tier, the documents
+     * and an admin suspension. Plans, payments and subscriptions never affect it.
      * One of: suspended, verified, in_review, needs_changes, expired, not_started.
      */
     public function workspaceStatus(): string
@@ -78,22 +112,19 @@ class Organization extends Model
         if ($this->status === 'suspended') {
             return 'suspended';
         }
+        if ($this->hasActiveTier(1)) {
+            return 'verified';
+        }
 
-        $statuses = $this->verifications()->get(['status', 'license_expires_at'])->map(function ($v) {
-            if ($v->status === OrganizationVerification::STATUS_APPROVED && $v->license_expires_at && $v->license_expires_at->isPast()) {
-                return OrganizationVerification::STATUS_EXPIRED;
-            }
-
-            return $v->status;
-        });
+        $statuses = $this->verificationDocuments()->current()->pluck('status');
 
         return match (true) {
-            $statuses->contains(OrganizationVerification::STATUS_SUSPENDED) => 'suspended',
-            $statuses->contains(OrganizationVerification::STATUS_APPROVED) => 'verified',
-            $statuses->contains(OrganizationVerification::STATUS_PENDING_REVIEW),
-            $statuses->contains(OrganizationVerification::STATUS_UNDER_SCRUTINY) => 'in_review',
-            $statuses->contains(OrganizationVerification::STATUS_REJECTED) => 'needs_changes',
-            $statuses->contains(OrganizationVerification::STATUS_EXPIRED) => 'expired',
+            $statuses->contains(VerificationDocument::STATUS_IN_REVIEW) => 'in_review',
+            $statuses->contains(VerificationDocument::STATUS_NEEDS_CHANGES),
+            $statuses->contains(VerificationDocument::STATUS_REJECTED) => 'needs_changes',
+            $this->tier1_first_granted_at !== null || $statuses->contains(VerificationDocument::STATUS_EXPIRED),
+            $this->verificationDocuments()->where('status', VerificationDocument::STATUS_APPROVED)
+                ->whereDate('expires_at', '<', now()->toDateString())->exists() => 'expired',
             default => 'not_started',
         };
     }

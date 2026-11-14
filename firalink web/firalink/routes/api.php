@@ -113,8 +113,8 @@ Route::get('/certificates/download/signed/{id}', [CertificateController::class, 
 Route::post('/verify-certificate', [ApiCertificateVerificationController::class, 'verify']);
 Route::get('/verify-certificate/{code}', [ApiCertificateVerificationController::class, 'show']);
 
-// Public Seller & Exporter Verification Registry Lookup
-Route::get('/verify-seller/{query}', [\App\Http\Controllers\Api\PublicVerificationController::class, 'verifySeller']);
+// Public seller check by Fira ID only (slice 3). Rate-limited per IP; no list, search or TIN lookup.
+Route::get('/sellers/{firaId}', [\App\Http\Controllers\Api\PublicSellerController::class, 'show'])->middleware('throttle:public-seller');
 
 // Community Q&A (Public)
 Route::get('/community/questions', [CommunityController::class, 'index']);
@@ -278,8 +278,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
         // Verification & Compliance Dossier (Multi-Role)
         Route::get('/verification/status', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'status']);
-        Route::post('/verification/submit', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'submitDetails']);
-        Route::post('/verification/upload-document', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'uploadDocument'])->middleware('fresh.auth');
+        Route::post('/verification/documents', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'uploadDocument'])->middleware('fresh.auth');
         Route::delete('/verification/documents/{id}', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'deleteDocument']);
 
         // Green Coffee Samples Pipeline (Crypto-Sealed & Cupping Evaluation)

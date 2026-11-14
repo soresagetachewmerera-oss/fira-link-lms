@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\ApprovesBusinesses;
 use Tests\Concerns\BuildsTradeFixtures;
 use Tests\TestCase;
 
@@ -18,7 +19,7 @@ use Tests\TestCase;
  */
 class EvidenceLevelServerControlledTest extends TestCase
 {
-    use DatabaseTransactions, BuildsTradeFixtures;
+    use DatabaseTransactions, BuildsTradeFixtures, ApprovesBusinesses;
 
     protected function setUp(): void
     {
@@ -37,6 +38,7 @@ class EvidenceLevelServerControlledTest extends TestCase
             'company_slug' => 'verified-exporter-' . $suffix,
             'business_type' => 'exporter',
         ]), fn ($p) => $p->forceFill(['verification_status' => 'verified'])->save());
+        $this->approveBusiness($this->makeOrganization($seller), 'exporter');
 
         return $seller;
     }
@@ -162,9 +164,9 @@ class EvidenceLevelServerControlledTest extends TestCase
         $admin = $this->makeUser('admin');
 
         // A review note and a known level are required.
-        $this->actingAs($admin)->post($url, ['evidence_level' => 'platinum', 'notes' => 'x'])->assertSessionHasErrors(['evidence_level', 'notes']);
+        $this->actingAsStaff($admin)->post($url, ['evidence_level' => 'platinum', 'notes' => 'x'])->assertSessionHasErrors(['evidence_level', 'notes']);
 
-        $this->actingAs($admin)->post($url, $payload)->assertRedirect();
+        $this->actingAsStaff($admin)->post($url, $payload)->assertRedirect();
         $this->assertSame('documented', $listing->fresh()->evidence_level);
 
         $this->assertTrue(AuditLog::where('action', 'listing_evidence_level_reviewed')

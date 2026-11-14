@@ -8,7 +8,8 @@ use App\Models\Organization;
 use App\Models\OrganizationMembership;
 use App\Models\OrganizationVerification;
 use App\Models\User;
-use App\Services\Verification\VerificationReviewService;
+use App\Models\VerificationDocument;
+use App\Services\Verification\TierService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -81,13 +82,31 @@ class LocalDemoSellerSeeder extends Seeder
         );
         $profile->forceFill(['verification_status' => 'verified', 'verified_at' => now()])->save();
 
-        // Approve through the review service (audited), the same path an admin uses.
-        $reviewer = User::where('role', 'admin')->first() ?? $seller;
+        // Tier 1 from approved demo documents (no files: local data only); TierService computes and audits.
         $verification = OrganizationVerification::firstOrCreate([
             'organization_id' => $org->id,
             'target_role' => 'exporter',
         ]);
-        app(VerificationReviewService::class)->approve($verification, $reviewer, 'Local demo data', now()->addYear());
+        foreach (TierService::requiredDocuments($org, 1) as $type) {
+            $doc = VerificationDocument::firstOrCreate(
+                ['organization_id' => $org->id, 'document_type' => $type, 'original_filename' => 'demo-' . $type . '.pdf'],
+                [
+                    'organization_verification_id' => $verification->id,
+                    'file_path' => 'demo/' . $type . '.pdf',
+                    'file_disk' => 'verification',
+                    'file_size_kb' => 1,
+                    'mime_type' => 'application/pdf',
+                    'submitted_at' => now(),
+                ]
+            );
+            $doc->forceFill([
+                'tier' => 1,
+                'status' => VerificationDocument::STATUS_APPROVED,
+                'reviewed_at' => now(),
+                'expires_at' => (TierService::documentTypeConfig($type)['expires'] ?? false) ? now()->addYear() : null,
+            ])->save();
+        }
+        app(TierService::class)->recompute($org);
 
         $lots = [
             ['Demo Sidama Bensa Washed G1', 'Sidama', 'washed', 'grade_1', 120, 4.85],

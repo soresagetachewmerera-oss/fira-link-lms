@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\ApprovesBusinesses;
 use Tests\Concerns\BuildsTradeFixtures;
 use App\Services\Auth\FreshAuth;
 use Tests\TestCase;
@@ -20,7 +21,7 @@ use Tests\TestCase;
  */
 class PrivateEvidenceUploadTest extends TestCase
 {
-    use DatabaseTransactions, BuildsTradeFixtures;
+    use DatabaseTransactions, BuildsTradeFixtures, ApprovesBusinesses;
 
     protected function setUp(): void
     {
@@ -59,19 +60,21 @@ class PrivateEvidenceUploadTest extends TestCase
         Sanctum::actingAs($owner);
 
         foreach ([$this->emptyFile('license.pdf'), $this->dummyBytes('license.pdf'), $this->dummyBytes('license.pdf', 20480, '%PDF-1.4'), $this->tinyPng('license.png')] as $file) {
-            $this->post('/api/marketplace/verification/upload-document', [
-                'target_role' => 'exporter',
-                'document_type' => 'commercial_reg',
-                'document' => $file,
+            $this->post('/api/marketplace/verification/documents', [
+                'document_type' => 'trade_license',
+                'document_number' => 'TL-1',
+                'expires_at' => now()->addYear()->toDateString(),
+                'pages' => [$file],
             ], ['Accept' => 'application/json'])->assertStatus(422);
         }
         $this->assertSame([], Storage::disk('verification')->allFiles());
 
         // A real PDF with a misleading name is stored with the extension of its real type.
-        $this->post('/api/marketplace/verification/upload-document', [
-            'target_role' => 'exporter',
-            'document_type' => 'commercial_reg',
-            'document' => $this->realPdf('license.exe'),
+        $this->post('/api/marketplace/verification/documents', [
+            'document_type' => 'trade_license',
+            'document_number' => 'TL-1',
+            'expires_at' => now()->addYear()->toDateString(),
+            'pages' => [$this->realPdf('license.exe')],
         ], ['Accept' => 'application/json'])->assertStatus(201);
 
         $doc = VerificationDocument::latest('id')->firstOrFail();
@@ -114,14 +117,14 @@ class PrivateEvidenceUploadTest extends TestCase
         $admin = $this->makeUser('admin');
         $signed = app(\App\Services\PrivateDocumentStore::class)->adminUrl('listing-evidence', $listing->id, 10);
 
-        $this->actingAs($admin)->get($signed)->assertOk();
+        $this->actingAsStaff($admin)->get($signed)->assertOk();
 
         // Unsigned URL is refused.
-        $this->actingAs($admin)->get("/admin/private-files/listing-evidence/{$listing->id}")->assertStatus(403);
+        $this->actingAsStaff($admin)->get("/admin/private-files/listing-evidence/{$listing->id}")->assertStatus(403);
 
         // Expired link is refused.
         $this->travel(11)->minutes();
-        $this->actingAs($admin)->get($signed)->assertStatus(403);
+        $this->actingAsStaff($admin)->get($signed)->assertStatus(403);
         $this->travelBack();
 
         // A valid signed URL is still useless to a non-admin.
