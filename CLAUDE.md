@@ -192,6 +192,17 @@ Run on the production server **in this order**. Always run the dry run first and
       yet" until the real Chapa payment is built after the Chapa keys are rotated; free samples work. The mock is
       refused in production even if the flag is set.
     - Samples requested before slice 6 have no buyer business; only the person who requested them can act on them.
+12. Slice 7 (report, block, chat warning, deal room). `php artisan migrate` adds business chat (`trade_conversations`,
+    `trade_messages`), `business_blocks`, report reason codes and targets, `payout_accounts` (number encrypted with
+    `APP_KEY`), and `deal_rooms.buyer_organization_id` / `deposit_percent` / `paused_at`.
+    - Rotate `APP_KEY` before sellers add real payout accounts: account numbers are encrypted with it, and after a
+      rotation without `APP_PREVIOUS_KEYS` they can no longer be read.
+    - Deal rooms opened before slice 7 have no buyer business (the buyer person stands in) and keep their five steps;
+      new deal rooms have six. Steps are now confirmed in order, so check open deal rooms before finance confirms
+      a later step.
+    - Sellers must add a payout account and a reviewer must confirm it (review queue, Payout accounts tab) before any
+      buyer can upload a payment slip. A change needs a call to the owner's phone on file and waits 48 hours.
+    - Optional `DEAL_DEPOSIT_PERCENT` (default 30) sets the deposit share of new deal rooms.
 
 ## 4. Workflow per slice
 
