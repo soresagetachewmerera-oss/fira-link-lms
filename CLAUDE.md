@@ -203,6 +203,21 @@ Run on the production server **in this order**. Always run the dry run first and
     - Sellers must add a payout account and a reviewer must confirm it (review queue, Payout accounts tab) before any
       buyer can upload a payment slip. A change needs a call to the owner's phone on file and waits 48 hours.
     - Optional `DEAL_DEPOSIT_PERCENT` (default 30) sets the deposit share of new deal rooms.
+13. Slice 8 (events, tours, academy). `php artisan migrate` adds event category, online, agenda, member ticket,
+    service fee, refund policy and organizer business; tour host business, deposit percent, balance due days and
+    safety notes; tour booking deposit and balance; and `payments.purpose` / `confirmed_by`. Booking emails become
+    optional (phone-only accounts).
+    - Run `php artisan files:move-evidence-private --dry-run`, then without `--dry-run`: bank receipts
+      (`payments.receipt_file`, courses and plans) now count as private files and leave the public disk. Until
+      moved, old receipt links in admin show "not found".
+    - The scheduler runs `bookings:release-unpaid` every 15 minutes: unpaid Chapa checkouts free their seats after
+      an hour, and tours whose balance is unpaid after the due date are cancelled. Bank slips with finance are kept.
+    - Bank slips for events and tours are confirmed or rejected on the existing admin page Payments → Offline
+      pending (admin role). Chapa is still the live gateway with the leaked keys: rotate them (see above).
+    - Link each event organizer and tour host by Fira ID on the admin event and tour pages, and set tour dates;
+      a tour without future dates cannot be booked. "Verified" shows only while that business has an active Tier 1.
+    - Tour booking and the event/tour Chapa verify routes now need sign-in; older app versions that book tours
+      without signing in will get 401.
 
 ## 4. Workflow per slice
 
