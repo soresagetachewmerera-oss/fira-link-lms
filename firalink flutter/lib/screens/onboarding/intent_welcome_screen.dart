@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import '../../widgets/bottom_nav_bar.dart';
+import '../marketplace/organization_verification_screen.dart';
 import '../shell/main_shell_screen.dart';
 
 class IntentWelcomeScreen extends StatelessWidget {
@@ -140,6 +142,23 @@ class IntentWelcomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
+
+              if (intent == 'export' || intent == 'buy') ...[
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  key: const Key('welcome-start-verification'),
+                  icon: const Icon(Icons.verified_user_outlined),
+                  label: Text(context.l10n.verifyStart),
+                  onPressed: () {
+                    final nav = Navigator.of(context);
+                    nav.pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => MainShellScreen(initialTab: config['tab'])),
+                      (route) => false,
+                    );
+                    nav.push(MaterialPageRoute(builder: (_) => const OrganizationVerificationScreen()));
+                  },
+                ),
+              ],
 
               const Spacer(),
 

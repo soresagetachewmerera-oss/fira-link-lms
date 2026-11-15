@@ -1,36 +1,71 @@
 import 'package:flutter/material.dart';
+
+import '../../l10n/app_localizations.dart';
 import '../../services/trust_safety_service.dart';
+import '../../services/upload_file.dart';
+import '../../theme/fira_colors.dart';
+import '../../widgets/fira_error_state.dart';
 
+typedef PickScreenshot = Future<UploadFile?> Function();
+
+/// Report a problem (slice 7). The server works out the reported business from what is reported
+/// (message, deal room, sample, lot, business or Fira ID) and never tells them who reported.
+/// Nothing is paused automatically; Fira Link decides.
 class ReportModal extends StatefulWidget {
-  final int? reportedUserId;
-  final int? reportedOrganizationId;
-  final int? reportedListingId;
-  final String targetTitle;
-
   const ReportModal({
     super.key,
-    this.reportedUserId,
     this.reportedOrganizationId,
     this.reportedListingId,
+    this.reportedMessageId,
+    this.reportedDealRoomId,
+    this.reportedSampleId,
+    this.reportedFiraId,
+    this.initialReason,
     required this.targetTitle,
+    this.service,
+    this.pickScreenshot,
   });
 
-  static Future<void> show(
+  final int? reportedOrganizationId;
+  final int? reportedListingId;
+  final int? reportedMessageId;
+  final int? reportedDealRoomId;
+  final int? reportedSampleId;
+  final String? reportedFiraId;
+  final String? initialReason;
+  final String targetTitle;
+  final TrustSafetyService? service;
+  final PickScreenshot? pickScreenshot;
+
+  /// Returns true when the report was sent.
+  static Future<bool?> show(
     BuildContext context, {
-    int? reportedUserId,
     int? reportedOrganizationId,
     int? reportedListingId,
+    int? reportedMessageId,
+    int? reportedDealRoomId,
+    int? reportedSampleId,
+    String? reportedFiraId,
+    String? initialReason,
     required String targetTitle,
+    TrustSafetyService? service,
+    PickScreenshot? pickScreenshot,
   }) {
-    return showModalBottomSheet(
+    return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      useSafeArea: true,
       builder: (_) => ReportModal(
-        reportedUserId: reportedUserId,
         reportedOrganizationId: reportedOrganizationId,
         reportedListingId: reportedListingId,
+        reportedMessageId: reportedMessageId,
+        reportedDealRoomId: reportedDealRoomId,
+        reportedSampleId: reportedSampleId,
+        reportedFiraId: reportedFiraId,
+        initialReason: initialReason,
         targetTitle: targetTitle,
+        service: service,
+        pickScreenshot: pickScreenshot,
       ),
     );
   }
@@ -40,163 +75,142 @@ class ReportModal extends StatefulWidget {
 }
 
 class _ReportModalState extends State<ReportModal> {
-  final TrustSafetyService _service = TrustSafetyService();
-  String _selectedReason = 'Off-platform payment solicitation';
-  final _detailsController = TextEditingController();
-  bool _isSubmitting = false;
-
-  final List<String> _reasons = [
-    'Off-platform payment solicitation (Wire/Cash request outside platform)',
-    'Fraudulent / Misrepresented origin or cupping score',
-    'Unlicensed entity claiming ECTA export authorization',
-    'Harassment or commercial spam',
-    'Refusal to honor sample or deal contract terms',
-    'Other Trust & Safety violation',
-  ];
+  late final TrustSafetyService _service = widget.service ?? TrustSafetyService();
+  final _details = TextEditingController();
+  late String? _reason = widget.initialReason;
+  UploadFile? _screenshot;
+  bool _block = false;
+  bool _tried = false;
+  bool _sending = false;
 
   @override
   void dispose() {
-    _detailsController.dispose();
+    _details.dispose();
     super.dispose();
   }
 
-  Future<void> _submitReport() async {
-    final details = _detailsController.text.trim();
-    if (details.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please provide specific details for the report')),
-      );
+  bool get _detailsMissing => _reason == 'other' && _details.text.trim().isEmpty;
+
+  Future<void> _pick() async {
+    final file = await (widget.pickScreenshot ?? () => UploadFile.pickDocument(extensions: const ['jpg', 'jpeg', 'png']))();
+    if (file == null || !mounted) return;
+    final rejection = file.localRejection;
+    if (rejection != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(FiraErrorText.fileRejection(context, rejection))));
       return;
     }
+    setState(() => _screenshot = file);
+  }
 
-    setState(() => _isSubmitting = true);
-    final res = await _service.submitReport(
-      reason: _selectedReason,
-      details: details,
-      reportedUserId: widget.reportedUserId,
-      reportedOrganizationId: widget.reportedOrganizationId,
-      reportedListingId: widget.reportedListingId,
-    );
-
-    if (!mounted) return;
-    setState(() => _isSubmitting = false);
-
-    if (res['success'] == true) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Report submitted. Our Trust & Safety team has been notified.'),
-          backgroundColor: Colors.green,
-        ),
+  Future<void> _send() async {
+    setState(() => _tried = true);
+    if (_reason == null || _detailsMissing) return;
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    setState(() => _sending = true);
+    try {
+      final blocked = await _service.submitReport(
+        reasonCode: _reason!,
+        details: _details.text,
+        reportedOrganizationId: widget.reportedOrganizationId,
+        reportedListingId: widget.reportedListingId,
+        reportedMessageId: widget.reportedMessageId,
+        reportedDealRoomId: widget.reportedDealRoomId,
+        reportedSampleId: widget.reportedSampleId,
+        reportedFiraId: widget.reportedFiraId,
+        block: _block,
+        evidence: _screenshot,
       );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(res['message'] ?? 'Failed to submit report')),
-      );
+      navigator.pop(true);
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(blocked ? l10n.reportSentBlocked : l10n.reportSent)));
+    } catch (e) {
+      if (mounted) showFiraActionError(context, e);
+    } finally {
+      if (mounted) setState(() => _sending = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
+    final l10n = context.l10n;
+    final fira = context.fira;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.reportTitle, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 4),
+            Text(l10n.translate('reportAbout', {'target': widget.targetTitle}), style: TextStyle(color: fira.mutedText)),
+            const SizedBox(height: 16),
+            Text(l10n.reportWhatHappened, style: const TextStyle(fontWeight: FontWeight.w700)),
+            RadioGroup<String>(
+              groupValue: _reason,
+              onChanged: (v) => setState(() => _reason = v),
+              child: Column(children: [
+                for (final code in TrustSafetyService.reasons)
+                  RadioListTile<String>(
+                    key: Key('reason-$code'),
+                    value: code,
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(l10n.translate('reportReason_$code')),
                   ),
-                ),
+              ]),
+            ),
+            if (_tried && _reason == null)
+              Text(l10n.reportChooseReason, key: const Key('reason-required'), style: TextStyle(color: fira.danger)),
+            const SizedBox(height: 8),
+            TextField(
+              key: const Key('report-details'),
+              controller: _details,
+              maxLines: 4,
+              maxLength: 5000,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                labelText: l10n.reportDetails,
+                hintText: l10n.reportDetailsHint,
+                errorText: _tried && _detailsMissing ? l10n.reportDetailsRequired : null,
               ),
-              const SizedBox(height: 18),
-              Row(
-                children: [
-                  const Icon(Icons.shield_outlined, color: Colors.redAccent),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Report to Trust & Safety',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
-                  ),
-                ],
+            ),
+            OutlinedButton.icon(
+              key: const Key('report-screenshot'),
+              onPressed: _sending ? null : _pick,
+              icon: Icon(_screenshot == null ? Icons.add_photo_alternate_outlined : Icons.check_circle, color: _screenshot == null ? null : fira.success),
+              label: Text(_screenshot == null ? l10n.reportAddScreenshot : l10n.reportScreenshotAdded),
+            ),
+            const SizedBox(height: 8),
+            CheckboxListTile(
+              key: const Key('report-block'),
+              value: _block,
+              contentPadding: EdgeInsets.zero,
+              controlAffinity: ListTileControlAffinity.leading,
+              onChanged: (v) => setState(() => _block = v ?? false),
+              title: Text(l10n.reportAlsoBlock),
+              subtitle: Text(l10n.reportAlsoBlockBody),
+            ),
+            Card(
+              color: fira.brandTint,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(l10n.reportNote, style: TextStyle(color: fira.onSurface)),
               ),
-              const SizedBox(height: 4),
-              Text(
-                'Reporting: ${widget.targetTitle}',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-              ),
-              const SizedBox(height: 18),
-
-              const Text('Violation Category *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<String>(
-                value: _selectedReason,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                ),
-                items: _reasons
-                    .map((r) => DropdownMenuItem(
-                          value: r,
-                          child: Text(r, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
-                        ))
-                    .toList(),
-                onChanged: (val) {
-                  if (val != null) setState(() => _selectedReason = val);
-                },
-              ),
-              const SizedBox(height: 16),
-
-              const Text('Explanation & Evidence *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-              const SizedBox(height: 6),
-              TextField(
-                controller: _detailsController,
-                maxLines: 4,
-                decoration: InputDecoration(
-                  hintText: 'Please detail dates, message quotes, or specifics of the interaction...',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size.fromHeight(50),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                onPressed: _isSubmitting ? null : _submitReport,
-                child: _isSubmitting
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                      )
-                    : const Text('Submit Confidential Report', style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 12),
+            FilledButton(
+              key: const Key('report-send'),
+              onPressed: _sending ? null : _send,
+              child: _sending ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : Text(l10n.reportSend),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-

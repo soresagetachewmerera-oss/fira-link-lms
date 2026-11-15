@@ -8,6 +8,7 @@ import '../../services/api_exception.dart';
 import '../../theme/fira_colors.dart';
 import '../../widgets/fira_error_state.dart';
 import '../../widgets/workspace_status_pill.dart';
+import '../marketplace/organization_verification_screen.dart';
 import 'intent_welcome_screen.dart';
 
 /// Business setup (S-103). Used in onboarding (after Intent) and from "Add a business".
@@ -16,7 +17,10 @@ class BusinessWorkspaceSetupScreen extends StatefulWidget {
   /// 'export' or 'buy' in onboarding; null when opened from the workspace switcher.
   final String? intent;
 
-  const BusinessWorkspaceSetupScreen({super.key, this.intent});
+  /// Where "Create workspace" leads outside onboarding: the new business's verification.
+  final WidgetBuilder? afterCreate;
+
+  const BusinessWorkspaceSetupScreen({super.key, this.intent, this.afterCreate});
 
   bool get isOnboarding => intent != null;
 
@@ -117,6 +121,9 @@ class _BusinessWorkspaceSetupScreenState extends State<BusinessWorkspaceSetupScr
     }
     if (created) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.businessCreated)));
+      // The new business is now the active workspace: verification starts here (lots and quotes need Tier 1).
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: widget.afterCreate ?? (_) => const OrganizationVerificationScreen()));
+      return;
     }
     Navigator.pop(context);
   }

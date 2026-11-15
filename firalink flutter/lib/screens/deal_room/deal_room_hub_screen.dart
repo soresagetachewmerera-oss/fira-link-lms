@@ -1,341 +1,292 @@
 import 'package:flutter/material.dart';
+
+import '../../l10n/app_localizations.dart';
 import '../../models/deal_room_model.dart';
+import '../../models/trade_model.dart';
 import '../../services/deal_room_service.dart';
+import '../../services/trade_chat_service.dart';
+import '../../services/trust_safety_service.dart';
+import '../../theme/fira_colors.dart';
 import '../../widgets/fira_error_state.dart';
-import 'dispute_resolution_screen.dart';
+import '../../widgets/trade_labels.dart';
+import '../../widgets/verification_labels.dart';
+import '../chat/trade_chat_screen.dart';
+import '../trust_safety/report_modal.dart';
+import 'deal_settlement_screen.dart';
 import 'export_contract_esign_screen.dart';
 import 'payment_milestones_screen.dart';
 import 'preshipment_inspection_screen.dart';
 import 'shipping_logistics_screen.dart';
 
-class DealRoomHubScreen extends StatefulWidget {
-  final int dealRoomId;
+/// Shared labels for deal rooms (slice 7).
+class DealLabels {
+  static String step(AppLocalizations l10n, String key) => l10n.translate('dealStep_$key');
 
-  const DealRoomHubScreen({super.key, required this.dealRoomId});
+  /// "Waiting for deposit" style line for the current step.
+  static String waiting(AppLocalizations l10n, DealRoomModel d) {
+    if (d.isCompleted) return l10n.dealStatusCompleted;
+    final key = d.currentStep;
+    return key == null ? l10n.dealStatusAllDone : l10n.translate('dealWaiting_$key');
+  }
+
+  static String activity(AppLocalizations l10n, DealActivity a) {
+    final step = a.step == null ? '' : DealLabels.step(l10n, a.step!);
+    if (a.action == 'deal_milestone_updated') {
+      return l10n.translate(a.status == 'proof_submitted' ? 'dealAct_proof' : 'dealAct_updated', {'step': step});
+    }
+    return l10n.translate('dealAct_${a.action}', {'step': step});
+  }
+}
+
+/// Deal room (slice 7): both businesses, six steps in order, documents and activity.
+/// Money moves only through the steps; the server decides which step is open.
+class DealRoomHubScreen extends StatefulWidget {
+  const DealRoomHubScreen({super.key, required this.dealRoomId, this.service, this.chat, this.trust});
+
+  final int dealRoomId;
+  final DealRoomService? service;
+  final TradeChatService? chat;
+  final TrustSafetyService? trust;
 
   @override
   State<DealRoomHubScreen> createState() => _DealRoomHubScreenState();
 }
 
 class _DealRoomHubScreenState extends State<DealRoomHubScreen> {
-  final DealRoomService _service = DealRoomService();
-  DealRoomModel? _dealRoom;
-  bool _isLoading = true;
-  Object? _loadError;
+  late final DealRoomService _service = widget.service ?? DealRoomService();
+  late final TradeChatService _chat = widget.chat ?? TradeChatService();
+  DealRoomModel? _deal;
+  Object? _error;
+  bool _opening = false;
 
   @override
   void initState() {
     super.initState();
-    _loadDealRoom();
+    _load();
   }
 
-  Future<void> _loadDealRoom() async {
-    setState(() {
-      _isLoading = true;
-      _loadError = null;
-    });
+  Future<void> _load() async {
+    setState(() => _error = null);
     try {
-      final dr = await _service.getDealRoom(widget.dealRoomId);
-      if (!mounted) return;
-      setState(() {
-        _dealRoom = dr;
-        _isLoading = false;
-      });
+      final d = await _service.getDealRoom(widget.dealRoomId);
+      if (mounted) setState(() => _deal = d);
     } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _loadError = e;
-        _isLoading = false;
-      });
+      if (mounted) setState(() => _error = e);
     }
   }
 
-  void _onMilestoneTap(DealMilestoneModel milestone) {
-    if (_dealRoom == null) return;
+  Future<void> _push(Widget screen) async {
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+    if (mounted) _load();
+  }
 
-    switch (milestone.milestoneKey) {
+  void _openStep(DealRoomModel d, DealMilestoneModel m) {
+    final l10n = context.l10n;
+    if (m.locked) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(l10n.dealStepLockedHint)));
+      return;
+    }
+    if (m.money != null) {
+      _push(PaymentMilestonesScreen(dealRoom: d, milestone: m, service: _service, trust: widget.trust));
+      return;
+    }
+    switch (m.key) {
       case 'contract_signed':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ExportContractEsignScreen(dealRoom: _dealRoom!),
-          ),
-        ).then((_) => _loadDealRoom());
-        break;
-      case 'payment_escrow':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => PaymentMilestonesScreen(dealRoom: _dealRoom!, milestone: milestone),
-          ),
-        ).then((_) => _loadDealRoom());
-        break;
+        _push(ExportContractEsignScreen(dealRoom: d));
       case 'preshipment_inspection':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => PreshipmentInspectionScreen(dealRoom: _dealRoom!, milestone: milestone),
-          ),
-        ).then((_) => _loadDealRoom());
-        break;
-      case 'bill_of_lading_released':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ShippingLogisticsScreen(dealRoom: _dealRoom!, milestone: milestone),
-          ),
-        ).then((_) => _loadDealRoom());
-        break;
-      default:
-        // Complete or generic milestone
-        break;
+        _push(PreshipmentInspectionScreen(dealRoom: d, milestone: m));
+      case 'shipped':
+        _push(ShippingLogisticsScreen(dealRoom: d, milestone: m));
+      case 'final_settlement':
+        _push(DealSettlementScreen(dealRoom: d));
+    }
+  }
+
+  Future<void> _openChat(DealRoomModel d) async {
+    setState(() => _opening = true);
+    try {
+      final c = await _chat.forDealRoom(d.id);
+      if (!mounted) return;
+      await _push(TradeChatScreen(conversationId: c.id, service: _chat, trust: widget.trust));
+    } catch (e) {
+      if (mounted) showFiraActionError(context, e);
+    } finally {
+      if (mounted) setState(() => _opening = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF6D1A95);
-
+    final l10n = context.l10n;
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          _dealRoom != null ? 'Deal Room: ${_dealRoom!.dealReference}' : 'B2B Deal Room',
-          style: const TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold, fontSize: 16),
+      appBar: AppBar(title: Text(_deal?.dealReference ?? l10n.dealTitle)),
+      body: _error != null
+          ? FiraErrorState(error: _error, onRetry: _load)
+          : _deal == null
+              ? const Center(child: CircularProgressIndicator())
+              : RefreshIndicator(onRefresh: _load, child: _body(context, _deal!)),
+    );
+  }
+
+  Widget _party(BuildContext context, String label, BusinessSummary? b, bool me) {
+    final fira = context.fira;
+    final l10n = context.l10n;
+    return Expanded(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(me ? '$label · ${l10n.dealYou}' : label, style: TextStyle(color: fira.mutedText, fontSize: 12)),
+        Text(b?.name ?? '–', style: const TextStyle(fontWeight: FontWeight.w700), maxLines: 2, overflow: TextOverflow.ellipsis),
+        BusinessTierLabel(business: b),
+      ]),
+    );
+  }
+
+  Widget _body(BuildContext context, DealRoomModel d) {
+    final l10n = context.l10n;
+    final fira = context.fira;
+    final lot = d.lot;
+    final docs = d.documents;
+
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+      children: [
+        Text('${d.title} · ${d.incoterm}', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 4),
+        Text(TradeLabels.money(d.targetValueUsd), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+        if (lot != null)
+          Text(
+            [
+              lot.title,
+              if (lot.lotCode != null) lot.lotCode!,
+              if (lot.pricePerLb != null) l10n.translate('dealPricePerLb', {'price': '\$${lot.pricePerLb!.toStringAsFixed(2)}'}),
+            ].join(' · '),
+            style: TextStyle(color: fira.mutedText),
+          ),
+        const SizedBox(height: 8),
+        Text(
+          l10n.translate('dealStepLine', {'n': d.stepNumber, 'total': d.stepCount, 'status': DealLabels.waiting(l10n, d)}),
+          key: const Key('deal-step-line'),
+          style: TextStyle(color: fira.pending, fontWeight: FontWeight.w700),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.warning_amber_outlined, color: Colors.redAccent),
-            tooltip: 'Raise Dispute',
-            onPressed: () {
-              if (_dealRoom != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => DisputeResolutionScreen(dealRoom: _dealRoom!),
-                  ),
-                ).then((_) => _loadDealRoom());
-              }
-            },
+        if (d.paused) ...[
+          const SizedBox(height: 12),
+          Card(
+            key: const Key('deal-paused'),
+            color: fira.brandTint,
+            child: ListTile(
+              leading: Icon(Icons.pause_circle_outline, color: fira.danger),
+              title: Text(l10n.dealPaused, style: TextStyle(color: fira.onSurface)),
+            ),
           ),
         ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: primaryColor))
-          : _loadError != null || _dealRoom == null
-              ? FiraErrorState(error: _loadError, onRetry: _loadDealRoom)
-              : RefreshIndicator(
-                  onRefresh: _loadDealRoom,
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Deal Room Summary Card
-                        Container(
-                          padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            color: primaryColor.withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: primaryColor.withValues(alpha: 0.2)),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    _dealRoom!.dealReference,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: primaryColor,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: _dealRoom!.isCompleted
-                                          ? Colors.green
-                                          : _dealRoom!.isDisputed
-                                              ? Colors.red
-                                              : _dealRoom!.isUnderContract
-                                                  ? Colors.blue
-                                                  : Colors.orange,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      _dealRoom!.status.toUpperCase().replaceAll('_', ' '),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                _dealRoom!.title,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'Target Value: \$${_dealRoom!.targetValueUsd.toStringAsFixed(2)} USD • ${_dealRoom!.incoterm}',
-                                style: TextStyle(fontSize: 13, color: Colors.grey.shade700, fontWeight: FontWeight.w500),
-                              ),
-                              const Divider(height: 24),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const Text('EXPORTER', style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          _dealRoom!.organization?.name ?? 'Seller Organization',
-                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const Text('BUYER', style: TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          _dealRoom!.buyer?.name ?? 'Buyer Entity',
-                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Milestones Execution Roadmap
-                        const Text(
-                          'Contract & Execution Milestones',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E293B)),
-                        ),
-                        const SizedBox(height: 6),
-                        const Text(
-                          'Tap any milestone to view proof, upload documents, or e-sign contracts.',
-                          style: TextStyle(fontSize: 12, color: Colors.black54),
-                        ),
-                        const SizedBox(height: 16),
-
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _dealRoom!.milestones.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final m = _dealRoom!.milestones[index];
-                            final isAchieved = m.isAchieved;
-
-                            return InkWell(
-                              onTap: () => _onMilestoneTap(m),
-                              borderRadius: BorderRadius.circular(16),
-                              child: Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: isAchieved ? Colors.green.shade300 : Colors.grey.shade200,
-                                  ),
-                                  color: isAchieved ? Colors.green.withValues(alpha: 0.03) : Colors.white,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 36,
-                                      height: 36,
-                                      decoration: BoxDecoration(
-                                        color: isAchieved ? Colors.green : Colors.grey.shade100,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        isAchieved ? Icons.check : Icons.circle_outlined,
-                                        color: isAchieved ? Colors.white : Colors.grey,
-                                        size: 20,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 14),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            m.title,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                              color: isAchieved ? Colors.green.shade900 : const Color(0xFF1E293B),
-                                            ),
-                                          ),
-                                          if (m.description != null) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              m.description!,
-                                              style: TextStyle(fontSize: 11, color: Colors.grey.shade600, height: 1.3),
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                    ),
-                                    const Icon(Icons.chevron_right, color: Colors.grey),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 32),
-
-                        if (!_dealRoom!.isFullySigned)
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryColor,
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size.fromHeight(50),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                            ),
-                            icon: const Icon(Icons.draw_outlined),
-                            label: const Text('E-Sign Export Contract', style: TextStyle(fontWeight: FontWeight.bold)),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ExportContractEsignScreen(dealRoom: _dealRoom!),
-                                ),
-                              ).then((_) => _loadDealRoom());
-                            },
-                          ),
-                      ],
-                    ),
-                  ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              _party(context, l10n.dealBuyer, d.buyer, d.isBuyer),
+              const SizedBox(width: 12),
+              _party(context, l10n.dealSeller, d.seller, d.isSeller),
+            ]),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(l10n.dealSteps, style: const TextStyle(fontWeight: FontWeight.w700)),
+        for (var i = 0; i < d.milestones.length; i++) _stepTile(context, d, d.milestones[i], i + 1),
+        if (!d.isFullySigned && d.mySide != null && !d.iSigned) ...[
+          const SizedBox(height: 8),
+          FilledButton.icon(
+            key: const Key('deal-sign'),
+            onPressed: d.paused ? null : () => _push(ExportContractEsignScreen(dealRoom: d)),
+            icon: const Icon(Icons.draw_outlined),
+            label: Text(l10n.dealSign),
+          ),
+        ] else if (!d.isFullySigned && d.iSigned)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(l10n.dealSignedWaiting, style: TextStyle(color: fira.pending)),
+          ),
+        const SizedBox(height: 16),
+        Text(l10n.dealDocuments, style: const TextStyle(fontWeight: FontWeight.w700)),
+        Card(
+          child: Column(children: [
+            ListTile(
+              leading: Icon(docs?.contractSigned == true ? Icons.check_circle : Icons.description_outlined,
+                  color: docs?.contractSigned == true ? fira.success : fira.mutedText),
+              title: Text(docs?.contractSigned == true ? l10n.dealDocContract : l10n.dealDocContractPending),
+            ),
+            ListTile(
+              key: const Key('deal-seal'),
+              leading: Icon(Icons.inventory_2_outlined, color: docs?.sampleSealId != null ? fira.brandPrimary : fira.mutedText),
+              title: Text(docs?.sampleSealId != null ? l10n.translate('dealDocSeal', {'seal': docs!.sampleSealId}) : l10n.dealDocNoSeal),
+              trailing: docs?.sampleSealId != null ? Text(l10n.dealDocSealLinked, style: TextStyle(color: fira.success, fontWeight: FontWeight.w600)) : null,
+            ),
+          ]),
+        ),
+        if (d.activity.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Text(l10n.dealActivity, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Card(
+            child: Column(children: [
+              for (final a in d.activity.take(10))
+                ListTile(
+                  dense: true,
+                  title: Text(DealLabels.activity(l10n, a)),
+                  trailing: Text(VerificationLabels.date(context, a.at), style: TextStyle(color: fira.mutedText, fontSize: 12)),
                 ),
+            ]),
+          ),
+        ],
+        const SizedBox(height: 16),
+        if (d.mySide != null)
+          Row(children: [
+            Expanded(
+              child: FilledButton.icon(
+                key: const Key('deal-open-chat'),
+                onPressed: _opening ? null : () => _openChat(d),
+                icon: const Icon(Icons.chat_bubble_outline),
+                label: Text(l10n.dealOpenChat),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                key: const Key('deal-report'),
+                onPressed: () => ReportModal.show(context, reportedDealRoomId: d.id, targetTitle: '${d.dealReference} · ${d.title}', service: widget.trust),
+                icon: const Icon(Icons.flag_outlined),
+                label: Text(l10n.dealReport),
+              ),
+            ),
+          ]),
+      ],
+    );
+  }
+
+  Widget _stepTile(BuildContext context, DealRoomModel d, DealMilestoneModel m, int n) {
+    final l10n = context.l10n;
+    final fira = context.fira;
+    final current = m.key == d.currentStep;
+    final (IconData icon, Color color, String state) = m.isDone
+        ? (Icons.check_circle, fira.success, l10n.dealStepDone)
+        : m.isSubmitted
+            ? (Icons.hourglass_top, fira.pending, l10n.dealStepSubmitted)
+            : current
+                ? (Icons.radio_button_checked, fira.pending, l10n.dealStepNow)
+                : (Icons.lock_outline, fira.mutedText, l10n.dealStepLocked);
+    final amount = m.amountUsd != null ? ' · ${TradeLabels.money(m.amountUsd!)}' : '';
+
+    return Card(
+      key: Key('step-${m.key}'),
+      color: current ? fira.brandTint : null,
+      child: ListTile(
+        onTap: () => _openStep(d, m),
+        leading: Icon(icon, color: color),
+        title: Text('$n. ${DealLabels.step(l10n, m.key)}', style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: Text('$state$amount', style: TextStyle(color: color)),
+        trailing: m.locked ? null : const Icon(Icons.chevron_right),
+      ),
     );
   }
 }
-

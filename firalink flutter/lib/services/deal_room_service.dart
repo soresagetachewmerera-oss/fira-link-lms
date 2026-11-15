@@ -142,12 +142,16 @@ class DealRoomService extends BaseService {
     required int milestoneId,
     String? notes,
     UploadFile? document,
+    String? paymentMethod,
   }) async {
     try {
       final url = Uri.parse('${BaseService.baseUrl}/deal-rooms/$dealRoomId/milestones/$milestoneId/advance');
       final res = await guardedRequest(() async {
         if (document != null) {
-          return _multipart(url, {if (notes != null && notes.isNotEmpty) 'notes': notes}, 'document', document);
+          return _multipart(url, {
+            if (notes != null && notes.isNotEmpty) 'notes': notes,
+            'payment_method': ?paymentMethod,
+          }, 'document', document);
         }
         final headers = await getHeaders();
         return http

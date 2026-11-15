@@ -259,7 +259,7 @@ class _PublicSellerVerificationScreenState extends State<PublicSellerVerificatio
           ),
           const SizedBox(height: 16),
           OutlinedButton.icon(
-            onPressed: () => ReportModal.show(context, targetTitle: '${s.name} (${s.firaId})'),
+            onPressed: () => ReportModal.show(context, reportedFiraId: s.firaId, initialReason: 'impersonation', targetTitle: '${s.name} (${s.firaId})'),
             icon: const Icon(Icons.flag_outlined),
             label: Text(l10n.sellerReport),
           ),

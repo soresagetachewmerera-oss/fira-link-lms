@@ -168,7 +168,7 @@ void main() {
   testWidgets('business setup checks the Ethiopian TIN and flags Other for review', (tester) async {
     _tall(tester);
     final service = _FakeOrgService();
-    await tester.pumpWidget(_host(const BusinessWorkspaceSetupScreen(), service));
+    await tester.pumpWidget(_host(BusinessWorkspaceSetupScreen(afterCreate: (_) => const Text('verification-next')), service));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextFormField).at(0), 'Abebe Coffee');
@@ -189,6 +189,8 @@ void main() {
     await tester.tap(find.text(kLangEn['businessCreate']!));
     await tester.pumpAndSettle();
     expect(service.calls, ['create:Abebe Coffee:supplier:other:Ethiopia:0012345678']);
+    // Created from the profile: verification of the new business opens next.
+    expect(find.text('verification-next'), findsOneWidget);
   });
 
   testWidgets('the business limit shows "ask support" and disables create', (tester) async {

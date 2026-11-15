@@ -5,7 +5,9 @@ import '../../services/marketplace_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/fira_error_state.dart';
 import '../../router/app_router.dart';
+import '../../l10n/app_localizations.dart';
 import 'organization_verification_screen.dart';
+import 'payout_account_screen.dart';
 import 'widgets/seller_lots_section.dart';
 
 class SellerPortalScreen extends StatefulWidget {
@@ -208,6 +210,12 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
       appBar: AppBar(
         title: const Text('Exporter Portal', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
+          IconButton(
+            key: const Key('open-payout-account'),
+            icon: const Icon(Icons.account_balance_outlined),
+            tooltip: context.l10n.payoutTitle,
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PayoutAccountScreen())),
+          ),
           TextButton.icon(
             onPressed: () => Navigator.pushNamed(context, AppRouter.marketplacePricing).then((_) => _fetchSellerData()),
             icon: const Icon(Icons.bolt, color: AppTheme.primary, size: 18),

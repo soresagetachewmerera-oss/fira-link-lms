@@ -9,6 +9,7 @@ import '../../widgets/fira_error_state.dart';
 import '../../widgets/trade_labels.dart';
 import '../../widgets/verification_labels.dart';
 import '../../widgets/workspace_status_pill.dart';
+import '../chat/trade_chat_screen.dart';
 import 'create_rfq_screen.dart';
 import 'public_seller_verification_screen.dart';
 
@@ -215,6 +216,13 @@ class _ExporterProfileScreenState extends State<ExporterProfileScreen> {
                         builder: (_) => CreateRfqScreen(prefillListingId: p.lots.isNotEmpty ? (p.lots.first['id'] as num?)?.toInt() : null, service: _service),
                       )),
                       child: Text(l10n.exporterRequestQuote),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      key: const Key('exporter-message-seller'),
+                      onPressed: () => openSellerChat(context, sellerOrganizationId: widget.organizationId),
+                      icon: const Icon(Icons.chat_bubble_outline),
+                      label: Text(l10n.messageSeller),
                     ),
                   ],
                 ),

@@ -10,6 +10,7 @@ import '../../theme/app_theme.dart';
 import '../../theme/fira_colors.dart';
 import '../../widgets/fira_error_state.dart';
 import '../../widgets/workspace_status_pill.dart';
+import '../chat/trade_chat_screen.dart';
 import 'create_rfq_screen.dart';
 import 'request_sample_screen.dart';
 import 'widgets/lot_evidence_summary_card.dart';
@@ -669,6 +670,23 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                     icon: const Icon(Icons.request_quote_outlined),
                     label: Text(context.l10n.exporterRequestQuote),
                   ),
+                  if (_listing['organization'] is Map && (_listing['organization'] as Map)['id'] != null)
+                    OutlinedButton.icon(
+                      key: const Key('lot-message-seller'),
+                      onPressed: () {
+                        if (!context.read<AuthProvider>().isAuthenticated) {
+                          VerificationPromptDialog.showAuthRequired(context, actionDescription: context.l10n.messageSeller);
+                          return;
+                        }
+                        openSellerChat(
+                          context,
+                          sellerOrganizationId: ((_listing['organization'] as Map)['id'] as num).toInt(),
+                          listingId: (_listing['id'] as num?)?.toInt(),
+                        );
+                      },
+                      icon: const Icon(Icons.chat_bubble_outline),
+                      label: Text(context.l10n.messageSeller),
+                    ),
 
                   const SizedBox(height: 100), // Spacing for bottom bar
                 ],

@@ -12,6 +12,7 @@ import '../../widgets/verification_labels.dart';
 import '../../widgets/workspace_status_pill.dart';
 import '../../router/app_router.dart';
 import '../../models/trade_model.dart';
+import '../chat/trade_chat_screen.dart';
 import 'exporters_screen.dart';
 import 'samples_screen.dart';
 import 'widgets/market_filters_sheet.dart';
@@ -146,6 +147,12 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
         ),
         centerTitle: false,
         actions: [
+          IconButton(
+            key: const Key('open-trade-chats'),
+            icon: const Icon(Icons.chat_bubble_outline),
+            tooltip: context.l10n.chatInbox,
+            onPressed: () => _openSignedIn(const TradeChatsScreen(), context.l10n.chatInbox),
+          ),
           IconButton(
             key: const Key('open-samples'),
             icon: const Icon(Icons.science_outlined),

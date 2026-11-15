@@ -10,6 +10,7 @@ import '../../providers/settings_provider.dart';
 import '../common/webview_screen.dart';
 import '../../router/app_router.dart';
 import '../home/widgets/home_design_constants.dart';
+import 'business_verification_tile.dart';
 import 'workspace_switcher_sheet.dart';
 import '../../providers/workspace_provider.dart';
 import '../../widgets/workspace_status_pill.dart';
@@ -433,6 +434,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ],
                           ),
                         ),
+                      );
+                    },
+                  ),
+                  // Verification of the active business (flow: Profile → Verification).
+                  Consumer<WorkspaceProvider>(
+                    builder: (context, ws, _) {
+                      final org = ws.currentOrganization;
+                      if (org == null) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: BusinessVerificationTile(organizationId: org.id),
                       );
                     },
                   ),

@@ -241,7 +241,7 @@ class _SampleTrackingScreenState extends State<SampleTrackingScreen> {
         ],
         const SizedBox(height: 16),
         OutlinedButton.icon(
-          onPressed: () => ReportModal.show(context, targetTitle: '${(buyer ? s.seller?.name : s.buyer?.name) ?? ''} · ${s.reference}'),
+          onPressed: () => ReportModal.show(context, reportedSampleId: s.id, targetTitle: '${(buyer ? s.seller?.name : s.buyer?.name) ?? ''} · ${s.reference}'),
           icon: const Icon(Icons.flag_outlined),
           label: Text(l10n.sampleReportProblem),
         ),
