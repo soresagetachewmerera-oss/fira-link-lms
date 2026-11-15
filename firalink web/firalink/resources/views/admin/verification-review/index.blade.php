@@ -7,17 +7,15 @@
     <div class="col-12">
         @include('admin.verification-review._flash')
 
+        @php($tabs = ['business' => __('lots.admin.tab_business'), 'lots' => __('lots.admin.tab_lots'), 'reports' => __('trade.admin.tab_reports'), 'flagged' => __('trade.admin.tab_flagged'), 'payouts' => __('trade.admin.tab_payouts')])
         <ul class="nav nav-tabs mb-3">
-            <li class="nav-item">
-                <a class="nav-link {{ $tab === 'business' ? 'active' : '' }}" href="{{ route('admin.verification-review.index') }}">
-                    {{ __('lots.admin.tab_business') }} ({{ $documents->total() }})
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ $tab === 'lots' ? 'active' : '' }}" href="{{ route('admin.verification-review.index', ['tab' => 'lots']) }}">
-                    {{ __('lots.admin.tab_lots') }} ({{ $evidence->total() }})
-                </a>
-            </li>
+            @foreach($tabs as $key => $label)
+                <li class="nav-item">
+                    <a class="nav-link {{ $tab === $key ? 'active' : '' }}" href="{{ route('admin.verification-review.index', $key === 'business' ? [] : ['tab' => $key]) }}">
+                        {{ $label }} ({{ $counts[$key] ?? 0 }})
+                    </a>
+                </li>
+            @endforeach
         </ul>
 
         <div class="card">
@@ -52,6 +50,8 @@
                         </div>
                         <div class="p-3">{{ $documents->links() }}</div>
                     @endif
+                @elseif(in_array($tab, ['reports', 'flagged', 'payouts'], true))
+                    @include('admin.verification-review._' . $tab)
                 @else
                     @if($evidence->isEmpty())
                         <p class="p-4 mb-0 text-muted">{{ __('lots.admin.queue_empty') }}</p>

@@ -117,6 +117,10 @@ class TradeService
         if (!$lot || (int) $lot->organization_id !== (int) $org->id || !$lot->isVisibleToBuyers()) {
             throw new VerificationException('LOT_REQUIRED', __('trade.errors.lot_required'), 422, ['errors' => ['listing_id' => ['invalid']]]);
         }
+        // Slice 7: no quotes between blocked businesses.
+        if (\App\Models\BusinessBlock::between((int) $rfq->organization_id, (int) $org->id)) {
+            throw new VerificationException('BLOCKED', __('trade.errors.blocked'), 403);
+        }
 
         $bagKg = (float) ($lot->bag_weight_kg ?: 60);
         $offeredKg = (float) $d['volume_bags'] * $bagKg;

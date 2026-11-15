@@ -36,7 +36,11 @@ class DealMilestone extends Model
     /** Statuses only a confirmation by admin or finance can set. */
     public const CONFIRMED_STATUSES = [self::STATUS_ACHIEVED, self::STATUS_WAIVED];
 
+    /** Private file path and the people behind each action stay on the server. */
+    protected $hidden = ['document_path', 'submitted_by', 'verified_by', 'verifier'];
+
     protected $casts = [
+        'amount_usd' => 'decimal:2',
         'due_date' => 'datetime',
         'completed_at' => 'datetime',
         'verified_at' => 'datetime',

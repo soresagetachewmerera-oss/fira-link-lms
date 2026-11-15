@@ -28,7 +28,13 @@ class VerificationReviewController extends Controller
 
     public function index(Request $request)
     {
-        $tab = $request->query('tab') === 'lots' ? 'lots' : 'business';
+        $tab = in_array($request->query('tab'), ['lots', 'reports', 'flagged', 'payouts'], true) ? $request->query('tab') : 'business';
+        if (in_array($tab, ['reports', 'flagged', 'payouts'], true)) {
+            return view('admin.verification-review.index', TrustSafetyReviewController::tabData($tab) + [
+                'tab' => $tab,
+                'counts' => TrustSafetyReviewController::counts() + $this->queueCounts(),
+            ]);
+        }
         $documents = VerificationDocument::with(['organization', 'submitter'])
             ->where('status', VerificationDocument::STATUS_IN_REVIEW)
             ->orderBy('submitted_at')
@@ -40,7 +46,20 @@ class VerificationReviewController extends Controller
             ->orderBy('id')
             ->paginate(30, ['*'], 'lots_page');
 
-        return view('admin.verification-review.index', ['documents' => $documents, 'evidence' => $evidence, 'tab' => $tab]);
+        return view('admin.verification-review.index', [
+            'documents' => $documents,
+            'evidence' => $evidence,
+            'tab' => $tab,
+            'counts' => TrustSafetyReviewController::counts() + ['business' => $documents->total(), 'lots' => $evidence->total()],
+        ]);
+    }
+
+    private function queueCounts(): array
+    {
+        return [
+            'business' => VerificationDocument::where('status', VerificationDocument::STATUS_IN_REVIEW)->count(),
+            'lots' => LotEvidence::where('status', LotEvidence::STATUS_IN_REVIEW)->count(),
+        ];
     }
 
     // ── Lot evidence (slice 4) ──────────────────────────────────────────────

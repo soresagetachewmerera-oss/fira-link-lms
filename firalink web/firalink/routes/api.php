@@ -185,10 +185,29 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('/{id}/milestones/{milestoneId}/confirm', [\App\Http\Controllers\Api\DealRoomController::class, 'confirmMilestone'])->middleware('fresh.auth');
         Route::post('/{id}/dispute', [\App\Http\Controllers\Api\DealRoomController::class, 'raiseDispute']);
         Route::post('/{id}/complete', [\App\Http\Controllers\Api\DealRoomController::class, 'completeDeal']);
+        // Slice 7: the deal room's business chat thread
+        Route::post('/{id}/chat', [\App\Http\Controllers\Api\DealRoomController::class, 'chat']);
     });
 
-    // Trust & Safety Reports
-    Route::post('/reports', [\App\Http\Controllers\Api\PublicVerificationController::class, 'storeReport']);
+    // Trust & Safety Reports (slice 7: reason codes, chat messages, deal rooms, samples; admin decides)
+    Route::post('/reports', [\App\Http\Controllers\Api\PublicVerificationController::class, 'storeReport'])->middleware('throttle:10,1');
+
+    // Slice 7: business chat. Both sides are businesses; flagged messages are delivered with a warning.
+    Route::controller(\App\Http\Controllers\Api\TradeChatController::class)->prefix('trade-chats')->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'store')->middleware('throttle:20,1');
+        Route::get('/{conversation}', 'show')->whereNumber('conversation');
+        Route::post('/{conversation}/messages', 'send')->whereNumber('conversation')->middleware('throttle:30,1');
+    });
+
+    // Slice 7: blocks between businesses (owner or manager).
+    Route::get('/business-blocks', [\App\Http\Controllers\Api\BusinessBlockController::class, 'index']);
+    Route::post('/business-blocks', [\App\Http\Controllers\Api\BusinessBlockController::class, 'store']);
+    Route::delete('/business-blocks/{organizationId}', [\App\Http\Controllers\Api\BusinessBlockController::class, 'destroy'])->whereNumber('organizationId');
+
+    // Slice 7: the seller's payout bank account (owner changes it; reviewer confirms it).
+    Route::get('/payout-account', [\App\Http\Controllers\Api\PayoutAccountController::class, 'show']);
+    Route::post('/payout-account', [\App\Http\Controllers\Api\PayoutAccountController::class, 'store'])->middleware('fresh.auth');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index']);

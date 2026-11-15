@@ -67,6 +67,15 @@ Route::middleware(['auth', 'staff.2fa', 'can:review-verifications'])->prefix('ad
     Route::post('/evidence/{evidence}/reject', 'rejectEvidence')->name('evidence.reject');
 });
 
+// Slice 7 in the same queue: reports, flagged chat messages, payout bank accounts.
+Route::middleware(['auth', 'staff.2fa', 'can:review-verifications'])->prefix('admin/verification-review')->name('admin.verification-review.')->controller(\App\Http\Controllers\Admin\TrustSafetyReviewController::class)->group(function () {
+    Route::get('/reports/{report}', 'report')->whereNumber('report')->name('report');
+    Route::get('/reports/{report}/evidence', 'reportEvidence')->whereNumber('report')->middleware('signed')->name('report-evidence');
+    Route::post('/reports/{report}/decide', 'decide')->whereNumber('report')->name('report.decide');
+    Route::post('/payouts/{payout}/confirm', 'confirmPayout')->whereNumber('payout')->name('payout.confirm');
+    Route::post('/payouts/{payout}/reject', 'rejectPayout')->whereNumber('payout')->name('payout.reject');
+});
+
 Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

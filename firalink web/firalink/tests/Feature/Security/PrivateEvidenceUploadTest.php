@@ -35,15 +35,18 @@ class PrivateEvidenceUploadTest extends TestCase
     {
         Sanctum::actingAs($this->makeUser());
 
+        $reported = $this->makeOrganization($this->makeUser());
         $this->post('/api/reports', [
             'reason' => 'Asked me to pay outside Fira Link',
             'details' => 'Sent a Telegram number',
+            'reported_organization_id' => $reported->id,
             'evidence' => $this->dummyBytes('screenshot.png'),
         ], ['Accept' => 'application/json'])->assertStatus(422)->assertJsonPath('code', 'FILE_REJECTED');
 
         $res = $this->post('/api/reports', [
             'reason' => 'Asked me to pay outside Fira Link',
             'details' => 'Sent a Telegram number',
+            'reported_organization_id' => $reported->id,
             'evidence' => $this->realPng('screenshot.png'),
         ], ['Accept' => 'application/json'])->assertStatus(201);
 

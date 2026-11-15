@@ -6,6 +6,7 @@ use App\Models\DealMilestone;
 use App\Models\DealRoom;
 use App\Models\Organization;
 use App\Models\OrganizationMembership;
+use App\Models\PayoutAccount;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
@@ -64,16 +65,37 @@ trait BuildsTradeFixtures
             'status' => DealRoom::STATUS_UNDER_CONTRACT,
         ]);
 
+        // Under contract: the contract step is done, so "Payment secured" is the current step.
+        // The five keys are the layout of deal rooms opened before slice 7.
         foreach (['contract_signed', 'payment_escrow', 'preshipment_inspection', 'bill_of_lading_released', 'final_settlement'] as $key) {
             DealMilestone::create([
                 'deal_room_id' => $deal->id,
                 'title' => Str::headline($key),
                 'milestone_key' => $key,
-                'status' => DealMilestone::STATUS_PENDING,
+                'status' => $key === 'contract_signed' ? DealMilestone::STATUS_ACHIEVED : DealMilestone::STATUS_PENDING,
             ]);
         }
+        $this->confirmedPayoutAccount($org);
 
         return [$deal, $buyer, $seller];
+    }
+
+    /** A payout account a reviewer already confirmed, outside any change pause. */
+    protected function confirmedPayoutAccount(Organization $org, string $number = '1000123456789'): PayoutAccount
+    {
+        $a = new PayoutAccount();
+        $a->forceFill([
+            'organization_id' => $org->id,
+            'bank_name' => 'Commercial Bank of Ethiopia',
+            'account_name' => $org->name,
+            'account_number' => $number,
+            'account_last4' => substr($number, -4),
+            'status' => PayoutAccount::STATUS_CONFIRMED,
+            'active_from' => now()->subDay(),
+            'reviewed_at' => now()->subDay(),
+        ])->save();
+
+        return $a;
     }
 
     protected function milestone(DealRoom $deal, string $key): DealMilestone

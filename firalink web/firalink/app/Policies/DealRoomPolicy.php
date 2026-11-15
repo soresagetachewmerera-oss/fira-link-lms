@@ -3,24 +3,18 @@
 namespace App\Policies;
 
 use App\Models\DealRoom;
-use App\Models\OrganizationMembership;
 use App\Models\User;
+use App\Services\Trade\DealRoomService;
 
 class DealRoomPolicy
 {
     /**
-     * The buyer, or an active member of the seller's organization.
+     * An active member of the buyer business or of the seller business. Deal rooms opened before
+     * slice 7 have no buyer business; there the buyer person stands in.
      */
     public function isParticipant(User $user, DealRoom $dealRoom): bool
     {
-        if ((int) $dealRoom->buyer_id === (int) $user->id) {
-            return true;
-        }
-
-        return OrganizationMembership::where('organization_id', $dealRoom->organization_id)
-            ->where('user_id', $user->id)
-            ->where('is_active', true)
-            ->exists();
+        return DealRoomService::sideOf($user, $dealRoom) !== null;
     }
 
     public function view(User $user, DealRoom $dealRoom): bool

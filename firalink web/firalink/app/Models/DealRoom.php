@@ -37,10 +37,21 @@ class DealRoom extends Model
         'escrow_proof_path',
     ];
 
+    /** Signatures (a person's name), the buyer person and private file paths never leave the server as-is. */
+    protected $hidden = [
+        'buyer_id',
+        'buyer',
+        'seller_signature',
+        'buyer_signature',
+        'contract_document_path',
+        'escrow_proof_path',
+    ];
+
     protected $casts = [
         'target_value_usd' => 'decimal:2',
         'seller_signed_at' => 'datetime',
         'buyer_signed_at' => 'datetime',
+        'paused_at' => 'datetime',
     ];
 
     public function organization(): BelongsTo
@@ -51,6 +62,11 @@ class DealRoom extends Model
     public function buyer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'buyer_id');
+    }
+
+    public function buyerOrganization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class, 'buyer_organization_id');
     }
 
     public function listing(): BelongsTo

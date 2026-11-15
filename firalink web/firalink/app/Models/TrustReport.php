@@ -29,9 +29,36 @@ class TrustReport extends Model
         'resolved_at',
     ];
 
+    /** Slice 7 reason codes, in the order the report sheet shows them. */
+    public const REASONS = ['fake_photos', 'pay_outside', 'fake_documents', 'impersonation', 'not_as_described', 'other'];
+
+    /** The reporter is never shown to the reported business. */
+    protected $hidden = ['reporter_id', 'reporter_organization_id', 'evidence_path'];
+
     protected $casts = [
         'resolved_at' => 'datetime',
+        'block_requested' => 'boolean',
     ];
+
+    public function reporterOrganization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class, 'reporter_organization_id');
+    }
+
+    public function reportedMessage(): BelongsTo
+    {
+        return $this->belongsTo(TradeMessage::class, 'reported_message_id');
+    }
+
+    public function reportedDealRoom(): BelongsTo
+    {
+        return $this->belongsTo(DealRoom::class, 'reported_deal_room_id');
+    }
+
+    public function reportedSample(): BelongsTo
+    {
+        return $this->belongsTo(MarketplaceSample::class, 'reported_sample_id');
+    }
 
     public function reporter(): BelongsTo
     {

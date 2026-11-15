@@ -223,8 +223,12 @@ class DealRoomMilestoneSecurityTest extends TestCase
         $admin = $this->makeUser('admin');
         FreshAuth::markUser($admin);
         Sanctum::actingAs($admin);
+        // Slice 7: steps are confirmed in order; the last one cannot jump ahead.
         $this->postJson($this->confirmUrl($deal, $this->milestone($deal, 'final_settlement')), ['bank_reference' => 'FINAL-1'])
-            ->assertOk();
+            ->assertStatus(422)->assertJsonPath('code', 'STEP_LOCKED');
+        foreach (['payment_escrow', 'preshipment_inspection', 'bill_of_lading_released', 'final_settlement'] as $i => $key) {
+            $this->postJson($this->confirmUrl($deal, $this->milestone($deal, $key)), ['bank_reference' => 'BANK-' . $i])->assertOk();
+        }
 
         Sanctum::actingAs($buyer);
         $this->postJson("/api/deal-rooms/{$deal->id}/complete")->assertOk();
@@ -267,6 +271,8 @@ class DealRoomMilestoneSecurityTest extends TestCase
         ]);
 
         $buyer = $this->makeUser();
+        $buyerOrg = $this->makeOrganization($buyer);
+        $buyer->forceFill(['active_organization_id' => $buyerOrg->id])->save();
         $victim = $this->makeUser();
         $otherOrg = $this->makeOrganization($this->makeUser());
 
@@ -282,6 +288,7 @@ class DealRoomMilestoneSecurityTest extends TestCase
         $deal = DealRoom::findOrFail($res->json('data.id'));
         $this->assertSame($buyer->id, $deal->buyer_id);
         $this->assertSame($org->id, $deal->organization_id);
+        $this->assertSame($buyerOrg->id, (int) $deal->buyer_organization_id);
 
         // A seller cannot open a deal room with their own business.
         Sanctum::actingAs($seller);
@@ -295,6 +302,8 @@ class DealRoomMilestoneSecurityTest extends TestCase
         $seller = $this->makeUser();
         $this->makeOrganization($seller);
         $rfqOwner = $this->makeUser();
+        $rfqOrg = $this->makeOrganization($rfqOwner);
+        $rfqOwner->forceFill(['active_organization_id' => $rfqOrg->id])->save();
 
         $rfq = MarketplaceRfq::create([
             'buyer_id' => $rfqOwner->id,
@@ -326,6 +335,8 @@ class DealRoomMilestoneSecurityTest extends TestCase
         $quote->forceFill(['status' => MarketplaceQuotation::STATUS_ACCEPTED])->save();
         $this->postJson('/api/deal-rooms', ['quotation_id' => $quote->id, 'title' => 'Deal', 'target_value_usd' => 10000])
             ->assertStatus(201)
-            ->assertJsonPath('data.buyer_id', $rfqOwner->id);
+            ->assertJsonPath('data.my_side', 'buyer')
+            ->assertJsonPath('data.buyer.id', $rfqOrg->id)
+            ->assertJsonMissingPath('data.buyer_id');
     }
 }

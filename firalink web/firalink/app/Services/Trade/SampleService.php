@@ -69,6 +69,10 @@ class SampleService
         if (!$lot->isVisibleToBuyers() || !$lot->sample_available) {
             throw new VerificationException('SAMPLE_NOT_AVAILABLE', __('trade.errors.sample_not_available'), 422);
         }
+        // Slice 7: no samples between blocked businesses.
+        if (\App\Models\BusinessBlock::between((int) $lot->organization_id, (int) $buyerOrg->id)) {
+            throw new VerificationException('BLOCKED', __('trade.errors.blocked'), 403);
+        }
         if ((int) $lot->organization_id === (int) $buyerOrg->id) {
             throw new VerificationException('OWN_LOT', __('trade.errors.own_lot'), 422);
         }

@@ -419,6 +419,8 @@ class DocumentReviewService
             $org->forceFill(['status' => $suspended ? 'suspended' : 'active'])->save();
             $this->audit($admin, $org, $suspended ? 'business_suspended' : 'business_unsuspended', $org, $before, ['status' => $org->status, 'reason' => mb_substr($reason, 0, 1000)]);
             $this->tiers->recompute($org, $admin);
+            // Slice 7: a suspension pauses the business's open deal rooms (both sides) until it is lifted.
+            app(\App\Services\Trade\DealRoomService::class)->pauseForSuspension($org, $admin, $suspended);
         });
     }
 

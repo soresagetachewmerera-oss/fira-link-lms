@@ -10,6 +10,9 @@ use App\Models\DealRoom;
 use App\Models\MarketplaceQuotation;
 use App\Models\OrganizationMembership;
 use App\Services\PrivateDocumentStore;
+use App\Services\Trade\DealRoomService;
+use App\Services\Trade\TradeChatService;
+use App\Services\Verification\VerificationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -17,7 +20,7 @@ use Illuminate\Support\Str;
 
 class DealRoomController extends Controller
 {
-    public function __construct(private PrivateDocumentStore $documents)
+    public function __construct(private PrivateDocumentStore $documents, private DealRoomService $deals)
     {
     }
 
@@ -46,22 +49,21 @@ class DealRoomController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $org = $user->currentOrganization() ?: $user->primaryOrganization();
-        $orgId = $org?->id;
+        $orgIds = OrganizationMembership::where('user_id', $user->id)->where('is_active', true)->pluck('organization_id');
 
-        $dealRooms = DealRoom::with(['organization', 'buyer', 'listing', 'milestones'])
-            ->where(function ($q) use ($user, $orgId) {
-                $q->where('buyer_id', $user->id);
-                if ($orgId) {
-                    $q->orWhere('organization_id', $orgId);
-                }
+        $dealRooms = DealRoom::with(['organization', 'buyerOrganization', 'buyer', 'listing', 'milestones'])
+            ->where(function ($q) use ($user, $orgIds) {
+                $q->where(fn ($w) => $w->whereNull('buyer_organization_id')->where('buyer_id', $user->id))
+                    ->orWhereIn('buyer_organization_id', $orgIds)
+                    ->orWhereIn('organization_id', $orgIds);
             })
             ->latest()
             ->get();
 
         return response()->json([
             'success' => true,
-            'data' => $dealRooms,
+            // Both sides as businesses only (slice 7): no buyer person, no signatures, no file paths.
+            'data' => $dealRooms->map(fn ($d) => $this->deals->json($d, $user, false))->values(),
         ]);
     }
 
@@ -109,7 +111,7 @@ class DealRoomController extends Controller
             }
             $existing = DealRoom::where('rfq_id', $quotation->rfq_id)->where('organization_id', $quotation->organization_id ?? $quotation->listing?->organization_id)->first();
             if ($existing) {
-                return response()->json(['success' => true, 'data' => $existing->load(['organization', 'listing', 'milestones'])]);
+                return response()->json(['success' => true, 'data' => $this->deals->json($existing, $user)]);
             }
         }
 
@@ -133,7 +135,16 @@ class DealRoomController extends Controller
             ->where('is_active', true)
             ->exists();
 
-        if ($isOwnOrganization) {
+        // Slice 7: the buyer side is a business; a blocked pair cannot open a deal room.
+        $buyerOrgId = $quotation?->rfq?->organization_id ?? $user->currentOrganization()?->id;
+        if (!$isOwnOrganization && !$buyerOrgId) {
+            return response()->json(['success' => false, 'code' => 'ORGANIZATION_REQUIRED', 'message' => __('trade.errors.business_required')], 422);
+        }
+        if (\App\Models\BusinessBlock::between((int) $buyerOrgId, (int) $orgId)) {
+            return response()->json(['success' => false, 'code' => 'BLOCKED', 'message' => __('trade.errors.blocked')], 403);
+        }
+
+        if ($isOwnOrganization || (int) $buyerOrgId === (int) $orgId) {
             return response()->json([
                 'success' => false,
                 'code' => 'SELF_DEAL',
@@ -145,6 +156,7 @@ class DealRoomController extends Controller
             'deal_reference' => 'DR-' . strtoupper(Str::random(8)),
             'organization_id' => $orgId,
             'buyer_id' => $user->id,
+            'deposit_percent' => (int) config('deals.deposit_percent', 30),
             'listing_id' => $listing?->id,
             'rfq_id' => $quotation?->rfq_id,
             'title' => $request->input('title'),
@@ -153,51 +165,16 @@ class DealRoomController extends Controller
             'status' => DealRoom::STATUS_ACTIVE,
         ]);
 
+        $dealRoom->forceFill(['buyer_organization_id' => $buyerOrgId])->save();
+
         // Slice 6: an approved sample's seal ID goes into the contract, so the shipped coffee can
         // be compared with the retained copy.
-        $buyerOrgId = $quotation?->rfq?->organization_id ?? $user->currentOrganization()?->id;
         if ($seal = \App\Services\Trade\SampleService::approvedSealFor($listing?->id, $buyerOrgId)) {
             $dealRoom->forceFill(['sample_seal_id' => $seal])->save();
         }
 
-        // Provision standard 5 export milestones
-        $standardMilestones = [
-            [
-                'title' => 'Export Contract & Terms E-Signed',
-                'milestone_key' => 'contract_signed',
-                'description' => 'Bilateral export contract agreed and signed by authorized representatives of exporter and buyer.',
-            ],
-            [
-                'title' => 'Letter of Credit / Escrow Proof Verified',
-                'milestone_key' => 'payment_escrow',
-                'description' => 'Documentary letter of credit (LC) advised or milestone escrow deposit confirmed by bank.',
-            ],
-            [
-                'title' => 'Pre-Shipment Quality & Weight Inspection',
-                'milestone_key' => 'preshipment_inspection',
-                'description' => 'ECTA & third-party surveyor (SGS/Bureau Veritas) green coffee quality grading and container tare verification.',
-            ],
-            [
-                'title' => 'Port of Djibouti Bill of Lading (B/L) Released',
-                'milestone_key' => 'bill_of_lading_released',
-                'description' => 'Ocean carrier Bill of Lading, Phytosanitary Certificate, and Certificate of Origin uploaded and authenticated.',
-            ],
-            [
-                'title' => 'Final Settlement & Delivery Confirmation',
-                'milestone_key' => 'final_settlement',
-                'description' => 'Shipment cleared at destination port, final documents released, and escrow payment settled.',
-            ],
-        ];
-
-        foreach ($standardMilestones as $m) {
-            DealMilestone::create([
-                'deal_room_id' => $dealRoom->id,
-                'title' => $m['title'],
-                'milestone_key' => $m['milestone_key'],
-                'description' => $m['description'],
-                'status' => DealMilestone::STATUS_PENDING,
-            ]);
-        }
+        // Slice 7: six steps; the deposit and the balance carry their amounts.
+        $this->deals->provisionMilestones($dealRoom);
 
         AuditLog::create([
             'user_id' => $user->id,
@@ -213,7 +190,7 @@ class DealRoomController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Deal Room '{$dealRoom->deal_reference}' opened successfully.",
-            'data' => $dealRoom->load(['organization', 'buyer', 'listing', 'milestones']),
+            'data' => $this->deals->json($dealRoom->fresh(), $user),
         ], 201);
     }
 
@@ -223,7 +200,7 @@ class DealRoomController extends Controller
     public function show(Request $request, int $id): JsonResponse
     {
         $user = $request->user();
-        $dealRoom = DealRoom::with(['organization', 'buyer', 'listing', 'milestones.verifier'])->findOrFail($id);
+        $dealRoom = DealRoom::with(['organization', 'buyerOrganization', 'buyer', 'listing', 'milestones'])->findOrFail($id);
 
         if ($user->cannot('view', $dealRoom)) {
             return $this->forbidden('Unauthorized access to this deal room.');
@@ -231,8 +208,29 @@ class DealRoomController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $dealRoom,
+            'data' => $this->deals->json($dealRoom, $user),
         ]);
+    }
+
+    /**
+     * POST /api/deal-rooms/{id}/chat
+     * The deal room's business chat thread (created on first open).
+     */
+    public function chat(Request $request, int $id, TradeChatService $chat): JsonResponse
+    {
+        $user = $request->user();
+        $dealRoom = DealRoom::findOrFail($id);
+        if ($user->cannot('participate', $dealRoom)) {
+            return $this->forbidden('Only the buyer or the seller can open this chat.');
+        }
+        try {
+            $c = $chat->forDealRoom($dealRoom, $user);
+        } catch (VerificationException $e) {
+            return $e->toResponse();
+        }
+        $myOrg = \App\Policies\TradeConversationPolicy::myOrganizationId($user, $c);
+
+        return response()->json(['success' => true, 'data' => $chat->conversationJson($c, (int) $myOrg)]);
     }
 
     /**
@@ -246,6 +244,9 @@ class DealRoomController extends Controller
 
         if ($user->cannot('participate', $dealRoom)) {
             return $this->forbidden('Only the buyer or the seller can sign this contract.');
+        }
+        if ($dealRoom->paused_at) {
+            return (new VerificationException('DEAL_PAUSED', __('trade.errors.deal_paused'), 423))->toResponse();
         }
 
         $validator = Validator::make($request->all(), [
@@ -268,7 +269,7 @@ class DealRoomController extends Controller
         }
 
         $signatureText = $request->input('signature', $user->name);
-        $isBuyer = (int) $dealRoom->buyer_id === (int) $user->id;
+        $isBuyer = DealRoomService::sideOf($user, $dealRoom) === 'buyer';
 
         if ($isBuyer) {
             $dealRoom->buyer_signed_at = now();
@@ -311,7 +312,7 @@ class DealRoomController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Contract signature recorded successfully.',
-            'data' => $dealRoom->load('milestones'),
+            'data' => $this->deals->json($dealRoom->fresh(), $user),
         ]);
     }
 
@@ -342,6 +343,7 @@ class DealRoomController extends Controller
             'status' => 'nullable|in:in_progress',
             'notes' => 'nullable|string|max:2000',
             'document' => 'nullable|file|max:10240',
+            'payment_method' => 'nullable|in:bank_transfer,letter_of_credit',
         ]);
         if ($validator->fails()) {
             return $this->validationError($validator);
@@ -361,6 +363,17 @@ class DealRoomController extends Controller
                 'code' => 'MILESTONE_CLOSED',
                 'message' => 'This milestone is already confirmed.',
             ], 422);
+        }
+
+        // Slice 7: only the current step, only by the side it belongs to, and money only to a
+        // confirmed payout account outside its 48 hour change pause.
+        try {
+            $this->deals->assertCanSubmit($dealRoom->load(['milestones', 'organization']), $milestone, (string) DealRoomService::sideOf($user, $dealRoom));
+        } catch (VerificationException $e) {
+            return $e->toResponse();
+        }
+        if ($request->filled('payment_method') && $milestone->milestone_key === 'payment_escrow') {
+            $dealRoom->forceFill(['payment_method' => $request->input('payment_method')])->save();
         }
 
         if ($request->hasFile('document')) {
@@ -443,6 +456,13 @@ class DealRoomController extends Controller
                 'code' => 'MILESTONE_CLOSED',
                 'message' => 'This milestone is already confirmed.',
             ], 422);
+        }
+
+        try {
+            $this->deals->assertOpen($dealRoom);
+            $this->deals->assertCurrent($dealRoom->load('milestones'), $milestone);
+        } catch (VerificationException $e) {
+            return $e->toResponse();
         }
 
         $before = $milestone->toArray();
@@ -544,6 +564,9 @@ class DealRoomController extends Controller
 
         if ($user->cannot('participate', $dealRoom)) {
             return $this->forbidden('Only the buyer or the seller can complete this deal.');
+        }
+        if ($dealRoom->paused_at) {
+            return (new VerificationException('DEAL_PAUSED', __('trade.errors.deal_paused'), 423))->toResponse();
         }
 
         $settled = $dealRoom->milestones()
