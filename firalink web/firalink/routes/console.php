@@ -19,3 +19,5 @@ Schedule::command('b2b:check-license-expiry')->daily();
 
 // Verification: expire documents, expiry reminders (30 and 7 days), daily pending summary to the admin
 Schedule::command('verification:expire-and-remind')->dailyAt('06:00');
+// Slice 8: free seats of abandoned Chapa checkouts and tours with an unpaid balance.
+Schedule::command('bookings:release-unpaid')->everyFifteenMinutes();

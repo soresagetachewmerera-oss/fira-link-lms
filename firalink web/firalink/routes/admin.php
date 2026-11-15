@@ -206,6 +206,8 @@ Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('a
     Route::get('/events', [EventManagementController::class, 'index'])->name('events.index');
     Route::get('/events/{event}', [EventManagementController::class, 'show'])->name('events.show');
     Route::patch('/events/{event}/toggle-publish', [EventManagementController::class, 'togglePublish'])->name('events.toggle-publish');
+    // Slice 8: category, agenda, tickets, organizer business (by Fira ID)
+    Route::patch('/events/{event}/flow', [\App\Http\Controllers\Admin\EventTourFlowController::class, 'updateEvent'])->name('events.flow');
 
     // Tour management
     Route::get('/tours', [TourManagementController::class, 'index'])->name('tours.index');
@@ -219,6 +221,8 @@ Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('a
     Route::put('/tours/{tour}', [TourManagementController::class, 'update'])->name('tours.update');
     Route::delete('/tours/{tour}', [TourManagementController::class, 'destroy'])->name('tours.destroy');
     Route::patch('/tours/{tour}/toggle-publish', [TourManagementController::class, 'togglePublish'])->name('tours.toggle-publish');
+    // Slice 8: host business (by Fira ID), dates, deposit, safety
+    Route::patch('/tours/{tour}/flow', [\App\Http\Controllers\Admin\EventTourFlowController::class, 'updateTour'])->name('tours.flow');
 
     // Instructor management
     Route::get('/instructors', [InstructorController::class, 'index'])->name('instructors.index');

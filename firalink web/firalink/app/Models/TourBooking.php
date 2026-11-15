@@ -48,6 +48,11 @@ class TourBooking extends Model
         'schedule_date' => 'date',
         'booked_at' => 'datetime',
         'metadata' => 'array',
+        'deposit_amount' => 'decimal:2',
+        'balance_amount' => 'decimal:2',
+        'balance_due_date' => 'date',
+        'deposit_paid_at' => 'datetime',
+        'balance_paid_at' => 'datetime',
     ];
 
     public function tour(): BelongsTo

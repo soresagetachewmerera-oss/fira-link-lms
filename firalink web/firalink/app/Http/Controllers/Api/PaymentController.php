@@ -61,20 +61,46 @@ class PaymentController extends Controller
     {
         $user = $request->user();
 
-        $payment = Payment::query()
-            ->join('enrollments', 'payments.enrollment_id', '=', 'enrollments.id')
-            ->where('enrollments.user_id', $user->id)
-            ->where('payments.id', $id)
-            ->select('payments.*')
-            ->firstOrFail();
+        $payment = Payment::findOrFail($id);
+        abort_unless(self::ownsPayment($user, $payment), 404);
+        $disk = \App\Services\PrivateDocumentStore::DISK;
 
-        if (!$payment->receipt_file || !Storage::disk('public')->exists($payment->receipt_file)) {
+        if (!$payment->receipt_file || !Storage::disk($disk)->exists($payment->receipt_file)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Receipt not found.'
             ], 404);
         }
 
-        return Storage::disk('public')->download($payment->receipt_file);
+        return Storage::disk($disk)->download($payment->receipt_file);
+    }
+
+    /** The person who paid: the payment's user, or the user of its enrollment or booking. */
+    public static function ownsPayment(?\App\Models\User $user, Payment $payment): bool
+    {
+        if (!$user) {
+            return false;
+        }
+        $owners = array_filter([
+            $payment->user_id,
+            $payment->enrollment?->user_id,
+            $payment->eventBooking?->user_id,
+            $payment->tourBooking?->user_id,
+        ]);
+
+        return in_array((int) $user->id, array_map('intval', $owners), true);
+    }
+
+    /** GET /payments/{payment}/receipt (signed web link from receipt_url). */
+    public function showReceipt(Request $request, Payment $payment)
+    {
+        abort_unless(self::ownsPayment($request->user(), $payment), 404);
+        $disk = \App\Services\PrivateDocumentStore::DISK;
+        abort_unless($payment->receipt_file && Storage::disk($disk)->exists($payment->receipt_file), 404);
+
+        return Storage::disk($disk)->response($payment->receipt_file, null, [
+            'Cache-Control' => 'no-cache, no-store, must-revalidate, private',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
     }
 }

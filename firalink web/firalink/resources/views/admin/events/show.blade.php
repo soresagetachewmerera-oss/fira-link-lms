@@ -158,4 +158,5 @@
             </div>
         </div>
     </div>
+    @include('admin.events._flow')
 @endsection

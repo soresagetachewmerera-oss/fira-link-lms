@@ -8,6 +8,10 @@ use App\Models\EventBooking;
 use Illuminate\Http\Request;
 
 use App\Http\Requests\Event\StoreEventBookingRequest;
+use App\Models\Payment;
+use App\Services\Booking\BookingPaymentService;
+use App\Services\Verification\VerificationException;
+use App\Support\EventTourPresenter;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
@@ -30,7 +34,15 @@ class EventController extends Controller
             $query->where('start_date', '<', now()->toDateString());
         }
 
-        $events = $query->with(['speakers', 'highlights'])
+        // Slice 8: Trade fair, Training, Cupping, Networking; and Online.
+        if ($category = $request->query('category')) {
+            $query->where('category', $category);
+        }
+        if ($request->boolean('online')) {
+            $query->where('is_online', true);
+        }
+
+        $events = $query->with(['speakers', 'highlights', 'organizerOrganization'])
             ->withCount([
                 'bookings as confirmed_bookings_count' => fn($q) => $q->where('status', EventBooking::STATUS_CONFIRMED),
                 'bookings',
@@ -38,326 +50,161 @@ class EventController extends Controller
             ->orderBy('start_date', $filter === 'past' ? 'desc' : 'asc')
             ->paginate($request->query('per_page', 10));
 
+        $user = $request->user('sanctum');
+        $events->getCollection()->transform(fn (Event $e) => $e->setAttribute('flow', EventTourPresenter::eventFields($e, $user)));
+
         return response()->json($events);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $event = Event::with(['highlights', 'speakers', 'instructors'])
+        $event = Event::published()->with(['highlights', 'speakers', 'instructors', 'organizerOrganization'])
             ->withCount([
                 'bookings as confirmed_bookings_count' => fn($q) => $q->where('status', EventBooking::STATUS_CONFIRMED),
                 'bookings',
             ])
             ->findOrFail($id);
+        $event->setAttribute('flow', EventTourPresenter::eventFields($event, $request->user('sanctum')));
 
         return response()->json($event);
     }
 
-    public function book(StoreEventBookingRequest $request, $id)
+    public function book(StoreEventBookingRequest $request, $id, BookingPaymentService $payments)
     {
         $event = Event::published()->findOrFail($id);
-        $user = $request->user('sanctum') ?? $request->user();
+        $user = $request->user();
 
         $data = $request->validated();
+        // The register form in the app asks for a phone (an email is optional; phone-only accounts exist).
+        $request->validate(['phone' => 'required|string|max:50']);
         $seats = (int) ($data['seats'] ?? 1);
-
+        if ($event->end_date && $event->end_date->lt(now()->startOfDay())) {
+            return response()->json(['success' => false, 'code' => 'EVENT_ENDED', 'message' => __('bookings.errors.event_ended')], 422);
+        }
         if ($event->total_seats && $event->remainingSeats() < $seats) {
             return response()->json([
                 'success' => false,
-                'message' => 'Only ' . $event->remainingSeats() . ' seat(s) remaining for this event.'
+                'code' => 'SEATS_LEFT',
+                'message' => __('bookings.errors.seats_left', ['n' => $event->remainingSeats()]),
             ], 422);
         }
 
-        $unitPrice = (float)($event->price ?? 0);
-        $totalAmount = $unitPrice * $seats;
-        $paymentMethod = $data['payment_method'] ?? ($totalAmount > 0 ? 'chapa' : 'free');
-
-        // Strictly prevent booking paid event as free
-        if ($totalAmount > 0 && $paymentMethod === 'free') {
-            return response()->json([
-                'success' => false,
-                'message' => 'This event requires a paid ticket of ' . number_format($totalAmount, 2) . ' ' . ($event->currency ?? 'ETB') . '. Free reservations are not permitted for paid events.',
-            ], 422);
+        // The price comes from the ticket type; a member ticket needs an Academy enrollment.
+        $type = $data['ticket_type'] ?? 'general';
+        $ticket = collect(EventTourPresenter::tickets($event, $user))->firstWhere('type', $type);
+        if (!$ticket || !$ticket['eligible']) {
+            return response()->json(['success' => false, 'code' => 'TICKET_NOT_ALLOWED', 'message' => __('bookings.errors.member_only')], 422);
         }
-
-        if ($totalAmount > 0 && $paymentMethod !== 'chapa') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Please select a valid payment method (e.g. Chapa) to book this event.',
-            ], 422);
+        $unitPrice = (float) $ticket['price'];
+        $fee = $unitPrice > 0 ? (float) $event->service_fee : 0.0;
+        $totalAmount = round(($unitPrice + $fee) * $seats, 2);
+        $method = $totalAmount > 0 ? ($data['payment_method'] ?? 'chapa') : 'free';
+        if ($totalAmount > 0 && !in_array($method, ['chapa', 'bank_transfer'], true)) {
+            return response()->json(['success' => false, 'code' => 'PAYMENT_METHOD_INVALID', 'message' => __('bookings.errors.payment_method')], 422);
         }
 
         DB::beginTransaction();
         try {
-            $booking = $event->bookings()->create([
-                'user_id' => $user ? $user->id : null,
+            $booking = new EventBooking();
+            $booking->forceFill([
+                'event_id' => $event->id,
+                'user_id' => $user->id,
                 'reference' => $this->generateReference(),
-                'status' => ($totalAmount <= 0) ? EventBooking::STATUS_CONFIRMED : EventBooking::STATUS_PENDING,
-                'payment_status' => ($totalAmount <= 0) ? EventBooking::PAYMENT_PAID : EventBooking::PAYMENT_PENDING,
+                'status' => $totalAmount <= 0 ? EventBooking::STATUS_CONFIRMED : EventBooking::STATUS_PENDING,
+                'payment_status' => $totalAmount <= 0 ? EventBooking::PAYMENT_PAID : EventBooking::PAYMENT_PENDING,
+                'payment_method' => $method,
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
-                'email' => $data['email'],
-                'phone' => $data['phone'] ?? null,
+                'email' => $data['email'] ?? $user->email,
+                'phone' => $data['phone'] ?? $user->phone,
+                'company' => $data['company'] ?? null,
                 'seats' => $seats,
+                'ticket_type' => $type,
                 'unit_price' => $unitPrice,
+                'service_fee' => $fee,
                 'total_amount' => $totalAmount,
                 'currency' => $event->currency ?? 'ETB',
                 'contact_method' => $data['contact_method'] ?? null,
                 'notes' => $data['notes'] ?? null,
                 'booked_at' => now(),
-            ]);
+            ])->save();
 
-            // Handle Free Event
             if ($totalAmount <= 0) {
                 DB::commit();
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Free event reservation confirmed successfully!',
-                    'booking' => $booking,
-                ]);
+
+                return response()->json(['success' => true, 'message' => __('bookings.free_confirmed'), 'booking' => $this->bookingJson($booking)]);
             }
 
-            // Create pending payment for paid event
-            $txRef = 'CHAPA_EVENT_API_' . $booking->id . '_' . time();
-            $payment = \App\Models\Payment::create([
-                'user_id' => $user ? $user->id : null,
-                'event_booking_id' => $booking->id,
-                'payment_method' => \App\Models\Payment::PAYMENT_METHOD_CHAPA,
-                'amount' => $totalAmount,
-                'status' => \App\Models\Payment::STATUS_PENDING,
-                'chapa_tx_ref' => $txRef,
-            ]);
-
-            $booking->update(['payment_id' => $payment->id]);
-
-            $chapaSession = $this->createChapaSession($totalAmount, $booking, $event, $txRef);
+            $started = $payments->start($booking, BookingPaymentService::EVENT_TICKET, $totalAmount, $method, $request->file('slip'), $data['bank_reference'] ?? null, $user, 'Event ' . $event->title);
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Event reservation created. Complete payment via Chapa to confirm.',
-                'payment_required' => true,
-                'checkout_url' => $chapaSession['checkout_url'],
-                'tx_ref' => $txRef,
+                'message' => $method === 'bank_transfer' ? __('bookings.slip_in_review') : __('bookings.chapa_next'),
+                'payment_required' => $method === 'chapa',
+                'checkout_url' => $started['checkout_url'],
+                'tx_ref' => $started['tx_ref'],
                 'booking_id' => $booking->id,
                 'reference' => $booking->reference,
-                'booking' => $booking,
+                'booking' => $this->bookingJson($booking->fresh()),
             ]);
-        } catch (\Exception $e) {
+        } catch (VerificationException $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong while processing your booking: ' . $e->getMessage()
-            ], 500);
+
+            return $e->toResponse();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            report($e);
+
+            return response()->json(['success' => false, 'message' => __('bookings.errors.failed')], 500);
         }
     }
 
-    /**
-     * Create a Chapa checkout session for API event booking.
-     */
-    private function createChapaSession(float $amount, EventBooking $booking, Event $event, string $txRef): array
+    private function bookingJson(EventBooking $b): array
     {
-        $gatewayService = app(\App\Services\PaymentGatewayService::class);
-        $credentials = $gatewayService->credentialsFor('chapa');
-        $secretKey = $credentials['secret_key'] ?? env('CHAPA_SECRET_KEY');
-
-        if (empty($secretKey)) {
-            throw new \RuntimeException('Chapa credentials (secret_key) are not configured.');
-        }
-
-        $rawDesc = 'Event ' . ($event->title ?? 'Admission');
-        $customDesc = substr(preg_replace('/[^a-zA-Z0-9\-_ .]/', '', $rawDesc), 0, 50);
-        if (empty($customDesc)) {
-            $customDesc = 'Event Pass';
-        }
-
-        $payload = [
-            'amount' => number_format($amount, 2, '.', ''),
-            'currency' => $event->currency ?? 'ETB',
-            'email' => $booking->email,
-            'first_name' => $booking->first_name ?: 'Guest',
-            'last_name' => $booking->last_name ?: 'User',
-            'phone_number' => $booking->phone ?? '',
-            'tx_ref' => $txRef,
-            'callback_url' => url('/events/payment/chapa/callback'),
-            'return_url' => url('/events/payment/chapa/callback?tx_ref=' . $txRef),
-            'customization' => [
-                'title' => substr(preg_replace('/[^a-zA-Z0-9\-_ .]/', '', config('app.name', 'Fira Link')), 0, 16),
-                'description' => $customDesc,
-            ],
-        ];
-
-        $ch = curl_init('https://api.chapa.co/v1/transaction/initialize');
-        curl_setopt_array($ch, [
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 25,
-            CURLOPT_CONNECTTIMEOUT => 15,
-            CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . $secretKey,
-                'Content-Type: application/json',
-            ],
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => 2,
-        ]);
-
-        $response = curl_exec($ch);
-        $curlError = curl_error($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($curlError) {
-            throw new \Exception('Chapa connection error: ' . $curlError);
-        }
-
-        $responseData = json_decode($response, true);
-        if (!$responseData || ($responseData['status'] ?? '') !== 'success') {
-            $msg = $responseData['message'] ?? 'Unable to initialize Chapa payment.';
-            if (is_array($msg)) {
-                $flattened = [];
-                array_walk_recursive($msg, function ($val) use (&$flattened) {
-                    $flattened[] = $val;
-                });
-                $msg = implode(' ', $flattened);
-            }
-            throw new \Exception('Chapa session error: ' . $msg);
-        }
-
-        $checkoutUrl = $responseData['data']['checkout_url'] ?? $responseData['checkout_url'] ?? null;
-        if (!$checkoutUrl) {
-            throw new \Exception('Chapa did not return a valid checkout URL.');
-        }
-
         return [
-            'checkout_url' => $checkoutUrl,
-            'tx_ref' => $txRef,
-        ];
+            'id' => $b->id,
+            'reference' => $b->reference,
+            'status' => $b->status,
+            'payment_status' => $b->payment_status,
+            'seats' => $b->seats,
+            'total_amount' => (float) $b->total_amount,
+            'currency' => $b->currency,
+        ] + EventTourPresenter::eventBookingFields($b);
     }
 
     /**
-     * Verify a Chapa event payment for mobile / API client.
+     * Verify a Chapa event payment (signed-in owner only). Chapa is asked server to server and the
+     * amount must match; the client never marks a ticket paid.
      */
-    public function chapaVerify(Request $request)
+    public function chapaVerify(Request $request, BookingPaymentService $payments)
     {
-        $request->validate([
-            'tx_ref' => 'required|string',
-            'booking_id' => 'required|integer',
-        ]);
-
-        $booking = EventBooking::with(['event', 'user'])->find($request->booking_id);
-        if (!$booking) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Event booking not found.',
-            ], 404);
+        $request->validate(['tx_ref' => 'required|string', 'booking_id' => 'required|integer']);
+        $booking = EventBooking::find($request->integer('booking_id'));
+        if (!$booking || (int) $booking->user_id !== (int) $request->user()->id) {
+            return response()->json(['success' => false, 'message' => __('bookings.errors.not_found')], 404);
         }
-
-        $payment = \App\Models\Payment::where('chapa_tx_ref', $request->tx_ref)
-            ->where('event_booking_id', $booking->id)
-            ->first();
-
+        $payment = Payment::where('chapa_tx_ref', $request->input('tx_ref'))->where('event_booking_id', $booking->id)->first();
         if (!$payment) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Event booking payment record not found.',
-            ], 400);
+            return response()->json(['success' => false, 'message' => __('bookings.errors.not_found')], 404);
         }
-
-        if ($payment->status === \App\Models\Payment::STATUS_COMPLETED && $booking->status === EventBooking::STATUS_CONFIRMED) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Payment already verified.',
-                'booking_id' => $booking->id,
-                'reference' => $booking->reference,
-                'status' => $booking->status,
-                'payment_status' => $booking->payment_status,
-            ]);
-        }
-
-        $gatewayService = app(\App\Services\PaymentGatewayService::class);
-        $credentials = $gatewayService->credentialsFor('chapa');
-        $secretKey = $credentials['secret_key'] ?? env('CHAPA_SECRET_KEY');
-
-        if (empty($secretKey)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Chapa credentials are not configured.',
-            ], 500);
-        }
-
         try {
-            $ch = curl_init('https://api.chapa.co/v1/transaction/verify/' . $request->tx_ref);
-            curl_setopt_array($ch, [
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT => 25,
-                CURLOPT_CONNECTTIMEOUT => 15,
-                CURLOPT_HTTPHEADER => [
-                    'Authorization: Bearer ' . $secretKey,
-                ],
-                CURLOPT_SSL_VERIFYPEER => true,
-                CURLOPT_SSL_VERIFYHOST => 2,
-            ]);
+            $ok = $payments->verifyChapa($payment);
+        } catch (\Throwable $e) {
+            report($e);
 
-            $response = curl_exec($ch);
-            $curlError = curl_error($ch);
-            curl_close($ch);
-
-            if ($curlError) {
-                throw new \Exception('Chapa verify cURL error: ' . $curlError);
-            }
-
-            $verifyData = json_decode($response, true) ?? [];
-            $verifiedStatus = strtolower(
-                $verifyData['data']['status'] ?? $verifyData['status'] ?? ''
-            );
-            $reference = $verifyData['data']['reference'] ?? $verifyData['reference'] ?? $request->tx_ref;
-
-            if ($verifiedStatus === 'success') {
-                DB::beginTransaction();
-                try {
-                    $payment->update([
-                        'status' => \App\Models\Payment::STATUS_COMPLETED,
-                        'chapa_reference' => $reference,
-                        'transaction_id' => $reference,
-                    ]);
-
-                    $booking->update([
-                        'status' => EventBooking::STATUS_CONFIRMED,
-                        'payment_status' => EventBooking::PAYMENT_PAID,
-                    ]);
-
-                    DB::commit();
-
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Payment successful! Your event ticket is confirmed.',
-                        'booking_id' => $booking->id,
-                        'reference' => $booking->reference,
-                        'status' => $booking->status,
-                        'payment_status' => $booking->payment_status,
-                    ]);
-                } catch (\Exception $e) {
-                    DB::rollBack();
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Error confirming booking: ' . $e->getMessage(),
-                    ], 500);
-                }
-            }
-
-            $payment->update(['status' => \App\Models\Payment::STATUS_FAILED]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Chapa payment status: ' . ($verifiedStatus ?: 'unsuccessful'),
-            ], 400);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Chapa verification error: ' . $e->getMessage(),
-            ], 500);
+            return response()->json(['success' => false, 'message' => __('bookings.errors.verify_failed')], 502);
         }
+        $booking->refresh();
+
+        return response()->json([
+            'success' => $ok,
+            'message' => $ok ? __('bookings.ticket_confirmed') : __('bookings.errors.not_paid'),
+            'booking_id' => $booking->id,
+            'reference' => $booking->reference,
+            'status' => $booking->status,
+            'payment_status' => $booking->payment_status,
+        ], $ok ? 200 : 400);
     }
 
     private function generateReference(): string
@@ -394,8 +241,9 @@ class EventController extends Controller
                 'seats' => $booking->seats,
                 'status' => Str::lower($booking->status ?? EventBooking::STATUS_PENDING),
                 'reference' => $booking->reference,
-                'total_price' => ($booking->event?->price ?? 0) * $booking->seats,
-            ];
+                'total_price' => (float) $booking->total_amount,
+                'payment_status' => $booking->payment_status,
+            ] + EventTourPresenter::eventBookingFields($booking);
         });
 
         $bookings->setCollection($transformed);
@@ -418,9 +266,12 @@ class EventController extends Controller
             'event_date' => optional($event?->start_date)->format('F d, Y'),
             'event_time' => optional($event?->start_time)->format('h:i A'),
             'venue' => $event?->location ?? $event?->location_description ?? 'TBA',
-            'ticket_type' => $event->price > 0 ? 'Standard' : 'Free Entry', // detailed types if implemented
+            'ticket_type' => $booking->ticket_type ?? 'general',
             'quantity' => $booking->seats,
-            'total_price' => ($event->price ?? 0.0) * $booking->seats,
+            'total_price' => (float) $booking->total_amount,
+            'payment_status' => $booking->payment_status,
+            'payment_method' => $booking->payment_method,
+            'in_review' => $booking->payment_status === 'in_review',
             'status' => Str::lower($booking->status ?? EventBooking::STATUS_PENDING),
             'seat_numbers' => '', // specific seats not yet implemented
             'passenger_name' => $booking->full_name ?: ($booking->user?->name ?? 'Guest'),
@@ -442,7 +293,9 @@ class EventController extends Controller
             'verification_url' => $verificationUrl,
         ]);
 
-        $qrCodeDataUri = $this->generateQrCodeDataUri(json_encode($qrPayload, JSON_UNESCAPED_SLASHES));
+        $qrCodeDataUri = $booking->status === EventBooking::STATUS_CONFIRMED
+            ? $this->generateQrCodeDataUri(json_encode($qrPayload, JSON_UNESCAPED_SLASHES))
+            : null;
 
         return response()->json([
             'ticket' => $ticket,

@@ -345,7 +345,12 @@ class MarketplaceSellerController extends Controller
         ];
 
         if ($request->hasFile('receipt_file')) {
-            $data['receipt_file'] = $request->file('receipt_file')->store('receipts/marketplace', 'public');
+            // Slice 8: private disk, content checked.
+            $store = app(\App\Services\PrivateDocumentStore::class);
+            if ($reason = $store->rejectionReason($request->file('receipt_file'))) {
+                return response()->json($store->errorResponse('receipt_file', $reason), 422);
+            }
+            $data['receipt_file'] = $store->store($request->file('receipt_file'), 'payments/receipts');
         }
 
         try {

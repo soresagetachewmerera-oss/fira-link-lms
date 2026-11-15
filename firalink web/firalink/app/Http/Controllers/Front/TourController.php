@@ -319,6 +319,14 @@ class TourController extends Controller
             return redirect()->route('tours.index')->with('error', 'Booking record not found.');
         }
 
+        // Slice 8: deposits and balances carry a purpose; one service checks the amount and applies the stage.
+        if ($payment->purpose) {
+            $ok = rescue(fn () => app(\App\Services\Booking\BookingPaymentService::class)->verifyChapa($payment), false);
+
+            return redirect()->route('tours.confirmation', ['reference' => $booking->reference])
+                ->with($ok ? 'success' : 'warning', $ok ? __('bookings.tour_confirmed') : __('bookings.errors.not_paid'));
+        }
+
         // Verify with Chapa API
         $gatewayService = app(PaymentGatewayService::class);
         $credentials = $gatewayService->credentialsFor('chapa');

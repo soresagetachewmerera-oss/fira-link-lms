@@ -55,6 +55,8 @@ class Tour extends Model
         'requirements' => 'array',
         'available_schedules' => 'array',
         'metadata' => 'array',
+        'deposit_percent' => 'int',
+        'balance_due_days' => 'int',
     ];
 
     protected $appends = [
@@ -68,6 +70,12 @@ class Tour extends Model
             return $this->metadata['video_url'];
         }
         return null;
+    }
+
+    /** Slice 8: the host farm or cooperative ("Host verified" needs its active Tier 1). */
+    public function hostOrganization(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Organization::class, 'host_organization_id');
     }
 
     public function bookings(): HasMany

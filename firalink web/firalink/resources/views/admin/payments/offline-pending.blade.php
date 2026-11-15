@@ -124,13 +124,27 @@
                                                                     class="text-muted">{{ $payment->enrollment->user->phone }}</small>
                                                             @endif
                                                         </div>
+                                                    @elseif ($payment->user)
+                                                        {{-- Slice 8: event and tour slips have no enrollment. --}}
+                                                        <div>
+                                                            <h6 class="mb-0">{{ $payment->user->name }}</h6>
+                                                            <small class="text-muted">{{ $payment->user->email }}</small>
+                                                        </div>
                                                     @else
                                                         <span class="text-muted">N/A</span>
                                                     @endif
                                                 </div>
                                             </td>
                                             <td>
-                                                @if ($payment->enrollment && $payment->enrollment->course)
+                                                @if ($payment->purpose)
+                                                    <div>
+                                                        <h6 class="mb-0">{{ __('bookings.purposes.' . $payment->purpose) }}</h6>
+                                                        <small class="text-muted">
+                                                            {{ $payment->eventBooking?->event?->title ?? $payment->tourBooking?->tour?->title }}
+                                                            · {{ $payment->eventBooking?->reference ?? $payment->tourBooking?->reference }}
+                                                        </small>
+                                                    </div>
+                                                @elseif ($payment->enrollment && $payment->enrollment->course)
                                                     <div class="d-flex align-items-center">
                                                         @if ($payment->enrollment->course->featured_image)
                                                             <img src="{{ asset('storage/' . $payment->enrollment->course->featured_image) }}"
@@ -180,13 +194,15 @@
                                             </td>
                                             <td>
                                                 @if ($payment->receipt_file)
+                                                    {{-- Slice 8: private file, signed link valid 10 minutes, opening it is audited. --}}
+                                                    @php($receiptLink = app(\App\Services\PrivateDocumentStore::class)->adminUrl('payment-receipt', $payment->id))
                                                     <button type="button" class="btn btn-sm btn-info view-receipt-btn"
-                                                        data-receipt-url="{{ asset('storage/' . $payment->receipt_file) }}"
+                                                        data-receipt-url="{{ $receiptLink }}"
                                                         data-payment-id="{{ $payment->id }}">
                                                         <i class="fas fa-eye"></i> View
                                                     </button>
-                                                    <a href="{{ asset('storage/' . $payment->receipt_file) }}"
-                                                        target="_blank" class="btn btn-sm btn-secondary" title="Download">
+                                                    <a href="{{ $receiptLink }}"
+                                                        target="_blank" rel="noopener" class="btn btn-sm btn-secondary" title="Download">
                                                         <i class="fas fa-download"></i>
                                                     </a>
                                                 @else

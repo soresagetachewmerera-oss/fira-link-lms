@@ -47,6 +47,8 @@ class PrivateDocumentStore
         'report-evidence' => [\App\Models\TrustReport::class, 'evidence_path'],
         'seller-license' => [\App\Models\MarketplaceSellerProfile::class, 'license_document_path'],
         'sample-lab-report' => [\App\Models\MarketplaceSample::class, 'lab_report_path'],
+        // Slice 8: bank transfer slips for courses, events, tours and plans.
+        'payment-receipt' => [\App\Models\Payment::class, 'receipt_file'],
     ];
 
     /**

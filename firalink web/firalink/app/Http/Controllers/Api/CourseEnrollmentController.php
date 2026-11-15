@@ -546,9 +546,16 @@ class CourseEnrollmentController extends Controller
                     throw new \Exception('Failed to create PayPal order: ' . $e->getMessage());
                 }
             } elseif ($price > 0 && $paymentMethod === Payment::PAYMENT_METHOD_OFFLINE) {
+                // Slice 8: the slip is a real file on the private disk (content checked, not the extension).
                 $receiptPath = null;
                 if ($request->hasFile('receipt_file')) {
-                    $receiptPath = $this->fileUploadService->uploadReceipt($request->file('receipt_file'));
+                    $store = app(\App\Services\PrivateDocumentStore::class);
+                    if ($reason = $store->rejectionReason($request->file('receipt_file'))) {
+                        DB::rollBack();
+
+                        return response()->json($store->errorResponse('receipt_file', $reason), 422);
+                    }
+                    $receiptPath = $store->store($request->file('receipt_file'), 'payments/receipts');
                 }
 
                 $enrollment = Enrollment::firstOrCreate([

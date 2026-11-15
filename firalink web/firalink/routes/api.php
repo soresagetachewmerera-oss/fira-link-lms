@@ -101,9 +101,7 @@ Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{id}', [EventController::class, 'show']);
 Route::get('/tours', [TourController::class, 'index']);
 Route::get('/tours/{id}', [TourController::class, 'show']);
-Route::post('/tours/{id}/book', [TourController::class, 'book']);
-Route::post('/tours/payments/chapa/verify', [TourController::class, 'chapaVerify']);
-Route::post('/events/payments/chapa/verify', [EventController::class, 'chapaVerify']);
+// Slice 8: tour booking and event/tour payment checks need sign-in (inside the auth group below).
 Route::post('/payments/chapa/verify', [CourseEnrollmentController::class, 'chapaVerify']);
 Route::post('/courses/payments/chapa/verify', [CourseEnrollmentController::class, 'chapaVerify']);
 Route::get('/certificates/download/signed/{id}', [CertificateController::class, 'downloadSigned'])->name('api.certificates.download.signed')->middleware('signed');
@@ -225,11 +223,13 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/courses/{id}/enroll', [CourseEnrollmentController::class, 'enroll']);
     Route::post('/bundles/{id}/checkout', [CourseEnrollmentController::class, 'enrollBundle']);
     Route::post('/events/{id}/book', [EventController::class, 'book']);
+    Route::post('/tours/{id}/book', [TourController::class, 'book']);
     Route::get('/user/bookings', [EventController::class, 'myBookings']);
     Route::get('/user/bookings/{id}', [EventController::class, 'showBooking']);
     Route::get('/user/tour-bookings', [TourController::class, 'myBookings']);
     Route::get('/user/tour-bookings/{id}', [TourController::class, 'showBooking']);
     Route::post('/user/tour-bookings/{id}/cancel', [TourController::class, 'cancelBooking']);
+    Route::post('/user/tour-bookings/{id}/pay-balance', [TourController::class, 'payBalance']);
     Route::post('/payments/razorpay/verify', [CourseEnrollmentController::class, 'razorpayVerify']);
     Route::post('/payments/sslcommerz/verify', [CourseEnrollmentController::class, 'sslcommerzVerify']);
     Route::post('/payments/stripe/verify', [CourseEnrollmentController::class, 'stripeVerify']);

@@ -469,7 +469,7 @@
                                         @endif
                                     </table>
                                     @if ($enrollment->payment->receipt_file)
-                                        <a href="{{ asset('storage/' . $enrollment->payment->receipt_file) }}"
+                                        <a href="{{ app(\App\Services\PrivateDocumentStore::class)->adminUrl('payment-receipt', $enrollment->payment->id) }}"
                                             target="_blank" class="btn btn-primary">
                                             <i class="fas fa-download"></i> Download Receipt
                                         </a>

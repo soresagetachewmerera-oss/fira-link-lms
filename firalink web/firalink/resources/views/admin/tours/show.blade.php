@@ -166,4 +166,5 @@
             </div>
         </div>
     </div>
+    @include('admin.tours._flow')
 @endsection

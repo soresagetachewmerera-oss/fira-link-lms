@@ -307,10 +307,10 @@
                                         @if ($payment->receipt_file)
                                             <h6>Receipt</h6>
                                             <div class="mb-3">
-                                                <img src="{{ asset('storage/' . $payment->receipt_file) }}"
+                                                <img src="{{ app(\App\Services\PrivateDocumentStore::class)->adminUrl('payment-receipt', $payment->id) }}"
                                                     alt="Receipt" class="img-fluid rounded receipt-image">
                                             </div>
-                                            <a href="{{ asset('storage/' . $payment->receipt_file) }}" target="_blank"
+                                            <a href="{{ app(\App\Services\PrivateDocumentStore::class)->adminUrl('payment-receipt', $payment->id) }}" target="_blank"
                                                 class="btn btn-primary">
                                                 <i class="fas fa-download"></i> Download Receipt
                                             </a>
@@ -417,7 +417,7 @@
                                             <th>Receipt File</th>
                                             <td>
                                                 @if ($payment->receipt_file)
-                                                    <a href="{{ asset('storage/' . $payment->receipt_file) }}"
+                                                    <a href="{{ app(\App\Services\PrivateDocumentStore::class)->adminUrl('payment-receipt', $payment->id) }}"
                                                         target="_blank" class="btn btn-sm btn-primary">
                                                         <i class="fas fa-download"></i> View Receipt
                                                     </a>

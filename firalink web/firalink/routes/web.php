@@ -267,6 +267,10 @@ Route::get('/subscriptions', fn() => redirect()->route('courses'))->name('subscr
 Route::get('/student/subscription', fn() => redirect()->route('student.dashboard'))->name('student.subscription');
 Route::post('/subscriptions/{id}/checkout', fn() => redirect()->route('courses'))->name('subscriptions.process-checkout');
 
+// Slice 8: the payer's own bank slip, private disk, signed link from Payment::receipt_url.
+Route::get('/payments/{payment}/receipt', [\App\Http\Controllers\Api\PaymentController::class, 'showReceipt'])
+    ->middleware(['auth', 'signed'])->whereNumber('payment')->name('payments.receipt.show');
+
 // Include all route files
 require __DIR__ . '/auth.php';
 require __DIR__ . '/student.php';

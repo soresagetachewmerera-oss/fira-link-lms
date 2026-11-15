@@ -140,14 +140,12 @@ class Payment extends Model
             return null;
         }
 
-        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
-
-        if (!$disk->exists($this->receipt_file)) {
+        if (!Storage::disk(\App\Services\PrivateDocumentStore::DISK)->exists($this->receipt_file)) {
             return null;
         }
 
-        return $disk->url($this->receipt_file);
+        // Slice 8: receipts are private. A short-lived signed link for the owner (checked again on open).
+        return \Illuminate\Support\Facades\URL::temporarySignedRoute('payments.receipt.show', now()->addMinutes(10), ['payment' => $this->id]);
     }
 
     public function isPending(): bool

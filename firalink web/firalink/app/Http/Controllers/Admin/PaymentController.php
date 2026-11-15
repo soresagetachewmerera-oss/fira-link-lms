@@ -47,7 +47,7 @@ class PaymentController extends Controller
      */
     public function offlinePending()
     {
-        $query = Payment::with(['enrollment.user', 'enrollment.course.instructor', 'coupon'])
+        $query = Payment::with(['enrollment.user', 'enrollment.course.instructor', 'coupon', 'user', 'eventBooking.event', 'tourBooking.tour'])
             ->where('payment_method', Payment::PAYMENT_METHOD_OFFLINE)
             ->where('status', Payment::STATUS_PENDING);
 
@@ -204,6 +204,18 @@ class PaymentController extends Controller
     {
         $payment = Payment::with('enrollment')->findOrFail($id);
 
+        // Slice 8: event tickets and tour deposits and balances: one service applies the right stage.
+        if ($payment->purpose) {
+            try {
+                app(\App\Services\Booking\BookingPaymentService::class)->confirm($payment, $request->user(), $request->input('bank_reference'));
+                ToastMagic::success(__('bookings.admin.confirmed'));
+            } catch (\App\Services\Verification\VerificationException $e) {
+                ToastMagic::error($e->getMessage());
+            }
+
+            return back();
+        }
+
         if ($payment->status !== Payment::STATUS_PENDING) {
             ToastMagic::error('Only pending payments can be approved.');
             return back();
@@ -258,6 +270,17 @@ class PaymentController extends Controller
     public function reject(Request $request, $id)
     {
         $payment = Payment::with('enrollment')->findOrFail($id);
+
+        if ($payment->purpose) {
+            try {
+                app(\App\Services\Booking\BookingPaymentService::class)->reject($payment, $request->user(), (string) $request->input('reason'));
+                ToastMagic::info(__('bookings.admin.rejected'));
+            } catch (\App\Services\Verification\VerificationException $e) {
+                ToastMagic::error($e->getMessage());
+            }
+
+            return back();
+        }
 
         if ($payment->status !== Payment::STATUS_PENDING) {
             ToastMagic::error('Only pending payments can be rejected.');

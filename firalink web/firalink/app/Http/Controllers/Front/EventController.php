@@ -168,7 +168,7 @@ class EventController extends Controller
                 'payment_status' => ($totalAmount <= 0) ? EventBooking::PAYMENT_PAID : EventBooking::PAYMENT_PENDING,
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
-                'email' => $data['email'],
+                'email' => $data['email'] ?? $request->user()?->email,
                 'phone' => $data['phone'] ?? null,
                 'seats' => $seats,
                 'unit_price' => $unitPrice,
@@ -237,6 +237,15 @@ class EventController extends Controller
         $booking = EventBooking::with('event')->find($payment->event_booking_id);
         if (!$booking) {
             return redirect()->route('events.index')->with('error', 'Booking record not found.');
+        }
+
+        // Slice 8: payments started by the app carry a purpose; one service checks and applies them.
+        if ($payment->purpose) {
+            $ok = rescue(fn () => app(\App\Services\Booking\BookingPaymentService::class)->verifyChapa($payment), false);
+
+            return $ok
+                ? redirect()->route('events.confirmation', ['reference' => $booking->reference])->with('success', __('bookings.ticket_confirmed'))
+                : redirect()->route('events.confirmation', ['reference' => $booking->reference])->with('warning', __('bookings.errors.not_paid'));
         }
 
         $gatewayService = app(PaymentGatewayService::class);

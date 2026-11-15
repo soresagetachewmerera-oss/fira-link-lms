@@ -142,8 +142,27 @@ class StudentCourseController extends Controller
                 'is_completed' => $isCompleted,
                 'current_item' => $currentItem,
                 'topics' => $topicsData,
+                // Slice 8: Academy flow (Lesson 4 of 12, progress %, up next).
+                'progress' => self::progressSummary($topicsData, $currentItem),
             ]
         ]);
+    }
+
+    /** Lessons, quizzes and assignments in order: how many are done, and which is next. */
+    public static function progressSummary(array $topics, $currentItem): array
+    {
+        $items = collect($topics)->flatMap(fn ($t) => $t['items'] ?? [])->values();
+        $total = $items->count();
+        $done = $items->where('is_completed', true)->count();
+        $next = $items->first(fn ($i) => empty($i['is_completed']));
+        $nextIndex = $next ? $items->search(fn ($i) => $i['type'] === $next['type'] && $i['id'] === $next['id']) : null;
+
+        return [
+            'items_total' => $total,
+            'items_done' => $done,
+            'percent' => $total > 0 ? (int) floor($done * 100 / $total) : 0,
+            'up_next' => $next ? ['type' => $next['type'], 'id' => $next['id'], 'title' => $next['title'], 'number' => $nextIndex + 1] : null,
+        ];
     }
 
     /**
@@ -205,8 +224,27 @@ class StudentCourseController extends Controller
                 ],
                 'video' => $videoData,
                 'is_completed' => $progress->is_completed,
+                // Slice 8: "Lesson 3 of 12", Previous and the next lesson.
+                'position' => self::lessonPosition($lesson),
             ]
         ]);
+    }
+
+    /** Where this lesson sits among the course's lessons (topic order, then lesson order). */
+    private static function lessonPosition(Lesson $lesson): array
+    {
+        $ids = Lesson::whereHas('topic', fn ($q) => $q->where('course_id', $lesson->topic->course_id))
+            ->join('course_topics', 'course_topics.id', '=', 'lessons.course_topic_id')
+            ->orderBy('course_topics.order')->orderBy('lessons.order')->orderBy('lessons.id')
+            ->pluck('lessons.id')->values();
+        $i = $ids->search($lesson->id);
+
+        return [
+            'number' => $i === false ? null : $i + 1,
+            'total' => $ids->count(),
+            'previous_lesson_id' => $i ? $ids[$i - 1] : null,
+            'next_lesson_id' => $i !== false && $i + 1 < $ids->count() ? $ids[$i + 1] : null,
+        ];
     }
 
     /**

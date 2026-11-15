@@ -47,6 +47,11 @@ class Event extends Model
         'price' => 'decimal:2',
         'is_published' => 'bool',
         'metadata' => 'array',
+        'agenda' => 'array',
+        'is_online' => 'bool',
+        'member_price' => 'decimal:2',
+        'service_fee' => 'decimal:2',
+        'organized_by_fira_link' => 'bool',
     ];
 
     protected $appends = [
@@ -69,6 +74,12 @@ class Event extends Model
     public function instructors(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'event_instructor', 'event_id', 'instructor_id')->withTimestamps();
+    }
+
+    /** Slice 8: the business that organizes the event ("Organizer verified" needs its active Tier 1). */
+    public function organizerOrganization(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Organization::class, 'organizer_organization_id');
     }
 
     public function bookings(): HasMany
