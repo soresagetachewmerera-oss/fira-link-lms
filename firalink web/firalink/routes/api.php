@@ -296,6 +296,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         });
 
         // Seller Inventory & Profile
+        // Seller home: counts and to-do list of the active seller business.
+        Route::get('/seller/home', [\App\Http\Controllers\Api\SellerHomeController::class, 'show']);
         Route::get('/seller/profile', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'profile']);
         Route::post('/seller/profile', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'updateProfile']);
         // Seller lots (slice 4): owned by the active business; drafts until Tier 1; level from reviewed evidence.
