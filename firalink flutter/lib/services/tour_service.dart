@@ -8,6 +8,7 @@ class TourService extends BaseService {
     String? category,
     String? difficulty,
     String? sort,
+    String? region,
     int page = 1,
   }) async {
     final queryParams = <String, String>{
@@ -17,6 +18,7 @@ class TourService extends BaseService {
     if (category != null && category.isNotEmpty) queryParams['category'] = category;
     if (difficulty != null && difficulty.isNotEmpty) queryParams['difficulty'] = difficulty;
     if (sort != null && sort.isNotEmpty) queryParams['sort'] = sort;
+    if (region != null && region.isNotEmpty) queryParams['region'] = region;
 
     final uri = Uri.parse('${BaseService.baseUrl}/tours').replace(queryParameters: queryParams);
     try {

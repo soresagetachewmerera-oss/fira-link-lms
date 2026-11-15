@@ -13,6 +13,8 @@ import '../../config/config.dart';
 
 import '../dashboard/my_ticket_bookings_screen.dart';
 import 'ticket_booking_screen.dart';
+import 'widgets/event_flow_sections.dart';
+import '../../widgets/booking_flow_widgets.dart';
 import '../../models/instructor.dart';
 import '../../widgets/youtube_player/app_youtube_player.dart';
 
@@ -286,48 +288,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                         ],
                       ),
                     ),
-                    // Organizer Section
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
-                        children: <Widget>[
-                          CircleAvatar(
-                            radius: 24,
-                            backgroundColor: AppTheme.getPrimaryColor(context),
-                            backgroundImage: AssetImage(
-                              'assets/img/profile/profile_1.jpg',
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  'Fira Link Academy',
-                                  style: TextStyle(
-                                    color: AppTheme.getTextColor(context),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  'Organizer',
-                                  style: TextStyle(
-                                    color: AppTheme.getTextColor(
-                                      context,
-                                    ).withValues(alpha: 0.6),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                    // Organizer (slice 8): the real organizer business, verified only with an active Tier 1.
+                    if (event.flow?.organizer != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: BookingBusinessCard(business: event.flow!.organizer!),
                       ),
-                    ),
                     const SizedBox(height: 16),
                     // Date & Time Section
                     Padding(
@@ -849,6 +815,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    // Seats left, agenda and tickets (slice 8)
+                    if (event.flow != null) EventFlowSections(flow: event.flow!, currency: event.currency),
                     // Event Speakers Section
                     if ((event.instructors != null &&
                             event.instructors!.isNotEmpty) ||

@@ -183,8 +183,14 @@ class _FakePayout extends PayoutAccountService {
   @override
   Future<PayoutAccountState> get() async => PayoutAccountState(account: PayoutAccountView.fromJson(account), canChange: canChange);
 
+  int freshNeeded = 0;
+
   @override
   Future<PayoutAccountView?> save({required String bankName, required String accountName, required String accountNumber}) async {
+    if (freshNeeded > 0) {
+      freshNeeded--;
+      throw const ApiException(statusCode: 403, code: 'FRESH_AUTH_REQUIRED');
+    }
     saved.add({'bank': bankName, 'name': accountName, 'number': accountNumber});
     account = {'id': 2, 'bank_name': bankName, 'account_name': accountName, 'account_last4': accountNumber.substring(accountNumber.length - 4), 'status': 'pending', 'is_change': true, 'active_from': '2099-01-01T00:00:00Z'};
     return PayoutAccountView.fromJson(account);
@@ -463,5 +469,24 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('step-locked')), findsOneWidget);
     expect(find.byKey(const Key('step-send')), findsNothing);
+  });
+
+  testWidgets('payout account: bank details ask to confirm it is you, then save', (tester) async {
+    _tall(tester);
+    final payout = _FakePayout()..freshNeeded = 1;
+    var asked = 0;
+    await tester.pumpWidget(_host(PayoutAccountScreen(service: payout, confirmFreshAuth: (_) async {
+      asked++;
+      return true;
+    })));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('payout-bank')), 'CBE');
+    await tester.enterText(find.byKey(const Key('payout-name')), 'Abyssinia Green PLC');
+    await tester.enterText(find.byKey(const Key('payout-number')), '1000555566667777');
+    await tester.tap(find.byKey(const Key('payout-save')));
+    await tester.pumpAndSettle();
+    expect(asked, 1);
+    expect(payout.saved.single['number'], '1000555566667777');
+    expect(find.byKey(const Key('payout-pending')), findsOneWidget);
   });
 }

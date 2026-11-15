@@ -6,10 +6,15 @@ class EventService extends BaseService {
   Future<http.Response> fetchEvents({
     String filter = 'upcoming',
     int page = 1,
+    String? category,
+    bool online = false,
   }) async {
-    final url = Uri.parse(
-      '${BaseService.baseUrl}/events?filter=$filter&page=$page',
-    );
+    final url = Uri.parse('${BaseService.baseUrl}/events').replace(queryParameters: {
+      'filter': filter,
+      'page': '$page',
+      'category': ?category,
+      if (online) 'online': '1',
+    });
     try {
       final response = await http.get(url, headers: await getHeaders());
       return response;

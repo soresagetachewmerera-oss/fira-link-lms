@@ -11,6 +11,8 @@ import '../../services/event_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/liquid_glass.dart';
 import 'event_detail_screen.dart';
+import '../dashboard/my_ticket_bookings_screen.dart';
+import '../../widgets/booking_flow_widgets.dart';
 
 class EventsScreen extends StatefulWidget {
   const EventsScreen({super.key});
@@ -25,6 +27,9 @@ class _EventsScreenState extends State<EventsScreen> {
   bool _isLoading = true;
   String _errorMessage = '';
   String _selectedFilter = 'upcoming';
+  // Slice 8: Upcoming / Online tabs and Trade fair, Training, Cupping, Networking.
+  bool _online = false;
+  String? _category;
 
   @override
   void initState() {
@@ -39,7 +44,7 @@ class _EventsScreenState extends State<EventsScreen> {
     });
 
     try {
-      final response = await _eventService.fetchEvents(filter: _selectedFilter);
+      final response = await _eventService.fetchEvents(filter: _selectedFilter, category: _category, online: _online);
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final List<dynamic> eventsList = data['data'] ?? [];
@@ -162,6 +167,19 @@ class _EventsScreenState extends State<EventsScreen> {
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
               child: _SearchBar(onFilterTap: () => _showFilterSheet(context)),
             ),
+            // Tabs and categories (slice 8)
+            _EventFlowFilters(
+              online: _online,
+              category: _category,
+              onOnline: (v) {
+                setState(() => _online = v);
+                _fetchEvents();
+              },
+              onCategory: (c) {
+                setState(() => _category = c);
+                _fetchEvents();
+              },
+            ),
             // Events List
             Expanded(
               child: _isLoading
@@ -198,6 +216,55 @@ class _EventsScreenState extends State<EventsScreen> {
         ),
       ),
       );
+  }
+}
+
+class _EventFlowFilters extends StatelessWidget {
+  const _EventFlowFilters({required this.online, required this.category, required this.onOnline, required this.onCategory});
+
+  final bool online;
+  final String? category;
+  final ValueChanged<bool> onOnline;
+  final ValueChanged<String?> onCategory;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(children: [
+            ChoiceChip(key: const Key('events-upcoming'), label: Text(l10n.eventsUpcoming), selected: !online, onSelected: (_) => onOnline(false)),
+            const SizedBox(width: 8),
+            ChoiceChip(key: const Key('events-online'), label: Text(l10n.eventsOnline), selected: online, onSelected: (_) => onOnline(true)),
+            const SizedBox(width: 8),
+            ActionChip(
+              key: const Key('events-my-tickets'),
+              label: Text(l10n.eventsMyTickets),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MyTicketBookingsScreen())),
+            ),
+          ]),
+        ),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(children: [
+            for (final c in const [null, 'trade_fair', 'training', 'cupping', 'networking'])
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  key: Key('events-cat-${c ?? 'all'}'),
+                  label: Text(c == null ? l10n.eventsAll : l10n.translate('eventCat_$c')),
+                  selected: category == c,
+                  onSelected: (_) => onCategory(c),
+                ),
+              ),
+          ]),
+        ),
+      ]),
+    );
   }
 }
 
@@ -450,6 +517,10 @@ class _EventCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (event.flow?.organizer != null) ...[
+                    const SizedBox(height: 8),
+                    VerifiedBusinessLine(business: event.flow!.organizer),
+                  ],
                   const SizedBox(height: 12),
                   // Attendees & Price
                   Row(

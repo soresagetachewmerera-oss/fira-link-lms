@@ -1,3 +1,5 @@
+import 'booking_flow_model.dart';
+
 class Event {
   final int id;
   final String title;
@@ -25,6 +27,9 @@ class Event {
   final String currency;
   final Map<String, dynamic>? metadata;
 
+  /// Slice 8: organizer, tickets, agenda, service fee, refund policy, seats left.
+  final EventFlow? flow;
+
   Event({
     required this.id,
     required this.title,
@@ -51,6 +56,7 @@ class Event {
     this.videoUrl,
     this.currency = 'ETB',
     this.metadata,
+    this.flow,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -90,6 +96,7 @@ class Event {
       videoUrl: video,
       currency: cur,
       metadata: rawMetadata,
+      flow: EventFlow.fromJson(json['flow']),
     );
   }
 }

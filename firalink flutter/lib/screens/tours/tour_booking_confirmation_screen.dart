@@ -8,7 +8,9 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../services/tour_service.dart';
 import '../../theme/fira_colors.dart';
 import '../../utils/currency_formatter.dart';
+import '../../widgets/booking_flow_widgets.dart';
 import 'my_tour_bookings_screen.dart';
+import 'widgets/tour_payment_panel.dart';
 import '../../l10n/app_localizations.dart';
 
 class TourBookingConfirmationScreen extends StatefulWidget {
@@ -138,6 +140,9 @@ class _TourBookingConfirmationScreenState extends State<TourBookingConfirmationS
     final String scheduleDate = _ticketData?['schedule_date'] ?? _ticketData?['schedule_date_formatted'] ?? 'Date TBA';
     final String departureTime = _ticketData?['departure_time'] ?? '08:00 AM EAT';
     final String passengerName = _ticketData?['passenger_name'] ?? 'Confirmed Member';
+    // Slice 8: a bank slip waits for Fira Link finance; the places are held but not confirmed yet.
+    final ps = _ticketData?['payment_status']?.toString();
+    final inReview = ps == 'in_review';
 
     return Scaffold(
       backgroundColor: fira.surface,
@@ -172,8 +177,9 @@ class _TourBookingConfirmationScreenState extends State<TourBookingConfirmationS
               child: Icon(Icons.check_circle_rounded, color: fira.success, size: 36),
             ),
             const SizedBox(height: 12),
+            if (inReview) const InReviewPill(),
             Text(
-              'Reservation Confirmed!',
+              inReview ? context.l10n.tourInReviewTitle : context.l10n.tourBookedTitle,
               style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.w800,
@@ -182,7 +188,7 @@ class _TourBookingConfirmationScreenState extends State<TourBookingConfirmationS
             ),
             const SizedBox(height: 4),
             Text(
-              'Present this boarding pass at the expedition gate.',
+              inReview ? context.l10n.tourInReviewBody : context.l10n.translate('tourBookedLine', {'reference': widget.reference}),
               style: TextStyle(fontSize: 13, color: fira.mutedText),
               textAlign: TextAlign.center,
             ),
@@ -475,6 +481,11 @@ class _TourBookingConfirmationScreenState extends State<TourBookingConfirmationS
               ],
             ),
             const SizedBox(height: 24),
+
+            if (_ticketData != null) ...[
+              TourPaymentPanel(bookingId: widget.bookingId, ticket: {...?_ticketData, 'currency': _ticketData?['currency'] ?? widget.currency}, onChanged: _fetchTicket),
+              const SizedBox(height: 24),
+            ],
 
             // Navigation Actions: Back to Tours & My Bookings
             Row(

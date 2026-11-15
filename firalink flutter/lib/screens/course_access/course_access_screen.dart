@@ -1,3 +1,5 @@
+import 'widgets/course_progress_strip.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:no_screenshot/no_screenshot.dart';
@@ -42,6 +44,8 @@ class _CourseAccessScreenState extends State<CourseAccessScreen> {
 
   Map<String, dynamic>? _currentLesson;
   List<dynamic> _topics = [];
+  // Slice 8: progress %, items done and up next (from the server).
+  Map<String, dynamic>? _progress;
 
   // Video State
   VideoPlayerController? _videoPlayerController;
@@ -94,6 +98,7 @@ class _CourseAccessScreenState extends State<CourseAccessScreen> {
         if (data['success'] == true) {
           setState(() {
             _topics = data['data']['topics'] ?? [];
+            _progress = data['data']['progress'] is Map<String, dynamic> ? data['data']['progress'] as Map<String, dynamic> : null;
             _isLoading = false;
           });
 
@@ -268,7 +273,7 @@ class _CourseAccessScreenState extends State<CourseAccessScreen> {
           if (!mounted) return;
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(const SnackBar(content: Text('Lesson Completed!')));
+          ).showSnackBar(SnackBar(content: Text(context.l10n.courseLessonDone)));
 
           // Refresh curriculum to show checkmark
           _fetchCourseCurriculum();
@@ -408,6 +413,12 @@ class _CourseAccessScreenState extends State<CourseAccessScreen> {
                     ),
                   ),
   
+                  CourseProgressStrip(
+                    progress: _progress,
+                    position: _currentLesson?['position'] is Map<String, dynamic> ? _currentLesson!['position'] as Map<String, dynamic> : null,
+                    onAskAi: _currentLesson == null ? null : () => Navigator.of(context).pushNamed(AppRouter.aiChat),
+                  ),
+
                   // Lesson Title & Controls
                   if (_currentLesson != null)
                     Padding(
@@ -449,7 +460,7 @@ class _CourseAccessScreenState extends State<CourseAccessScreen> {
                               ElevatedButton.icon(
                                 onPressed: _markComplete,
                                 icon: const Icon(Icons.check_circle_outline),
-                                label: const Text('Mark Complete'),
+                                label: Text(context.l10n.courseMarkComplete),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.getPrimaryColor(
                                     context,

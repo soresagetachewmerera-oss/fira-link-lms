@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../../theme/fira_colors.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -207,11 +208,12 @@ class _TicketViewScreenState extends State<TicketViewScreen> {
                                   const SizedBox(height: 16),
                                   _buildStatusBadge(
                                     context,
-                                    ticket['status'] as String,
+                                    // Slice 8: a bank slip waits for finance; no QR until confirmed.
+                                    ticket['in_review'] == true ? 'in_review' : ticket['status'] as String,
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
-                                    context.l10n.scanQRCodeInstruction,
+                                    _qrCodeDataUri == null ? context.l10n.ticketInReviewNote : context.l10n.scanQRCodeInstruction,
                                     style: TextStyle(
                                       color: isDarkMode
                                           ? Colors.grey[400]
@@ -499,10 +501,16 @@ class _TicketViewScreenState extends State<TicketViewScreen> {
         textColor = Colors.green.shade800;
         label = 'Confirmed';
         break;
+      // Pending is purple on lavender, never amber.
       case 'pending':
-        backgroundColor = Colors.orange.shade100;
-        textColor = Colors.orange.shade800;
-        label = 'Pending';
+        backgroundColor = context.fira.brandTint;
+        textColor = context.fira.pending;
+        label = context.l10n.bookingPending;
+        break;
+      case 'in_review':
+        backgroundColor = context.fira.brandTint;
+        textColor = context.fira.pending;
+        label = context.l10n.bookingInReview;
         break;
       case 'cancelled':
         backgroundColor = Colors.red.shade100;

@@ -1,3 +1,4 @@
+import 'booking_flow_model.dart';
 import '../config/config.dart';
 
 class Tour {
@@ -31,6 +32,9 @@ class Tour {
   final String? videoUrl;
   final Map<String, dynamic>? metadata;
 
+  /// Slice 8: host, safety, deposit and the next dates with places left.
+  final TourFlow flow;
+
   Tour({
     required this.id,
     required this.title,
@@ -61,6 +65,7 @@ class Tour {
     this.isFeatured = false,
     this.videoUrl,
     this.metadata,
+    this.flow = const TourFlow(),
   });
 
   factory Tour.fromJson(Map<String, dynamic> json) {
@@ -100,6 +105,7 @@ class Tour {
       isFeatured: json['is_featured'] ?? false,
       videoUrl: video,
       metadata: rawMetadata,
+      flow: TourFlow.fromJson(json),
     );
   }
 }

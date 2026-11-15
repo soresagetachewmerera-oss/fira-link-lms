@@ -1,3 +1,5 @@
+import '../../widgets/booking_flow_widgets.dart';
+import '../../l10n/app_localizations.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -22,6 +24,9 @@ class _ToursScreenState extends State<ToursScreen> {
   List<Tour> _tours = [];
   bool _isLoading = true;
   String? _selectedCategory;
+  // Slice 8: the coffee regions from the flow.
+  String? _region;
+  static const _regions = ['Sidama', 'Yirgacheffe', 'Guji', 'Jimma', 'Harar'];
   String? _errorMessage;
 
   final List<String> _categories = [
@@ -50,6 +55,7 @@ class _ToursScreenState extends State<ToursScreen> {
       final response = await _tourService.fetchTours(
         search: _searchController.text.trim(),
         category: categoryFilter,
+        region: _region,
       );
 
       if (response.statusCode == 200) {
@@ -181,6 +187,33 @@ class _ToursScreenState extends State<ToursScreen> {
                 ),
               ],
             ),
+          ),
+
+          // Regions and the pay-only-here promise (slice 8)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(children: [
+                  for (final r in <String?>[null, ..._regions])
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ChoiceChip(
+                        key: Key('tour-region-${r ?? 'all'}'),
+                        label: Text(r ?? context.l10n.eventsAll),
+                        selected: _region == r,
+                        onSelected: (_) {
+                          setState(() => _region = r);
+                          _fetchTours();
+                        },
+                      ),
+                    ),
+                ]),
+              ),
+              const SizedBox(height: 8),
+              PayOnlyHereCard(text: '${context.l10n.toursHeadline}\n${context.l10n.toursHostsChecked}'),
+            ]),
           ),
 
           // Content List
@@ -371,6 +404,10 @@ class _TourCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextResolver.ellipsisText,
                   ),
+                  if (tour.flow.host != null) ...[
+                    const SizedBox(height: 6),
+                    VerifiedBusinessLine(business: tour.flow.host, host: true),
+                  ],
                   const SizedBox(height: 10),
 
                   // Footer: Price & Seats

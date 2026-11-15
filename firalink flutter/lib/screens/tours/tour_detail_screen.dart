@@ -5,6 +5,8 @@ import '../../services/tour_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/youtube_player/app_youtube_player.dart';
 import 'tour_booking_screen.dart';
+import 'widgets/tour_flow_sections.dart';
+import '../../widgets/booking_flow_widgets.dart';
 import '../../l10n/app_localizations.dart';
 
 class TourDetailScreen extends StatefulWidget {
@@ -222,6 +224,7 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
                       ),
                     ],
                   ),
+                  if (tour.flow.host != null) ...[const SizedBox(height: 6), VerifiedBusinessLine(business: tour.flow.host, host: true)],
                   const SizedBox(height: 10),
 
                   // Title (Standardized & Proportionate)
@@ -464,6 +467,9 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
                     }),
                     const SizedBox(height: 16),
                   ],
+
+                  // Host, not included, cancellation, safety, next dates (slice 8)
+                  TourFlowSections(tour: tour),
 
                   // Meeting Point
                   if (tour.meetingPoint != null) ...[

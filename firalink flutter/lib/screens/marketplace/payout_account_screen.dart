@@ -5,14 +5,19 @@ import '../../models/deal_room_model.dart';
 import '../../services/payout_account_service.dart';
 import '../../theme/fira_colors.dart';
 import '../../widgets/fira_error_state.dart';
+import '../../services/api_exception.dart';
+import '../../widgets/auth/fresh_auth_sheet.dart';
 import '../../widgets/verification_labels.dart';
 
 /// The seller's payout bank account (slice 7). Shown masked. Only the owner changes it; a change
 /// pauses payments for 48 hours and Fira Link calls the number already on file before buyers can pay it.
 class PayoutAccountScreen extends StatefulWidget {
-  const PayoutAccountScreen({super.key, this.service});
+  const PayoutAccountScreen({super.key, this.service, this.confirmFreshAuth});
 
   final PayoutAccountService? service;
+
+  /// Bank details need a fresh sign-in; defaults to the "confirm it is you" sheet.
+  final Future<bool> Function(BuildContext context)? confirmFreshAuth;
 
   @override
   State<PayoutAccountScreen> createState() => _PayoutAccountScreenState();
@@ -58,7 +63,15 @@ class _PayoutAccountScreenState extends State<PayoutAccountScreen> {
     final l10n = context.l10n;
     setState(() => _saving = true);
     try {
-      await _service.save(bankName: _bank.text.trim(), accountName: _name.text.trim(), accountNumber: _number.text.trim());
+      Future<void> save() => _service.save(bankName: _bank.text.trim(), accountName: _name.text.trim(), accountNumber: _number.text.trim());
+      try {
+        await save();
+      } on ApiException catch (e) {
+        if (e.code != 'FRESH_AUTH_REQUIRED' || !mounted) rethrow;
+        final ok = await (widget.confirmFreshAuth ?? (c) => FreshAuthSheet.confirm(c))(context);
+        if (!ok || !mounted) return;
+        await save();
+      }
       if (!mounted) return;
       _number.clear();
       setState(() => _editing = false);
