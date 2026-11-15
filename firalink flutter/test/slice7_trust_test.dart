@@ -7,6 +7,7 @@ import 'package:eduex_app/models/deal_room_model.dart';
 import 'package:eduex_app/models/trade_chat_model.dart';
 import 'package:eduex_app/screens/chat/trade_chat_screen.dart';
 import 'package:eduex_app/screens/deal_room/deal_room_hub_screen.dart';
+import 'package:eduex_app/screens/deal_room/deal_step_screen.dart';
 import 'package:eduex_app/screens/deal_room/payment_milestones_screen.dart';
 import 'package:eduex_app/screens/marketplace/payout_account_screen.dart';
 import 'package:eduex_app/screens/trust_safety/report_modal.dart';
@@ -90,7 +91,7 @@ class _FakeDeals extends DealRoomService {
 
   @override
   Future<Map<String, dynamic>> advanceMilestone({required int dealRoomId, required int milestoneId, String? notes, UploadFile? document, String? paymentMethod}) async {
-    advanced.add({'milestone': milestoneId, 'method': paymentMethod, 'file': document?.name});
+    advanced.add({'milestone': milestoneId, 'method': paymentMethod, 'file': document?.name, if (notes != null) 'notes': notes});
     if (advanceError != null) return {'success': false, 'error': advanceError};
     return {'success': true};
   }
@@ -425,5 +426,42 @@ void main() {
     for (final k in kLangEn.keys.where((k) => RegExp(r'^(report|chat|deal|pay|payout|messageSeller)').hasMatch(k))) {
       expect(kLangAm.containsKey(k), isTrue, reason: k);
     }
+  });
+
+  testWidgets('shipped step: the seller adds carrier, B/L number and the bill of lading; the buyer only waits', (tester) async {
+    _tall(tester);
+    final deals = _FakeDeals(_deal(side: 'seller', current: 'shipped'));
+    final d = DealRoomModel.fromJson(_deal(side: 'seller', current: 'shipped'));
+    await tester.pumpWidget(_host(DealStepScreen(dealRoom: d, milestone: d.step('shipped')!, service: deals, pickProof: _slip)));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('step-send')));
+    await tester.pump();
+    expect(find.byKey(const Key('step-proof-required')), findsOneWidget);
+    expect(deals.advanced, isEmpty);
+
+    await tester.enterText(find.byKey(const Key('step-field-0')), 'ESLSE');
+    await tester.enterText(find.byKey(const Key('step-field-1')), 'BL-778899');
+    await tester.tap(find.byKey(const Key('step-pick')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('step-send')));
+    await tester.pumpAndSettle();
+    expect(deals.advanced.single, {'milestone': 103, 'method': null, 'file': 'slip.png', 'notes': 'Shipping line: ESLSE | Bill of lading number: BL-778899'});
+    expect(find.text(kLangEn['stepProofSent']!), findsOneWidget);
+
+    final buyerView = DealRoomModel.fromJson(_deal(current: 'shipped'));
+    await tester.pumpWidget(_host(DealStepScreen(key: const Key('buyer'), dealRoom: buyerView, milestone: buyerView.step('shipped')!, service: _FakeDeals(_deal(current: 'shipped')))));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('step-other-side')), findsOneWidget);
+    expect(find.byKey(const Key('step-send')), findsNothing);
+  });
+
+  testWidgets('a locked step explains why and offers no upload', (tester) async {
+    _tall(tester);
+    final d = DealRoomModel.fromJson(_deal(side: 'seller'));
+    await tester.pumpWidget(_host(DealStepScreen(dealRoom: d, milestone: d.step('preshipment_inspection')!, service: _FakeDeals(_deal(side: 'seller')))));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('step-locked')), findsOneWidget);
+    expect(find.byKey(const Key('step-send')), findsNothing);
   });
 }

@@ -35,6 +35,9 @@ class TradeService extends BaseService {
     });
   }
 
+  /// Lots I saved that buyers can still see (hidden lots drop out on the server).
+  Future<List<Map<String, dynamic>>> savedLots() async => _page(_data(await _send('GET', '/saved-listings')));
+
   /// Open requests (verified seller businesses only; others get VERIFIED_SELLER_REQUIRED).
   Future<List<Rfq>> openRequests({String? origin}) async =>
       _page(_data(await _send('GET', '/rfqs', query: {if (origin != null && origin.isNotEmpty) 'origin': origin}))).map(Rfq.fromJson).toList();

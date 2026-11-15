@@ -15,6 +15,7 @@ import '../../models/trade_model.dart';
 import '../chat/trade_chat_screen.dart';
 import 'exporters_screen.dart';
 import 'samples_screen.dart';
+import 'seller_home_screen.dart';
 import 'widgets/market_filters_sheet.dart';
 import 'widgets/verification_prompt_dialog.dart';
 class MarketplaceHomeScreen extends StatefulWidget {
@@ -132,7 +133,7 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
       );
       return;
     }
-    Navigator.pushNamed(context, AppRouter.marketplaceSellerPortal);
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SellerHomeScreen()));
   }
 
   @override

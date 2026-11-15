@@ -42,6 +42,9 @@ class LotService extends BaseService {
 
   Future<SellerLots> getLots() async => SellerLots.fromJson(_data(await _send('GET', _base)));
 
+  /// Seller home: counts and the to-do list of the active seller business.
+  Future<Map<String, dynamic>> home() async => _data(await _send('GET', '${BaseService.baseUrl}/marketplace/seller/home'));
+
   Future<SellerLot> getLot(int id) async => SellerLot.fromJson(_data(await _send('GET', '$_base/$id')));
 
   Future<SellerLot> createDraft(Map<String, dynamic> fields) async => SellerLot.fromJson(_data(await _send('POST', _base, fields)));

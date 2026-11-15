@@ -12,11 +12,9 @@ import '../../widgets/trade_labels.dart';
 import '../../widgets/verification_labels.dart';
 import '../chat/trade_chat_screen.dart';
 import '../trust_safety/report_modal.dart';
-import 'deal_settlement_screen.dart';
+import 'deal_step_screen.dart';
 import 'export_contract_esign_screen.dart';
 import 'payment_milestones_screen.dart';
-import 'preshipment_inspection_screen.dart';
-import 'shipping_logistics_screen.dart';
 
 /// Shared labels for deal rooms (slice 7).
 class DealLabels {
@@ -95,12 +93,8 @@ class _DealRoomHubScreenState extends State<DealRoomHubScreen> {
     switch (m.key) {
       case 'contract_signed':
         _push(ExportContractEsignScreen(dealRoom: d));
-      case 'preshipment_inspection':
-        _push(PreshipmentInspectionScreen(dealRoom: d, milestone: m));
-      case 'shipped':
-        _push(ShippingLogisticsScreen(dealRoom: d, milestone: m));
-      case 'final_settlement':
-        _push(DealSettlementScreen(dealRoom: d));
+      case 'preshipment_inspection' || 'shipped' || 'final_settlement':
+        _push(DealStepScreen(dealRoom: d, milestone: m, service: _service));
     }
   }
 

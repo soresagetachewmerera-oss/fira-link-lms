@@ -11,6 +11,11 @@ import '../common/webview_screen.dart';
 import '../../router/app_router.dart';
 import '../home/widgets/home_design_constants.dart';
 import 'business_verification_tile.dart';
+import '../chat/trade_chat_screen.dart';
+import '../deal_room/deal_rooms_screen.dart';
+import '../marketplace/samples_screen.dart';
+import '../marketplace/saved_lots_screen.dart';
+import '../marketplace/seller_home_screen.dart';
 import 'workspace_switcher_sheet.dart';
 import '../../providers/workspace_provider.dart';
 import '../../widgets/workspace_status_pill.dart';
@@ -449,6 +454,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
+                  // Business and Activity (flow: Profile). Business rows only in a business workspace.
+                  Consumer<WorkspaceProvider>(
+                    builder: (context, ws, _) {
+                      final org = ws.currentOrganization;
+                      final seller = org != null && const ['exporter', 'supplier', 'broker'].contains(org.businessType);
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (org != null) ...[
+                            _ProfileGroupTitle(title: context.l10n.profileBusinessGroup),
+                            _ProfileGroup(children: [
+                              if (seller)
+                                _MenuItemWithCustomIcon(
+                                  key: const Key('profile-my-business'),
+                                  icon: Icons.storefront_outlined,
+                                  title: context.l10n.profileMyBusinessLots,
+                                  subtitle: context.l10n.profileMyBusinessLotsSub,
+                                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SellerHomeScreen())),
+                                ),
+                              _MenuItemWithCustomIcon(
+                                key: const Key('profile-workspaces'),
+                                icon: Icons.groups_outlined,
+                                title: context.l10n.profileWorkspacesTeam,
+                                subtitle: context.l10n.profileWorkspacesTeamSub,
+                                onTap: () => WorkspaceSwitcherSheet.show(context),
+                              ),
+                              _MenuItemWithCustomIcon(
+                                key: const Key('profile-messages'),
+                                icon: Icons.chat_bubble_outline,
+                                title: context.l10n.chatInbox,
+                                subtitle: context.l10n.profileMessagesSub,
+                                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TradeChatsScreen())),
+                              ),
+                            ]),
+                            const SizedBox(height: 24),
+                          ],
+                          _ProfileGroupTitle(title: context.l10n.profileActivityGroup),
+                          _ProfileGroup(children: [
+                            _MenuItemWithCustomIcon(
+                              key: const Key('profile-deals'),
+                              icon: Icons.handshake_outlined,
+                              title: context.l10n.dealsTitle,
+                              subtitle: context.l10n.profileDealsSub,
+                              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DealRoomsScreen())),
+                            ),
+                            _MenuItemWithCustomIcon(
+                              key: const Key('profile-samples'),
+                              icon: Icons.science_outlined,
+                              title: context.l10n.samplesTitle,
+                              subtitle: context.l10n.profileSamplesSub,
+                              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SamplesScreen())),
+                            ),
+                            _MenuItemWithCustomIcon(
+                              key: const Key('profile-saved-lots'),
+                              icon: Icons.bookmark_border,
+                              title: context.l10n.savedLotsTitle,
+                              subtitle: context.l10n.profileSavedLotsSub,
+                              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SavedLotsScreen())),
+                            ),
+                          ]),
+                          const SizedBox(height: 24),
+                        ],
+                      );
+                    },
+                  ),
                   // Group 1: Learning & Trade Features
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
@@ -1047,8 +1117,37 @@ class _MenuItem extends StatelessWidget {
   }
 }
 
+class _ProfileGroupTitle extends StatelessWidget {
+  const _ProfileGroupTitle({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Text(
+          title,
+          style: TextStyle(color: AppTheme.getTextColor(context).withValues(alpha: 0.7), fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+      );
+}
+
+class _ProfileGroup extends StatelessWidget {
+  const _ProfileGroup({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(color: AppTheme.getCardColor(context), borderRadius: BorderRadius.circular(16)),
+        child: Column(children: children),
+      );
+}
+
 class _MenuItemWithCustomIcon extends StatelessWidget {
   const _MenuItemWithCustomIcon({
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
