@@ -38,6 +38,17 @@ return [
         'origins_removed' => 'Estimated per-origin FOB prices are no longer shown. Sourced prices are on the market prices page.',
         'next_tools' => 'Calculate an export margin', 'next_tools_hint' => 'Estimate contract costs, freight, and potential margin.',
     ],
+    'ai' => [
+        'gemini_off' => 'Fira AI answers are switched off right now. Please try again later.',
+        'rules_unknown' => "I don't have an approved document for that, so I can't answer it reliably. Please check with the Ethiopian Coffee and Tea Authority (ECTA): https://ethiocta.gov.et",
+        'no_prediction' => "I can't predict prices or give trading advice. Here is what our sources show now.",
+        'no_current_price' => "I don't have a current price for that.",
+        'values_heading' => 'Market data from our sources:',
+        'value_line' => ':name: :value :unit (:freshness). Source: :source, source time :time.',
+        'unavailable_list' => 'No current price from: :names.',
+        'blocked_intro' => 'I can only quote prices from our sources. Here are the values we have:',
+        'footer' => 'Market data from: :sources. Prices are indicative, not trading advice.',
+    ],
     'admin' => [
         'sources' => 'Sources', 'source' => 'Source', 'enabled' => 'On', 'disabled' => 'Off', 'terms' => 'Terms',
         'last_success' => 'Last success', 'last_error' => 'Last error', 'never' => 'Never', 'series' => 'Series',

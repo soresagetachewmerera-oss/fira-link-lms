@@ -18,22 +18,11 @@ class GeminiService
     {
         $this->settings = $settings;
         $config = $settings->get('ai.config', []);
-        $envKey = env('GEMINI_API_KEY');
-        $configKey = config('services.gemini.api_key');
-        $dbKey = $config['gemini_api_key'] ?? null;
+        // The key lives only in the server environment (config/services.php). A key saved in the
+        // database is no longer used. With GEMINI_ENABLED off, every caller sees "not configured".
+        $this->apiKey = config('services.gemini.enabled') ? trim((string) config('services.gemini.api_key')) : '';
 
-        // Prioritize explicit env var, then config, then database
-        if (!empty($envKey)) {
-            $this->apiKey = trim($envKey);
-        } elseif (!empty($configKey)) {
-            $this->apiKey = trim($configKey);
-        } elseif (!empty($dbKey)) {
-            $this->apiKey = trim($dbKey);
-        } else {
-            $this->apiKey = '';
-        }
-
-        $this->model = env('GEMINI_MODEL') ?: ($config['gemini_model'] ?? config('services.gemini.model', 'gemini-3-flash-preview'));
+        $this->model = config('services.gemini.model') ?: ($config['gemini_model'] ?? 'gemini-3-flash-preview');
     }
 
     /**
@@ -87,8 +76,8 @@ class GeminiService
     public function generateContent(string $prompt, array $history = [], ?string $customInstruction = null)
     {
         if (empty($this->apiKey)) {
-            Log::warning('Fira AI: Gemini API key is not configured.');
-            return 'Fira AI is ready to assist you! To activate live responses, please configure your Google Gemini API key in the platform settings or .env configuration (GEMINI_API_KEY).';
+            Log::info('Fira AI: Gemini is switched off or not configured.');
+            return __('market.ai.gemini_off');
         }
 
         $systemPrompt = $customInstruction 
@@ -166,7 +155,7 @@ Safety & Security Boundaries:
         $lastError = null;
 
         foreach ($modelsToTry as $candidateModel) {
-            $url = $this->baseUrl . $candidateModel . ':generateContent?key=' . $this->apiKey;
+            $url = $this->baseUrl . $candidateModel . ':generateContent';
 
             try {
                 $response = Http::withOptions([
@@ -177,6 +166,8 @@ Safety & Security Boundaries:
                 ])
                     ->withHeaders([
                         'Content-Type' => 'application/json',
+                        // Key in a header, never in the URL (URLs end up in exception messages and logs).
+                        'x-goog-api-key' => $this->apiKey,
                     ])
                     ->timeout(8)
                     ->post($url, $body);
@@ -211,6 +202,48 @@ Safety & Security Boundaries:
 
         Log::warning('Fira AI: All cloud candidate models temporarily rate-limited or busy. Serving intelligent trade fallback. Last error: ' . ($lastError ?? 'None'));
         return $this->generateIntelligentFallback($prompt);
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->apiKey !== '';
+    }
+
+    /**
+     * One structured (JSON) call with a fixed system prompt, for the market assistant.
+     * No search or browsing tools are sent. Returns the decoded object, or null on any failure.
+     */
+    public function generateStructured(string $systemPrompt, string $prompt, array $schema, float $temperature = 0.1): ?array
+    {
+        if (!$this->isEnabled()) {
+            return null;
+        }
+        $body = [
+            'systemInstruction' => ['parts' => [['text' => $systemPrompt]]],
+            'contents' => [['role' => 'user', 'parts' => [['text' => $prompt]]]],
+            'generationConfig' => [
+                'temperature' => $temperature,
+                'maxOutputTokens' => 1024,
+                'responseMimeType' => 'application/json',
+                'responseSchema' => $schema,
+            ],
+        ];
+        try {
+            $response = Http::withHeaders(['Content-Type' => 'application/json', 'x-goog-api-key' => $this->apiKey])
+                ->timeout(15)
+                ->post($this->baseUrl . $this->model . ':generateContent', $body);
+            if (!$response->successful()) {
+                Log::warning('Fira AI market: Gemini returned HTTP ' . $response->status());
+                return null;
+            }
+            $text = $response->json('candidates.0.content.parts.0.text');
+            $decoded = is_string($text) ? json_decode($text, true) : null;
+
+            return is_array($decoded) ? $decoded : null;
+        } catch (\Throwable $e) {
+            Log::warning('Fira AI market: Gemini call failed: ' . get_class($e));
+            return null;
+        }
     }
 
     /**
@@ -357,9 +390,9 @@ Safety & Security Boundaries:
         ]));
 
         foreach ($modelsToTry as $candidateModel) {
-            $url = $this->baseUrl . $candidateModel . ':generateContent?key=' . $this->apiKey;
+            $url = $this->baseUrl . $candidateModel . ':generateContent';
             try {
-                $response = \Http::withHeaders(['Content-Type' => 'application/json'])
+                $response = \Http::withHeaders(['Content-Type' => 'application/json', 'x-goog-api-key' => $this->apiKey])
                     ->timeout(14)
                     ->post($url, $body);
 

@@ -40,7 +40,8 @@ Route::get('/fira-ai', [AiChatController::class, 'index']);
 Route::post('/fira-ai/send', [AiChatController::class, 'sendMessage']);
 Route::post('/fira-ai/analyze-document', [AiChatController::class, 'analyzeDocument'])
     ->middleware('throttle:10,1');
-Route::match(['GET', 'POST'], '/fira-ai/test', [AiChatController::class, 'testConnection']);
+// Connection test calls Gemini (cost): admins only.
+Route::match(['GET', 'POST'], '/fira-ai/test', [AiChatController::class, 'testConnection'])->middleware(['auth:sanctum', 'role:admin']);
 Route::get('/ai-chat', [AiChatController::class, 'index']);
 Route::post('/ai-chat/send', [AiChatController::class, 'sendMessage']);
 Route::post('/ai-chat/analyze-document', [AiChatController::class, 'analyzeDocument'])

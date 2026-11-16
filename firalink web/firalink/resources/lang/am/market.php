@@ -38,6 +38,17 @@ return [
         'origins_removed' => 'የተገመቱ የየመነሻ FOB ዋጋዎች ከእንግዲህ አይታዩም። ምንጭ ያላቸው ዋጋዎች በገበያ ዋጋዎች ገጽ ላይ ናቸው።',
         'next_tools' => 'የወጪ ንግድ ትርፍ አስሉ', 'next_tools_hint' => 'የውል ወጪ፣ የጭነትና ሊገኝ የሚችል ትርፍ ይገምቱ።',
     ],
+    'ai' => [
+        'gemini_off' => 'የFira AI መልሶች አሁን ጠፍተዋል። እባክዎ ቆይተው እንደገና ይሞክሩ።',
+        'rules_unknown' => 'ለዚህ የጸደቀ ሰነድ የለኝም፤ ስለዚህ በእርግጠኝነት መመለስ አልችልም። እባክዎ የኢትዮጵያ ቡናና ሻይ ባለሥልጣንን (ECTA) ያነጋግሩ፦ https://ethiocta.gov.et',
+        'no_prediction' => 'ዋጋዎችን መተንበይ ወይም የንግድ ምክር መስጠት አልችልም። ምንጮቻችን አሁን የሚያሳዩት ይህ ነው።',
+        'no_current_price' => 'ለዚህ የአሁኑ ዋጋ የለኝም።',
+        'values_heading' => 'ከምንጮቻችን የገበያ መረጃ፦',
+        'value_line' => ':name፦ :value :unit (:freshness)። ምንጭ፦ :source፣ የምንጩ ጊዜ :time።',
+        'unavailable_list' => 'የአሁኑ ዋጋ የሌላቸው፦ :names።',
+        'blocked_intro' => 'ዋጋዎችን መጥቀስ የምችለው ከምንጮቻችን ብቻ ነው። ያሉን ዋጋዎች እነዚህ ናቸው፦',
+        'footer' => 'የገበያ መረጃ ምንጮች፦ :sources። ዋጋዎቹ ለማመላከቻ ብቻ ናቸው፤ የንግድ ምክር አይደሉም።',
+    ],
     'admin' => [
         'sources' => 'ምንጮች', 'source' => 'ምንጭ', 'enabled' => 'በርቷል', 'disabled' => 'ጠፍቷል', 'terms' => 'ውሎች',
         'last_success' => 'የመጨረሻ ስኬት', 'last_error' => 'የመጨረሻ ስህተት', 'never' => 'በጭራሽ', 'series' => 'ተከታታይ',

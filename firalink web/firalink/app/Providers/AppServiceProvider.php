@@ -35,6 +35,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Fira AI market answers: Gemini behind MARKET_AI_ENABLED and GEMINI_ENABLED (tests bind a fake).
+        $this->app->bind(\App\Services\Market\Ai\MarketLlmClient::class, \App\Services\Market\Ai\GeminiMarketClient::class);
+
         $this->app->singleton(SettingsRepository::class, function () {
             return new SettingsRepository();
         });

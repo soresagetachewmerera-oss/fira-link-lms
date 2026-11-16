@@ -162,8 +162,15 @@ class AiChatController extends Controller
             ];
         }
 
-        // Get AI response
-        $aiResponseText = $this->geminiService->generateContent($userMessageText, $history);
+        // Market, price and ECTA-rule questions: answered only from stored market data (get_market_snapshot),
+        // checked by the output guard. Everything else goes to the general assistant.
+        $marketAi = app(\App\Services\Market\Ai\MarketAiService::class);
+        if ($marketAi->handles($userMessageText)) {
+            $requested = strtolower(substr((string) $request->header('Accept-Language', app()->getLocale()), 0, 2));
+            $aiResponseText = $marketAi->answer($userMessageText, $requested)['text'];
+        } else {
+            $aiResponseText = $this->geminiService->generateContent($userMessageText, $history);
+        }
 
         // Save AI response
         $aiMessage = null;
