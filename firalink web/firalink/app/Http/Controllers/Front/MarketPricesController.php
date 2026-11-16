@@ -4,86 +4,59 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Models\CoffeeMinimumPriceDataset;
-use App\Models\CoffeeMinimumPriceRecord;
-use App\Services\CoffeeTradingChartService;
+use App\Models\MarketSeries;
+use App\Services\Market\MarketReadService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
+/**
+ * Public coffee market page. Uses the same MarketReadService as GET /api/market/overview, and the
+ * page's script reads /api/market/overview and /api/market/series: one source of truth for web and app.
+ */
 class MarketPricesController extends Controller
 {
-    protected CoffeeTradingChartService $chartService;
+    public function __construct(private readonly MarketReadService $market) {}
 
-    public function __construct(CoffeeTradingChartService $chartService)
+    public function index(): View
     {
-        $this->chartService = $chartService;
-    }
+        Gate::authorize('viewAny', MarketSeries::class);
 
-    /**
-     * Dedicated Market Prices & Institutional Coffee Trading Terminal Page
-     */
-    public function index(Request $request): View
-    {
-        $market = $request->get('market', 'ethiopia');
-        $timeframe = $request->get('timeframe', '1d');
-        $origin = $request->get('origin', 'composite');
+        $overview = $this->market->overview();
 
-        // Initial pre-loaded payload for instant zero-latency chart render
-        $chartData = $this->chartService->getChartData($market, $timeframe, $origin);
-
-        // Fetch official ECTA schedule data for contextual regulatory table
-        $latestPriceDataset = CoffeeMinimumPriceDataset::where('status', 'published')
-            ->latest('effective_date')
-            ->first();
-
-        $priceRecords = $latestPriceDataset 
+        // Imported ECTA price schedule (admin upload of the official file): shown with its source and date.
+        $latestPriceDataset = CoffeeMinimumPriceDataset::where('status', 'published')->latest('effective_date')->first();
+        $priceRecords = $latestPriceDataset
             ? $latestPriceDataset->records()->where('status', 'valid')->take(12)->get()
             : collect();
 
-        $pageTitle = 'Live Coffee Trading Charts & Market Prices | Fira Link Institutional Terminal';
-        $metaDescription = 'Professional real-time financial candlestick charts for Ethiopian coffee, ICE Arabica (KC), and ICE Robusta (RC). Live OHLC price discovery, regional ECTA floors, and commodity technical indicators.';
-
-        return view('market-prices.index', compact(
-            'chartData',
-            'latestPriceDataset',
-            'priceRecords',
-            'pageTitle',
-            'metaDescription',
-            'market',
-            'timeframe',
-            'origin'
-        ));
-    }
-
-    /**
-     * API endpoint: Fetch historical candlestick & volume series
-     */
-    public function chartData(Request $request): JsonResponse
-    {
-        $market = $request->get('market', 'arabica');
-        $timeframe = $request->get('timeframe', '1d');
-        $origin = $request->get('origin', 'composite');
-
-        $data = $this->chartService->getChartData($market, $timeframe, $origin);
-
-        return response()->json($data, 200, [
-            'Cache-Control' => 'public, max-age=15',
+        return view('market-prices.index', [
+            'overview' => $overview,
+            'latestPriceDataset' => $latestPriceDataset,
+            'priceRecords' => $priceRecords,
+            'pageTitle' => __('market.web.title') . ' | Fira Link',
+            'metaDescription' => __('market.web.meta'),
         ]);
     }
 
-    /**
-     * API endpoint: Lightweight live tick for real-time OHLC active candle update
-     */
-    public function liveTick(Request $request): JsonResponse
+    /** The old web chart and tick endpoints generated prices at random. They now answer "unavailable". */
+    public function chartData(): JsonResponse
     {
-        $market = $request->get('market', 'arabica');
-        $origin = $request->get('origin', 'composite');
+        return $this->retired();
+    }
 
-        $tick = $this->chartService->getLiveTick($market, $origin);
+    public function liveTick(): JsonResponse
+    {
+        return $this->retired();
+    }
 
-        return response()->json($tick, 200, [
-            'Cache-Control' => 'no-cache, no-store, must-revalidate',
-        ]);
+    private function retired(): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'status' => 'unavailable',
+            'message' => __('market.legacy_unavailable'),
+            'use' => url('/api/market/overview'),
+        ], 410);
     }
 }
-

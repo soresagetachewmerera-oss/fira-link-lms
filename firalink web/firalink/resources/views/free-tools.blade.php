@@ -1606,57 +1606,12 @@
              ================================================================ -->
         <div class="workspace-pane active" id="workspace-market" role="tabpanel">
 
-            <!-- Clean Thin Ticker (ONLY rendered here on Market Intelligence) -->
-            <div class="tools-thin-ticker">
-                <div class="ticker-scroll-items">
-                    <div class="ticker-unit">
-                        <span class="sym">ICO Composite</span>
-                        <span class="val" id="ticker-ico-val">${{ number_format($marketData['ico_composite_usd_lb'] ?? 2.485, 4) }}</span>
-                        <span class="delta-pos" id="ticker-ico-cents">{{ number_format($marketData['ico_composite_usc_lb'] ?? 248.5, 2) }}¢</span>
-                    </div>
-                    <div class="ticker-unit">
-                        <span class="sym">Sidama W2</span>
-                        <span class="val" id="ticker-sidama-val">$3.135</span>
-                        <span class="delta-pos">+65¢ FOB</span>
-                    </div>
-                    <div class="ticker-unit">
-                        <span class="sym">Yirgacheffe W1</span>
-                        <span class="val" id="ticker-yirga-val">$3.585</span>
-                        <span class="delta-pos">+110¢ FOB</span>
-                    </div>
-                    <div class="ticker-unit">
-                        <span class="sym">Guji Nat 1</span>
-                        <span class="val" id="ticker-guji-val">$3.435</span>
-                        <span class="delta-pos">+95¢ FOB</span>
-                    </div>
-                    <div class="ticker-unit">
-                        <span class="sym">Djimmah Nat 5</span>
-                        <span class="val" id="ticker-jimma-val">$2.335</span>
-                        <span class="delta-neg">−15¢ FOB</span>
-                    </div>
-                    <div class="ticker-unit">
-                        <span class="sym">ECX Cherry Ref</span>
-                        <span class="val" id="ticker-ecx-val">380 – 450 ETB/kg</span>
-                    </div>
-                    <div class="ticker-unit">
-                        <span class="sym">NBE FX Ref</span>
-                        <span class="val" id="ticker-fx-val">140.00 ETB/USD</span>
-                    </div>
-                </div>
-
-                <div class="ticker-timestamp">
-                    <i class="fa-regular fa-clock"></i>
-                    <span>Observed: <span id="ticker-obs-date">{{ $marketData['observed_at'] ?? date('Y-m-d') }}</span></span>
-                </div>
+            @php($ftMoney = fn ($v) => $v === null ? '—' : '$' . number_format((float) $v, 3))
+            <!-- Sourced coffee prices (same data as /api/market/overview). The old ticker had fixed
+                 prices and a generated chart; both are gone. -->
+            <div style="margin-bottom:24px">
+                @include('market-prices.partials.market-card', ['overview' => $marketOverview])
             </div>
-
-            <!-- Professional Real-Time Candlestick Trading Terminal -->
-            @include('market-prices.partials.chart-widget', [
-                'market' => 'ethiopia',
-                'origin' => 'composite',
-                'timeframe' => '1d',
-                'chartData' => $chartData ?? null,
-            ])
 
             <!-- Institutional Dataset Header Banner with Source, Effective Date & Action Buttons -->
             <div class="market-intel-banner mb-4">
@@ -1676,11 +1631,11 @@
                             </span>
                             <span class="intel-meta-pill">
                                 <i class="fa-regular fa-calendar text-muted"></i>
-                                <strong>Effective:</strong> {{ $latestPriceDataset->effective_date?->format('d M Y') ?? date('d M Y') }}
+                                <strong>Effective:</strong> {{ $latestPriceDataset?->effective_date?->format('d M Y') ?? '—' }}
                             </span>
                             <span class="intel-meta-pill">
                                 <i class="fa-regular fa-clock text-muted"></i>
-                                <strong>Updated:</strong> {{ $latestPriceDataset->updated_at?->format('d M Y H:i') ?? date('d M Y') }}
+                                <strong>Updated:</strong> {{ $latestPriceDataset?->updated_at?->format('d M Y H:i') ?? '—' }}
                             </span>
                             <span class="intel-meta-pill brand">
                                 <i class="fa-solid fa-code-branch"></i>
@@ -1767,7 +1722,7 @@
                             <span class="status-pill increasing">Ceiling</span>
                         </div>
                         <div class="stat-hero-number" id="overview-highest-price">
-                            ${{ number_format($marketSynthesis['snapshot']['highest_price'] ?? $coffeePricesSnapshot['highest_price'] ?? 4.35, 3) }}
+                            {{ $ftMoney($marketSynthesis['snapshot']['highest_price'] ?? $coffeePricesSnapshot['highest_price'] ?? null) }}
                             <small style="font-size: 12px; font-weight: 500; color: var(--muted);">/ lb</small>
                         </div>
                         <div class="stat-foot">
@@ -1786,7 +1741,7 @@
                             <span class="status-pill stable">Floor</span>
                         </div>
                         <div class="stat-hero-number" id="overview-lowest-price">
-                            ${{ number_format($marketSynthesis['snapshot']['lowest_price'] ?? $coffeePricesSnapshot['lowest_price'] ?? 2.30, 3) }}
+                            {{ $ftMoney($marketSynthesis['snapshot']['lowest_price'] ?? $coffeePricesSnapshot['lowest_price'] ?? null) }}
                             <small style="font-size: 12px; font-weight: 500; color: var(--muted);">/ lb</small>
                         </div>
                         <div class="stat-foot">
@@ -1805,12 +1760,12 @@
                             <span class="status-pill brand">Mean</span>
                         </div>
                         <div class="stat-hero-number" id="overview-average-price">
-                            ${{ number_format($marketSynthesis['snapshot']['average_price'] ?? $coffeePricesSnapshot['average_price'] ?? 3.284, 3) }}
+                            {{ $ftMoney($marketSynthesis['snapshot']['average_price'] ?? $coffeePricesSnapshot['average_price'] ?? null) }}
                             <small style="font-size: 12px; font-weight: 500; color: var(--muted);">/ lb</small>
                         </div>
                         <div class="stat-foot">
                             <span class="fw-semibold" id="overview-median-spread">
-                                Spread: ${{ number_format($marketSynthesis['snapshot']['price_spread'] ?? $coffeePricesSnapshot['price_spread'] ?? 2.05, 3) }}
+                                Spread: {{ $ftMoney($marketSynthesis['snapshot']['price_spread'] ?? $coffeePricesSnapshot['price_spread'] ?? null) }}
                             </span>
                             <span class="stat-ref-muted">Market Width</span>
                         </div>
@@ -1829,7 +1784,7 @@
                         </div>
                         <div class="stat-foot">
                             <span class="fw-semibold" id="overview-effective-date">
-                                {{ $latestPriceDataset->effective_date?->format('d M Y') ?? date('d M Y') }}
+                                {{ $latestPriceDataset?->effective_date?->format('d M Y') ?? '—' }}
                             </span>
                             <span class="stat-ref-muted">Active Schedule</span>
                         </div>
@@ -1862,7 +1817,7 @@
                         </div>
                         <div class="pulse-metric-unit">
                             <span class="pulse-metric-label"><i class="fa-solid fa-arrows-left-right text-primary"></i> ACTIVE TRADING CORRIDOR</span>
-                            <span class="pulse-metric-val font-monospace" id="pulse-corridor-val">${{ number_format($marketSynthesis['snapshot']['lowest_price'] ?? 2.30, 3) }} &ndash; ${{ number_format($marketSynthesis['snapshot']['highest_price'] ?? 4.35, 3) }} / lb</span>
+                            <span class="pulse-metric-val font-monospace" id="pulse-corridor-val">{{ $ftMoney($marketSynthesis['snapshot']['lowest_price'] ?? null) }} &ndash; {{ $ftMoney($marketSynthesis['snapshot']['highest_price'] ?? null) }} / lb</span>
                         </div>
                         <div class="pulse-metric-unit">
                             <span class="pulse-metric-label"><i class="fa-solid fa-scale-balanced text-warning"></i> MANDATORY TRADING RULE</span>
@@ -1885,7 +1840,7 @@
                                     <span class="status-pill increasing">Ceiling</span>
                                 </div>
                                 <div class="insight-card-hero">
-                                    <div class="insight-hero-val font-monospace" id="insight-leader-price">${{ number_format($marketSynthesis['snapshot']['highest_price'] ?? 4.35, 3) }} <small>/ lb</small></div>
+                                    <div class="insight-hero-val font-monospace" id="insight-leader-price">{{ $ftMoney($marketSynthesis['snapshot']['highest_price'] ?? null) }} <small>/ lb</small></div>
                                     <div class="insight-hero-spec text-truncate" id="insight-leader-title" title="{{ $marketSynthesis['insights']['price_leader']['title'] ?? 'Highest Benchmark' }}">{{ $marketSynthesis['insights']['price_leader']['title'] ?? 'Highest Benchmark' }}</div>
                                 </div>
                             </div>
@@ -1913,7 +1868,7 @@
                                     <span class="status-pill stable">Floor</span>
                                 </div>
                                 <div class="insight-card-hero">
-                                    <div class="insight-hero-val font-monospace" id="insight-floor-price">${{ number_format($marketSynthesis['snapshot']['lowest_price'] ?? 2.30, 3) }} <small>/ lb</small></div>
+                                    <div class="insight-hero-val font-monospace" id="insight-floor-price">{{ $ftMoney($marketSynthesis['snapshot']['lowest_price'] ?? null) }} <small>/ lb</small></div>
                                     <div class="insight-hero-spec text-truncate" id="insight-floor-title" title="{{ $marketSynthesis['insights']['lowest_reference']['title'] ?? 'Baseline Floor Benchmark' }}">{{ $marketSynthesis['insights']['lowest_reference']['title'] ?? 'Baseline Floor Benchmark' }}</div>
                                 </div>
                             </div>
@@ -1969,7 +1924,7 @@
                                     <span class="status-pill warning">Structure</span>
                                 </div>
                                 <div class="insight-card-hero">
-                                    <div class="insight-hero-val font-monospace" id="insight-pattern-price">${{ number_format($marketSynthesis['snapshot']['price_spread'] ?? 2.05, 3) }} <small>/ lb spread</small></div>
+                                    <div class="insight-hero-val font-monospace" id="insight-pattern-price">{{ $ftMoney($marketSynthesis['snapshot']['price_spread'] ?? null) }} <small>/ lb spread</small></div>
                                     <div class="insight-hero-spec text-truncate" id="insight-pattern-title" title="{{ $marketSynthesis['insights']['emerging_pattern']['title'] ?? 'Origin & Grade Differentials' }}">{{ $marketSynthesis['insights']['emerging_pattern']['title'] ?? 'Origin & Grade Differentials' }}</div>
                                 </div>
                             </div>
@@ -2129,7 +2084,7 @@
                                         ${{ number_format($region['avg_price'] ?? 0, 3) }}
                                     </td>
                                     <td class="text-end font-monospace" style="font-size: 13px;">
-                                        @php($baseFloor = $marketSynthesis['snapshot']['lowest_price'] ?? 2.30)
+                                        @php($baseFloor = $marketSynthesis['snapshot']['lowest_price'] ?? ($region['min_price'] ?? 0))
                                         @php($premium = ($region['avg_price'] ?? 0) - $baseFloor)
                                         <span class="{{ $premium > 0 ? 'text-success' : 'text-muted' }} fw-semibold">
                                             +${{ number_format(max(0, $premium), 3) }}
@@ -2449,7 +2404,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-center py-3 text-muted">Loading verified market observations...</td>
+                                            <td colspan="5" class="text-center py-3 text-muted">{{ __('market.web.origins_removed') }} <a href="{{ route('market-prices.index') }}">{{ __('market.web.breadcrumb') }}</a></td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -3254,6 +3209,11 @@
             const res = await fetch(url, { headers });
 
             if (res.status === 304) {
+                return;
+            }
+            // The old market feed is retired (410): stop polling instead of asking every few seconds.
+            if (res.status === 410) {
+                stopPolling();
                 return;
             }
 

@@ -355,6 +355,60 @@ class MarketDataTest extends TestCase
         $this->assertStringNotContainsString('248.5', $intel->getContent());
     }
 
+    public function test_web_page_shows_unavailable_and_no_number_when_every_source_is_off(): void
+    {
+        $page = $this->get('/market-prices')->assertOk();
+
+        $page->assertSee('Price unavailable')->assertSee('Try again')->assertSee('Prices are indicative, not trading advice.', false);
+        $page->assertSee('<meta property="og:title"', false)->assertSee('<link rel="canonical"', false);
+        foreach (['real-time', 'Live OHLC', 'Verified Data', 'Institutional Terminal'] as $claim) {
+            $page->assertDontSee($claim);
+        }
+    }
+
+    public function test_web_page_shows_the_same_values_as_the_api_with_source_and_time(): void
+    {
+        $this->enable('ico_daily');
+        $this->storePublished('ICO_COMPOSITE', 249.09, '2026-11-12 00:00:00');
+
+        $api = collect($this->getJson('/api/market/overview')->json('data.benchmarks'))->firstWhere('symbol', 'ICO_COMPOSITE');
+        $page = $this->get('/market-prices')->assertOk();
+
+        $page->assertSee(number_format((float) $api['value'], 2))
+            ->assertSee($api['freshness']['label'])
+            ->assertSee('International Coffee Organization (ICO)')
+            ->assertSee('Source time: 2026-11-12')
+            ->assertSee('US¢/lb');
+    }
+
+    public function test_web_page_in_amharic(): void
+    {
+        $this->get('/market-prices?lang=am')->assertOk()
+            ->assertSee(__('market.web.heading', [], 'am'))
+            ->assertSee(__('market.web.unavailable', [], 'am'));
+    }
+
+    public function test_free_tools_page_has_no_fixed_or_estimated_prices(): void
+    {
+        $page = $this->get('/free-tools')->assertOk();
+        foreach (['$3.135', '$3.585', '$3.435', '$2.335', '140.00 ETB/USD', '380 – 450 ETB/kg', '$2.4850', '248.50¢'] as $fixed) {
+            $page->assertDontSee($fixed, false);
+        }
+        $page->assertSee(__('market.web.card_title'))->assertSee(__('market.web.unavailable'));
+
+        $this->enable('ico_daily');
+        $this->storePublished('ICO_COMPOSITE', 249.09, '2026-11-12 00:00:00');
+        MarketReadService::forgetCache();
+        $this->get('/free-tools')->assertOk()->assertSee('249.09')->assertSee('International Coffee Organization (ICO)');
+    }
+
+    public function test_old_web_chart_and_tick_endpoints_return_unavailable(): void
+    {
+        foreach (['/market-prices/chart-data', '/market-prices/live-tick', '/free-tools/market-data'] as $url) {
+            $this->getJson($url)->assertStatus(410)->assertJsonPath('status', 'unavailable');
+        }
+    }
+
     public function test_public_market_endpoints_are_rate_limited_per_ip(): void
     {
         config(['market.public_rate_per_minute' => 3]);

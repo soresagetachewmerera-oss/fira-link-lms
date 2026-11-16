@@ -47,9 +47,10 @@ class FreeToolsController extends Controller
      */
     public function index()
     {
-        // Get market benchmark data (cached on server-side)
-        $marketData = $this->marketService->getMarketData();
-        $chartData = $this->chartService->getChartData('ethiopia', '1d', 'composite');
+        // Sourced market prices only (MarketReadService, same as /api/market/overview).
+        // The old CoffeeMarketService data estimated Ethiopian FOB prices; it is no longer shown.
+        $marketOverview = app(\App\Services\Market\MarketReadService::class)->overview();
+        $marketData = [];
 
         // Get latest published Coffee Minimum Price Dataset
         $latestPriceDataset = CoffeeMinimumPriceDataset::where('status', 'published')
@@ -89,7 +90,7 @@ class FreeToolsController extends Controller
 
         return view('free-tools', compact(
             'marketData',
-            'chartData',
+            'marketOverview',
             'latestPriceDataset',
             'coffeePricesRecords',
             'coffeePricesSnapshot',
@@ -102,36 +103,17 @@ class FreeToolsController extends Controller
         ));
     }
 
-    /**
-     * Lightweight endpoint for the 5-second market dashboard polling.
-     * Uses server-side caching so external sources are NOT hammered.
-     * Generates ETag for fast 304 Not Modified when nothing changed.
-     */
+    /** Retired market feed (see below). */
     public function marketData(Request $request): JsonResponse
     {
-        $force = $request->boolean('force', false);
-        $data = $this->marketService->getMarketData($force);
-
-        // Generate an ETag based on the observation timestamp & prices
-        $etagPayload = ($data['observed_at'] ?? '') . '-' . ($data['ico_composite_usc_lb'] ?? '') . '-' . count($data['origins'] ?? []);
-        $etag = md5($etagPayload);
-
-        $clientEtag = $request->header('If-None-Match');
-        if ($clientEtag && trim($clientEtag, '"') === $etag && !$force) {
-            return response()->json(null, 304, [
-                'ETag' => '"' . $etag . '"',
-                'Cache-Control' => 'public, max-age=5',
-            ]);
-        }
-
+        // The old 5-second feed returned estimated Ethiopian FOB prices and fixed fallbacks.
+        // Sourced prices are at /api/market/overview; this endpoint now answers "unavailable".
         return response()->json([
-            'success'   => true,
-            'data'      => $data,
-            'timestamp' => now()->toIso8601String(),
-        ], 200, [
-            'ETag'          => '"' . $etag . '"',
-            'Cache-Control' => 'public, max-age=5',
-        ]);
+            'success' => false,
+            'status' => 'unavailable',
+            'message' => __('market.legacy_unavailable'),
+            'use' => url('/api/market/overview'),
+        ], 410);
     }
 
     /**
