@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banner;
-use App\Models\CoffeeMarketBenchmark;
 use App\Models\Course;
 use App\Models\CourseCategory;
 use App\Models\Enrollment;
@@ -148,38 +147,10 @@ class HomeController extends Controller
             }
         }
 
-        // Only publish persisted benchmarks. Never synthesize homepage prices.
-        $marketItems = CoffeeMarketBenchmark::query()
-            ->whereNotNull('market_date')
-            ->where(function ($query) {
-                $query->where('arabica_c_cents_lb', '>', 0)
-                    ->orWhere('indicative_fob_usd_lb', '>', 0)
-                    ->orWhere('ecx_reference_etb_per_kg', '>', 0);
-            })
-            ->orderByDesc('market_date')
-            ->orderBy('benchmark_name')
-            ->limit(4)
-            ->get()
-            ->map(function (CoffeeMarketBenchmark $benchmark) {
-                if ($benchmark->indicative_fob_usd_lb > 0) {
-                    $value = '$' . number_format($benchmark->indicative_fob_usd_lb, 2) . '/lb';
-                } elseif ($benchmark->arabica_c_cents_lb > 0) {
-                    $value = number_format($benchmark->arabica_c_cents_lb, 2) . ' US¢/lb';
-                } else {
-                    $value = number_format($benchmark->ecx_reference_etb_per_kg, 2) . ' ETB/kg';
-                }
-
-                return [
-                    'label' => $benchmark->benchmark_name,
-                    'value' => $value,
-                    'trend' => in_array($benchmark->trend, ['up', 'down'], true)
-                        ? $benchmark->trend
-                        : 'neutral',
-                    'source' => $benchmark->source,
-                    'as_of' => $benchmark->market_date?->toDateString(),
-                ];
-            })
-            ->values();
+        // The old "Market pulse" strip read coffee_market_benchmarks, whose seeded rows are not sourced.
+        // Prices now come only from /api/market/overview (source, source time, freshness per value).
+        // Always empty, so older app builds hide the strip instead of showing those rows.
+        $marketItems = [];
 
         return response()->json([
             'success' => true,

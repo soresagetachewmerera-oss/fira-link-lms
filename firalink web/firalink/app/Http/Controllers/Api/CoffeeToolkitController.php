@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\CoffeeExportCalculation;
 use App\Models\CoffeeExportOffer;
 use App\Models\CoffeeReadinessAssessment;
-use App\Models\CoffeeMarketBenchmark;
 use App\Models\CoffeeMinimumPriceDataset;
 use App\Models\CoffeeMinimumPriceRecord;
 use App\Models\Course;
@@ -53,9 +52,8 @@ class CoffeeToolkitController extends Controller
             ->latest()
             ->first();
 
-        $marketBenchmarks = CoffeeMarketBenchmark::latest('market_date')
-            ->take(5)
-            ->get();
+        // coffee_market_benchmarks rows are not sourced; sourced prices are at /api/market/overview.
+        $marketBenchmarks = [];
 
         // Academy trade courses
         $tradeCourses = Course::where('is_published', true)
@@ -299,8 +297,6 @@ class CoffeeToolkitController extends Controller
      */
     public function getMarketIntelligence(Request $request)
     {
-        $benchmarks = CoffeeMarketBenchmark::latest('market_date')->get();
-
         $dataset = CoffeeMinimumPriceDataset::where('status', 'published')
             ->latest('effective_date')
             ->first();
@@ -310,8 +306,6 @@ class CoffeeToolkitController extends Controller
         $synthesis = $dataset
             ? ($dataset->ai_analysis ?: $this->synthesisService->synthesize($dataset))
             : null;
-
-        $macro = $this->marketService->getMarketData();
 
         $query = $dataset ? $dataset->records()->where('status', 'valid') : null;
 
@@ -373,10 +367,12 @@ class CoffeeToolkitController extends Controller
             ] : null,
             'snapshot' => $snapshot,
             'synthesis' => $synthesis,
-            'macro' => $macro,
+            // Market prices come only from /api/market/overview (sourced, timed, validated).
+            // The old macro block estimated Ethiopian FOB values and filled missing history; it is gone.
+            'macro' => null,
             'origins' => $origins,
             'records' => $records,
-            'data' => $benchmarks, // Retain backward-compatibility for existing consumers
+            'data' => [], // old coffee_market_benchmarks rows are not sourced; kept as an empty list for old clients
         ]);
     }
 

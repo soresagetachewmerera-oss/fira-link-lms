@@ -340,6 +340,21 @@ class MarketDataTest extends TestCase
         }
     }
 
+    public function test_home_and_toolkit_no_longer_send_unsourced_or_estimated_prices(): void
+    {
+        \App\Models\CoffeeMarketBenchmark::query()->create([
+            'benchmark_name' => 'Seeded benchmark', 'market_date' => now()->toDateString(),
+            'arabica_c_cents_lb' => 248.50, 'differential_cents_lb' => 12.25, 'indicative_fob_usd_lb' => 2.61,
+            'ecx_reference_etb_per_kg' => 512.75, 'grade_description' => 'Seeded', 'source' => 'ICE', 'trend' => 'up',
+        ]);
+
+        $this->getJson('/api/home')->assertOk()->assertJsonPath('data.market_items', []);
+        $this->getJson('/api/coffee-toolkit/hub-summary')->assertOk()->assertJsonPath('data.market_benchmarks', []);
+        $intel = $this->getJson('/api/coffee-toolkit/market-intelligence')->assertOk();
+        $intel->assertJsonPath('macro', null)->assertJsonPath('data', []);
+        $this->assertStringNotContainsString('248.5', $intel->getContent());
+    }
+
     public function test_public_market_endpoints_are_rate_limited_per_ip(): void
     {
         config(['market.public_rate_per_minute' => 3]);
