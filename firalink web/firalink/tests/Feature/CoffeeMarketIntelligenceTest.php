@@ -14,6 +14,43 @@ use Tests\TestCase;
 
 class CoffeeMarketIntelligenceTest extends TestCase
 {
+    use \Illuminate\Foundation\Testing\DatabaseTransactions;
+
+    /**
+     * A published dataset of test-only values (rolled back after each test). These numbers are
+     * fixtures for the page and API shape, not prices; real data comes from an admin import of the ECTA file.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        if (CoffeeMinimumPriceDataset::where('status', 'published')->exists()) {
+            return;
+        }
+        $date = now()->startOfWeek();
+        $dataset = CoffeeMinimumPriceDataset::create([
+            'title' => 'Test fixture dataset (not real prices)',
+            'source' => 'Test fixture',
+            'file_name' => 'fixture.xlsx',
+            'file_path' => null,
+            'effective_date' => $date,
+            'version' => 'test-fixture',
+            'total_records' => 3,
+            'valid_records' => 3,
+            'duplicate_records' => 0,
+            'review_required_records' => 0,
+            'status' => 'published',
+        ]);
+        foreach ([['Sidama Washed Grade 2', 'Sidama', 'Grade 2', 'Fully Washed', 3.10, 3.00], ['Guji Natural Grade 1', 'Guji', 'Grade 1', 'Natural / Sun-Dried', 3.40, 3.45], ['Limu Washed Grade 2', 'Limu', 'Grade 2', 'Fully Washed', 2.90, 2.90]] as [$type, $origin, $grade, $proc, $price, $prev]) {
+            CoffeeMinimumPriceRecord::create([
+                'dataset_id' => $dataset->id, 'coffee_type' => $type, 'origin' => $origin, 'grade' => $grade,
+                'processing_method' => $proc, 'minimum_price' => $price, 'price_unit' => 'USD/lb', 'currency' => 'USD',
+                'effective_date' => $date, 'previous_price' => $prev, 'price_change' => round($price - $prev, 3),
+                'price_change_percentage' => round(($price - $prev) / $prev * 100, 2),
+                'price_change_direction' => $price > $prev ? 'up' : ($price < $prev ? 'down' : 'unchanged'),
+                'status' => 'valid',
+            ]);
+        }
+    }
     /**
      * Verify that the redesigned Free Tools page loads with the institutional intelligence dashboard.
      */

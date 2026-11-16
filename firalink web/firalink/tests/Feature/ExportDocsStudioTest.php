@@ -11,10 +11,23 @@ use App\Models\User;
 use App\Services\ExportCalculationService;
 use App\Services\ExportDocumentGeneratorService;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\Concerns\BuildsTradeFixtures;
 use Tests\TestCase;
 
 class ExportDocsStudioTest extends TestCase
 {
+    use DatabaseTransactions, BuildsTradeFixtures;
+
+    /** A user with their own business (the export docs API works per business). */
+    private function exporterUser(): User
+    {
+        $user = $this->makeUser();
+        $this->makeOrganization($user);
+
+        return $user->fresh();
+    }
+
     /**
      * Test deterministic trade calculation precision.
      */
@@ -103,7 +116,7 @@ class ExportDocsStudioTest extends TestCase
      */
     public function test_create_canonical_export_shipment(): void
     {
-        $user = User::first() ?? User::factory()->create();
+        $user = $this->exporterUser();
 
         $response = $this->actingAs($user)->postJson('/api/export-docs/shipments', [
             'contract_number' => 'TEST/EXP/2026/01',
@@ -137,7 +150,7 @@ class ExportDocsStudioTest extends TestCase
      */
     public function test_1_click_generate_all_documents_from_shipment(): void
     {
-        $user = User::first() ?? User::factory()->create();
+        $user = $this->exporterUser();
         $org = $user->primaryOrganization();
 
         $shipment = ExportShipment::create([
@@ -188,7 +201,7 @@ class ExportDocsStudioTest extends TestCase
      */
     public function test_document_draft_creation_and_autosave(): void
     {
-        $user = User::first() ?? User::factory()->create();
+        $user = $this->exporterUser();
 
         // 1. Create draft
         $createRes = $this->actingAs($user)->postJson('/api/export-docs/documents', [
@@ -225,7 +238,7 @@ class ExportDocsStudioTest extends TestCase
      */
     public function test_document_finalization_locks_record_and_computes_sha256(): void
     {
-        $user = User::first() ?? User::factory()->create();
+        $user = $this->exporterUser();
 
         $createRes = $this->actingAs($user)->postJson('/api/export-docs/documents', [
             'template_code' => 'EXP-CI-01',
@@ -259,7 +272,7 @@ class ExportDocsStudioTest extends TestCase
      */
     public function test_secure_download_with_audit_trail(): void
     {
-        $user = User::first() ?? User::factory()->create();
+        $user = $this->exporterUser();
 
         $createRes = $this->actingAs($user)->postJson('/api/export-docs/documents', [
             'template_code' => 'EXP-CI-01',
@@ -286,7 +299,7 @@ class ExportDocsStudioTest extends TestCase
      */
     public function test_web_catalog_and_studio_pages_render(): void
     {
-        $user = User::first() ?? User::factory()->create();
+        $user = $this->exporterUser();
 
         // 1. Template Marketplace Index
         $indexRes = $this->actingAs($user)->get('/export-docs');

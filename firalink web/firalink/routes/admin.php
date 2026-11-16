@@ -76,6 +76,15 @@ Route::middleware(['auth', 'staff.2fa', 'can:review-verifications'])->prefix('ad
     Route::post('/payouts/{payout}/reject', 'rejectPayout')->whereNumber('payout')->name('payout.reject');
 });
 
+// Coffee market sources: status, manual fetch, on/off switch, and the needs-review queue for suspicious prices.
+Route::middleware(['auth', 'staff.2fa', 'can:review-verifications'])->prefix('admin/market-data')->name('admin.market-data.')->controller(\App\Http\Controllers\Admin\MarketDataAdminController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::post('/sources/{source}/toggle', 'toggle')->whereNumber('source')->name('toggle');
+    Route::post('/sources/{source}/fetch', 'fetch')->whereNumber('source')->middleware('throttle:6,1')->name('fetch');
+    Route::post('/prices/{price}/approve', 'approve')->whereNumber('price')->name('approve');
+    Route::post('/prices/{price}/reject', 'reject')->whereNumber('price')->name('reject');
+});
+
 Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

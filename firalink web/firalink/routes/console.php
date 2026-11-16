@@ -21,3 +21,5 @@ Schedule::command('b2b:check-license-expiry')->daily();
 Schedule::command('verification:expire-and-remind')->dailyAt('06:00');
 // Slice 8: free seats of abandoned Chapa checkouts and tours with an unpaid balance.
 Schedule::command('bookings:release-unpaid')->everyFifteenMinutes();
+// Coffee market: every 5 minutes; each enabled source is fetched only when its own refresh interval is due.
+Schedule::command('market:fetch')->everyFiveMinutes()->withoutOverlapping(10);

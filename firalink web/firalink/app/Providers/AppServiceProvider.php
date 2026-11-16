@@ -74,6 +74,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(160)->by($request->user()?->id ?: $request->ip());
         });
+        // Public coffee market data (guests included): per IP.
+        RateLimiter::for('market-public', function (Request $request) {
+            return Limit::perMinute((int) config('market.public_rate_per_minute', 60))->by('market-public|' . $request->ip());
+        });
         // Public seller lookup by Fira ID (API and web page): per IP, no listing endpoint exists.
         RateLimiter::for('public-seller', function (Request $request) {
             return Limit::perMinute((int) config('verification.public_lookup_per_minute', 30))->by('public-seller|' . $request->ip());

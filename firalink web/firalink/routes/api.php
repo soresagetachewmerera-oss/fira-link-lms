@@ -136,10 +136,16 @@ Route::get('/org/{id}/entitlements', [\App\Http\Controllers\Api\OrganizationEnti
 Route::middleware('auth:sanctum')->get('/user/organization/entitlements', [\App\Http\Controllers\Api\OrganizationEntitlementApiController::class, 'current']);
 Route::post('/billing/webhook/{provider}', [\App\Http\Controllers\BillingWebhookController::class, 'handle']);
 
-// Real-Time Coffee Trading Charts API
-Route::get('/market/chart-data', [\App\Http\Controllers\Api\CoffeeMarketChartApiController::class, 'chartData']);
-Route::get('/market/live-tick', [\App\Http\Controllers\Api\CoffeeMarketChartApiController::class, 'liveTick']);
-Route::get('/market/ticker', [\App\Http\Controllers\Api\CoffeeMarketChartApiController::class, 'ticker']);
+// Coffee market data: stored, validated prices with source and source time (public, per-IP limit, MarketSeriesPolicy).
+Route::prefix('market')->middleware('throttle:market-public')->controller(\App\Http\Controllers\Api\MarketDataController::class)->group(function () {
+    Route::get('/overview', 'overview');
+    Route::get('/series', 'series');
+    Route::get('/sources', 'sources');
+    // The old chart, tick and ticker endpoints generated prices at random. They now answer "unavailable".
+    Route::get('/chart-data', 'retired');
+    Route::get('/live-tick', 'retired');
+    Route::get('/ticker', 'retired');
+});
 
 // Coffee Export Toolkit & Market Intelligence (Public)
 Route::prefix('coffee-toolkit')->group(function () {

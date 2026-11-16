@@ -48,6 +48,11 @@
                     <li class="{{ request()->routeIs('admin.verification-review.*') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('admin.verification-review.index') }}">{{ __('verification.admin.queue_title') }}</a>
                     </li>
+                    @can('review-verifications')
+                    <li class="{{ request()->routeIs('admin.market-data.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.market-data.index') }}">{{ __('market.admin.title') }}</a>
+                    </li>
+                    @endcan
                     <li class="{{ request()->routeIs('admin.marketplace.sellers*') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('admin.marketplace.sellers') }}">Exporters &amp; Verification</a>
                     </li>
