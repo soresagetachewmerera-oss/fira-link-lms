@@ -124,6 +124,13 @@ Other auth secrets and settings:
   businesses, blocks self-review). Never derived from `APP_KEY`, never committed. Generate a long random value
   once and keep it: changing it makes old hashes unmatchable. Without it, owner ID uploads are refused (fail closed).
 - `VERIFICATION_ADMIN_EMAIL`: receives an email for each new verification submission and the daily pending summary.
+- `GEMINI_ENABLED` (default false): every Gemini call (Fira AI chat, document analysis, export assistant,
+  market synthesis) is off until it is true. Keep it false until `GEMINI_API_KEY` is rotated. The key is read
+  only from the server environment; a key saved in admin settings is ignored.
+- `MARKET_AI_ENABLED` (default false): lets Gemini word Fira AI market answers. Off, market answers are built
+  from the stored prices only. Both flags must be true for the model to be used.
+- `API_NINJAS_API_KEY`: ICE Coffee C futures through API Ninjas. Without it that source fails closed
+  ("not configured") and the price shows Unavailable.
 
 - `AUTH_TEST_OTP_CODE` (fixed sign-in code) must **never** be set in production. It is honoured only when
   `APP_ENV=local`, but keep it out of every non-local `.env` anyway.
@@ -218,6 +225,23 @@ Run on the production server **in this order**. Always run the dry run first and
       a tour without future dates cannot be booked. "Verified" shows only while that business has an active Tier 1.
     - Tour booking and the event/tour Chapa verify routes now need sign-in; older app versions that book tours
       without signing in will get 401.
+14. Coffee market data and Fira AI market answers. `php artisan migrate` adds `market_sources`, `market_series`,
+    `market_prices`, `market_trends` and `market_ai_summaries`, with ICO, API Ninjas (ICE Coffee C), ECX and ECTA
+    registered and **all turned off**.
+    - Turn a source on only after its owner has confirmed in writing that we may show and store its prices
+      (admin: Coffee Marketplace → Coffee market sources). Until then every price shows Unavailable.
+    - Before turning ICO on, compare `php artisan market:fetch ico_daily --dry-run` (nothing is written) with
+      the price on ico.org. ICO's public JSON says "the full daily record needs an ICO Data subscription".
+    - `php artisan market:status` shows each series with its value, freshness, source time and last error.
+    - The scheduler runs `market:fetch` every 5 minutes; each source is fetched only when its own interval is
+      due (ICO daily, futures every 5 minutes on weekdays). Suspicious values wait under "Prices waiting for
+      review" and are not shown until approved with a reason.
+    - The server needs a CA certificate bundle for outgoing HTTPS (`curl.cainfo` / `openssl.cafile` in php.ini
+      on Windows hosts); without it every fetch fails with cURL error 60 and prices show Unavailable.
+    - `php artisan market:ai-eval` must pass (45 cases) before turning `MARKET_AI_ENABLED` on; then run
+      `php artisan market:ai-eval --live` against the real model. Blocked answers are logged as `market.ai_blocked`.
+    - `/api/home` no longer sends the old "Market pulse" rows, and the old generated chart, tick and ticker
+      endpoints answer 410. `coffee_market_benchmarks` rows are no longer shown anywhere.
 
 ## 4. Workflow per slice
 
