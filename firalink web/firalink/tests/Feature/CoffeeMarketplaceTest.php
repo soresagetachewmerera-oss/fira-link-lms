@@ -32,6 +32,18 @@ class CoffeeMarketplaceTest extends TestCase
     }
 
     /**
+     * Test public marketplace suppliers web page loads.
+     */
+    public function test_marketplace_suppliers_page_loads(): void
+    {
+        $response = $this->get('/marketplace/suppliers');
+
+        $response->assertStatus(200);
+        $response->assertSee('Verified Ethiopian Exporters', false);
+        $response->assertSee('Filter Exporters', false);
+    }
+
+    /**
      * Test single lot detail page loads with ECTA compliance check.
      */
     public function test_marketplace_listing_detail_page_loads(): void
