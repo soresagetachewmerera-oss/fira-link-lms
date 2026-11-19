@@ -102,7 +102,26 @@ class BillingService
             });
         }
 
-        // 2. Paid Plan: Create Invoice and Payment Checkout Session
+        // 2. Paid Plan: only a registered provider (an unknown name such as "offline" is not sent to Chapa).
+        if (!isset($this->providers[strtolower($providerName)])) {
+            return [
+                'success' => false,
+                'code' => 'PAYMENT_METHOD_UNAVAILABLE',
+                'status' => 'unavailable',
+                'checkout_url' => null,
+                'message' => __('bookings.errors.payment_method'),
+            ];
+        }
+        if (strtolower($providerName) === 'chapa' && !\App\Support\ChapaSwitch::enabled()) {
+            return [
+                'success' => false,
+                'code' => 'CHAPA_OFF',
+                'status' => 'unavailable',
+                'checkout_url' => null,
+                'message' => \App\Support\ChapaSwitch::offMessage(),
+            ];
+        }
+
         $invoiceNumber = 'INV-' . strtoupper(Str::random(4)) . '-' . date('YmdHis');
         $txRef = 'SUB-' . $org->id . '-' . $plan->id . '-' . time();
 
@@ -151,6 +170,15 @@ class BillingService
      */
     public function handleWebhook(string $providerName, Request $request): array
     {
+        // Only registered providers: an unknown name is not silently treated as Chapa.
+        if (!isset($this->providers[strtolower($providerName)])) {
+            return ['success' => false, 'http_status' => 404, 'message' => 'Unknown payment provider.'];
+        }
+        if (strtolower($providerName) === 'chapa' && !\App\Support\ChapaSwitch::enabled()) {
+            // 503 so Chapa retries the delivery once payments are switched back on.
+            return ['success' => false, 'http_status' => 503, 'message' => 'Chapa payments are switched off.'];
+        }
+
         $provider = $this->getProvider($providerName);
         $verification = $provider->verifyWebhook($request);
 
@@ -186,7 +214,28 @@ class BillingService
             return ['success' => false, 'message' => 'Invoice reference not found.'];
         }
 
+        if ($invoice->status === Invoice::STATUS_PAID) {
+            $call->update(['status' => 'processed', 'error_message' => 'Invoice already paid']);
+
+            return ['success' => true, 'duplicate' => true, 'idempotent' => true, 'message' => 'Invoice already paid.'];
+        }
+
         if ($verification['status'] === 'paid') {
+            // Never trust the webhook body alone: ask the provider, server to server, and match the invoice.
+            $check = $provider->verify((string) $providerRef);
+            $amountOk = isset($check['amount']) && (float) $check['amount'] + 0.005 >= (float) $invoice->amount;
+            $currencyOk = strtoupper((string) ($check['currency'] ?? '')) === strtoupper((string) $invoice->currency);
+            if (!($check['success'] ?? false) || ($check['status'] ?? null) !== 'paid' || !$amountOk || !$currencyOk) {
+                $call->update(['status' => 'failed', 'error_message' => 'Provider did not confirm the payment for this invoice']);
+                Log::warning('Billing webhook refused: provider verify did not match the invoice', [
+                    'invoice_id' => $invoice->id, 'status' => $check['status'] ?? null,
+                    'amount_ok' => $amountOk, 'currency_ok' => $currencyOk,
+                ]);
+
+                return ['success' => false, 'message' => 'Payment could not be confirmed with the provider.'];
+            }
+            $verification['raw'] = $check['raw'] ?? $verification['raw'] ?? [];
+
             DB::transaction(function () use ($invoice, $providerName, $providerRef, $idempotencyKey, $verification, $call) {
                 // Mark invoice paid
                 $invoice->update([
@@ -215,7 +264,8 @@ class BillingService
                 // Parse target plan from provider_ref or subscription
                 $targetPlan = null;
                 $parts = explode('-', $providerRef);
-                if (count($parts) >= 3 && is_numeric($parts[2])) {
+                // SUB-{org}-{plan}-{time}: use the plan only when the reference belongs to this invoice's business.
+                if (count($parts) >= 3 && is_numeric($parts[2]) && (int) $parts[1] === (int) $invoice->organization_id) {
                     $targetPlan = Plan::find($parts[2]);
                 }
 

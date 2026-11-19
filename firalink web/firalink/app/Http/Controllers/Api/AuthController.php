@@ -279,7 +279,21 @@ class AuthController extends Controller
             'phone' => 'required|string|min:9|max:20',
         ]);
 
-        $user = $request->user();
+        // The app's token is read from the sanctum guard (this route is outside auth:sanctum).
+        $user = auth('sanctum')->user();
+
+        // Guests may only get a code for an existing account whose phone is not verified yet (GAP-030):
+        // anything else gets the same generic answer and no SMS, so the endpoint cannot pump SMS to any number.
+        if (!$user) {
+            $normalized = app(\App\Services\SmsEthiopiaService::class)->normalizePhoneNumber($request->phone);
+            $owner = $normalized
+                ? \App\Models\User::whereIn('phone', array_unique([$normalized, '+' . $normalized, (string) $request->phone]))->whereNull('phone_verified_at')->first()
+                : null;
+            if (!$owner) {
+                return response()->json(['success' => true, 'message' => 'If this number can be verified, a code is on its way.']);
+            }
+        }
+
         $result = $this->otpService->sendToPhone($request->phone, 'phone_verify', $user);
 
         $status = $result['success'] ? 200 : ($result['code'] === 'COOLDOWN_ACTIVE' ? 429 : 422);

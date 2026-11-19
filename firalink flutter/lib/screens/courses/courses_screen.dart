@@ -682,6 +682,7 @@ class _FilterSheetState extends State<_FilterSheet> {
             child: Row(
               children: <Widget>[
                 IconButton(
+                  tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                   icon: const HugeIcon(
                     icon: HugeIcons.strokeRoundedCancel01,
                     size: 24,

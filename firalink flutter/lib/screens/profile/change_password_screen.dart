@@ -82,8 +82,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: HugeIcon(
-                      icon: HugeIcons.strokeRoundedArrowLeft01,
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      icon: HugeIcon(
+                        icon: HugeIcons.strokeRoundedArrowLeft01,
                       size: 20,
                       color: AppTheme.getTextColor(context),
                     ),
@@ -283,6 +284,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         borderSide: BorderSide(color: AppTheme.getTextColor(context), width: 2),
       ),
       suffixIcon: IconButton(
+        tooltip: isPasswordVisible ? 'Hide password' : 'Show password',
         icon: Icon(
           isPasswordVisible ? Icons.visibility : Icons.visibility_off,
           color: AppTheme.getTextColor(context).withValues(alpha: 0.6),

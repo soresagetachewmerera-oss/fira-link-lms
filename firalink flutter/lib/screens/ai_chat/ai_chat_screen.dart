@@ -12,7 +12,10 @@ import '../../l10n/app_localizations.dart';
 import '../../router/app_router.dart';
 
 class AiChatScreen extends StatefulWidget {
-  const AiChatScreen({super.key});
+  const AiChatScreen({super.key, this.initialPrompt});
+
+  /// Optional question placed in the input box (not sent until the user taps send).
+  final String? initialPrompt;
 
   @override
   State<AiChatScreen> createState() => _AiChatScreenState();
@@ -32,6 +35,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialPrompt != null) {
+      _messageController.text = widget.initialPrompt!;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AiChatProvider>().fetchHistory();
     });
@@ -62,8 +68,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
         backgroundColor: AppTheme.getBackgroundColor(context),
         elevation: 0,
         leading: IconButton(
-          icon: HugeIcon(
-            icon: HugeIcons.strokeRoundedArrowLeft01,
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            icon: HugeIcon(
+              icon: HugeIcons.strokeRoundedArrowLeft01,
             size: 20,
             color: AppTheme.getTextColor(context),
           ),
@@ -246,6 +253,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
+                  tooltip: 'Send message',
                   icon: const HugeIcon(
                     icon: HugeIcons.strokeRoundedSent,
                     size: 20,

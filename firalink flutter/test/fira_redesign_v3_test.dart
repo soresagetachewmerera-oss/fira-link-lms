@@ -53,8 +53,8 @@ void main() {
       expect(light.pending, equals(AppTheme.primary));
       expect(dark.pending, equals(AppTheme.primaryDark));
 
-      expect(light.success, equals(const Color(0xFF10B981)));
-      expect(light.danger, equals(const Color(0xFFEF4444)));
+      expect(light.success, equals(const Color(0xFF047857)));
+      expect(light.danger, equals(const Color(0xFFDC2626)));
     });
 
     test('Lerp between Light and Dark creates smooth transitions', () {

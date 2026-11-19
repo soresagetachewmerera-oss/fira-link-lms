@@ -106,8 +106,9 @@ class _CertificateVerificationScreenState
               child: Row(
                 children: [
                   IconButton(
-                    icon: HugeIcon(
-                      icon: HugeIcons.strokeRoundedArrowLeft01,
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      icon: HugeIcon(
+                        icon: HugeIcons.strokeRoundedArrowLeft01,
                       size: 20,
                       color: AppTheme.getTextColor(context),
                     ),
@@ -213,7 +214,8 @@ class _CertificateVerificationScreenState
                                 children: [
                                   if (_codeController.text.isNotEmpty)
                                     IconButton(
-                                      icon: const Icon(Icons.clear, size: 18),
+                                        tooltip: 'Clear',
+                                        icon: const Icon(Icons.clear, size: 18),
                                       onPressed: () {
                                         _codeController.clear();
                                         setState(() {
@@ -222,6 +224,7 @@ class _CertificateVerificationScreenState
                                       },
                                     ),
                                   IconButton(
+                                    tooltip: 'Paste certificate code',
                                     icon: const Icon(Icons.paste_rounded, size: 18),
                                     onPressed: () async {
                                       final clipboardData =

@@ -103,7 +103,8 @@ class _IntentSelectionScreenState extends State<IntentSelectionScreen> {
         elevation: 0,
         leading: Navigator.canPop(context)
             ? IconButton(
-                icon: Icon(Icons.arrow_back, color: fira.onSurface),
+                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                  icon: Icon(Icons.arrow_back, color: fira.onSurface),
                 onPressed: () => Navigator.pop(context),
               )
             : null,

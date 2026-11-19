@@ -13,6 +13,7 @@ import '../../widgets/verification_labels.dart';
 import '../chat/trade_chat_screen.dart';
 import '../trust_safety/report_modal.dart';
 import 'deal_step_screen.dart';
+import 'dispute_resolution_screen.dart';
 import 'export_contract_esign_screen.dart';
 import 'payment_milestones_screen.dart';
 
@@ -234,7 +235,7 @@ class _DealRoomHubScreenState extends State<DealRoomHubScreen> {
           ),
         ],
         const SizedBox(height: 16),
-        if (d.mySide != null)
+        if (d.mySide != null) ...[
           Row(children: [
             Expanded(
               child: FilledButton.icon(
@@ -254,6 +255,19 @@ class _DealRoomHubScreenState extends State<DealRoomHubScreen> {
               ),
             ),
           ]),
+          const SizedBox(height: 10),
+          Center(
+            child: TextButton.icon(
+              key: const Key('deal-dispute'),
+              onPressed: () => _push(DisputeResolutionScreen(dealRoom: d, service: _service)),
+              icon: Icon(Icons.gavel_outlined, size: 16, color: fira.danger),
+              label: Text(
+                l10n.dealRaiseDispute,
+                style: TextStyle(color: fira.danger, fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

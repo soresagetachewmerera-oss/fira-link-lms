@@ -22,6 +22,8 @@ return [
         'payment_in_review' => 'A bank slip for this payment is already waiting for confirmation.',
         'slip_required' => 'Upload your bank slip.',
         'payment_method' => 'Choose Chapa or bank transfer.',
+        'chapa_off' => 'Chapa payments are not available yet. Pay by bank transfer instead.',
+        'payment_not_confirmed' => 'Chapa has not confirmed this payment.',
         'not_pending' => 'This payment is not waiting for confirmation.',
         'reference_used' => 'This bank reference was already used for another payment.',
         'event_ended' => 'This event has ended.',

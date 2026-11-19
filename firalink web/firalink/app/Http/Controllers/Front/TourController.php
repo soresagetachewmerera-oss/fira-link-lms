@@ -237,6 +237,9 @@ class TourController extends Controller
 
     private function createChapaSession(float $amount, TourBooking $booking, Tour $tour, string $txRef): array
     {
+        if (!\App\Support\ChapaSwitch::enabled()) {
+            throw new \RuntimeException(\App\Support\ChapaSwitch::offMessage());
+        }
         $gatewayService = app(PaymentGatewayService::class);
         $credentials = $gatewayService->credentialsFor('chapa');
         $secretKey = $credentials['secret_key'] ?? env('CHAPA_SECRET_KEY');

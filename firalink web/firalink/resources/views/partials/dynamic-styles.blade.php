@@ -7,10 +7,12 @@
        FIRA LINK LMS — PROFESSIONAL TYPOGRAPHY & DESIGN SYSTEM
        ========================================================================== */
     :root {
-        --theme: {{ $primaryColor }};
-        --theme-2: {{ $secondaryColor }};
-        --v2-primary: {{ $primaryColor }};
-        --v2-secondary: {{ $secondaryColor }};
+        --fira-primary: {{ $primaryColor }};
+        --fira-primary-dark: {{ $secondaryColor }};
+        --theme: var(--fira-primary);
+        --theme-2: var(--fira-primary-dark);
+        --v2-primary: var(--fira-primary);
+        --v2-secondary: var(--fira-primary-dark);
 
         /* Typography Font Tokens */
         --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;

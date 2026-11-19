@@ -53,7 +53,8 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
               top: 8,
               right: 8,
               child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white, size: 26),
+                  tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                  icon: const Icon(Icons.close, color: Colors.white, size: 26),
                 onPressed: () => Navigator.of(ctx).pop(),
               ),
             ),

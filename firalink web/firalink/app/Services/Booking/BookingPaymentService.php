@@ -92,6 +92,9 @@ class BookingPaymentService
         if ($method !== 'chapa') {
             throw new VerificationException('PAYMENT_METHOD_INVALID', __('bookings.errors.payment_method'), 422);
         }
+        if (!\App\Support\ChapaSwitch::enabled()) {
+            throw new VerificationException('CHAPA_OFF', \App\Support\ChapaSwitch::offMessage(), 503);
+        }
         $txRef = 'CHAPA_' . strtoupper($purpose) . '_' . $booking->id . '_' . time();
         $payment = new Payment();
         $payment->forceFill([
@@ -118,8 +121,9 @@ class BookingPaymentService
         }
         $v = $this->chapa->verify((string) $payment->chapa_tx_ref);
         $currency = $payment->eventBooking?->currency ?? $payment->tourBooking?->currency ?? 'ETB';
-        $amountOk = $v['amount'] === null || $v['amount'] + 0.005 >= (float) $payment->amount;
-        $currencyOk = $v['currency'] === null || strtoupper($v['currency']) === strtoupper($currency);
+        // Chapa must report the amount and currency; a missing value is not a match.
+        $amountOk = $v['amount'] !== null && $v['amount'] + 0.005 >= (float) $payment->amount;
+        $currencyOk = $v['currency'] !== null && strtoupper($v['currency']) === strtoupper($currency);
         if ($v['status'] !== 'success' || !$amountOk || !$currencyOk) {
             $payment->forceFill(['status' => Payment::STATUS_FAILED])->save();
 

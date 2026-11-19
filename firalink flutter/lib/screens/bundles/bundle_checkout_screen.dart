@@ -5,6 +5,7 @@ import '../../services/course_service.dart';
 import '../../providers/settings_provider.dart';
 import '../../theme/app_theme.dart';
 import '../common/webview_screen.dart';
+import '../../widgets/fira_error_state.dart';
 import 'package:provider/provider.dart';
 
 class BundleCheckoutScreen extends StatefulWidget {
@@ -114,7 +115,7 @@ class _BundleCheckoutScreenState extends State<BundleCheckoutScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      showFiraActionError(context, e);
     } finally {
       if (mounted) setState(() { _isProcessing = false; });
     }

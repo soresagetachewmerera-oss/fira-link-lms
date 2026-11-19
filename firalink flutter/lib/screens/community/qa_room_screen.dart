@@ -10,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import '../../services/community_service.dart';
 import '../../models/community_question.dart';
 import 'question_detail_screen.dart';
+import '../../widgets/fira_error_state.dart';
 
 class QaRoomScreen extends StatefulWidget {
   const QaRoomScreen({super.key});
@@ -68,9 +69,7 @@ class _QaRoomScreenState extends State<QaRoomScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error loading questions: $e')));
+        showFiraActionError(context, e);
       }
     }
   }
@@ -116,8 +115,9 @@ class _QaRoomScreenState extends State<QaRoomScreen> {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: HugeIcon(
-                      icon: HugeIcons.strokeRoundedArrowLeft01,
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      icon: HugeIcon(
+                        icon: HugeIcons.strokeRoundedArrowLeft01,
                       size: 20,
                       color: AppTheme.getTextColor(context),
                     ),
@@ -138,6 +138,7 @@ class _QaRoomScreenState extends State<QaRoomScreen> {
                     ),
                   ),
                   IconButton(
+                    tooltip: 'Ask a question',
                     icon: Icon(
                       Icons.add_circle_outline,
                       size: 28,

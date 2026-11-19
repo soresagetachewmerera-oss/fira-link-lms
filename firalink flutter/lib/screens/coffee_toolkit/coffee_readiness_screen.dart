@@ -55,8 +55,9 @@ class _CoffeeReadinessScreenState extends State<CoffeeReadinessScreen> {
         backgroundColor: AppTheme.getBackgroundColor(context),
         elevation: 0,
         leading: IconButton(
-          icon: HugeIcon(
-            icon: HugeIcons.strokeRoundedArrowLeft01,
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            icon: HugeIcon(
+              icon: HugeIcons.strokeRoundedArrowLeft01,
             size: 20,
             color: AppTheme.getTextColor(context),
           ),

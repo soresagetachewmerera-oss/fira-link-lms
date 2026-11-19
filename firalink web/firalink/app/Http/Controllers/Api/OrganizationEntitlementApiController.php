@@ -26,12 +26,13 @@ class OrganizationEntitlementApiController extends Controller
         $user = $request->user();
         $org = Organization::findOrFail($id);
 
-        // Authorization check: must be a member of the organization or super admin (prevents IDOR)
-        if ($user && !$user->isAdmin() && !$org->hasMember($user)) {
+        // Members and admins only (route is behind auth:sanctum). A non-member gets the same 404 as a
+        // business that does not exist, so ids cannot be probed (gap analysis GAP-006).
+        if (!$user || (!$user->isAdmin() && !$org->hasMember($user))) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized. You do not belong to this organization.',
-            ], 403);
+                'message' => 'Resource not found.',
+            ], 404);
         }
 
         $snapshot = $this->entitlementService->snapshot($org);

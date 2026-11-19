@@ -1975,6 +1975,9 @@ class CourseEnrollmentController extends Controller
      */
     private function createChapaSession(float $amount, $course, $user, ?int $courseIdOverride = null): array
     {
+        if (!\App\Support\ChapaSwitch::enabled()) {
+            throw new \RuntimeException(\App\Support\ChapaSwitch::offMessage());
+        }
         $courseIdToUse = $courseIdOverride ?? $course->id;
         $credentials   = $this->credentials('chapa');
         $secretKey     = $credentials['secret_key'] ?? null;
@@ -2146,6 +2149,17 @@ class CourseEnrollmentController extends Controller
             $expectedAmount = (float)($enrollment->payment->amount ?? 0);
 
             if ($verifiedStatus === 'success') {
+                // Course checkouts are created in ETB (createChapaSession); another currency is not a match.
+                $paidCurrency = strtoupper((string) ($verifyData['data']['currency'] ?? ''));
+                if ($paidCurrency !== 'ETB') {
+                    \Illuminate\Support\Facades\Log::error('Chapa API payment currency mismatch', ['currency' => $paidCurrency, 'tx_ref' => $request->tx_ref]);
+
+                    return response()->json([
+                        'success' => false,
+                        'code'    => 'PAYMENT_NOT_CONFIRMED',
+                        'message' => __('bookings.errors.payment_not_confirmed'),
+                    ], 400);
+                }
                 if ($expectedAmount > 0 && abs($paidAmount - $expectedAmount) > 0.05) {
                     \Illuminate\Support\Facades\Log::error('Chapa API payment amount mismatch', [
                         'expected' => $expectedAmount,
@@ -2159,6 +2173,20 @@ class CourseEnrollmentController extends Controller
                 }
                 DB::beginTransaction();
                 try {
+                    $lockedEnrollment = Enrollment::with('payment')->where('id', $enrollment->id)->lockForUpdate()->first();
+                    if ($lockedEnrollment && $lockedEnrollment->payment && $lockedEnrollment->payment->status === Payment::STATUS_COMPLETED) {
+                        DB::commit();
+                        $bundleData = $this->buildBundleCoursesData($lockedEnrollment);
+                        return response()->json([
+                            'success'        => true,
+                            'message'        => 'Payment already verified.',
+                            'enrollment_id'  => $lockedEnrollment->id,
+                            'bundle_id'      => $bundleData['bundle_id']   ?? null,
+                            'bundle_title'   => $bundleData['bundle_title'] ?? null,
+                            'bundle_courses' => $bundleData['courses']      ?? [],
+                        ]);
+                    }
+
                     $enrollment->payment->update([
                         'chapa_reference' => $reference,
                         'status'          => Payment::STATUS_COMPLETED,

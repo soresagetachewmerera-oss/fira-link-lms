@@ -2486,6 +2486,9 @@ class CourseEnrollmentController extends Controller
      */
     private function createChapaSession(float $amount, $course, $user, ?int $courseIdOverride = null): array
     {
+        if (!\App\Support\ChapaSwitch::enabled()) {
+            throw new \RuntimeException(\App\Support\ChapaSwitch::offMessage());
+        }
         $courseIdToUse = $courseIdOverride ?? $course->id;
         $credentials   = $this->credentials('chapa');
         $secretKey     = $credentials['secret_key'] ?? null;

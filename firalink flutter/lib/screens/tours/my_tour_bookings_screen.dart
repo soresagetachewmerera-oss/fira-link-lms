@@ -8,6 +8,7 @@ import '../../theme/fira_colors.dart';
 import '../../utils/currency_formatter.dart';
 import 'tour_booking_confirmation_screen.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/fira_error_state.dart';
 
 class MyTourBookingsScreen extends StatefulWidget {
   const MyTourBookingsScreen({super.key});
@@ -106,9 +107,7 @@ class _MyTourBookingsScreenState extends State<MyTourBookingsScreen> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: fira.danger),
-          );
+          showFiraActionError(context, e);
         }
       }
     }
@@ -139,7 +138,8 @@ class _MyTourBookingsScreenState extends State<MyTourBookingsScreen> {
           backgroundColor: fira.surface,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new, size: 18, color: fira.onSurface),
+              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+              icon: Icon(Icons.arrow_back_ios_new, size: 18, color: fira.onSurface),
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Text(

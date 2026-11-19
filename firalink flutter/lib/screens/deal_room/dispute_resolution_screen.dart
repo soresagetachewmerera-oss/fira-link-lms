@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
+
+import '../../l10n/app_localizations.dart';
 import '../../models/deal_room_model.dart';
 import '../../services/deal_room_service.dart';
 import '../../services/upload_file.dart';
+import '../../theme/fira_colors.dart';
 import '../../widgets/fira_error_state.dart';
 
 class DisputeResolutionScreen extends StatefulWidget {
   final DealRoomModel dealRoom;
+  final DealRoomService? service;
 
-  const DisputeResolutionScreen({super.key, required this.dealRoom});
+  const DisputeResolutionScreen({
+    super.key,
+    required this.dealRoom,
+    this.service,
+  });
 
   @override
-  State<DisputeResolutionScreen> createState() =>
-      _DisputeResolutionScreenState();
+  State<DisputeResolutionScreen> createState() => _DisputeResolutionScreenState();
 }
 
 class _DisputeResolutionScreenState extends State<DisputeResolutionScreen> {
-  final DealRoomService _service = DealRoomService();
+  late final DealRoomService _service = widget.service ?? DealRoomService();
   final _reasonController = TextEditingController();
   final _detailsController = TextEditingController();
   UploadFile? _evidenceFile;
@@ -42,12 +49,13 @@ class _DisputeResolutionScreenState extends State<DisputeResolutionScreen> {
   }
 
   Future<void> _submitDispute() async {
+    final l10n = context.l10n;
     final reason = _reasonController.text.trim();
     final details = _detailsController.text.trim();
 
     if (reason.isEmpty || details.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please provide both reason and explanation')),
+        SnackBar(content: Text(l10n.dealDisputeFieldsRequired)),
       );
       return;
     }
@@ -65,12 +73,12 @@ class _DisputeResolutionScreenState extends State<DisputeResolutionScreen> {
 
     if (res['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Dispute formally registered. Arbitrators & ECTA notified.'),
-          backgroundColor: Colors.redAccent,
+        SnackBar(
+          content: Text(l10n.dealDisputeRegistered),
+          backgroundColor: context.fira.danger,
         ),
       );
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     } else {
       showFiraActionError(context, res['error'] ?? Exception());
     }
@@ -78,17 +86,21 @@ class _DisputeResolutionScreenState extends State<DisputeResolutionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final fira = context.fira;
+    final l10n = context.l10n;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: fira.surface,
       appBar: AppBar(
-        title: const Text(
-          'Raise Formal Dispute',
-          style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold, fontSize: 16),
+        title: Text(
+          l10n.dealDisputeTitle,
+          style: TextStyle(color: fira.onSurface, fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: fira.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          icon: Icon(Icons.arrow_back, color: fira.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -101,26 +113,27 @@ class _DisputeResolutionScreenState extends State<DisputeResolutionScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.red.shade50,
+                  color: fira.brandTint,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.red.shade200),
+                  border: Border.all(color: fira.danger.withValues(alpha: 0.3)),
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.gavel, color: Colors.redAccent, size: 28),
+                    Icon(Icons.gavel_rounded, color: fira.danger, size: 28),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Arbitration & Retained Sample Protocol',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.red),
-                          ),
-                          const SizedBox(height: 2),
                           Text(
-                            'Disputes freeze milestone disbursements. The sealed twin sample and inspection reports will be submitted for independent cupping verification.',
-                            style: TextStyle(fontSize: 11, color: Colors.red.shade900, height: 1.3),
+                            l10n.dealDisputeNoticeTitle,
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: fira.danger),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            l10n.dealDisputeNoticeBody,
+                            style: TextStyle(fontSize: 12, color: fira.onSurface, height: 1.3),
                           ),
                         ],
                       ),
@@ -129,54 +142,64 @@ class _DisputeResolutionScreenState extends State<DisputeResolutionScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              const Text('Dispute Reason / Claim *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              Text(
+                l10n.dealDisputeReasonLabel,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: fira.onSurface),
+              ),
               const SizedBox(height: 6),
               TextField(
+                key: const Key('dispute-reason-input'),
                 controller: _reasonController,
                 decoration: InputDecoration(
-                  hintText: 'e.g. Cupping score mismatch, excess moisture (>12.5%), delayed shipment',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  hintText: l10n.dealDisputeReasonHint,
+                  hintStyle: TextStyle(color: fira.mutedText, fontSize: 13),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                 ),
               ),
               const SizedBox(height: 18),
-
-              const Text('Detailed Factual Explanation *', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              Text(
+                l10n.dealDisputeDetailsLabel,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: fira.onSurface),
+              ),
               const SizedBox(height: 6),
               TextField(
+                key: const Key('dispute-details-input'),
                 controller: _detailsController,
                 maxLines: 4,
                 decoration: InputDecoration(
-                  hintText: 'Detail container arrival date, seal numbers observed, laboratory test results...',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  hintText: l10n.dealDisputeDetailsHint,
+                  hintStyle: TextStyle(color: fira.mutedText, fontSize: 13),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                 ),
               ),
               const SizedBox(height: 18),
-
-              const Text('Evidence & Third-Party Survey Report (PDF/Photo)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              Text(
+                l10n.dealDisputeEvidenceLabel,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: fira.onSurface),
+              ),
               const SizedBox(height: 6),
               OutlinedButton.icon(
+                key: const Key('dispute-attach-evidence'),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                icon: const Icon(Icons.attach_file),
+                icon: Icon(Icons.attach_file, color: fira.brandPrimary),
                 label: Text(
-                  _evidenceFile != null
-                      ? _evidenceFile!.name
-                      : 'Attach Lab Test or Survey Proof',
+                  _evidenceFile != null ? _evidenceFile!.name : l10n.dealDisputeEvidenceAttach,
                   overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: fira.onSurface),
                 ),
                 onPressed: _pickEvidence,
               ),
               const SizedBox(height: 32),
-
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
+              FilledButton(
+                key: const Key('dispute-submit-btn'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: fira.danger,
                   foregroundColor: Colors.white,
                   minimumSize: const Size.fromHeight(50),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
                 onPressed: _isSubmitting ? null : _submitDispute,
                 child: _isSubmitting
@@ -185,7 +208,7 @@ class _DisputeResolutionScreenState extends State<DisputeResolutionScreen> {
                         height: 22,
                         child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                       )
-                    : const Text('Submit Formal Dispute', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    : Text(l10n.dealDisputeSubmit, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               ),
             ],
           ),
@@ -194,4 +217,3 @@ class _DisputeResolutionScreenState extends State<DisputeResolutionScreen> {
     );
   }
 }
-

@@ -37,13 +37,12 @@ class MarketplaceSeeder extends Seeder
                 'active_listings_limit' => 3,
                 'rfq_response_limit' => 10,
                 'featured_slots' => 1,
-                'verified_badge_included' => true,
+                'verified_badge_included' => false, // verification is never part of a plan
                 'analytics_access' => false,
                 'priority_support' => false,
                 'features' => [
                     'Up to 3 active green coffee lots',
                     'Respond to 10 buyer RFQs / month',
-                    'Verified Exporter trust badge',
                     'SCA cupping form & lab certificate uploads',
                     'Direct buyer sample parcel requests',
                     'Standard email & portal support',
@@ -63,14 +62,13 @@ class MarketplaceSeeder extends Seeder
                 'active_listings_limit' => 15,
                 'rfq_response_limit' => 0, // unlimited
                 'featured_slots' => 5,
-                'verified_badge_included' => true,
+                'verified_badge_included' => false, // verification is never part of a plan
                 'analytics_access' => true,
                 'priority_support' => true,
                 'features' => [
                     'Up to 15 active green coffee lots',
                     'Unlimited buyer RFQ tender bids',
                     '5 Featured Lot slots on Homepage & App',
-                    'Verified Exporter trust badge',
                     'Sensory radar chart generator',
                     'Daily ECTA minimum export price benchmark alerts',
                     'Direct buyer contact disclosure',
@@ -91,7 +89,7 @@ class MarketplaceSeeder extends Seeder
                 'active_listings_limit' => 0, // unlimited
                 'rfq_response_limit' => 0,
                 'featured_slots' => 20,
-                'verified_badge_included' => true,
+                'verified_badge_included' => false, // verification is never part of a plan
                 'analytics_access' => true,
                 'priority_support' => true,
                 'features' => [
@@ -109,7 +107,7 @@ class MarketplaceSeeder extends Seeder
                 'sort_order' => 3,
             ],
             [
-                'name' => 'Verified Buyer (Basic)',
+                'name' => 'Buyer (Basic)',
                 'slug' => 'buyer_verified',
                 'role_target' => 'buyer',
                 'description' => 'Free permanent access for international coffee roasters, green coffee buyers, and importers worldwide.',
@@ -119,7 +117,7 @@ class MarketplaceSeeder extends Seeder
                 'active_listings_limit' => 0,
                 'rfq_response_limit' => 0,
                 'featured_slots' => 0,
-                'verified_badge_included' => true,
+                'verified_badge_included' => false, // verification is never part of a plan
                 'analytics_access' => true,
                 'priority_support' => false,
                 'features' => [
@@ -145,11 +143,11 @@ class MarketplaceSeeder extends Seeder
                 'active_listings_limit' => 0,
                 'rfq_response_limit' => 0,
                 'featured_slots' => 0,
-                'verified_badge_included' => true,
+                'verified_badge_included' => false, // verification is never part of a plan
                 'analytics_access' => true,
                 'priority_support' => true,
                 'features' => [
-                    'All Verified Buyer features included',
+                    'All Buyer (Basic) features included',
                     'Dedicated on-the-ground Q-Grader pre-shipment cupping',
                     'Physical container stuffing inspection in Mojo/Addis',
                     'Priority express sample dispatch (DHL/FedEx)',

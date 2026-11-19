@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/community_service.dart';
 import '../../theme/app_theme.dart';
+import '../fira_error_state.dart';
 
 class VoteWidget extends StatefulWidget {
   final String type;
@@ -62,9 +63,7 @@ class _VoteWidgetState extends State<VoteWidget> {
           _votes = originalVotes;
           _isVoting = false;
         });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to vote: $e')));
+        showFiraActionError(context, e);
       }
     }
   }
@@ -75,6 +74,7 @@ class _VoteWidgetState extends State<VoteWidget> {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         IconButton(
+          tooltip: 'Upvote',
           icon: Icon(
             _userVote == 1 ? Icons.arrow_upward : Icons.arrow_upward_outlined,
             size: 18,
@@ -98,6 +98,7 @@ class _VoteWidgetState extends State<VoteWidget> {
         ),
         const SizedBox(width: 4),
         IconButton(
+          tooltip: 'Downvote',
           icon: Icon(
             _userVote == -1
                 ? Icons.arrow_downward

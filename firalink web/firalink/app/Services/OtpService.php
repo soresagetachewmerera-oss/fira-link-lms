@@ -292,6 +292,29 @@ class OtpService
     }
 
     /**
+     * QA only (qa:code, never in production): replace the code of a flow that was already
+     * started for [identifier] with a new known code, keeping its expiry and attempt count.
+     * Returns the new code, or null when nothing is pending.
+     */
+    public function replacePendingCodeForQa(string $identifier, string $purpose): ?string
+    {
+        if (app()->environment('production')) {
+            return null;
+        }
+        $key = $this->cacheKey($identifier, $purpose);
+        $entry = Cache::get($key);
+        if (!is_array($entry) || empty($entry['expires_at'])) {
+            return null;
+        }
+        $len = $this->codeLength();
+        $code = (string) random_int((int) pow(10, $len - 1), (int) pow(10, $len) - 1);
+        $entry['code'] = Hash::make($code);
+        Cache::put($key, $entry, $entry['expires_at']);
+
+        return $code;
+    }
+
+    /**
      * Build cache key for OTP payload.
      */
     protected function cacheKey(string $identifier, string $purpose): string

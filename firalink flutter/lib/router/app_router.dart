@@ -6,7 +6,6 @@ import '../screens/auth/auth_screen.dart';
 import '../screens/auth/phone_sign_in_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
-import '../screens/home/home2_screen.dart';
 import '../screens/shell/main_shell_screen.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../config/config.dart';
@@ -30,7 +29,6 @@ import '../screens/profile/payment_history_screen.dart';
 import '../screens/notifications/notifications_screen.dart';
 import '../screens/wishlist/wishlist_screen.dart';
 import '../screens/community/qa_room_screen.dart';
-import '../screens/ai_learning_path/ai_learning_path_screen.dart';
 import '../screens/chat/conversations_screen.dart';
 import '../screens/chat/chat_screen.dart';
 import '../screens/coffee_toolkit/coffee_toolkit_hub_screen.dart';
@@ -52,6 +50,7 @@ import '../screens/deal_room/deal_room_hub_screen.dart';
 import '../screens/marketplace/sample_tracking_screen.dart';
 import '../screens/marketplace/public_seller_verification_screen.dart';
 import '../screens/profile/create_workspace_screen.dart';
+import '../screens/search/search_screen.dart';
 
 class AppRouter {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -60,6 +59,7 @@ class AppRouter {
   static const String emailSignIn = '/auth/email';
   static const String dashboard = '/dashboard';
   static const String home = '/home';
+  static const String search = '/search';
   static const String profile = '/profile';
   static const String aiChat = '/ai-chat';
   static const String coffeeToolkit = '/coffee-toolkit';
@@ -89,7 +89,6 @@ class AppRouter {
   static const String notifications = '/notifications';
   static const String wishlist = '/wishlist';
   static const String qaRoom = '/qa-room';
-  static const String aiLearningPath = '/ai-learning-path';
   static const String studyTimer = '/study-timer';
   static const String focusProgress = '/focus-progress';
   static const String weeklyReview = '/weekly-review';
@@ -124,7 +123,6 @@ class AppRouter {
     notifications,
     wishlist,
     qaRoom,
-    aiLearningPath,
     messages,
     chatScreen,
   ];
@@ -162,8 +160,11 @@ class AppRouter {
         return const AiChatScreen();
       case home:
         return AppConfig.getHomePage();
+      case search:
+        final query = arguments as String?;
+        return SearchScreen(initialQuery: query);
       case '/home2':
-        return const Home2Screen();
+        return const MainShellScreen(initialTab: BottomNavTab.home);
       case myCourses:
         return const MyCoursesScreen();
       case myAssignments:
@@ -190,8 +191,6 @@ class AppRouter {
         return const WishlistScreen();
       case qaRoom:
         return const QaRoomScreen();
-      case aiLearningPath:
-        return const AiLearningPathScreen();
       case studyTimer:
         return const PomodoroTimerScreen();
       case focusProgress:

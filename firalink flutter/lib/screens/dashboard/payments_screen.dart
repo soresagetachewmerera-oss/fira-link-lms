@@ -122,8 +122,9 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: HugeIcon(
-                      icon: HugeIcons.strokeRoundedArrowLeft01,
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      icon: HugeIcon(
+                        icon: HugeIcons.strokeRoundedArrowLeft01,
                       size: 20,
                       color: AppTheme.getTextColor(context),
                     ),
@@ -571,7 +572,8 @@ class _TransactionDetailSheet extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(
+                      tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                      icon: Icon(
                       Icons.close,
                       color: AppTheme.getTextColor(context),
                     ),

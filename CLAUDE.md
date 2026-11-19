@@ -109,7 +109,8 @@ history. These had real values and must be treated as leaked and rotated:
 | Chapa | `CHAPA_PUBLIC_KEY` | Client checkout. Rotate together with the secret key. |
 | Google Gemini | `GEMINI_API_KEY` | Fira AI chat, the export documents AI assistant and coffee market synthesis. Revoke the old key in Google AI Studio, since a leaked key can run up quota and billing. |
 
-`REDIS_PASSWORD` was the `null` placeholder and `SMS_ETHIOPIA_API_KEY` was empty. The `scratch/` scripts
+`REDIS_PASSWORD` was the `null` placeholder and `SMS_ETHIOPIA_API_KEY`  server and running database migrations and cache optimizations.
+The analysis check is currenwas empty. The `scratch/` scripts
 (credentials for admin accounts and the server) are also in the history and those passwords should be changed too.
 
 Removing these from git history needs a history rewrite and a force push. That is the user's decision; rotation
@@ -132,6 +133,9 @@ Other auth secrets and settings:
 - `API_NINJAS_API_KEY`: ICE Coffee C futures through API Ninjas. Without it that source fails closed
   ("not configured") and the price shows Unavailable.
 
+- `QA_TOOLS_ENABLED` (staging only) turns on `qa:seed`, `qa:code`, `qa:confirm-payment`, `qa:cleanup`. They
+  refuse to run in production whatever the flag; keep it unset there. Launch QA: `docs/qa/QA_TEST_PLAN.md` and
+  `qa/fira_qa.py`.
 - `AUTH_TEST_OTP_CODE` (fixed sign-in code) must **never** be set in production. It is honoured only when
   `APP_ENV=local`, but keep it out of every non-local `.env` anyway.
 - `SMS_ETHIOPIA_API_KEY`: without it, production refuses phone sign-in and phone verification ("SMS not

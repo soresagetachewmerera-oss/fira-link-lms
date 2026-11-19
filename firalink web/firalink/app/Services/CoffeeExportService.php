@@ -239,7 +239,7 @@ class CoffeeExportService
      * @param array $answers
      * @return CoffeeReadinessAssessment
      */
-    public function evaluateReadiness(int $userId, array $answers): CoffeeReadinessAssessment
+    public function evaluateReadiness(?int $userId, array $answers): CoffeeReadinessAssessment
     {
         // Category weightings: 5 categories, 20 points max each
         $categories = [
@@ -305,14 +305,18 @@ class CoffeeExportService
             $tier = 'Early-Stage Preparation';
         }
 
-        return CoffeeReadinessAssessment::create([
-            'user_id' => $userId,
+        $result = [
             'overall_score' => $overallScore,
             'readiness_tier' => $tier,
             'category_scores_json' => $categoryScores,
             'answers_json' => $answers,
             'action_plan_json' => $actionPlan,
-        ]);
+        ];
+
+        // Guests get their score without it being saved; signed-in users keep a history.
+        return $userId === null
+            ? new CoffeeReadinessAssessment($result)
+            : CoffeeReadinessAssessment::create(['user_id' => $userId] + $result);
     }
 
     /**

@@ -7,6 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/export_docs_service.dart';
 import '../../theme/app_theme.dart';
+import '../../l10n/app_localizations.dart';
+import '../../widgets/fira_error_state.dart';
 import 'export_doc_editor_screen.dart';
 import 'widgets/verification_prompt_dialog.dart';
 
@@ -50,6 +52,27 @@ class _ExportDocsStudioScreenState extends State<ExportDocsStudioScreen> with Si
     'declarations': 'Declarations & Compliance',
     'operations': 'Trade Operations',
   };
+
+  String _getCategoryTitle(String key) {
+    switch (key) {
+      case 'all':
+        return context.l10n.allTemplates;
+      case 'commercial':
+        return context.l10n.commercialFinancial;
+      case 'shipping':
+        return context.l10n.shippingFreight;
+      case 'coffee_specific':
+        return context.l10n.coffeeCommodity;
+      case 'banking':
+        return context.l10n.bankingPayment;
+      case 'declarations':
+        return context.l10n.declarationsCompliance;
+      case 'operations':
+        return context.l10n.tradeOperations;
+      default:
+        return _categories[key] ?? key;
+    }
+  }
 
   @override
   void initState() {
@@ -252,10 +275,10 @@ class _ExportDocsStudioScreenState extends State<ExportDocsStudioScreen> with Si
                       child: const Icon(Icons.workspace_premium, color: Colors.amber, size: 36),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Fira Export Docs Studio Pro',
+                    Text(
+                      context.l10n.exportDocsStudioPro,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 21,
                         fontWeight: FontWeight.bold,
                         letterSpacing: -0.3,
@@ -309,7 +332,7 @@ class _ExportDocsStudioScreenState extends State<ExportDocsStudioScreen> with Si
                               ),
                               child: Column(
                                 children: [
-                                  const Text('Monthly', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                  Text(context.l10n.monthlySubscription, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                                   const SizedBox(height: 4),
                                   const Text('1,500 ETB', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF6D1A95))),
                                   Text('/month (~\\\$25)', style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
@@ -341,7 +364,7 @@ class _ExportDocsStudioScreenState extends State<ExportDocsStudioScreen> with Si
                                   ),
                                   child: Column(
                                     children: [
-                                      const Text('Annual', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                      Text(context.l10n.annualSubscription, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                                       const SizedBox(height: 4),
                                       const Text('14,900 ETB', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF6D1A95))),
                                       Text('/year (~\\\$240)', style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
@@ -471,9 +494,7 @@ class _ExportDocsStudioScreenState extends State<ExportDocsStudioScreen> with Si
     } catch (e) {
       if (mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error downloading: $e')),
-        );
+        showFiraActionError(context, e);
       }
     }
   }
@@ -711,11 +732,11 @@ class _ExportDocsStudioScreenState extends State<ExportDocsStudioScreen> with Si
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white60,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-          tabs: const [
-            Tab(icon: Icon(Icons.table_chart_outlined, size: 18), text: 'Catalog'),
-            Tab(icon: Icon(Icons.local_shipping_outlined, size: 18), text: 'Shipments'),
-            Tab(icon: Icon(Icons.calculate_outlined, size: 18), text: 'Calculator'),
-            Tab(icon: Icon(Icons.folder_shared_outlined, size: 18), text: 'My Docs'),
+          tabs: [
+            Tab(icon: const Icon(Icons.table_chart_outlined, size: 18), text: context.l10n.templates),
+            Tab(icon: const Icon(Icons.local_shipping_outlined, size: 18), text: context.l10n.shipments),
+            Tab(icon: const Icon(Icons.calculate_outlined, size: 18), text: context.l10n.tradeCalculator),
+            Tab(icon: const Icon(Icons.folder_shared_outlined, size: 18), text: context.l10n.myDocuments),
           ],
         ),
       ),
@@ -886,7 +907,8 @@ class _ExportDocsStudioScreenState extends State<ExportDocsStudioScreen> with Si
                   prefixIcon: const Icon(Icons.search, size: 20, color: Color(0xFF6D1A95)),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear, size: 18),
+                            tooltip: 'Clear',
+                            icon: const Icon(Icons.clear, size: 18),
                           onPressed: () {
                             _searchController.clear();
                             _fetchTemplates();
@@ -908,7 +930,7 @@ class _ExportDocsStudioScreenState extends State<ExportDocsStudioScreen> with Si
                     return Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: ChoiceChip(
-                        label: Text(entry.value, style: TextStyle(fontSize: 11, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+                        label: Text(_getCategoryTitle(entry.key), style: TextStyle(fontSize: 11, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
                         selected: isSelected,
                         selectedColor: const Color(0xFF6D1A95),
                         labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.black87),

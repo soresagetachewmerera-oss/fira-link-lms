@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../config/config.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/fira_colors.dart';
 import '../../models/event.dart';
 import '../../services/event_service.dart';
 import '../../l10n/app_localizations.dart';
@@ -561,7 +562,7 @@ class _EventCard extends StatelessWidget {
                             : settingsProvider.formatPrice(event.price),
                         style: TextStyle(
                           color: event.price == 0.00 || event.price == null
-                              ? Colors.green
+                              ? context.fira.success
                               : AppTheme.getTextColor(context),
                           fontSize: 18,
                           fontWeight: FontWeight.w700,

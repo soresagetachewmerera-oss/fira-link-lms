@@ -169,9 +169,9 @@ class _TicketBookingScreenState extends State<TicketBookingScreen> {
                     if (_flow.seatsLeft != null) Text(l10n.translate('eventSeatsLeft', {'n': _flow.seatsLeft}), style: TextStyle(color: fira.mutedText, fontSize: 12)),
                   ]),
                 ),
-                IconButton(key: const Key('qty-minus'), icon: const Icon(Icons.remove_circle_outline), onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null),
+                IconButton(key: const Key('qty-minus'), tooltip: 'Decrease quantity', icon: const Icon(Icons.remove_circle_outline), onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null),
                 Text('$_quantity', key: const Key('qty'), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                IconButton(key: const Key('qty-plus'), icon: const Icon(Icons.add_circle_outline), onPressed: _quantity < _maxQuantity ? () => setState(() => _quantity++) : null),
+                IconButton(key: const Key('qty-plus'), tooltip: 'Increase quantity', icon: const Icon(Icons.add_circle_outline), onPressed: _quantity < _maxQuantity ? () => setState(() => _quantity++) : null),
               ]),
               Row(children: [
                 Expanded(child: TextFormField(key: const Key('ev-first'), controller: _first, decoration: InputDecoration(labelText: l10n.firstName), validator: required)),

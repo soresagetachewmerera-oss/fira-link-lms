@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../services/export_docs_service.dart';
+import '../../l10n/app_localizations.dart';
 import 'widgets/verification_prompt_dialog.dart';
 
 class ExportDocEditorScreen extends StatefulWidget {
@@ -579,7 +580,8 @@ class _ExportDocEditorScreenState extends State<ExportDocEditorScreen> with Sing
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                        tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                        icon: const Icon(Icons.close),
                       onPressed: () => Navigator.pop(ctx),
                     ),
                   ],
@@ -903,12 +905,12 @@ class _ExportDocEditorScreenState extends State<ExportDocEditorScreen> with Sing
               if (val == 'calc') _calculateTradeValues();
             },
             itemBuilder: (ctx) => [
-              const PopupMenuItem(value: 'save', child: Row(children: [Icon(Icons.save, size: 18), SizedBox(width: 8), Text('Save Draft')])),
+              PopupMenuItem(value: 'save', child: Row(children: [const Icon(Icons.save, size: 18), const SizedBox(width: 8), Text(context.l10n.saveDraft)])),
               const PopupMenuItem(value: 'calc', child: Row(children: [Icon(Icons.calculate, size: 18), SizedBox(width: 8), Text('Recalculate Totals')])),
-              const PopupMenuItem(value: 'finalize', child: Row(children: [Icon(Icons.lock, size: 18), SizedBox(width: 8), Text('Finalize Document')])),
+              PopupMenuItem(value: 'finalize', child: Row(children: [const Icon(Icons.lock, size: 18), const SizedBox(width: 8), Text(context.l10n.finalizeDocument)])),
               const PopupMenuDivider(),
-              const PopupMenuItem(value: 'pdf', child: Row(children: [Icon(Icons.picture_as_pdf, color: Colors.red, size: 18), SizedBox(width: 8), Text('Download PDF')])),
-              const PopupMenuItem(value: 'xlsx', child: Row(children: [Icon(Icons.table_chart, color: Colors.green, size: 18), SizedBox(width: 8), Text('Download Excel')])),
+              PopupMenuItem(value: 'pdf', child: Row(children: [const Icon(Icons.picture_as_pdf, color: Colors.red, size: 18), const SizedBox(width: 8), Text(context.l10n.downloadPdf)])),
+              PopupMenuItem(value: 'xlsx', child: Row(children: [const Icon(Icons.table_chart, color: Colors.green, size: 18), const SizedBox(width: 8), Text(context.l10n.downloadExcel)])),
             ],
           ),
         ],
@@ -1557,7 +1559,7 @@ class _ExportDocEditorScreenState extends State<ExportDocEditorScreen> with Sing
                 icon: _isSaving
                     ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF6D1A95)))
                     : const Icon(Icons.save_outlined, size: 18),
-                label: Text(_isSaving ? 'Saving...' : 'Save Draft', style: const TextStyle(fontWeight: FontWeight.bold)),
+                label: Text(_isSaving ? 'Saving...' : context.l10n.saveDraft, style: const TextStyle(fontWeight: FontWeight.bold)),
                 onPressed: _isSaving ? null : _saveDraft,
               ),
             ),
@@ -1571,7 +1573,7 @@ class _ExportDocEditorScreenState extends State<ExportDocEditorScreen> with Sing
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
                 icon: const Icon(Icons.verified_rounded, size: 18),
-                label: const Text('Finalize', style: TextStyle(fontWeight: FontWeight.bold)),
+                label: Text(context.l10n.finalizeDocument, style: const TextStyle(fontWeight: FontWeight.bold)),
                 onPressed: _finalizeDocument,
               ),
             ),

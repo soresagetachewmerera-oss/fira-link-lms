@@ -36,7 +36,7 @@ class CoffeeToolkitController extends Controller
      */
     public function hubSummary()
     {
-        $userId = Auth::id();
+        $userId = auth('sanctum')->id();
 
         $recentCalculations = CoffeeExportCalculation::where('user_id', $userId)
             ->latest()
@@ -268,7 +268,8 @@ class CoffeeToolkitController extends Controller
             'has_buyer_contract_templates' => 'nullable',
         ]);
 
-        $assessment = $this->coffeeService->evaluateReadiness(Auth::id(), $answers);
+        // Public route: the app's token is only visible to the sanctum guard (GAP-005).
+        $assessment = $this->coffeeService->evaluateReadiness(auth('sanctum')->id(), $answers);
 
         return response()->json([
             'success' => true,

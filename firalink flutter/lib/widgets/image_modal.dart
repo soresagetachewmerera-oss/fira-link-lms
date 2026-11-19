@@ -19,6 +19,7 @@ class ImageModal extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               IconButton(
+                tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                 onPressed: () => Navigator.pop(context),
                 icon: const HugeIcon(
                   icon: HugeIcons.strokeRoundedCancel01,

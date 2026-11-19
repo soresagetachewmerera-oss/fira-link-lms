@@ -5,6 +5,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../services/student_course_service.dart';
 import '../../theme/app_theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/fira_error_state.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -161,9 +162,7 @@ class _AssignmentSubmitScreenState extends State<AssignmentSubmitScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        showFiraActionError(context, e);
       }
     } finally {
       if (mounted) {
@@ -285,6 +284,7 @@ class _AssignmentSubmitScreenState extends State<AssignmentSubmitScreen> {
               backgroundColor: AppTheme.getBackgroundColor(context),
               elevation: 0,
               leading: IconButton(
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                 icon: HugeIcon(
                   icon: HugeIcons.strokeRoundedArrowLeft01,
                   size: 20,
@@ -302,7 +302,10 @@ class _AssignmentSubmitScreenState extends State<AssignmentSubmitScreen> {
               ),
             )
           : null,
-      body: SingleChildScrollView(
+      body: SafeArea(
+        top: !widget.showAppBar,
+        bottom: true,
+        child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(20, widget.showAppBar ? 20 : 16, 20, 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -654,6 +657,7 @@ class _AssignmentSubmitScreenState extends State<AssignmentSubmitScreen> {
                           ),
                         ),
                         IconButton(
+                          tooltip: 'Remove attached file',
                           icon: HugeIcon(
                             icon: HugeIcons.strokeRoundedDelete01,
                             size: 20,
@@ -778,6 +782,7 @@ class _AssignmentSubmitScreenState extends State<AssignmentSubmitScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

@@ -40,6 +40,7 @@ return [
     ],
     'ai' => [
         'gemini_off' => 'Fira AI answers are switched off right now. Please try again later.',
+        'busy' => 'Fira AI is busy right now and could not answer. Please try again in a minute.',
         'rules_unknown' => "I don't have an approved document for that, so I can't answer it reliably. Please check with the Ethiopian Coffee and Tea Authority (ECTA): https://ethiocta.gov.et",
         'no_prediction' => "I can't predict prices or give trading advice. Here is what our sources show now.",
         'no_current_price' => "I don't have a current price for that.",

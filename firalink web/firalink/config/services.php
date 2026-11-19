@@ -49,6 +49,13 @@ return [
         'credentials' => env('FIREBASE_CREDENTIALS', storage_path('app/firebase/firebase_credentials.json')),
     ],
 
+    'chapa' => [
+        // Off by default: the old Chapa keys were committed to GitHub. While off, no new Chapa checkout
+        // starts anywhere (courses, events, tours, plans) and webhooks are refused; bank slips still work.
+        // Payments already started can still be verified server to server. Turn on only after rotating the keys.
+        'enabled' => (bool) env('CHAPA_ENABLED', false),
+    ],
+
     'gemini' => [
         // Off by default: the old GEMINI_API_KEY was committed to GitHub. Turn on only after rotating it.
         'enabled' => (bool) env('GEMINI_ENABLED', false),

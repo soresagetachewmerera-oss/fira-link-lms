@@ -71,7 +71,8 @@ class _TicketViewScreenState extends State<TicketViewScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),
@@ -137,7 +138,8 @@ class _TicketViewScreenState extends State<TicketViewScreen> {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: const Icon(
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      icon: const Icon(
                       Icons.arrow_back,
                       color: Colors.white,
                       size: 24,

@@ -181,22 +181,67 @@ class _BusinessWorkspaceSetupScreenState extends State<BusinessWorkspaceSetupScr
     );
   }
 
+  bool get _hasUnsavedData =>
+      _nameController.text.trim().isNotEmpty ||
+      _tinController.text.trim().isNotEmpty;
+
+  Future<bool?> _confirmDiscard(BuildContext context, AppLocalizations l10n) {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: context.fira.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        title: Text(l10n.discardChangesTitle, style: TextStyle(color: context.fira.onSurface, fontWeight: FontWeight.bold)),
+        content: Text(l10n.discardChangesBody, style: TextStyle(color: context.fira.mutedText)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.keepEditing, style: TextStyle(color: context.fira.brandPrimary)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.discard, style: TextStyle(color: context.fira.danger)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final fira = context.fira;
     final l10n = context.l10n;
     final onPrimary = Theme.of(context).colorScheme.onPrimary;
 
-    return Scaffold(
-      backgroundColor: fira.surface,
-      appBar: AppBar(
+    return PopScope(
+      canPop: !_hasUnsavedData || _isCreating,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final discard = await _confirmDiscard(context, l10n);
+        if (discard == true && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
         backgroundColor: fira.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: fira.onSurface),
-          onPressed: () => Navigator.pop(context),
+        appBar: AppBar(
+          backgroundColor: fira.surface,
+          elevation: 0,
+          leading: IconButton(
+              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+              icon: Icon(Icons.arrow_back, color: fira.onSurface),
+            onPressed: () async {
+              if (_hasUnsavedData && !_isCreating) {
+                final discard = await _confirmDiscard(context, l10n);
+                if (discard == true && context.mounted) {
+                  Navigator.pop(context);
+                }
+              } else {
+                Navigator.pop(context);
+              }
+            },
+          ),
         ),
-      ),
       body: SafeArea(
         child: FutureBuilder<WorkspaceOptions>(
           future: _optionsFuture,
@@ -369,6 +414,7 @@ class _BusinessWorkspaceSetupScreenState extends State<BusinessWorkspaceSetupScr
           },
         ),
       ),
+    ),
     );
   }
 }

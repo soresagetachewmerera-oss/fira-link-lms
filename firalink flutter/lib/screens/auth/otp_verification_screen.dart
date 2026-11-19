@@ -241,7 +241,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close),
+                          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                          icon: const Icon(Icons.close),
                         onPressed: () => Navigator.of(modalContext).pop(),
                       ),
                     ],
@@ -496,8 +497,9 @@ class _OtpVerificationCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             IconButton(
-              icon: HugeIcon(
-                icon: HugeIcons.strokeRoundedArrowLeft01,
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                icon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedArrowLeft01,
                 size: 20,
                 color: AppTheme.getTextColor(context),
               ),

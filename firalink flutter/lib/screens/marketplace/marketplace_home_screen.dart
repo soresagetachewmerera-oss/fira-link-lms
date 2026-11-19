@@ -199,7 +199,8 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
                         prefixIcon: const Icon(Icons.search, color: AppTheme.primary),
                         suffixIcon: _searchController.text.isNotEmpty
                             ? IconButton(
-                                icon: const Icon(Icons.clear),
+                                  tooltip: 'Clear',
+                                  icon: const Icon(Icons.clear),
                                 onPressed: () {
                                   _searchController.clear();
                                   _fetchListings();
@@ -664,9 +665,16 @@ class _MarketplaceHomeScreenState extends State<MarketplaceHomeScreen> {
                             ),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Text(
-                            '★ $cuppingScore SCA',
-                            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.star_rounded, size: 13, color: Colors.white),
+                              const SizedBox(width: 3),
+                              Text(
+                                '$cuppingScore SCA',
+                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                            ],
                           ),
                         ),
                       ),

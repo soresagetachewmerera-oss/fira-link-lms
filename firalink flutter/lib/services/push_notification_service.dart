@@ -253,8 +253,24 @@ class PushNotificationService {
     final String? type = data['type']?.toString();
     final String? courseId = data['course_id']?.toString();
     final String? liveClassId = data['live_class_id']?.toString();
+    final String? dealRoomId = data['deal_room_id']?.toString();
+    final String? listingId = data['listing_id']?.toString() ?? data['lot_id']?.toString();
 
-    if (type == 'live_class' || liveClassId != null) {
+    if (type == 'deal_room' || (dealRoomId != null && dealRoomId.isNotEmpty)) {
+      navigator.pushNamed(AppRouter.dealRoom, arguments: dealRoomId);
+    } else if (type == 'trade' || type == 'quote' || type == 'rfq') {
+      if (dealRoomId != null && dealRoomId.isNotEmpty) {
+        navigator.pushNamed(AppRouter.dealRoom, arguments: dealRoomId);
+      } else {
+        navigator.pushNamed(AppRouter.marketplaceRfqs);
+      }
+    } else if (type == 'sample' || data['sample_id'] != null) {
+      navigator.pushNamed(AppRouter.sampleTracking);
+    } else if (type == 'verification') {
+      navigator.pushNamed(AppRouter.marketplaceVerification);
+    } else if (type == 'lot_evidence' && listingId != null && listingId.isNotEmpty) {
+      navigator.pushNamed(AppRouter.coffeeListingDetail, arguments: int.tryParse(listingId) ?? listingId);
+    } else if (type == 'live_class' || liveClassId != null) {
       navigator.pushNamed(AppRouter.notifications);
     } else if (type == 'course' && courseId != null) {
       navigator.pushNamed(AppRouter.myCourses);

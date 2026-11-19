@@ -53,6 +53,7 @@ class _CourseDiscussionDetailScreenState extends State<CourseDiscussionDetailScr
             widget.discussionId,
             text,
           );
+      if (!mounted) return;
       _replyController.clear();
       FocusScope.of(context).unfocus();
       // Scroll to bottom
@@ -66,6 +67,7 @@ class _CourseDiscussionDetailScreenState extends State<CourseDiscussionDetailScr
         }
       });
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to submit reply: $e')),
       );
@@ -90,16 +92,19 @@ class _CourseDiscussionDetailScreenState extends State<CourseDiscussionDetailScr
     );
 
     if (confirm == true) {
+      if (!mounted) return;
       try {
         await context.read<CourseDiscussionProvider>().deleteReply(
               widget.courseId,
               widget.discussionId,
               replyId,
             );
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Reply deleted successfully')),
         );
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to delete reply: $e')),
         );
@@ -271,6 +276,7 @@ class _CourseDiscussionDetailScreenState extends State<CourseDiscussionDetailScr
                 ),
                 if (discussion.userId == currentUserId)
                   IconButton(
+                    tooltip: 'Delete discussion',
                     icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
                     onPressed: () async {
                       final confirm = await showDialog<bool>(
@@ -290,6 +296,7 @@ class _CourseDiscussionDetailScreenState extends State<CourseDiscussionDetailScr
                       );
 
                       if (confirm == true) {
+                        if (!mounted) return;
                         try {
                           await context.read<CourseDiscussionProvider>().deleteDiscussion(
                                 widget.courseId,
@@ -377,6 +384,7 @@ class _CourseDiscussionDetailScreenState extends State<CourseDiscussionDetailScr
                 ),
                 if (reply.userId == currentUserId)
                   IconButton(
+                    tooltip: 'Delete reply',
                     icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
                     onPressed: () => _deleteReply(reply.id),
                     constraints: const BoxConstraints(),
@@ -468,6 +476,7 @@ class _CourseDiscussionDetailScreenState extends State<CourseDiscussionDetailScr
                     backgroundColor: AppTheme.primary,
                     radius: 20,
                     child: IconButton(
+                      tooltip: 'Send reply',
                       icon: const Icon(Icons.send, color: Colors.white, size: 18),
                       onPressed: _submitReply,
                     ),

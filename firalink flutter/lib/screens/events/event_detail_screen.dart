@@ -134,11 +134,13 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       : Brightness.light,
                 ),
                 leading: IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.white),
+                    tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                    icon: Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 actions: <Widget>[
                   IconButton(
+                    tooltip: 'Share event',
                     icon: Icon(Icons.share, color: Colors.white),
                     onPressed: () {
                       _showShareSheet(context);
@@ -1047,7 +1049,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             left: 0,
             right: 0,
             bottom: 0,
-            child: Container(
+            child: SafeArea(
+              top: false,
+              child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
@@ -1137,7 +1141,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     ),
             ),
           ),
-        ],
+        ),
+      ],
       ),
     );
   }

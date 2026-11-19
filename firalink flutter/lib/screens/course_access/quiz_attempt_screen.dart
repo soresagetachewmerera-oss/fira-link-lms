@@ -497,6 +497,7 @@ class _QuizAttemptScreenState extends State<QuizAttemptScreen>
               backgroundColor: AppTheme.getBackgroundColor(context),
               elevation: 0,
               leading: IconButton(
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                 icon: HugeIcon(
                   icon: HugeIcons.strokeRoundedArrowLeft01,
                   size: 20,
@@ -531,8 +532,11 @@ class _QuizAttemptScreenState extends State<QuizAttemptScreen>
               ],
             )
           : null,
-      body: Stack(
-        children: <Widget>[
+      body: SafeArea(
+        top: !widget.showAppBar,
+        bottom: true,
+        child: Stack(
+          children: <Widget>[
           Column(
             children: <Widget>[
               // Progress indicator and title (when no app bar)
@@ -827,6 +831,7 @@ class _QuizAttemptScreenState extends State<QuizAttemptScreen>
             ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

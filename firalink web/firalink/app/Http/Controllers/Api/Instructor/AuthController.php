@@ -291,24 +291,20 @@ class AuthController extends Controller
     {
         $request->validate(['email' => 'required|email']);
 
+        // One answer for every email, so this cannot reveal which instructor accounts exist;
+        // a mail failure is logged, not shown.
         $user = User::where('email', $request->email)->where('role', 'instructor')->first();
-
-        if (!$user) {
-            return response()->json([
-                'message' => 'No instructor account found with that email address.'
-            ], 404);
-        }
-
-        $status = Password::sendResetLink($request->only('email'));
-
-        if ($status === Password::RESET_LINK_SENT) {
-            return response()->json([
-                'message' => 'Password reset link sent to your email.'
-            ], 200);
+        if ($user) {
+            try {
+                Password::sendResetLink($request->only('email'));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Instructor password reset email failed: ' . $e->getMessage());
+            }
         }
 
         return response()->json([
-            'message' => 'Unable to send reset link.'
-        ], 500);
+            'success' => true,
+            'message' => 'If an instructor account matches that email, a reset link is on its way.',
+        ]);
     }
 }

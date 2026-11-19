@@ -139,7 +139,8 @@ class _BundlesScreenState extends State<BundlesScreen> {
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchCtrl.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                          tooltip: 'Clear',
+                          icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchCtrl.clear();
                           _onSearch('');

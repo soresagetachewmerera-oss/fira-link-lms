@@ -190,8 +190,9 @@ class _ForgotPasswordCardState extends State<_ForgotPasswordCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             IconButton(
-              icon: HugeIcon(
-                icon: HugeIcons.strokeRoundedArrowLeft01,
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                icon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedArrowLeft01,
                 size: 20,
                 color: AppTheme.getTextColor(context),
               ),

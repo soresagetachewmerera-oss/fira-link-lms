@@ -215,8 +215,10 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       backgroundColor: AppTheme.getBackgroundColor(context),
       appBar: _buildAppBar(context),
-      body: Column(
-        children: [
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
           Expanded(
             child: Consumer<ChatProvider>(
               builder: (context, provider, _) {
@@ -354,14 +356,16 @@ class _ChatScreenState extends State<ChatScreen> {
           _buildInputArea(context),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: AppTheme.getCardColor(context),
       elevation: 0.5,
       leading: IconButton(
+        tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         icon: HugeIcon(
           icon: HugeIcons.strokeRoundedArrowLeft01,
           size: 20,

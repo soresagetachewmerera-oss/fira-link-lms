@@ -223,11 +223,11 @@ class _CoffeeCandlestickChartWidgetState extends State<CoffeeCandlestickChartWid
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  _marketTab('ethiopia', '🇪🇹 Ethiopian Market', 'ECTA/ECX'),
+                  _marketTab('ethiopia', 'Ethiopian Market', 'ECTA/ECX', icon: Icons.place_outlined),
                   const SizedBox(width: 6),
-                  _marketTab('arabica', '🌎 ICE Arabica', 'KC'),
+                  _marketTab('arabica', 'ICE Arabica', 'KC', icon: Icons.public_outlined),
                   const SizedBox(width: 6),
-                  _marketTab('robusta', '🌍 ICE Robusta', 'RC'),
+                  _marketTab('robusta', 'ICE Robusta', 'RC', icon: Icons.public_outlined),
                 ],
               ),
             ),
@@ -517,7 +517,7 @@ class _CoffeeCandlestickChartWidgetState extends State<CoffeeCandlestickChartWid
     );
   }
 
-  Widget _marketTab(String id, String label, String tag) {
+  Widget _marketTab(String id, String label, String tag, {IconData? icon}) {
     final isSel = _market == id;
     return InkWell(
       onTap: () {
@@ -537,6 +537,10 @@ class _CoffeeCandlestickChartWidgetState extends State<CoffeeCandlestickChartWid
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (icon != null) ...[
+              Icon(icon, size: 13, color: isSel ? Colors.white : Colors.white70),
+              const SizedBox(width: 5),
+            ],
             Text(
               label,
               style: TextStyle(

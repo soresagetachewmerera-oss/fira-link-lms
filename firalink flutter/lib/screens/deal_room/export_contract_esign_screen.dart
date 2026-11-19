@@ -90,7 +90,8 @@ class _ExportContractEsignScreenState extends State<ExportContractEsignScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            icon: const Icon(Icons.arrow_back, color: Color(0xFF1E293B)),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -147,7 +148,7 @@ class _ExportContractEsignScreenState extends State<ExportContractEsignScreen> {
                   child: Text(
                     '1. Applicable Law: Contract governed by Ethiopian Commercial Code & ECTA Direct Coffee Export Directives.\n'
                     '2. Quality & Moisture: Max 12.0% moisture content, water activity <= 0.60, packed in GrainPro hermetic liners.\n'
-                    '3. Payment Terms: Irrevocable Documentary Letter of Credit (LC) at sight or milestone escrow deposit.\n'
+                    '3. Payment Terms: Irrevocable Documentary Letter of Credit (LC) at sight or milestone settlement deposit.\n'
                     '4. Inspection: Origin quality and weight determined by ECTA Coffee Quality Inspection Center prior to container stuffing.\n'
                     '5. Retained Sample: Sealed retained twin sample is held by exporter for any quality dispute resolution.\n'
                     '6. Force Majeure: Standard ICC force majeure clause applies.',

@@ -762,6 +762,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                         child: Row(
                           children: <Widget>[
                             IconButton(
+                              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                               icon: HugeIcon(
                                 icon: HugeIcons.strokeRoundedArrowLeft01,
                                 size: 20,
@@ -783,6 +784,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                               ),
                             ),
                             IconButton(
+                              tooltip: context.l10n.shareCourse,
                               icon: HugeIcon(
                                 icon: HugeIcons.strokeRoundedShare01,
                                 size: 20,
@@ -796,6 +798,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                                 final isWishlisted = wishlistProvider
                                     .isInWishlist(course.id);
                                 return IconButton(
+                                  tooltip: isWishlisted ? 'Remove from wishlist' : 'Add to wishlist',
                                   icon: Icon(
                                     isWishlisted
                                         ? Icons.favorite
@@ -1923,6 +1926,7 @@ class VideoPreviewSheet extends StatelessWidget {
                   ),
                 ),
                 IconButton(
+                  tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                   icon: const Icon(Icons.close, color: Colors.white),
                   onPressed: () => Navigator.pop(context),
                 ),

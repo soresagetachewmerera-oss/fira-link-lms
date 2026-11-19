@@ -102,8 +102,9 @@ class _AssignmentDetailScreenState extends State<AssignmentDetailScreen> {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: HugeIcon(
-                      icon: HugeIcons.strokeRoundedArrowLeft01,
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      icon: HugeIcon(
+                        icon: HugeIcons.strokeRoundedArrowLeft01,
                       size: 20,
                       color: AppTheme.getTextColor(context),
                     ),
@@ -541,7 +542,8 @@ class _SubmitAssignmentSheetState extends State<_SubmitAssignmentSheet> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(
+                      tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                      icon: Icon(
                       Icons.close,
                       size: 24,
                       color: AppTheme.getTextColor(context),
@@ -607,7 +609,8 @@ class _SubmitAssignmentSheetState extends State<_SubmitAssignmentSheet> {
                               ),
                             ),
                             IconButton(
-                              icon: Icon(
+                                tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                                icon: Icon(
                                 Icons.close,
                                 size: 20,
                                 color: AppTheme.getTextColor(

@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Channels\FcmChannel;
 use Illuminate\Notifications\Notification;
 
 /**
@@ -16,7 +17,7 @@ class TradeUpdate extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', FcmChannel::class];
     }
 
     public function toArray(object $notifiable): array
@@ -31,6 +32,29 @@ class TradeUpdate extends Notification
             'title_am' => __("trade.notifications.{$this->event}_title", [], 'am'),
             'message_am' => __("trade.notifications.{$this->event}", $replace, 'am'),
             'url' => null,
+        ];
+    }
+
+    /**
+     * FCM push payload representation.
+     */
+    public function toFcm(object $notifiable): array
+    {
+        $arr = $this->toArray($notifiable);
+        $locale = $notifiable->locale ?? app()->getLocale() ?? 'en';
+        $title = $locale === 'am' ? ($arr['title_am'] ?? $arr['title']) : $arr['title'];
+        $body = $locale === 'am' ? ($arr['message_am'] ?? $arr['message']) : $arr['message'];
+
+        return [
+            'title' => $title,
+            'body'  => $body,
+            'data'  => [
+                'type'         => 'trade',
+                'event'        => (string) $this->event,
+                'rfq_id'       => (string) ($this->params['rfq'] ?? $this->params['rfq_id'] ?? ''),
+                'deal_room_id' => (string) ($this->params['deal_room_id'] ?? ''),
+                'lot_id'       => (string) ($this->params['lot'] ?? $this->params['lot_id'] ?? ''),
+            ],
         ];
     }
 }

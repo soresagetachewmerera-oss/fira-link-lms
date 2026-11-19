@@ -78,8 +78,9 @@ class _MyQuizAttemptsScreenState extends State<MyQuizAttemptsScreen> {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: HugeIcon(
-                      icon: HugeIcons.strokeRoundedArrowLeft01,
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      icon: HugeIcon(
+                        icon: HugeIcons.strokeRoundedArrowLeft01,
                       size: 20,
                       color: AppTheme.getTextColor(context),
                     ),
@@ -99,8 +100,9 @@ class _MyQuizAttemptsScreenState extends State<MyQuizAttemptsScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: HugeIcon(
-                      icon: HugeIcons.strokeRoundedRefresh,
+                      tooltip: 'Refresh',
+                      icon: HugeIcon(
+                        icon: HugeIcons.strokeRoundedRefresh,
                       size: 20,
                       color: AppTheme.getTextColor(context),
                     ),

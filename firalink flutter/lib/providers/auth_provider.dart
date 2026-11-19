@@ -47,8 +47,10 @@ class AuthProvider with ChangeNotifier {
             PushNotificationService().syncTokenWithServer();
           } catch (_) {}
         }
-      } else {
+      } else if (response.statusCode == 401 || response.statusCode == 403) {
+        // Only clear token when credentials are truly rejected/expired, not during transient 5xx or 429
         await _authService.clearToken();
+        _user = null;
       }
     } catch (e) {
       debugPrint('Error loading user: $e');
@@ -334,13 +336,13 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> logout() async {
     try {
+      await PushNotificationService().deleteToken();
+    } catch (_) {}
+    try {
       await _authService.logout();
     } catch (e) {
       // Ignore network errors on logout
     }
-    try {
-      await PushNotificationService().deleteToken();
-    } catch (_) {}
     await _authService.clearToken();
     _user = null;
     notifyListeners();

@@ -78,7 +78,8 @@ class _TeamSeatsScreenState extends State<TeamSeatsScreen> {
         backgroundColor: fira.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: fira.onSurface),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            icon: Icon(Icons.arrow_back, color: fira.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),

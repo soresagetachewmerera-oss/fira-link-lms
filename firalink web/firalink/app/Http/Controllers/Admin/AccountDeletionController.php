@@ -109,12 +109,6 @@ class AccountDeletionController extends Controller
             return back();
         }
 
-        $accountDeletionRequest->status = 'approved';
-        $accountDeletionRequest->processed_by = $request->user()->id;
-        $accountDeletionRequest->processed_at = now();
-        $accountDeletionRequest->note = $request->input('note');
-        $accountDeletionRequest->save();
-
         if ($accountDeletionRequest->user) {
             try {
                 $this->accountDeletionService->deleteUser($accountDeletionRequest->user);
@@ -125,6 +119,12 @@ class AccountDeletionController extends Controller
                 return back();
             }
         }
+
+        $accountDeletionRequest->status = 'approved';
+        $accountDeletionRequest->processed_by = $request->user()->id;
+        $accountDeletionRequest->processed_at = now();
+        $accountDeletionRequest->note = $request->input('note');
+        $accountDeletionRequest->save();
 
         ToastMagic::success('Account deletion request approved and processed successfully.');
 

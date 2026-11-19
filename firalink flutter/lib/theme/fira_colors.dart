@@ -61,9 +61,9 @@ class FiraColors extends ThemeExtension<FiraColors> {
     glassTint: Color(0x1F6D1A95), // 12% purple tint
     glassBorder: Color(0x99FFFFFF), // 60% white highlight
     shadowColor: Color(0x8C1E0846), // 55% soft purple shadow (0 18 36)
-    success: Color(0xFF10B981),
+    success: Color(0xFF047857), // WCAG AA compliant emerald (contrast ratio 5.49:1 on white)
     pending: Color(0xFF6D1A95), // Primary purple text on lavender (NEVER green or amber)
-    danger: Color(0xFFEF4444),
+    danger: Color(0xFFDC2626), // WCAG AA compliant red (contrast ratio 4.84:1 on white)
     chipUnselectedBg: AppTheme.mint100,
     chipSelectedBg: AppTheme.primary,
     overlayScrim: Color(0x800F0B1E),

@@ -81,12 +81,12 @@ class _CourseDiscussionTabState extends State<CourseDiscussionTab> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Padding(
+      builder: (sheetContext) => Padding(
         padding: EdgeInsets.only(
           top: 20,
           left: 20,
           right: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 20,
         ),
         child: Form(
           key: formKey,
@@ -127,7 +127,7 @@ class _CourseDiscussionTabState extends State<CourseDiscussionTab> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.pop(sheetContext),
                     child: const Text('Cancel'),
                   ),
                   const SizedBox(width: 8),
@@ -135,17 +135,19 @@ class _CourseDiscussionTabState extends State<CourseDiscussionTab> {
                     onPressed: () async {
                       if (formKey.currentState!.validate()) {
                         try {
-                          await this.context.read<CourseDiscussionProvider>().createDiscussion(
+                          await context.read<CourseDiscussionProvider>().createDiscussion(
                                 widget.courseId,
                                 titleController.text,
                                 contentController.text,
                               );
-                          if (mounted) Navigator.pop(context);
+                          if (sheetContext.mounted) Navigator.pop(sheetContext);
                           _loadData(refresh: true);
                         } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Failed to post: $e')),
-                          );
+                          if (sheetContext.mounted) {
+                            ScaffoldMessenger.of(sheetContext).showSnackBar(
+                              SnackBar(content: Text('Failed to post: $e')),
+                            );
+                          }
                         }
                       }
                     },
@@ -190,7 +192,8 @@ class _CourseDiscussionTabState extends State<CourseDiscussionTab> {
                 prefixIcon: const Icon(Icons.search, size: 20),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear, size: 18),
+                          tooltip: 'Clear',
+                          icon: const Icon(Icons.clear, size: 18),
                         onPressed: () {
                           _searchController.clear();
                           _onSearch();

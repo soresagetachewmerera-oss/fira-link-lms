@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Channels\FcmChannel;
 use App\Models\CoffeeListing;
 use App\Models\LotEvidence;
 use Illuminate\Notifications\Notification;
@@ -22,7 +23,7 @@ class LotEvidenceUpdate extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', FcmChannel::class];
     }
 
     private function texts(string $locale): array
@@ -57,6 +58,28 @@ class LotEvidenceUpdate extends Notification
             'kind' => $this->evidence->kind,
             'params' => array_intersect_key($this->params, array_flip(['days', 'reason_code'])),
             'url' => null,
+        ];
+    }
+
+    /**
+     * FCM push payload representation.
+     */
+    public function toFcm(object $notifiable): array
+    {
+        $arr = $this->toArray($notifiable);
+        $locale = $notifiable->locale ?? app()->getLocale() ?? 'en';
+        $title = $locale === 'am' ? ($arr['title_am'] ?? $arr['title']) : $arr['title'];
+        $body = $locale === 'am' ? ($arr['message_am'] ?? $arr['message']) : $arr['message'];
+
+        return [
+            'title' => $title,
+            'body'  => $body,
+            'data'  => [
+                'type'       => 'lot_evidence',
+                'event'      => (string) $this->event,
+                'listing_id' => (string) $this->lot->id,
+                'kind'       => (string) $this->evidence->kind,
+            ],
         ];
     }
 }

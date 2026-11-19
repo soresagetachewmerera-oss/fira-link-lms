@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../services/api_exception.dart';
 import '../../services/marketplace_service.dart';
+import '../../l10n/app_localizations.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/fira_colors.dart';
 import '../../widgets/fira_error_state.dart';
 
 class MarketplacePricingScreen extends StatefulWidget {
@@ -126,17 +128,23 @@ class _MarketplacePricingScreenState extends State<MarketplacePricingScreen> {
         'gateway': 'chapa',
       });
 
+      if (!mounted) return;
       setState(() => _isSubscribing = false);
 
-      if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        if (data['status'] == 'activated' || data['checkout_url'] == null) {
+      final l10n = AppLocalizations.of(context);
+      final fira = context.fira;
+      Map<String, dynamic> data = const {};
+      try {
+        final decoded = jsonDecode(res.body);
+        if (decoded is Map<String, dynamic>) data = decoded;
+      } catch (_) {}
+
+      // Only a server-confirmed activation counts; a missing checkout URL is not a success (GAP-009).
+      if (res.statusCode == 200 && data['success'] == true) {
+        if (data['status'] == 'activated') {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(data['message'] ?? 'Plan activated successfully!'),
-                backgroundColor: Colors.green,
-              ),
+              SnackBar(content: Text(l10n.planActivated), backgroundColor: fira.success),
             );
             Navigator.pop(context);
           }
@@ -154,16 +162,16 @@ class _MarketplacePricingScreenState extends State<MarketplacePricingScreen> {
               );
             }
           }
+        } else if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.planCheckoutFailed), backgroundColor: fira.danger),
+          );
         }
       } else {
-        String msg = 'Subscription request failed. Please try again.';
-        try {
-          final decoded = jsonDecode(res.body);
-          if (decoded['message'] != null) msg = decoded['message'];
-        } catch (_) {}
+        final msg = data['code'] == 'CHAPA_OFF' ? l10n.chapaPaymentsOff : l10n.planCheckoutFailed;
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(msg), backgroundColor: Colors.red),
+            SnackBar(content: Text(msg), backgroundColor: fira.danger),
           );
         }
       }
@@ -368,10 +376,10 @@ class _MarketplacePricingScreenState extends State<MarketplacePricingScreen> {
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                           decoration: BoxDecoration(
-                                            color: Colors.amber.shade50,
-                                            borderRadius: BorderRadius.circular(6),
+                                            color: context.fira.brandTint,
+                                            borderRadius: BorderRadius.circular(12),
                                           ),
-                                          child: const Text('Coming Soon', style: TextStyle(color: Colors.amber, fontSize: 9, fontWeight: FontWeight.bold)),
+                                          child: Text(AppLocalizations.of(context).planFeatureComingSoon, style: TextStyle(color: context.fira.pending, fontSize: 11, fontWeight: FontWeight.w600)),
                                         ),
                                     ],
                                   ),

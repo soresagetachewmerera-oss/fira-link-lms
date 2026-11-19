@@ -86,7 +86,16 @@ class SetLocale
 
     protected function resolvePublicLocale(Request $request): string
     {
-        $lang = $request->query('lang');
+        $lang = $request->query('lang') ?? $request->header('X-Locale');
+        if (is_string($lang)) {
+            $normalized = strtolower(substr(trim($lang), 0, 2));
+            if (in_array($normalized, self::PUBLIC_LOCALES, true)) {
+                if ($request->hasSession()) {
+                    $request->session()->put('public_locale', $normalized);
+                }
+                return $normalized;
+            }
+        }
         if (is_string($lang) && in_array($lang, self::PUBLIC_LOCALES, true)) {
             if ($request->hasSession()) {
                 $request->session()->put('public_locale', $lang);

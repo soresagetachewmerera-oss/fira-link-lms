@@ -316,7 +316,12 @@ class MarketplaceSellerController extends Controller
             $billingService = app(\App\Services\Billing\BillingService::class);
             $checkoutResult = $billingService->subscribe($org, $saasPlan, $period, $currency, $gateway, $user);
 
-            return response()->json($checkoutResult);
+            // A failed checkout is never a 200: the app must not read it as "activated".
+            $status = ($checkoutResult['success'] ?? false)
+                ? 200
+                : (($checkoutResult['code'] ?? null) === 'CHAPA_OFF' ? 503 : 422);
+
+            return response()->json($checkoutResult, $status);
         }
 
         // 2. Fallback to Legacy MarketplaceSubscriptionPlan
@@ -390,16 +395,21 @@ class MarketplaceSellerController extends Controller
 
         // Verify with Chapa API
         $verifyResult = $this->paymentGatewayService->verifyChapa($txRef);
-        if (!$verifyResult['success']) {
+        // "success" only means Chapa answered; the transaction itself must be paid, in full, in the right currency.
+        $expectedCurrency = strtoupper((string) ($payment->currency ?? 'ETB'));
+        $amountOk = isset($verifyResult['amount']) && (float) $verifyResult['amount'] + 0.005 >= (float) $payment->amount;
+        $currencyOk = strtoupper((string) ($verifyResult['currency'] ?? '')) === $expectedCurrency;
+        if (!($verifyResult['success'] ?? false) || ($verifyResult['status'] ?? null) !== 'paid' || !$amountOk || !$currencyOk) {
             return response()->json([
                 'success' => false,
-                'message' => $verifyResult['message'] ?? 'Chapa verification failed.',
+                'code' => 'PAYMENT_NOT_CONFIRMED',
+                'message' => __('bookings.errors.payment_not_confirmed'),
             ], 400);
         }
 
         $payment->update([
             'status' => 'completed',
-            'chapa_reference' => $verifyResult['data']['reference'] ?? null,
+            'chapa_reference' => $verifyResult['reference'] ?? null,
         ]);
 
         if ($payment->marketplaceSubscription) {

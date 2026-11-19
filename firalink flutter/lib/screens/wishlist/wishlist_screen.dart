@@ -78,6 +78,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       child: Row(
                         children: [
                           IconButton(
+                            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                             onPressed: () => Navigator.pop(context),
                             icon: const Icon(
                               Icons.arrow_back_ios_new,

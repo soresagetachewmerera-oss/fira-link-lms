@@ -34,6 +34,16 @@ class ChapaPaymentAdapter implements PaymentProviderInterface
 
     public function initialize(array $params): array
     {
+        if (!\App\Support\ChapaSwitch::enabled()) {
+            return [
+                'success' => false,
+                'code' => 'CHAPA_OFF',
+                'checkout_url' => null,
+                'provider_ref' => $params['tx_ref'] ?? null,
+                'message' => \App\Support\ChapaSwitch::offMessage(),
+            ];
+        }
+
         $nameParts = explode(' ', trim($params['name'] ?? 'Customer User'));
         $firstName = $nameParts[0] ?? 'Customer';
         $lastName = $nameParts[1] ?? 'Trader';
@@ -71,8 +81,8 @@ class ChapaPaymentAdapter implements PaymentProviderInterface
                 ];
             }
 
-            // In local/sandbox with missing or test keys, provide an instant simulation URL for seamless testing
-            if ($this->mode === 'sandbox' || app()->environment('local', 'testing')) {
+            // Simulated checkout only on a developer machine or in tests, never on a server (sandbox mode included).
+            if (\App\Support\ChapaSwitch::simulationAllowed()) {
                 return [
                     'success' => true,
                     'checkout_url' => $params['return_url'] . (str_contains($params['return_url'], '?') ? '&' : '?') . 'tx_ref=' . $params['tx_ref'] . '&status=success&simulated=1',
@@ -90,7 +100,7 @@ class ChapaPaymentAdapter implements PaymentProviderInterface
         } catch (Exception $e) {
             Log::error('Chapa initialize exception: ' . $e->getMessage());
 
-            if (app()->environment('local', 'testing')) {
+            if (\App\Support\ChapaSwitch::simulationAllowed()) {
                 return [
                     'success' => true,
                     'checkout_url' => $params['return_url'] . (str_contains($params['return_url'], '?') ? '&' : '?') . 'tx_ref=' . $params['tx_ref'] . '&status=success&simulated=1',
@@ -103,7 +113,7 @@ class ChapaPaymentAdapter implements PaymentProviderInterface
                 'success' => false,
                 'checkout_url' => null,
                 'provider_ref' => $params['tx_ref'],
-                'message' => $e->getMessage(),
+                'message' => 'Failed to initialize Chapa payment.',
             ];
         }
     }
@@ -131,8 +141,8 @@ class ChapaPaymentAdapter implements PaymentProviderInterface
                 ];
             }
 
-            // Fallback for simulated local transactions
-            if (app()->environment('local', 'testing') && str_starts_with($providerRef, 'SUB-')) {
+            // Simulated local transactions: developer machine only (tests fake Chapa explicitly).
+            if (app()->environment('local') && str_starts_with($providerRef, 'SUB-')) {
                 return [
                     'success' => true,
                     'status' => 'paid',
@@ -166,21 +176,29 @@ class ChapaPaymentAdapter implements PaymentProviderInterface
 
     public function verifyWebhook(Request $request): array
     {
-        $signature = $request->header('chapa-signature') ?? $request->header('x-chapa-signature');
         $rawContent = $request->getContent();
+        $invalid = ['valid' => false, 'provider_ref' => null, 'status' => null, 'raw' => []];
 
-        // Validate HMAC signature if secret is configured
-        if ($this->webhookSecret && $signature) {
-            $computedSignature = hash_hmac('sha256', $rawContent, $this->webhookSecret);
-            if (!hash_equals($computedSignature, $signature)) {
-                Log::warning('Chapa webhook signature mismatch');
-                return [
-                    'valid' => false,
-                    'provider_ref' => null,
-                    'status' => null,
-                    'raw' => [],
-                ];
-            }
+        // A signature is required: a webhook without one is never trusted. Chapa may send either header;
+        // one of them must be the HMAC-SHA256 of the raw body with the webhook secret.
+        $signatures = array_filter([
+            (string) $request->header('x-chapa-signature', ''),
+            (string) $request->header('chapa-signature', ''),
+        ]);
+        if (!$this->webhookSecret || $signatures === []) {
+            Log::warning('Chapa webhook refused: missing signature or secret');
+
+            return $invalid;
+        }
+        $computedSignature = hash_hmac('sha256', $rawContent, $this->webhookSecret);
+        $matches = false;
+        foreach ($signatures as $signature) {
+            $matches = $matches || hash_equals($computedSignature, $signature);
+        }
+        if (!$matches) {
+            Log::warning('Chapa webhook signature mismatch');
+
+            return $invalid;
         }
 
         $payload = $request->all();

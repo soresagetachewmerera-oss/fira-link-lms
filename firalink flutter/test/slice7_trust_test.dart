@@ -80,27 +80,37 @@ Map<String, dynamic> _deal({String side = 'buyer', String current = 'payment_esc
 }
 
 class _FakeDeals extends DealRoomService {
-  _FakeDeals(this.json, {this.advanceError});
+  _FakeDeals(this.json);
 
   Map<String, dynamic> json;
-  final ApiException? advanceError;
   final List<Map<String, Object?>> advanced = [];
+  final List<Map<String, Object?>> disputes = [];
 
   @override
   Future<DealRoomModel> getDealRoom(int id) async => DealRoomModel.fromJson(json);
 
   @override
+  Future<Map<String, dynamic>> raiseDispute({
+    required int dealRoomId,
+    required String reason,
+    required String details,
+    UploadFile? evidence,
+  }) async {
+    disputes.add({'dealRoomId': dealRoomId, 'reason': reason, 'details': details, 'evidence': evidence?.name});
+    return {'success': true};
+  }
+
+  @override
   Future<Map<String, dynamic>> advanceMilestone({required int dealRoomId, required int milestoneId, String? notes, UploadFile? document, String? paymentMethod}) async {
     advanced.add({'milestone': milestoneId, 'method': paymentMethod, 'file': document?.name, if (notes != null) 'notes': notes});
-    if (advanceError != null) return {'success': false, 'error': advanceError};
     return {'success': true};
   }
 }
 
 class _FakeChat extends TradeChatService {
-  _FakeChat({this.flaggedIncoming = true, this.blocked = false});
+  _FakeChat({this.blocked = false});
 
-  final bool flaggedIncoming;
+  final bool flaggedIncoming = true;
   bool blocked;
   final List<String> sent = [];
 
@@ -488,5 +498,27 @@ void main() {
     expect(asked, 1);
     expect(payout.saved.single['number'], '1000555566667777');
     expect(find.byKey(const Key('payout-pending')), findsOneWidget);
+  });
+
+  testWidgets('dispute: tapping dispute opens screen and submits dispute with reason and details', (tester) async {
+    _tall(tester);
+    final deals = _FakeDeals(_deal(side: 'buyer', current: 'payment_escrow'));
+    await tester.pumpWidget(_host(DealRoomHubScreen(dealRoomId: 9, service: deals, chat: _FakeChat(), trust: _FakeTrust())));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('deal-dispute')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('deal-dispute')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('dispute-reason-input')), findsOneWidget);
+    expect(find.byKey(const Key('dispute-details-input')), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('dispute-reason-input')), 'Moisture content high');
+    await tester.enterText(find.byKey(const Key('dispute-details-input')), 'Lab test showed 13.8% moisture on arrival.');
+    await tester.tap(find.byKey(const Key('dispute-submit-btn')));
+    await tester.pumpAndSettle();
+
+    expect(deals.disputes.single['reason'], 'Moisture content high');
+    expect(deals.disputes.single['details'], 'Lab test showed 13.8% moisture on arrival.');
   });
 }

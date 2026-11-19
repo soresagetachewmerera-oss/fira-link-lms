@@ -43,7 +43,7 @@
     @if ($demoUsers->isNotEmpty())
         <section class="setup-block demo-table">
             <h3 class="setup-heading">Demo accounts (seeded)</h3>
-            <p class="setup-actions-note">All demo accounts are created with the password <code>password</code>.</p>
+            <p class="setup-actions-note">Demo accounts exist only on a local install and use the password <code>password</code>. Change it before going live.</p>
             <table class="setup-table">
                 <thead>
                     <tr>

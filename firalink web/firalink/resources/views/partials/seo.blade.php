@@ -4,7 +4,7 @@
     $isHome = request()->routeIs('home') || request()->path() === '/';
 
     // Route-based indexing guard
-    $isPrivate = ($isPrivate ?? false) || request()->is('admin*', 'student*', 'instructor*', 'login*', 'register*', 'password*', 'checkout*', 'payment*', 'cron*') || http_response_code() === 404;
+    $isPrivate = ($isPrivate ?? false) || request()->is('admin*', 'student*', 'instructor*', 'login*', 'register*', 'password*', 'checkout*', 'payment*', 'cron*', 'verify*') || http_response_code() === 404;
 
     // Title formulation (50-60 characters ideal for SERP)
     $siteBrand = config('seo.brand_name', 'Fira Link Academy');

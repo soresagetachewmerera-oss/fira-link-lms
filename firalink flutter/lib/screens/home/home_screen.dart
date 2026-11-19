@@ -13,6 +13,7 @@ import '../../models/bundle.dart';
 import '../courses/courses_screen.dart';
 import '../bundles/bundles_screen.dart';
 import '../bundles/bundle_detail_screen.dart';
+import '../search/search_screen.dart';
 import '../../widgets/home_skeletons.dart';
 import '../../widgets/live_class_banner.dart';
 import '../../router/app_router.dart';
@@ -20,12 +21,10 @@ import 'widgets/home_design_constants.dart';
 import 'widgets/home_header.dart';
 import 'widgets/home_search_bar.dart';
 import 'widgets/continue_learning_card.dart';
-import 'widgets/market_strip.dart';
 import 'widgets/toolkit_bento.dart';
 import 'widgets/topic_chips.dart';
 import 'widgets/featured_course_card.dart';
 import 'widgets/home_primary_action.dart';
-import 'models/market_data.dart';
 import 'models/continue_learning_data.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -44,7 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
   HomeData? _homeData;
   List<Course> _recentCourses = [];
   List<Bundle> _bundles = [];
-  List<MarketChipItem> _marketItems = [];
   ContinueLearningCourse? _inProgressCourse;
 
   bool _isLoading = true;
@@ -85,7 +83,6 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             _homeData = HomeData.fromJson(jsonResponse);
             _recentCourses = _homeData?.recentCourses ?? [];
-            _marketItems = _homeData?.marketItems ?? [];
             _inProgressCourse = _homeData?.continueLearning;
           });
 
@@ -160,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            CoursesScreen(initialSearchQuery: query),
+            SearchScreen(initialQuery: query),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },
@@ -396,13 +393,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
           ],
 
-          if (_marketItems.isNotEmpty) ...[
-            _buildSectionLabel('Market pulse', trailing: 'Sourced benchmarks'),
-            const SizedBox(height: 10),
-            MarketStrip(items: _marketItems),
-            const SizedBox(height: 24),
-          ],
-
+          // The coffee market card inside ToolkitBento replaces the old Market pulse strip.
           const ToolkitBento(),
           const SizedBox(height: 28),
 

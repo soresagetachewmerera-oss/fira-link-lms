@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../ai_chat/ai_chat_screen.dart';
 import '../../coffee_toolkit/coffee_offer_generator_screen.dart';
-import '../../coffee_toolkit/coffee_profit_calculator_screen.dart';
 import '../../coffee_toolkit/coffee_toolkit_hub_screen.dart';
 import '../../document_scanner/fira_document_scanner_screen.dart';
 import 'home_design_constants.dart';
+import 'market_trend_card.dart';
 
 class ToolkitBento extends StatelessWidget {
   const ToolkitBento({super.key});
@@ -18,12 +18,6 @@ class ToolkitBento extends StatelessWidget {
         subtitle: 'Trade and learning guidance',
         icon: Icons.auto_awesome_outlined,
         destination: const AiChatScreen(),
-      ),
-      _ToolData(
-        title: 'Calculate profit',
-        subtitle: 'Check FOB and CIF margins',
-        icon: Icons.calculate_outlined,
-        destination: const CoffeeProfitCalculatorScreen(),
       ),
       _ToolData(
         title: 'Create offer',
@@ -88,16 +82,20 @@ class ToolkitBento extends StatelessWidget {
               const gap = 10.0;
               final width =
                   (constraints.maxWidth - (gap * (columns - 1))) / columns;
+              // Square tiles; taller when the text is enlarged so nothing is cut off.
+              final scale = MediaQuery.textScalerOf(context).scale(1);
+              final height = scale <= 1.3 ? width : width * 1.7;
+              // The coffee market card replaces Calculate profit (still under All tools).
+              final tiles = <Widget>[
+                _ToolTile(tool: tools[0]),
+                const MarketTrendCard(),
+                ...tools.skip(1).map((tool) => _ToolTile(tool: tool)),
+              ];
               return Wrap(
                 spacing: gap,
                 runSpacing: gap,
-                children: tools
-                    .map(
-                      (tool) => SizedBox(
-                        width: width,
-                        child: _ToolTile(tool: tool),
-                      ),
-                    )
+                children: tiles
+                    .map((tile) => SizedBox(width: width, height: height, child: tile))
                     .toList(),
               );
             },

@@ -264,6 +264,7 @@ class _AiSuggestionsHeader extends StatelessWidget {
         children: <Widget>[
           // Back Button
           IconButton(
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             onPressed: () => Navigator.of(context).pop(),
             icon: HugeIcon(
               icon: HugeIcons.strokeRoundedArrowLeft01,

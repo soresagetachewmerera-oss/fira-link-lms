@@ -10,6 +10,7 @@ import '../../services/community_service.dart';
 import '../../models/community_question.dart';
 import '../../widgets/community/vote_widget.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/fira_error_state.dart';
 
 class QuestionDetailScreen extends StatefulWidget {
   const QuestionDetailScreen({super.key, required this.questionId});
@@ -45,9 +46,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error loading question: $e')));
+        showFiraActionError(context, e);
       }
     }
   }
@@ -65,9 +64,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
       _scrollToBottom();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to post answer: $e')));
+        showFiraActionError(context, e);
       }
     }
   }
@@ -83,9 +80,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        showFiraActionError(context, e);
       }
     }
   }
@@ -155,8 +150,9 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: HugeIcon(
-                      icon: HugeIcons.strokeRoundedArrowLeft01,
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      icon: HugeIcon(
+                        icon: HugeIcons.strokeRoundedArrowLeft01,
                       size: 20,
                       color: AppTheme.getTextColor(context),
                     ),

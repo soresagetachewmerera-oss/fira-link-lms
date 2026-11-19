@@ -125,8 +125,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: HugeIcon(
-                      icon: HugeIcons.strokeRoundedArrowLeft01,
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      icon: HugeIcon(
+                        icon: HugeIcons.strokeRoundedArrowLeft01,
                       size: 20,
                       color: AppTheme.getTextColor(context),
                     ),
@@ -175,6 +176,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     ),
                   ),
                   IconButton(
+                    tooltip: _isSearchExpanded ? 'Close search' : context.l10n.search,
                     icon: HugeIcon(
                       icon: _isSearchExpanded
                           ? HugeIcons.strokeRoundedCancel01

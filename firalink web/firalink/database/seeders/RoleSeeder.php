@@ -45,6 +45,8 @@ class RoleSeeder extends Seeder
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $instructorRole = Role::firstOrCreate(['name' => 'instructor']);
         $studentRole = Role::firstOrCreate(['name' => 'student']);
+        $financeRole = Role::firstOrCreate(['name' => 'finance']);
+        $reviewerRole = Role::firstOrCreate(['name' => 'reviewer']);
 
         // Assign permissions to admin (all permissions)
         $adminRole->givePermissionTo(Permission::all());

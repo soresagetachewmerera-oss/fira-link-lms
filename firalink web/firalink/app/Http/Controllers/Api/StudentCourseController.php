@@ -672,7 +672,11 @@ class StudentCourseController extends Controller
                     }
                 } elseif ($liveClass->recording_video_path) {
                     $videoPath = ltrim($liveClass->recording_video_path, '/');
-                    $videoData['url'] = url('api/video/stream') . '?path=' . urlencode($videoPath) . ($liveClass->lesson_id ? '&lesson_id=' . $liveClass->lesson_id : '');
+                    $streamParams = ['path' => $videoPath];
+                    if ($liveClass->lesson_id) {
+                        $streamParams['lesson_id'] = $liveClass->lesson_id;
+                    }
+                    $videoData['url'] = \Illuminate\Support\Facades\URL::temporarySignedRoute('api.video.stream', now()->addHours(4), $streamParams);
                     $videoData['type'] = 'upload';
                 }
             }
@@ -688,8 +692,12 @@ class StudentCourseController extends Controller
             }
         } elseif ($lesson->video_type === 'upload' && $lesson->video_path) {
             $videoPath = ltrim($lesson->video_path, '/');
-            // Use streaming endpoint for hosted videos to support iOS/Range requests
-            $videoData['url'] = url('api/video/stream') . '?path=' . urlencode($videoPath) . '&lesson_id=' . $lesson->id;
+            // Use signed streaming endpoint for hosted videos to support iOS/Range requests and secure playback
+            $videoData['url'] = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+                'api.video.stream',
+                now()->addHours(4),
+                ['path' => $videoPath, 'lesson_id' => $lesson->id]
+            );
         }
 
         return $videoData;

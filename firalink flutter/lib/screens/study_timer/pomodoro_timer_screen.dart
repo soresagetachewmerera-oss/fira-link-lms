@@ -370,8 +370,9 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: HugeIcon(
-                      icon: HugeIcons.strokeRoundedArrowLeft01,
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      icon: HugeIcon(
+                        icon: HugeIcons.strokeRoundedArrowLeft01,
                       size: 20,
                       color: AppTheme.getTextColor(context),
                     ),
@@ -392,6 +393,7 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
                     ),
                   ),
                   IconButton(
+                    tooltip: 'Focus analytics',
                     icon: Icon(
                       Icons.analytics_outlined,
                       size: 24,

@@ -249,8 +249,19 @@ class SaasBillingEnforcementTest extends TestCase
             'currency' => 'USD',
         ];
 
+        // Webhooks must be signed and Chapa must confirm the payment server to server (gap analysis GAP-001).
+        \App\Models\PaymentGatewaySetting::updateOrCreate(['identifier' => 'chapa'], [
+            'name' => 'Chapa', 'type' => 'online', 'is_enabled' => true,
+            'credentials' => ['secret_key' => 'CHASECK_TEST-unit', 'webhook_secret' => 'whsec-idempotency', 'mode' => 'live'],
+        ]);
+        \Illuminate\Support\Facades\Cache::forget('payment_gateway_settings');
+        \Illuminate\Support\Facades\Http::fake(['api.chapa.co/v1/transaction/verify/*' => \Illuminate\Support\Facades\Http::response([
+            'status' => 'success', 'data' => ['status' => 'success', 'amount' => 29.00, 'currency' => 'USD', 'reference' => 'CH-1'],
+        ])]);
+        $signed = ['x-chapa-signature' => hash_hmac('sha256', json_encode($payload1), 'whsec-idempotency')];
+
         // First delivery: processes successfully
-        $res1 = $this->postJson('/billing/webhook/chapa', $payload1);
+        $res1 = $this->withHeaders($signed)->postJson('/billing/webhook/chapa', $payload1);
         $res1->assertStatus(200);
         $res1->assertJson(['success' => true]);
 
@@ -260,7 +271,7 @@ class SaasBillingEnforcementTest extends TestCase
         $this->assertEquals('active', $sub->status);
 
         // Second delivery (replay attack or duplicate): must be recognized as duplicate
-        $res2 = $this->postJson('/billing/webhook/chapa', $payload1);
+        $res2 = $this->withHeaders($signed)->postJson('/billing/webhook/chapa', $payload1);
         $res2->assertStatus(200);
         $res2->assertJson(['duplicate' => true]);
     }

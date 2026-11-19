@@ -93,8 +93,9 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: HugeIcon(
-                      icon: HugeIcons.strokeRoundedArrowLeft01,
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      icon: HugeIcon(
+                        icon: HugeIcons.strokeRoundedArrowLeft01,
                       size: 20,
                       color: AppTheme.getTextColor(context),
                     ),
@@ -114,6 +115,7 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
                     ),
                   ),
                   IconButton(
+                    tooltip: 'Verify certificate',
                     icon: HugeIcon(
                       icon: HugeIcons.strokeRoundedCheckmarkBadge01,
                       size: 20,

@@ -23,7 +23,8 @@ class BillingWebhookController extends Controller
     {
         $result = $this->billingService->handleWebhook($provider, $request);
 
-        $status = $result['success'] ? 200 : 400;
+        $status = $result['http_status'] ?? ($result['success'] ? 200 : 400);
+        unset($result['http_status']);
 
         return response()->json($result, $status);
     }

@@ -165,10 +165,11 @@ class _TourBookingScreenState extends State<TourBookingScreen> {
                     if (date != null) Text(l10n.translate('tourPlacesLeft', {'n': date.placesLeft}), style: TextStyle(color: fira.mutedText, fontSize: 12)),
                   ]),
                 ),
-                IconButton(key: const Key('guests-minus'), icon: const Icon(Icons.remove_circle_outline), onPressed: _guests > 1 ? () => setState(() => _guests--) : null),
+                IconButton(key: const Key('guests-minus'), tooltip: 'Decrease guest count', icon: const Icon(Icons.remove_circle_outline), onPressed: _guests > 1 ? () => setState(() => _guests--) : null),
                 Text('$_guests', key: const Key('guests-count'), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                 IconButton(
                   key: const Key('guests-plus'),
+                  tooltip: 'Increase guest count',
                   icon: const Icon(Icons.add_circle_outline),
                   onPressed: date != null && _guests < date.placesLeft ? () => setState(() => _guests++) : null,
                 ),

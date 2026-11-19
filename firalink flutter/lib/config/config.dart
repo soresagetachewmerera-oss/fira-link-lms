@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 import 'package:flutter/material.dart';
 import '../screens/shell/main_shell_screen.dart';
 import '../widgets/bottom_nav_bar.dart';
-import '../screens/home/home2_screen.dart';
 
 enum HomePageType { home1, home2 }
 
@@ -64,7 +63,7 @@ class AppConfig {
   static Widget getHomePage() {
     switch (defaultHomePage) {
       case HomePageType.home2:
-        return const Home2Screen();
+        return const MainShellScreen(initialTab: BottomNavTab.home);
       case HomePageType.home1:
         return const MainShellScreen(initialTab: BottomNavTab.home);
     }

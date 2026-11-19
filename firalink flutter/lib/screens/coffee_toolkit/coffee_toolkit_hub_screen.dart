@@ -35,8 +35,9 @@ class _CoffeeToolkitHubScreenState extends State<CoffeeToolkitHubScreen> {
         backgroundColor: AppTheme.getBackgroundColor(context),
         elevation: 0,
         leading: IconButton(
-          icon: HugeIcon(
-            icon: HugeIcons.strokeRoundedArrowLeft01,
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            icon: HugeIcon(
+              icon: HugeIcons.strokeRoundedArrowLeft01,
             size: 20,
             color: AppTheme.getTextColor(context),
           ),
@@ -441,7 +442,7 @@ class _CoffeeToolkitHubScreenState extends State<CoffeeToolkitHubScreen> {
                   ],
                 ),
                 Text(
-                  '\$${(provider.datasetSnapshot!['lowest_price'] as num?)?.toDouble().toStringAsFixed(3) ?? '2.430'} – \$${(provider.datasetSnapshot!['highest_price'] as num?)?.toDouble().toStringAsFixed(3) ?? '10.120'} / lb',
+                  '\$${(provider.datasetSnapshot!['lowest_price'] as num?)?.toDouble().toStringAsFixed(3) ?? '—'} – \$${(provider.datasetSnapshot!['highest_price'] as num?)?.toDouble().toStringAsFixed(3) ?? '—'} / lb',
                   style: const TextStyle(
                     color: Color(0xFF6D1A95),
                     fontSize: 11.5,

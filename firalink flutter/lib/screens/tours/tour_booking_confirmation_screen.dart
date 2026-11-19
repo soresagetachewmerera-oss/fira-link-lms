@@ -150,7 +150,8 @@ class _TourBookingConfirmationScreenState extends State<TourBookingConfirmationS
         backgroundColor: fira.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new, size: 18, color: fira.onSurface),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            icon: Icon(Icons.arrow_back_ios_new, size: 18, color: fira.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(

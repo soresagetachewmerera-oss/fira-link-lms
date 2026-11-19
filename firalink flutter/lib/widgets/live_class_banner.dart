@@ -190,6 +190,7 @@ class LiveClassBanner extends StatelessWidget {
               top: 8,
               right: 8,
               child: IconButton(
+                tooltip: 'Dismiss live class banner',
                 icon: const HugeIcon(
                   icon: HugeIcons.strokeRoundedCancel01,
                   color: Colors.white70,

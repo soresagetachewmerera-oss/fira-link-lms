@@ -709,6 +709,20 @@ class AppLocalizations {
   String get notAllowed => _t('notAllowed');
   String get proofSubmittedPendingBank => _t('proofSubmittedPendingBank');
   String get sessionExpired => _t('sessionExpired');
+  String get planFeatureComingSoon => _t('planFeatureComingSoon');
+  String get searchCategoryLots => _t('searchCategoryLots');
+  String get searchCategoryExporters => _t('searchCategoryExporters');
+  String get searchCategoryCourses => _t('searchCategoryCourses');
+  String get searchGlobalHint => _t('searchGlobalHint');
+  String get searchRecent => _t('searchRecent');
+  String get searchClearRecent => _t('searchClearRecent');
+  String get searchTypeToStart => _t('searchTypeToStart');
+  String get searchNoResults => _t('searchNoResults');
+  String get searchExportersSignIn => _t('searchExportersSignIn');
+  String get searchSectionFailed => _t('searchSectionFailed');
+  String get chapaPaymentsOff => _t('chapaPaymentsOff');
+  String get planActivated => _t('planActivated');
+  String get planCheckoutFailed => _t('planCheckoutFailed');
   String get noQuotesYet => _t('noQuotesYet');
   String get proofSubmittedPendingReview => _t('proofSubmittedPendingReview');
 
@@ -1406,6 +1420,19 @@ class AppLocalizations {
   String get dealActivity => _t('dealActivity');
   String get dealOpenChat => _t('dealOpenChat');
   String get dealReport => _t('dealReport');
+  String get dealRaiseDispute => _t('dealRaiseDispute');
+  String get dealDisputeTitle => _t('dealDisputeTitle');
+  String get dealDisputeNoticeTitle => _t('dealDisputeNoticeTitle');
+  String get dealDisputeNoticeBody => _t('dealDisputeNoticeBody');
+  String get dealDisputeReasonLabel => _t('dealDisputeReasonLabel');
+  String get dealDisputeReasonHint => _t('dealDisputeReasonHint');
+  String get dealDisputeDetailsLabel => _t('dealDisputeDetailsLabel');
+  String get dealDisputeDetailsHint => _t('dealDisputeDetailsHint');
+  String get dealDisputeEvidenceLabel => _t('dealDisputeEvidenceLabel');
+  String get dealDisputeEvidenceAttach => _t('dealDisputeEvidenceAttach');
+  String get dealDisputeSubmit => _t('dealDisputeSubmit');
+  String get dealDisputeRegistered => _t('dealDisputeRegistered');
+  String get dealDisputeFieldsRequired => _t('dealDisputeFieldsRequired');
   String get payTitleDeposit => _t('payTitleDeposit');
   String get payTitleBalance => _t('payTitleBalance');
   String get payDepositLine => _t('payDepositLine');
@@ -1490,6 +1517,92 @@ class AppLocalizations {
   String get acceptTermsRequired => _t('acceptTermsRequired');
   String get acceptTermsLabel => _t('acceptTermsLabel');
 
+  // Discard confirmation
+  String get discardChangesTitle => _t('discardChangesTitle');
+  String get discardChangesBody => _t('discardChangesBody');
+  String get keepEditing => _t('keepEditing');
+  String get discard => _t('discard');
+
+  // Export Docs Studio & Document Editor
+  String get exportDocsStudio => _t('exportDocsStudio');
+  String get allTemplates => _t('allTemplates');
+  String get commercialFinancial => _t('commercialFinancial');
+  String get shippingFreight => _t('shippingFreight');
+  String get coffeeCommodity => _t('coffeeCommodity');
+  String get bankingPayment => _t('bankingPayment');
+  String get declarationsCompliance => _t('declarationsCompliance');
+  String get tradeOperations => _t('tradeOperations');
+  String get tradeCalculator => _t('tradeCalculator');
+  String get templates => _t('templates');
+  String get shipments => _t('shipments');
+  String get myDocuments => _t('myDocuments');
+  String get newShipment => _t('newShipment');
+  String get finalizeDocument => _t('finalizeDocument');
+  String get finalizeAndLock => _t('finalizeAndLock');
+  String get downloadPdf => _t('downloadPdf');
+  String get downloadExcel => _t('downloadExcel');
+  String get exportDocsStudioPro => _t('exportDocsStudioPro');
+  String get firaAiTradeAdvisor => _t('firaAiTradeAdvisor');
+  String get consultFiraAi => _t('consultFiraAi');
+  String get monthlySubscription => _t('monthlySubscription');
+  String get annualSubscription => _t('annualSubscription');
+  String get partiesAndContact => _t('partiesAndContact');
+  String get commodityAndCoffee => _t('commodityAndCoffee');
+  String get logisticsAndShipping => _t('logisticsAndShipping');
+  String get weightsAndCalculations => _t('weightsAndCalculations');
+  String get paymentAndBanking => _t('paymentAndBanking');
+  String get declarationsAndRemarks => _t('declarationsAndRemarks');
+
+  // Coffee market (sourced prices)
+  String get marketCardTitle => _t('marketCardTitle');
+  String get marketScreenTitle => _t('marketScreenTitle');
+  String get marketLoading => _t('marketLoading');
+  String get marketUnavailable => _t('marketUnavailable');
+  String get marketUnavailableHint => _t('marketUnavailableHint');
+  String get marketTryAgain => _t('marketTryAgain');
+  String get marketTrendBullish => _t('marketTrendBullish');
+  String get marketTrendBearish => _t('marketTrendBearish');
+  String get marketTrendSideways => _t('marketTrendSideways');
+  String get marketTrendNotEnoughData => _t('marketTrendNotEnoughData');
+  String get marketFreshLive => _t('marketFreshLive');
+  String get marketFreshDelayed => _t('marketFreshDelayed');
+  String get marketFreshDailyClose => _t('marketFreshDailyClose');
+  String get marketFreshStale => _t('marketFreshStale');
+  String get marketFreshUnavailable => _t('marketFreshUnavailable');
+  String get marketUnitUsCentsLb => _t('marketUnitUsCentsLb');
+  String get marketUnitUsdLb => _t('marketUnitUsdLb');
+  String get marketUnitEtbFeresula => _t('marketUnitEtbFeresula');
+  String get marketBenchmarks => _t('marketBenchmarks');
+  String get marketSummary => _t('marketSummary');
+  String get marketSummaryNote => _t('marketSummaryNote');
+  String get marketSummaryStale => _t('marketSummaryStale');
+  String get marketAskFira => _t('marketAskFira');
+  String get marketAskFiraPrompt => _t('marketAskFiraPrompt');
+  String get marketChartEmpty => _t('marketChartEmpty');
+  String get marketRange1D => _t('marketRange1D');
+  String get marketRange1W => _t('marketRange1W');
+  String get marketRange1M => _t('marketRange1M');
+  String get marketRange3M => _t('marketRange3M');
+  String get marketRange1Y => _t('marketRange1Y');
+  String marketSourceLabel(String name) => translate('marketSourceLabel', {'name': name});
+  String marketSourceTime(String time) => translate('marketSourceTime', {'time': time});
+  String marketOfflineCached(String time) => translate('marketOfflineCached', {'time': time});
+  String marketAttribution(String names) => translate('marketAttribution', {'names': names});
+  String marketChartSemantics(String low, String high, String from, String to) =>
+      translate('marketChartSemantics', {'low': low, 'high': high, 'from': from, 'to': to});
+  String get contactExporter => _t('contactExporter');
+  String get contactExporterSubtitle => _t('contactExporterSubtitle');
+  String get inquiryDeliveredSuccess => _t('inquiryDeliveredSuccess');
+  String get inquiryDeliverFailed => _t('inquiryDeliverFailed');
+  String get sendInquiryAction => _t('sendInquiryAction');
+  String get lotNotFound => _t('lotNotFound');
+  String get cuppingNotesTitle => _t('cuppingNotesTitle');
+  String get technicalExportSpecs => _t('technicalExportSpecs');
+  String get scaSensoryProfile => _t('scaSensoryProfile');
+  String get producerExporter => _t('producerExporter');
+  String get indicativeFob => _t('indicativeFob');
+  String get inquireAction => _t('inquireAction');
+  String get sampleAction => _t('sampleAction');
 }
 
 class AppLocalizationsDelegate

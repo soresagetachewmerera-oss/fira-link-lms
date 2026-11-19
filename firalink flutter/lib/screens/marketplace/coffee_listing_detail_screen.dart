@@ -162,13 +162,17 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Contact Exporter', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                      Text(ctx.l10n.contactExporter, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      IconButton(
+                        tooltip: MaterialLocalizations.of(ctx).closeButtonTooltip,
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text('Send a direct commercial message to the licensed exporter of this coffee lot.',
-                      style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  Text(ctx.l10n.contactExporterSubtitle,
+                      style: TextStyle(fontSize: 12, color: ctx.fira.mutedText)),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     initialValue: inquiryType,
@@ -248,14 +252,14 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                         if (res.statusCode == 200 || res.statusCode == 201) {
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Inquiry delivered directly to exporter!'), backgroundColor: Colors.green),
+                              SnackBar(content: Text(context.l10n.inquiryDeliveredSuccess), backgroundColor: context.fira.success),
                             );
                           }
                         } else if (res.statusCode == 401) {
                           if (mounted) {
                             VerificationPromptDialog.showAuthRequired(
                               context,
-                              actionDescription: 'send inquiries to exporters',
+                              actionDescription: context.l10n.contactExporter,
                             );
                           }
                         } else if (res.statusCode == 403) {
@@ -278,18 +282,18 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                         } else {
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Failed to deliver inquiry. Please try again.'), backgroundColor: Colors.red),
+                              SnackBar(content: Text(context.l10n.inquiryDeliverFailed), backgroundColor: context.fira.danger),
                             );
                           }
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primary,
+                        backgroundColor: ctx.fira.brandPrimary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: const Text('Send Inquiry', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: Text(ctx.l10n.sendInquiryAction, style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -321,7 +325,7 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
     if (_listing == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: const Center(child: Text('Listing lot not found')),
+        body: Center(child: Text(context.l10n.lotNotFound)),
       );
     }
 
@@ -352,6 +356,7 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
             expandedHeight: 280,
             pinned: true,
             leading: IconButton(
+              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
               icon: Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(color: Colors.black45, shape: BoxShape.circle),
@@ -361,6 +366,7 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
             ),
             actions: [
               IconButton(
+                tooltip: _isSaved ? 'Remove from saved lots' : 'Save lot',
                 icon: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(color: Colors.black45, shape: BoxShape.circle),
@@ -426,9 +432,16 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                                   color: AppTheme.primary,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Text(
-                                  '★ $cuppingScore SCA',
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.star_rounded, size: 14, color: Colors.white),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      '$cuppingScore SCA',
+                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                                    ),
+                                  ],
                                 ),
                               ),
                           ],
@@ -522,15 +535,15 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
 
                   // Tasting Notes
                   if (tastingNotes.isNotEmpty) ...[
-                    const Text('Cupping Notes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    Text(context.l10n.cuppingNotesTitle, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 6,
                       children: tastingNotes.map((note) {
                         return Chip(
-                          label: Text(note.toString(), style: const TextStyle(fontSize: 12, color: AppTheme.primary)),
-                          backgroundColor: AppTheme.primary.withValues(alpha: 0.08),
+                          label: Text(note.toString(), style: TextStyle(fontSize: 12, color: context.fira.brandPrimary)),
+                          backgroundColor: context.fira.brandPrimary.withValues(alpha: 0.08),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           side: BorderSide.none,
                         );
@@ -540,7 +553,7 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                   ],
 
                   // Technical Specs Grid
-                  const Text('Technical Export Specs', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  Text(context.l10n.technicalExportSpecs, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                   const SizedBox(height: 10),
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -568,7 +581,7 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
 
                   // SCA Sensory Breakdown
                   if (sensoryAttributes.isNotEmpty) ...[
-                    const Text('SCA Sensory Profile', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    Text(context.l10n.scaSensoryProfile, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                     const SizedBox(height: 10),
                     ...sensoryAttributes.entries.map((entry) {
                       final val = (entry.value as num?)?.toDouble() ?? 8.0;
@@ -581,7 +594,7 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(entry.key.toUpperCase(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
-                                Text('$val / 10', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primary)),
+                                Text('$val / 10', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: context.fira.brandPrimary)),
                               ],
                             ),
                             const SizedBox(height: 4),
@@ -591,7 +604,7 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                                 value: val / 10.0,
                                 minHeight: 6,
                                 backgroundColor: isDark ? Colors.white10 : Colors.grey.shade200,
-                                valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primary),
+                                valueColor: AlwaysStoppedAnimation<Color>(context.fira.brandPrimary),
                               ),
                             ),
                           ],
@@ -602,7 +615,7 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                   ],
 
                   // Exporter Information Card
-                  const Text('Producer & Exporter', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  Text(context.l10n.producerExporter, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                   const SizedBox(height: 10),
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -619,10 +632,10 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: AppTheme.primary.withValues(alpha: 0.1),
+                                color: context.fira.brandPrimary.withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.business, color: AppTheme.primary, size: 22),
+                              child: Icon(Icons.business, color: context.fira.brandPrimary, size: 22),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -639,11 +652,11 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                                       style: TextStyle(fontSize: 12, color: context.fira.success, fontWeight: FontWeight.w600),
                                     ),
                                   if (license != null)
-                                    Text('ECTA License: $license', style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                                    Text('ECTA License: $license', style: TextStyle(fontSize: 11, color: context.fira.mutedText)),
                                 ],
                               ),
                             ),
-                            const Icon(Icons.verified, color: Colors.green, size: 20),
+                            Icon(Icons.verified, color: context.fira.success, size: 20),
                           ],
                         ),
                       ],
@@ -712,7 +725,7 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Indicative FOB', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  Text(context.l10n.indicativeFob, style: TextStyle(fontSize: 10, color: context.fira.mutedText)),
                   Text('\$$price / lb', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
                 ],
               ),
@@ -726,20 +739,20 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
                 icon: const Icon(Icons.chat_bubble_outline, size: 16),
-                label: const Text('Inquire', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                label: Text(context.l10n.inquireAction, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: _showSampleDialog,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primary,
+                    backgroundColor: context.fira.brandPrimary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                   icon: const Icon(Icons.coffee, size: 16),
-                  label: const Text('Sample', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  label: Text(context.l10n.sampleAction, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                 ),
               ),
             ],

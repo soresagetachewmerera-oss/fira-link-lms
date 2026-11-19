@@ -23,7 +23,7 @@ class FiraBottomDock extends StatefulWidget {
     super.key,
     required this.currentTab,
     this.unreadBadgeCount = 0,
-    this.inProgressCoursesBadgeCount = 2, // Default 2 on Courses badge as in reference design
+    this.inProgressCoursesBadgeCount = 0,
     this.onTabSelected,
   });
 
@@ -371,7 +371,12 @@ class _FiraBottomDockState extends State<FiraBottomDock> with TickerProviderStat
                     curve: Curves.easeOutBack,
                     child: SafeArea(
                       top: false,
-                      minimum: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+                      minimum: EdgeInsets.fromLTRB(
+                        MediaQuery.of(context).size.width < 375 ? 8.0 : 14.0,
+                        0,
+                        MediaQuery.of(context).size.width < 375 ? 8.0 : 14.0,
+                        14,
+                      ),
                       child: SizedBox(
                         height: 112.0, // 36px raised top + 76px dock container
                         child: LayoutBuilder(
@@ -443,7 +448,7 @@ class _FiraBottomDockState extends State<FiraBottomDock> with TickerProviderStat
                                             duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 480),
                                             curve: Curves.easeOutBack,
                                             left: pillTargetLeft,
-                                            width: math.max(48.0, pillTargetWidth),
+                                            width: math.max(38.0, pillTargetWidth),
                                             top: 8.0,
                                             bottom: 8.0,
                                             child: Container(
@@ -600,14 +605,16 @@ class _FiraBottomDockState extends State<FiraBottomDock> with TickerProviderStat
                 child: Text(
                   item.label,
                   style: TextStyle(
-                    fontSize: item.label.contains(' ') ? 9.5 : 10.5,
+                    fontSize: MediaQuery.of(context).size.width < 375
+                        ? (item.label.contains(' ') ? 8.5 : 9.5)
+                        : (item.label.contains(' ') ? 9.5 : 10.5),
                     fontWeight: FontWeight.w700,
                     color: isSelected ? const Color(0xFF4A148C) : inactiveColor,
                     height: 1.15,
                   ),
                   textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.visible,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -618,9 +625,12 @@ class _FiraBottomDockState extends State<FiraBottomDock> with TickerProviderStat
   }
 
   Widget _buildRaisedGlowingOrb(FiraColors fira, bool reduceMotion, bool isDark) {
-    return GestureDetector(
-      onTap: _toggleMenu,
-      child: AnimatedBuilder(
+    return Semantics(
+      button: true,
+      label: _isMenuOpen ? context.l10n.close : 'Fira AI Quick Actions',
+      child: GestureDetector(
+        onTap: _toggleMenu,
+        child: AnimatedBuilder(
         animation: _orbMenuController,
         builder: (context, child) {
           final double scale = reduceMotion ? 1.0 : _orbScaleAnimation.value;
@@ -676,8 +686,9 @@ class _FiraBottomDockState extends State<FiraBottomDock> with TickerProviderStat
           );
         },
       ),
-    );
-  }
+    ),
+  );
+}
 
 }
 

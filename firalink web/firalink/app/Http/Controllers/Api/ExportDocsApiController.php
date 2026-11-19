@@ -41,7 +41,8 @@ class ExportDocsApiController extends Controller
      */
     protected function resolveOrganization(Request $request): ?Organization
     {
-        $user = $request->user();
+        // Public routes (templates) are outside auth:sanctum, so read the app's token from the sanctum guard too.
+        $user = $request->user() ?? auth('sanctum')->user();
         if (!$user) {
             return null;
         }
@@ -140,7 +141,7 @@ class ExportDocsApiController extends Controller
             'operations' => 'Warehouse, Forwarding & Trade Operations (Weighbridge, Instructions)',
         ];
 
-        $user = $request->user();
+        $user = $request->user() ?? auth('sanctum')->user();
         $trialInfo = [
             'is_authenticated' => $user !== null,
             'is_pro' => false,

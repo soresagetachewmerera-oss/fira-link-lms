@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\RecaptchaService;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 
 /**
@@ -44,7 +45,12 @@ class ForgotPasswordController extends Controller
 
         // Always the same answer, so this form cannot reveal whether an account exists.
         // (Unknown email, throttled and sent all look identical to the visitor.)
-        Password::sendResetLink($request->only('email'));
+        // A mail failure must not change the answer either (a 500 for real accounts would reveal them).
+        try {
+            Password::sendResetLink($request->only('email'));
+        } catch (\Throwable $e) {
+            Log::error('Password reset email failed: ' . $e->getMessage());
+        }
 
         $message = 'If an account matches that email, a reset link is on its way.';
         ToastMagic::success($message);

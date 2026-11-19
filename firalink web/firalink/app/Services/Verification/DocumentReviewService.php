@@ -198,7 +198,11 @@ class DocumentReviewService
 
             return;
         }
-        Notification::route('mail', $email)->notify(new VerificationAdminAlert($kind, $data));
+        try {
+            Notification::route('mail', $email)->notify(new VerificationAdminAlert($kind, $data));
+        } catch (\Throwable $e) {
+            Log::error('Failed sending verification admin alert email: ' . $e->getMessage(), ['kind' => $kind]);
+        }
     }
 
     // ── Review ──────────────────────────────────────────────────────────────

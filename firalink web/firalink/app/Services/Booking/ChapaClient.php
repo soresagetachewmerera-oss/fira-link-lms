@@ -32,6 +32,9 @@ class ChapaClient
     /** @return string the checkout URL */
     public function initialize(float $amount, string $currency, array $payer, string $txRef, string $callbackPath, string $description): string
     {
+        if (!\App\Support\ChapaSwitch::enabled()) {
+            throw new \RuntimeException('Chapa payments are switched off (CHAPA_ENABLED).');
+        }
         $payload = [
             'amount' => number_format($amount, 2, '.', ''),
             'currency' => $currency,

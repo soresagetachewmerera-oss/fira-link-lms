@@ -162,8 +162,9 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: HugeIcon(
-                      icon: HugeIcons.strokeRoundedArrowLeft01,
+                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                      icon: HugeIcon(
+                        icon: HugeIcons.strokeRoundedArrowLeft01,
                       size: 20,
                       color: AppTheme.getTextColor(context),
                     ),
@@ -225,6 +226,7 @@ class _CategoryDetailScreenState extends State<CategoryDetailScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: IconButton(
+                      tooltip: _isSearchExpanded ? 'Close search' : context.l10n.search,
                       icon: HugeIcon(
                         icon: _isSearchExpanded
                             ? HugeIcons.strokeRoundedCancel01

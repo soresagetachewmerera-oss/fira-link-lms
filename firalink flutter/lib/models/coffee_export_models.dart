@@ -378,13 +378,11 @@ class MarketSynthesisModel {
     }
 
     return MarketSynthesisModel(
-      corridor: json['corridor'] ?? '\$2.430 – \$10.120 / lb',
-      regulatoryStatus: json['regulatory_status'] ?? 'Active & Enforced',
-      mandatoryRule: json['mandatory_rule'] ??
-          'All Ethiopian export contracts must meet or exceed these FOB Djibouti minimum reference floors.',
-      executiveSummary: insights['executive_summary'] ??
-          json['executive_summary'] ??
-          'Official weekly minimum prices set by ECTA reflecting current international Arabica fundamentals and Ethiopian origin differentials.',
+      // Only what the server sends: no invented price corridor or ECTA claims (gap analysis GAP-042).
+      corridor: json['corridor']?.toString() ?? '',
+      regulatoryStatus: json['regulatory_status']?.toString() ?? '',
+      mandatoryRule: json['mandatory_rule']?.toString() ?? '',
+      executiveSummary: (insights['executive_summary'] ?? json['executive_summary'])?.toString() ?? '',
       priceLeader: insights['price_leader'] as Map<String, dynamic>?,
       lowestReference: insights['lowest_reference'] as Map<String, dynamic>?,
       largestMovement: insights['largest_movement'] as Map<String, dynamic>?,

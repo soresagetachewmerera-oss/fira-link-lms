@@ -39,13 +39,13 @@ Route::get('/fira-ai/status', [AiChatController::class, 'status']);
 Route::get('/fira-ai', [AiChatController::class, 'index']);
 Route::post('/fira-ai/send', [AiChatController::class, 'sendMessage']);
 Route::post('/fira-ai/analyze-document', [AiChatController::class, 'analyzeDocument'])
-    ->middleware('throttle:10,1');
+    ->middleware(['auth:sanctum', 'throttle:10,1']);
 // Connection test calls Gemini (cost): admins only.
 Route::match(['GET', 'POST'], '/fira-ai/test', [AiChatController::class, 'testConnection'])->middleware(['auth:sanctum', 'role:admin']);
 Route::get('/ai-chat', [AiChatController::class, 'index']);
 Route::post('/ai-chat/send', [AiChatController::class, 'sendMessage']);
 Route::post('/ai-chat/analyze-document', [AiChatController::class, 'analyzeDocument'])
-    ->middleware('throttle:10,1');
+    ->middleware(['auth:sanctum', 'throttle:10,1']);
 
 Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -95,7 +95,7 @@ Route::get('/categories', [CourseController::class, 'categories']);
 Route::get('/courses/{id}', [CourseController::class, 'show']);
 Route::get('/bundles', [BundleController::class, 'index']);
 Route::get('/bundles/{id}', [BundleController::class, 'show']);
-Route::get('/video/stream', [FileController::class, 'stream']);
+Route::get('/video/stream', [FileController::class, 'stream'])->name('api.video.stream');
 Route::get('/instructors', [InstructorController::class, 'index']);
 Route::get('/instructors/{id}', [InstructorController::class, 'show']);
 Route::get('/events', [EventController::class, 'index']);
@@ -133,7 +133,7 @@ Route::prefix('marketplace')->group(function () {
 Route::get('/workspaces/options', [\App\Http\Controllers\Api\OrganizationController::class, 'options']);
 
 // SaaS Dynamic Entitlements API (Server Authority Snapshot)
-Route::get('/org/{id}/entitlements', [\App\Http\Controllers\Api\OrganizationEntitlementApiController::class, 'show']);
+Route::get('/org/{id}/entitlements', [\App\Http\Controllers\Api\OrganizationEntitlementApiController::class, 'show'])->middleware(['auth:sanctum', 'throttle:api']);
 Route::middleware('auth:sanctum')->get('/user/organization/entitlements', [\App\Http\Controllers\Api\OrganizationEntitlementApiController::class, 'current']);
 Route::post('/billing/webhook/{provider}', [\App\Http\Controllers\BillingWebhookController::class, 'handle']);
 
@@ -237,13 +237,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('/user/tour-bookings/{id}', [TourController::class, 'showBooking']);
     Route::post('/user/tour-bookings/{id}/cancel', [TourController::class, 'cancelBooking']);
     Route::post('/user/tour-bookings/{id}/pay-balance', [TourController::class, 'payBalance']);
-    Route::post('/payments/razorpay/verify', [CourseEnrollmentController::class, 'razorpayVerify']);
-    Route::post('/payments/sslcommerz/verify', [CourseEnrollmentController::class, 'sslcommerzVerify']);
-    Route::post('/payments/stripe/verify', [CourseEnrollmentController::class, 'stripeVerify']);
-    Route::post('/payments/paystack/verify', [CourseEnrollmentController::class, 'paystackVerify']);
-    Route::post('/payments/mollie/verify', [CourseEnrollmentController::class, 'mollieVerify']);
-    Route::post('/payments/bkash/verify', [CourseEnrollmentController::class, 'bkashVerify']);
-    Route::post('/payments/xpay/verify', [CourseEnrollmentController::class, 'xpayVerify']);
+    // Only Chapa and bank slips are supported; the old Razorpay/Stripe/PayPal/... verify routes were removed (GAP-035).
     Route::post('/payments/chapa/verify', [CourseEnrollmentController::class, 'chapaVerify']);
     Route::post('/events/payments/chapa/verify', [EventController::class, 'chapaVerify']);
     Route::post('/tours/payments/chapa/verify', [TourController::class, 'chapaVerify']);
@@ -270,7 +264,6 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/user/courses/{course}/quizzes/{quiz}/submit', [StudentCourseController::class, 'submitQuiz']);
     Route::get('/user/courses/{course}/assignments/{assignment}', [StudentCourseController::class, 'loadAssignment']);
     Route::post('/user/courses/{course}/assignments/{assignment}/submit', [StudentCourseController::class, 'submitAssignment']);
-    Route::post('/payments/paypal/verify', [CourseEnrollmentController::class, 'paypalVerify']);
 
     // Community Q&A (Protected)
     Route::post('/community/questions', [CommunityController::class, 'store']);
@@ -527,6 +520,11 @@ Route::prefix('export-docs')->group(function () {
     Route::get('/templates/{code}', [\App\Http\Controllers\Api\ExportDocsApiController::class, 'template']);
     Route::post('/calculate', [\App\Http\Controllers\Api\ExportDocsApiController::class, 'calculate']);
 
+});
+
+// Shipments, documents and the AI copilot belong to the signed-in user's business: the app sends a
+// bearer token, which only the sanctum guard reads (gap analysis GAP-004).
+Route::prefix('export-docs')->middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // Contextual Fira AI Assistant with Trade Guardrails
     Route::post('/ai/assist', [\App\Http\Controllers\Api\ExportDocsApiController::class, 'aiAssist'])
         ->middleware('throttle:30,1');

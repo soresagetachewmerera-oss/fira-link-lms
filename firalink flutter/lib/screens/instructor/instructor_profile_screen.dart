@@ -123,6 +123,7 @@ class _InstructorProfileScreenState extends State<InstructorProfileScreen> {
             statusBarBrightness: Brightness.light,
           ),
           leading: IconButton(
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             icon: HugeIcon(
               icon: HugeIcons.strokeRoundedArrowLeft01,
               size: 22,

@@ -40,7 +40,11 @@ class PaymentGatewayService
 
     public function onlineGateways(): Collection
     {
-        // Chapa is the exclusive platform payment gateway
+        // Chapa is the exclusive platform payment gateway, and only while the server switch is on.
+        if (!\App\Support\ChapaSwitch::enabled()) {
+            return new Collection();
+        }
+
         return $this->all()
             ->where('identifier', 'chapa')
             ->where('is_enabled', true);
@@ -61,6 +65,11 @@ class PaymentGatewayService
     {
         // Only Chapa is permitted as an active gateway
         if (strtolower($identifier) !== 'chapa') {
+            return false;
+        }
+
+        // Server switch (CHAPA_ENABLED) wins over the admin setting: off until the leaked keys are rotated.
+        if (!\App\Support\ChapaSwitch::enabled()) {
             return false;
         }
 

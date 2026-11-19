@@ -119,15 +119,53 @@ class _CreateRfqScreenState extends State<CreateRfqScreen> {
 
   String? _required(String? v) => (v == null || v.trim().isEmpty) ? context.l10n.captureRequired : null;
 
+  bool get _hasUnsavedData =>
+      _title.text.trim().isNotEmpty ||
+      _volume.text.trim().isNotEmpty ||
+      _destination.text.trim().isNotEmpty ||
+      _target.text.trim().isNotEmpty ||
+      _notes.text.trim().isNotEmpty;
+
+  Future<bool?> _confirmDiscard(BuildContext context, AppLocalizations l10n) {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: context.fira.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        title: Text(l10n.discardChangesTitle, style: TextStyle(color: context.fira.onSurface, fontWeight: FontWeight.bold)),
+        content: Text(l10n.discardChangesBody, style: TextStyle(color: context.fira.mutedText)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.keepEditing, style: TextStyle(color: context.fira.brandPrimary)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.discard, style: TextStyle(color: context.fira.danger)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final fira = context.fira;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.marketPostRequest)),
-      body: SafeArea(
-        child: Form(
+    return PopScope(
+      canPop: !_hasUnsavedData || _sending,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final discard = await _confirmDiscard(context, l10n);
+        if (discard == true && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: Text(l10n.marketPostRequest)),
+        body: SafeArea(
+          child: Form(
           key: _formKey,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
@@ -218,6 +256,7 @@ class _CreateRfqScreenState extends State<CreateRfqScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 }

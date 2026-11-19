@@ -124,7 +124,8 @@ class _ToursScreenState extends State<ToursScreen> {
                     prefixIcon: const Icon(Icons.search, size: 20),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
+                              tooltip: 'Clear',
+                              icon: const Icon(Icons.clear, size: 18),
                             onPressed: () {
                               _searchController.clear();
                               _fetchTours();
