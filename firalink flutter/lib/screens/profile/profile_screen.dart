@@ -719,6 +719,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Column(
                       children: <Widget>[
                         _MenuItemWithCustomIcon(
+                          icon: Icons.tune_rounded,
+                          title: context.l10n.planAndBilling,
+                          subtitle: context.l10n.usageAndLimits,
+                          onTap: () {
+                            Navigator.of(
+                              context,
+                            ).pushNamed(AppRouter.subscriptionManagement);
+                          },
+                        ),
+                        _MenuItemWithCustomIcon(
                           icon: Icons.payment,
                           title: context.l10n.payments,
                           subtitle: context.l10n.paymentHistory,

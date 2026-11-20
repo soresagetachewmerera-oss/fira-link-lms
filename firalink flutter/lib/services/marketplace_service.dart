@@ -139,4 +139,6 @@ class MarketplaceService extends BaseService {
   /// Initialize subscription
   Future<http.Response> subscribe(Map<String, dynamic> data) => _post('/marketplace/subscribe', data);
 
+  /// Cancel active subscription renewal
+  Future<http.Response> cancelSubscription() => _post('/marketplace/subscribe/cancel', {});
 }

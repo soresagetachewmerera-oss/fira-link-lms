@@ -1610,6 +1610,23 @@ const Map<String, String> kLangAm = {
   'sellerLicenseStated': "በሻጩ የተገለጸ የኤክስፖርት ፈቃድ፦ {license}",
   'exportDocsProActiveTitle': "የኤክስፖርት ሰነዶች ስቱዲዮ ፕሮ ንቁ ነው",
   'exportDocsProActiveBody': "ለሁሉም አብነቶች ያልተገደበ ኤክስፖርት። ዕቅድ ማረጋገጫዎን በፍጹም አይቀይርም።",
+  'planAndBilling': "የፕላን እና ክፍያ",
+  'currentPlan': "የአሁኑ ፕላን",
+  'billingPeriod': "የክፍያ ጊዜ",
+  'renewsOn': "ይታደሳል በ",
+  'cancelsOn': "ይሰረዛል በ",
+  'usageAndLimits': "አጠቃቀም እና ገደቦች",
+  'activeLots': "ንቁ የቡና ሎቶች",
+  'rfqQuotes': "ወርሃዊ የዋጋ አቅርቦቶች",
+  'teamSeats': "የቡድን አባላት",
+  'activeDeals': "ንቁ የስምምነት ክፍሎች",
+  'storageQuota': "የሰነድ ማከማቻ",
+  'cancelRenewal': "እድሳትን ሰርዝ",
+  'cancelRenewalConfirm': "የፕላን እድሳትን መሰረዝ እርግጠኛ ነዎት? ክፍት ስምምነቶችዎ እና ሰነዶችዎ ተደራሽ ሆነው ይቀጥላሉ።",
+  'renewalCancelled': "የፕላን እድሳት ተሰርዟል። እስከ ክፍያ ጊዜው መጨረሻ ድረስ ገቢር ሆኖ ይቆያል።",
+  'gracePeriodWarning': "የፕላን እድሳትዎ ጊዜ አልፏል። ሂሳብዎ በማስተካከያ ጊዜ ላይ ነው። ወደ ዝቅተኛ ገደብ እንዳይመለስ እባክዎ ክፍያዎን ያዘምኑ።",
+  'starterPlanNotice': "መሰረታዊ ነፃ ፕላን። ንግድዎን ለማሳደግ በማንኛውም ጊዜ ማሻሻል ይችላሉ።",
+  'unlimited': "ያልተገደበ",
 };
 
 const Map<String, String> langAm = kLangAm;

@@ -44,6 +44,7 @@ import '../screens/marketplace/create_rfq_screen.dart';
 import '../screens/marketplace/seller_portal_screen.dart';
 import '../screens/marketplace/create_lot_screen.dart';
 import '../screens/marketplace/marketplace_pricing_screen.dart';
+import '../screens/marketplace/subscription_management_screen.dart';
 import '../screens/marketplace/organization_verification_screen.dart';
 import '../screens/marketplace/export_docs_studio_screen.dart';
 import '../screens/auth/language_choice_screen.dart';
@@ -77,6 +78,7 @@ class AppRouter {
   static const String marketplaceSellerPortal = '/marketplace/seller';
   static const String marketplaceCreateListing = '/marketplace/seller/add-lot';
   static const String marketplacePricing = '/marketplace/pricing';
+  static const String subscriptionManagement = '/subscription-management';
   static const String marketplaceVerification = '/marketplace/verification';
   static const String exportDocsStudio = '/export-docs';
   static const String myCourses = '/my-courses';
@@ -244,6 +246,8 @@ class AppRouter {
         return const CreateLotScreen();
       case marketplacePricing:
         return const MarketplacePricingScreen();
+      case subscriptionManagement:
+        return const SubscriptionManagementScreen();
       case marketplaceVerification:
         return const OrganizationVerificationScreen();
       case exportDocsStudio:

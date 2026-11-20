@@ -1610,6 +1610,23 @@ const Map<String, String> kLangEn = {
   'sellerLicenseStated': "Export licence stated by the seller: {license}",
   'exportDocsProActiveTitle': "Export Docs Studio Pro is active",
   'exportDocsProActiveBody': "Unlimited exports for all templates. A plan never changes your verification.",
+  'planAndBilling': "Plan & Billing",
+  'currentPlan': "Current Plan",
+  'billingPeriod': "Billing Period",
+  'renewsOn': "Renews on",
+  'cancelsOn': "Cancels on",
+  'usageAndLimits': "Usage & Quotas",
+  'activeLots': "Active Coffee Lots",
+  'rfqQuotes': "Monthly RFQ Quotes",
+  'teamSeats': "Team Seats",
+  'activeDeals': "Active Deal Rooms",
+  'storageQuota': "Document Storage",
+  'cancelRenewal': "Cancel Renewal",
+  'cancelRenewalConfirm': "Are you sure you want to cancel plan renewal? Your open deals, trade records, and documents will remain accessible.",
+  'renewalCancelled': "Plan renewal cancelled. Your plan will remain active until the end of the billing period.",
+  'gracePeriodWarning': "Your subscription renewal is past due. Your account is in grace period. Please update your payment to avoid quota fallback.",
+  'starterPlanNotice': "Free baseline tier with essential workspace tools. Upgrade anytime to scale your trade.",
+  'unlimited': "Unlimited",
 };
 
 const Map<String, String> langEn = kLangEn;

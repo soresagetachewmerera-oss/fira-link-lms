@@ -1619,6 +1619,23 @@ class AppLocalizations {
   String get indicativeFob => _t('indicativeFob');
   String get inquireAction => _t('inquireAction');
   String get sampleAction => _t('sampleAction');
+  String get planAndBilling => _t('planAndBilling');
+  String get currentPlan => _t('currentPlan');
+  String get billingPeriod => _t('billingPeriod');
+  String get renewsOn => _t('renewsOn');
+  String get cancelsOn => _t('cancelsOn');
+  String get usageAndLimits => _t('usageAndLimits');
+  String get activeLots => _t('activeLots');
+  String get rfqQuotes => _t('rfqQuotes');
+  String get teamSeats => _t('teamSeats');
+  String get activeDeals => _t('activeDeals');
+  String get storageQuota => _t('storageQuota');
+  String get cancelRenewal => _t('cancelRenewal');
+  String get cancelRenewalConfirm => _t('cancelRenewalConfirm');
+  String get renewalCancelled => _t('renewalCancelled');
+  String get gracePeriodWarning => _t('gracePeriodWarning');
+  String get starterPlanNotice => _t('starterPlanNotice');
+  String get unlimited => _t('unlimited');
 }
 
 class AppLocalizationsDelegate

@@ -237,11 +237,11 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
             ),
           ),
           TextButton.icon(
-            onPressed: () => Navigator.pushNamed(context, AppRouter.marketplacePricing)
+            onPressed: () => Navigator.pushNamed(context, AppRouter.subscriptionManagement)
                 .then((_) => _fetchSellerData()),
             icon: Icon(Icons.tune_rounded, color: fira.brandPrimary, size: 16),
             label: Text(
-              'Plans & quotas',
+              context.l10n.planAndBilling,
               style: TextStyle(
                 color: fira.brandPrimary,
                 fontWeight: FontWeight.w600,
