@@ -1,0 +1,147 @@
+screen_file,widgets,named_route,router_guard,in_screen_auth_check,mutates,endpoints
+screens/ai_chat/ai_chat_screen.dart,AiChatScreen _ChatBubble _TypingIndicator,/ai-chat,,,,? /ai-chat/send
+screens/ai_suggestions/ai_suggestions_screen.dart,AiSuggestionsScreen _PulsingDot _ProcessingAnimation,/ai-suggestions,,,,GET /categories
+screens/auth/auth_screen.dart,AuthScreen _BackgroundDecoration _HeaderSection,/auth/email,,,yes,POST /auth/login | POST /auth/register
+screens/auth/email_sign_up_screen.dart,EmailSignUpScreen,,,,,
+screens/auth/forgot_password_screen.dart,ForgotPasswordScreen _BackgroundDecoration _HeaderSection,,,,,
+screens/auth/full_name_screen.dart,FullNameScreen,,,,,
+screens/auth/language_choice_screen.dart,LanguageChoiceScreen,/language-choice,,,,
+screens/auth/new_password_screen.dart,NewPasswordScreen,,,,,
+screens/auth/otp_verification_screen.dart,OtpVerificationScreen _BackgroundDecoration _HeaderSection,,,,yes,? /$id/cancel | POST /auth/login/otp/resend | POST /auth/login/otp/verify | POST /auth/register/change-phone | POST /auth/register/resend | POST /auth/register/verify
+screens/auth/phone_code_screen.dart,PhoneCodeScreen,,,,,? /$id/cancel
+screens/auth/phone_sign_in_screen.dart,PhoneSignInScreen,,,,,
+screens/auth/reset_done_screen.dart,ResetDoneScreen,,,,,
+screens/auth/reset_password_screen.dart,ResetPasswordScreen _BackgroundDecoration _HeaderSection,,,,,
+screens/bundles/bundle_checkout_screen.dart,BundleCheckoutScreen,,,,yes,POST /bundles/$bundleId/checkout | POST /events/payments/chapa/verify | POST /payments/chapa/verify | POST /tours/payments/chapa/verify
+screens/bundles/bundle_detail_screen.dart,BundleDetailScreen _CourseRow,,,,,
+screens/bundles/bundles_screen.dart,BundlesScreen _BundleCard,,,,,
+screens/categories/categories_screen.dart,CategoriesScreen _CategoryCard,,,,,GET /categories
+screens/categories/categories_skeletons.dart,CategoriesSkeleton,,,,,
+screens/category_detail/category_detail_screen.dart,CategoryDetailScreen,,,,,? /$id/cancel
+screens/chat/chat_screen.dart,ChatScreen _MessageBubble,/messages/chat,yes,,yes,? /ai-chat/send | GET /messages/$conversationId/send | POST /messages/start
+screens/chat/conversations_screen.dart,ConversationsScreen _ConversationTile _NewMessageSheet,/messages,yes,,yes,? /$id/cancel | GET /messages/instructors/search | POST /messages/start
+screens/chat/trade_chat_screen.dart,TradeChatScreen TradeChatsScreen,,,,,? /$id | ? /$id/messages
+screens/coffee_toolkit/coffee_market_screen.dart,CoffeeMarketScreen _SectionTitle _Notice,/coffee-toolkit/market,,,,GET /market/overview
+screens/coffee_toolkit/coffee_offer_generator_screen.dart,CoffeeOfferGeneratorScreen,/coffee-toolkit/offer-generator,,,yes,POST /coffee-toolkit/offers
+screens/coffee_toolkit/coffee_profit_calculator_screen.dart,CoffeeProfitCalculatorScreen,/coffee-toolkit/calculator,,,yes,POST /coffee-toolkit/calculations
+screens/coffee_toolkit/coffee_readiness_screen.dart,CoffeeReadinessScreen,/coffee-toolkit/readiness,,,yes,POST /coffee-toolkit/assess
+screens/coffee_toolkit/coffee_toolkit_hub_screen.dart,CoffeeToolkitHubScreen,/coffee-toolkit,,,,
+screens/coffee_toolkit/widgets/coffee_candlestick_chart.dart,CoffeeCandlestickChartWidget,,,,,? /$id/cancel
+screens/common/webview_screen.dart,WebViewScreen,,,,,
+screens/community/qa_room_screen.dart,QaRoomScreen _FilterTab _QuestionCard,/qa-room,yes,,yes,? /community/questions | POST /community/questions
+screens/community/question_detail_screen.dart,QuestionDetailScreen _AnswerCard,,,,yes,GET /community/questions/$id | POST /community/answers/$answerId/accept | POST /community/questions/$questionId/answers
+screens/course_access/assignment_submit_screen.dart,AssignmentSubmitScreen,,,,yes,GET /user/courses/$courseId/assignments/$assignmentId | POST /user/courses/$courseId/assignments/$assignmentId/submit
+screens/course_access/course_access_screen.dart,CourseAccessScreen,,,,yes,GET /user/courses/$courseId/learn | GET /user/courses/$courseId/lessons/$lessonId | POST /user/courses/$courseId/lessons/$lessonId/complete
+screens/course_access/course_discussion_detail_screen.dart,CourseDiscussionDetailScreen,,,,yes,DELETE /courses/$courseId/discussions/$discussionId | DELETE /courses/$courseId/discussions/$discussionId/replies/$replyId | POST /courses/$courseId/discussions/$discussionId/like | POST /courses/$courseId/discussions/replies/$replyId/like
+screens/course_access/quiz_attempt_screen.dart,QuizAttemptScreen,,,,yes,? /$id/cancel | ? /user/courses/$courseId/quizzes/$quizId | POST /user/courses/$courseId/quizzes/$quizId/submit
+screens/course_access/widgets/course_discussion_tab.dart,CourseDiscussionTab,,,,yes,POST /courses/$courseId/discussions/$discussionId/like
+screens/course_access/widgets/course_progress_strip.dart,CourseProgressStrip,,,,,
+screens/course_detail/checkout_screen.dart,CheckoutScreen _PriceRow _PaymentMethodOption,,,yes,yes,POST /bundles/$bundleId/checkout | POST /coupons/validate | POST /courses/$courseId/enroll | POST /events/payments/chapa/verify | POST /payments/bkash/verify | POST /payments/chapa/verify | POST /payments/mollie/verify | POST /payments/paypal/verify | POST /payments/paystack/verify | POST /payments/razorpay/verify | POST /payments/sslcommerz/verify | POST /payments/stripe/verify | POST /payments/xpay/verify | POST /tours/payments/chapa/verify
+screens/course_detail/course_detail_screen.dart,CourseDetailScreen _SlidingTabBar _PlaylistItem,,,,,GET /courses/$id
+screens/course_detail/course_detail_skeletons.dart,CourseDetailSkeletons _ImageSkeleton _TextSkeleton,,,,,
+screens/course_detail/enrollment_success_screen.dart,EnrollmentSuccessScreen _BundleCourseRow _FeatureItem,,,,,
+screens/course_detail/offline_payment_screen.dart,OfflinePaymentScreen,,,,yes,POST /bundles/$bundleId/checkout | POST /courses/$courseId/enroll
+screens/courses/courses_screen.dart,CoursesScreen _SearchBar _CourseCard,,,,,? /$id/cancel | GET /categories
+screens/courses/courses_skeletons.dart,CoursesSkeleton _CourseCardSkeleton,,,,,
+screens/dashboard/assignment_detail_screen.dart,AssignmentDetailScreen _InfoRow _SubmitAssignmentSheet,,,,,
+screens/dashboard/certificate_verification_screen.dart,CertificateVerificationScreen,/verify-certificate,,,yes,POST /verify-certificate
+screens/dashboard/certificate_view_screen.dart,CertificateViewScreen,,,,,? /$id
+screens/dashboard/certificates_screen.dart,CertificatesScreen _CertificateCard _EmptyState,/certificates,yes,,,GET /user/certificates
+screens/dashboard/dashboard_screen.dart,DashboardScreen _StatCard _QuickAccessGrid,/dashboard,yes,yes,,
+screens/dashboard/my_assignments_screen.dart,MyAssignmentsScreen _AssignmentCard _FilterChip,/my-assignments,yes,,,GET /user/assignments
+screens/dashboard/my_courses_screen.dart,MyCoursesScreen _EnrolledCourseCard _EmptyState,/my-courses,yes,,,
+screens/dashboard/my_quiz_attempts_screen.dart,MyQuizAttemptsScreen _QuizAttemptCard _EmptyState,/my-quizzes,yes,,,GET /user/quizzes
+screens/dashboard/my_ticket_bookings_screen.dart,MyTicketBookingsScreen _TicketCard _FilterChip,/bookings,yes,,,GET /user/bookings
+screens/dashboard/payments_screen.dart,PaymentsScreen _PaymentCard _FilterChip,/payments,yes,,,
+screens/dashboard/ticket_view_screen.dart,TicketViewScreen _PassengerInfoRow,,,,,GET /user/bookings/$id
+screens/deal_room/deal_room_hub_screen.dart,DealRoomHubScreen,/deal-room,yes,,,? /deal-rooms/$dealRoomId/chat | GET /deal-rooms/$id
+screens/deal_room/deal_rooms_screen.dart,DealRoomsScreen,,,,,GET /deal-rooms
+screens/deal_room/deal_step_screen.dart,DealStepScreen,,,,yes,? /deal-rooms/$dealRoomId/milestones/$milestoneId/advance | GET /deal-rooms/$id | POST /deal-rooms/$dealRoomId/complete
+screens/deal_room/dispute_resolution_screen.dart,DisputeResolutionScreen,,,,,? /deal-rooms/$dealRoomId/dispute
+screens/deal_room/export_contract_esign_screen.dart,ExportContractEsignScreen,,,,,? /deal-rooms/$dealRoomId/sign-contract
+screens/deal_room/payment_milestones_screen.dart,PaymentMilestonesScreen,,,,,? /deal-rooms/$dealRoomId/milestones/$milestoneId/advance | GET /deal-rooms/$id
+screens/document_scanner/fira_document_scanner_screen.dart,FiraDocumentScannerScreen _StartView _ProcessingView,,,,,
+screens/events/event_detail_screen.dart,EventDetailScreen _GoogleMapEmbed _InfoRow,,,,,? /$id/cancel
+screens/events/events_screen.dart,EventsScreen _EventFlowFilters _FilterChipButton,,,,,? /events
+screens/events/ticket_booking_screen.dart,TicketBookingScreen,,,,yes,POST /events/$eventId/book
+screens/events/widgets/event_flow_sections.dart,EventFlowSections,,,,,
+screens/habit_tracker/weekly_review_screen.dart,WeeklyReviewScreen _DayCard _WeeklyHabitCard,/weekly-review,,,,GET /habits/weekly-review
+screens/home/home_screen.dart,HomeScreen,,,yes,,GET /bundles | GET /home
+screens/home/widgets/continue_learning_card.dart,ContinueLearningCard,,,,,
+screens/home/widgets/featured_course_card.dart,FeaturedCourseCard,,,,,
+screens/home/widgets/home_header.dart,HomeHeader _WorkspaceChip,,,yes,,
+screens/home/widgets/home_primary_action.dart,HomePrimaryAction,,,,,
+screens/home/widgets/home_search_bar.dart,HomeSearchBar,,,,,
+screens/home/widgets/market_strip.dart,MarketStrip,,,,,
+screens/home/widgets/market_trend_card.dart,MarketTrendCard,,,,,GET /market/overview
+screens/home/widgets/toolkit_bento.dart,ToolkitBento _ToolTile,,,,,
+screens/home/widgets/topic_chips.dart,TopicChips,,,,,
+screens/instructor/all_instructors_screen.dart,AllInstructorsScreen _InstructorGridCard _InstructorsSkeleton,,,,,
+screens/instructor/instructor_profile_screen.dart,InstructorProfileScreen _StatItem _SocialIcon,,,yes,,
+screens/marketplace/coffee_listing_detail_screen.dart,CoffeeListingDetailScreen,/marketplace/lot,,yes,yes,GET /marketplace/listings/$idOrSlug | POST /marketplace/listings/$id/save
+screens/marketplace/compare_quotes_screen.dart,CompareQuotesScreen,,,,yes,POST /deal-rooms
+screens/marketplace/create_lot_screen.dart,CreateLotScreen,/marketplace/seller/add-lot,,,,? /$id | ? /$id/pause | ? /$id/publish
+screens/marketplace/create_rfq_screen.dart,CreateRfqScreen,/marketplace/rfqs/create,,,,
+screens/marketplace/document_capture_screen.dart,DocumentCaptureScreen _DateField,,,,,
+screens/marketplace/evidence_level_sheet.dart,EvidenceLevelSheet,,,,,
+screens/marketplace/export_doc_editor_screen.dart,ExportDocEditorScreen,,,,yes,GET /export-docs/documents/$id | POST /export-docs/ai/assist | POST /export-docs/calculate | POST /export-docs/documents | POST /export-docs/documents/$id/finalize | PUT /export-docs/documents/$id
+screens/marketplace/export_docs_studio_screen.dart,ExportDocsStudioScreen,/export-docs,,yes,yes,GET /export-docs/documents | GET /export-docs/shipments | POST /export-docs/ai/assist | POST /export-docs/calculate | POST /export-docs/shipments/$shipmentId/generate-all
+screens/marketplace/exporters_screen.dart,ExportersScreen ExporterProfileScreen,,,,,
+screens/marketplace/lot_evidence_screen.dart,LotEvidenceScreen LotEvidencePanel,,,,,? /$id
+screens/marketplace/lot_lifecycle_screen.dart,LotLifecycleScreen,,,,,
+screens/marketplace/lot_photo_capture_screen.dart,LotPhotoCaptureScreen,,,,,
+screens/marketplace/marketplace_home_screen.dart,MarketplaceHomeScreen,,,yes,,
+screens/marketplace/marketplace_pricing_screen.dart,MarketplacePricingScreen,/marketplace/pricing,,,yes,GET /marketplace/plans | GET /user/organization/entitlements | POST /marketplace/subscribe
+screens/marketplace/marketplace_rfqs_screen.dart,MarketplaceRfqsScreen _RequestList _MyQuotes,/marketplace/rfqs,,,,
+screens/marketplace/organization_verification_screen.dart,OrganizationVerificationScreen,/marketplace/verification,,,yes,DELETE /marketplace/verification/documents/$documentId | GET /marketplace/verification/status
+screens/marketplace/payout_account_screen.dart,PayoutAccountScreen,,,,,? /$id
+screens/marketplace/public_seller_verification_screen.dart,PublicSellerVerificationScreen,/verify-seller,,,,GET /sellers/${Uri.encodeComponent
+screens/marketplace/quote_request_screen.dart,QuoteRequestScreen,,,,,
+screens/marketplace/request_sample_screen.dart,RequestSampleScreen,,,,,
+screens/marketplace/sample_tracking_screen.dart,SampleTrackingScreen SampleTile,/marketplace/samples/tracking,yes,,,? /$id | ? /$id/cancel | ? /$id/delivered | ? /$id/pay
+screens/marketplace/samples_screen.dart,SamplesScreen _SampleList,,,,,
+screens/marketplace/saved_lots_screen.dart,SavedLotsScreen,,,,,
+screens/marketplace/seller_home_screen.dart,SellerHomeScreen,,,,,? /marketplace/seller/home
+screens/marketplace/seller_portal_screen.dart,SellerPortalScreen,/marketplace/seller,,,,GET /marketplace/seller/profile | GET /user/organization/entitlements
+screens/marketplace/ship_sample_screen.dart,ShipSampleScreen,,,,yes,? /$id | POST /$id/dispatch
+screens/marketplace/widgets/lot_evidence_summary_card.dart,LotEvidenceSummaryCard,,,,,
+screens/marketplace/widgets/market_filters_sheet.dart,MarketFiltersSheet,,,,,
+screens/marketplace/widgets/quota_limit_sheet.dart,QuotaLimitSheet,,,,,
+screens/marketplace/widgets/seller_lots_section.dart,SellerLotsSection,,,,,
+screens/notifications/notifications_screen.dart,NotificationsScreen _NotificationCard _EmptyNotificationsState,/notifications,yes,,yes,DELETE /notifications/$id | GET /notifications | POST /notifications/$id/read | POST /notifications/read-all
+screens/onboarding/business_workspace_setup_screen.dart,BusinessWorkspaceSetupScreen,,,,,
+screens/onboarding/intent_selection_screen.dart,IntentSelectionScreen,/onboarding/intent,,,,
+screens/onboarding/intent_welcome_screen.dart,IntentWelcomeScreen,,,,,
+screens/onboarding/onboarding_screen.dart,OnboardingScreen _OnboardingArtworkCard _OnboardingTitle,/onboarding,,,,
+screens/profile/business_verification_tile.dart,BusinessVerificationTile,,,,,GET /marketplace/verification/status
+screens/profile/change_password_screen.dart,ChangePasswordScreen,/change-password,yes,,yes,POST /user/password
+screens/profile/create_workspace_screen.dart,CreateWorkspaceScreen,/profile/workspaces/create,yes,,,
+screens/profile/edit_profile_screen.dart,EditProfileScreen,/edit-profile,yes,,yes,POST /user/profile | POST /user/profile-photo
+screens/profile/notification_settings_screen.dart,NotificationSettingsScreen _NotificationToggleItem,/notification-settings,,,yes,GET /user/settings/notifications | POST /notifications/test-push | PUT /user/settings/notifications
+screens/profile/payment_detail_screen.dart,PaymentDetailScreen,,,,,
+screens/profile/payment_history_screen.dart,PaymentHistoryScreen _PaymentCard _FilterChip,/payment-history,yes,,,
+screens/profile/privacy_terms_screen.dart,PrivacyTermsScreen,,,,,GET /settings/pages/$slug
+screens/profile/profile_screen.dart,ProfileScreen _MenuItem _ProfileGroupTitle,,,yes,yes,POST /logout
+screens/profile/rate_app_sheet.dart,_RateAppSheet,,,,,
+screens/profile/settings_screen.dart,SettingsScreen _MenuItem _MenuItemWithCustomIcon,/settings,,,yes,GET /settings/pages | POST /user/delete-request
+screens/profile/share_app_sheet.dart,_ShareAppSheet,,,,,
+screens/profile/team_seats_screen.dart,TeamSeatsScreen,,,,yes,DELETE /organizations/$organizationId/members/$userId
+screens/profile/workspace_switcher_sheet.dart,WorkspaceSwitcherSheet _WorkspaceTile _ActionRow,,,yes,yes,POST /user/organizations/switch
+screens/search/search_screen.dart,SearchScreen _ResultTile,/search,,,,? /$id/cancel
+screens/shell/main_shell_screen.dart,MainShellScreen,/profile /home2 /marketplace,yes,,,
+screens/splash/splash_screen.dart,SplashScreen _PillarItem _ConnectorDot,,,,,
+screens/splash/splash_wrapper.dart,SplashWrapper,,,yes,,
+screens/study_timer/focus_progress_screen.dart,FocusProgressScreen _StatCard _BarChartItem,/focus-progress,,,,GET /focus/stats
+screens/study_timer/pomodoro_timer_screen.dart,PomodoroTimerScreen _PhaseButton _ControlButton,/study-timer,,,,? /$id/cancel | GET /focus/session | GET /focus/stats
+screens/study_timer/task_breakdown_screen.dart,TaskBreakdownScreen _TaskCard,,,,,
+screens/tours/my_tour_bookings_screen.dart,MyTourBookingsScreen,,,,yes,GET /user/tour-bookings | POST /user/tour-bookings/$id/cancel
+screens/tours/tour_booking_confirmation_screen.dart,TourBookingConfirmationScreen,,,,,GET /user/tour-bookings/$id
+screens/tours/tour_booking_screen.dart,TourBookingScreen,,,,yes,POST /tours/$tourId/book
+screens/tours/tour_detail_screen.dart,TourDetailScreen _TerroirSpecRow _QuickStatItem,,,,,GET /tours/$id
+screens/tours/tours_screen.dart,ToursScreen _TourCard,,,,,
+screens/tours/widgets/tour_flow_sections.dart,TourFlowSections,,,,,
+screens/tours/widgets/tour_payment_panel.dart,TourPaymentPanel _BalanceSheet,,,,,
+screens/trust_safety/report_modal.dart,ReportModal,,,,,
+screens/trust_safety/scam_warning_sheet.dart,ScamWarningSheet,,,,,
+screens/trust_safety/suspended_license_screen.dart,SuspendedLicenseScreen,,,,,
+screens/wishlist/wishlist_screen.dart,WishlistScreen _SortOption,/wishlist,yes,,,
