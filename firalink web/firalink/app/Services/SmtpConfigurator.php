@@ -31,6 +31,11 @@ class SmtpConfigurator
         $this->setConfig('mail.mailers.smtp.password', $credentials['password'] ?? null);
         $this->setConfig('mail.mailers.smtp.encryption', $credentials['encryption'] ?? null);
 
+        $scheme = $credentials['scheme'] ?? (($credentials['port'] ?? null) == 465 || ($credentials['encryption'] ?? '') === 'ssl' ? 'smtps' : null);
+        if ($scheme) {
+            $this->setConfig('mail.mailers.smtp.scheme', $scheme);
+        }
+
         if (!empty($credentials['from_address'])) {
             config()->set('mail.from.address', $credentials['from_address']);
         }
