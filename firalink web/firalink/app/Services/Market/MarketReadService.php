@@ -29,7 +29,10 @@ class MarketReadService
                 ->orderBy('sort_order')
                 ->get();
             $items = $series->map(fn (MarketSeries $item) => $this->serializeSeries($item))->values()->all();
-            $hero = collect($items)->first(fn (array $item) => $item['is_hero']) ?? ($items[0] ?? null);
+            $hero = collect($items)->first(fn (array $item) => $item['is_hero'] && !empty($item['value']))
+                ?? collect($items)->first(fn (array $item) => !empty($item['value']))
+                ?? collect($items)->first(fn (array $item) => $item['is_hero'])
+                ?? ($items[0] ?? null);
 
             return [
                 'hero' => $hero,
