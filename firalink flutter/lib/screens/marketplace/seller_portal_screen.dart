@@ -1,15 +1,18 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+
+import '../../l10n/app_localizations.dart';
+import '../../router/app_router.dart';
 import '../../services/api_exception.dart';
 import '../../services/marketplace_service.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/fira_colors.dart';
 import '../../widgets/fira_error_state.dart';
-import '../../router/app_router.dart';
-import '../../l10n/app_localizations.dart';
 import 'organization_verification_screen.dart';
 import 'payout_account_screen.dart';
 import 'widgets/seller_lots_section.dart';
 
+/// Exporter trade desk (business workspace): organization profile, membership tier,
+/// compliance verification status, resource quotas, and published coffee lots.
 class SellerPortalScreen extends StatefulWidget {
   const SellerPortalScreen({super.key});
 
@@ -41,7 +44,7 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
 
       final profile = jsonDecode(resProf.body)['data'];
 
-      // 404 means the user has no business workspace yet: a real state, not an error.
+      // 404 means the user has no business workspace yet: a valid state.
       Map<String, dynamic>? entitlements;
       if (resEnt.statusCode == 200) {
         final data = jsonDecode(resEnt.body);
@@ -73,44 +76,41 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
     required IconData icon,
     String unit = '',
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fira = context.fira;
     final isUnlimited = limit == -1 || limit == '-1';
     final limitInt = isUnlimited ? -1 : (limit is int ? limit : int.tryParse(limit.toString()) ?? 1);
     final ratio = isUnlimited ? 0.0 : (limitInt > 0 ? (used / limitInt).clamp(0.0, 1.0) : 0.0);
     final isAtCapacity = !isUnlimited && used >= limitInt;
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.surfaceDark : Colors.white,
+        color: fira.card,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isAtCapacity
-              ? Colors.red.withValues(alpha: 0.5)
-              : (isDark ? Colors.white10 : Colors.grey.shade200),
+              ? fira.danger.withValues(alpha: 0.4)
+              : fira.brandTint.withValues(alpha: 0.8),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 16, color: isAtCapacity ? Colors.red : AppTheme.primary),
-              const SizedBox(width: 6),
+              Icon(
+                icon,
+                size: 16,
+                color: isAtCapacity ? fira.danger : fira.brandPrimary,
+              ),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   label,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white70 : Colors.grey.shade700,
+                    color: fira.onSurface,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -119,21 +119,34 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50,
+                    color: fira.danger.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Text('MAX', style: TextStyle(color: Colors.red, fontSize: 9, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    'Cap reached',
+                    style: TextStyle(
+                      color: fira.danger,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
             children: [
               Flexible(
                 child: Text(
                   '$used $unit',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: fira.onSurface,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -141,7 +154,10 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
               Flexible(
                 child: Text(
                   isUnlimited ? 'Unlimited' : '/ $limitInt $unit',
-                  style: TextStyle(fontSize: 12, color: isDark ? Colors.white60 : Colors.grey),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: fira.mutedText,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -149,13 +165,15 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
           ),
           const SizedBox(height: 8),
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(3),
             child: LinearProgressIndicator(
-              value: isUnlimited ? 0.2 : ratio,
-              minHeight: 6,
-              backgroundColor: isDark ? Colors.white12 : Colors.grey.shade100,
+              value: isUnlimited ? 0.15 : ratio,
+              minHeight: 4,
+              backgroundColor: fira.brandTint,
               valueColor: AlwaysStoppedAnimation<Color>(
-                isAtCapacity ? Colors.red : (ratio > 0.8 ? Colors.amber : AppTheme.primary),
+                isAtCapacity
+                    ? fira.danger
+                    : (ratio > 0.8 ? fira.pending : fira.brandPrimary),
               ),
             ),
           ),
@@ -166,11 +184,11 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fira = context.fira;
 
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator(color: fira.brandPrimary)),
       );
     }
 
@@ -189,8 +207,8 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
     final overrides = _entitlementsData?['active_overrides'] as List<dynamic>? ?? [];
 
     final orgName = org?['name'] ?? profile?['company_name'] ?? 'Ethiopian Coffee Exporter';
-    final businessType = (org?['business_type'] ?? 'exporter').toString().toUpperCase();
-    final role = (org?['my_role'] ?? 'OWNER').toString().toUpperCase();
+    final businessType = (org?['business_type'] ?? 'exporter').toString();
+    final role = (org?['my_role'] ?? 'owner').toString();
     final isVerified = org?['is_verified'] == true || profile?['is_verified'] == true;
     final planName = sub?['plan_name'] ?? sub?['plan']?['name'] ?? 'Exporter Starter';
     final subStatus = (sub?['status'] ?? 'active').toString().toLowerCase();
@@ -208,49 +226,48 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Exporter Portal', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Trade desk', style: TextStyle(fontWeight: FontWeight.w600)),
         actions: [
           IconButton(
             key: const Key('open-payout-account'),
             icon: const Icon(Icons.account_balance_outlined),
             tooltip: context.l10n.payoutTitle,
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PayoutAccountScreen())),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const PayoutAccountScreen()),
+            ),
           ),
           TextButton.icon(
-            onPressed: () => Navigator.pushNamed(context, AppRouter.marketplacePricing).then((_) => _fetchSellerData()),
-            icon: const Icon(Icons.bolt, color: AppTheme.primary, size: 18),
-            label: const Text('Plans & Quotas', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold)),
+            onPressed: () => Navigator.pushNamed(context, AppRouter.marketplacePricing)
+                .then((_) => _fetchSellerData()),
+            icon: Icon(Icons.tune_rounded, color: fira.brandPrimary, size: 16),
+            label: Text(
+              'Plans & quotas',
+              style: TextStyle(
+                color: fira.brandPrimary,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
           ),
         ],
       ),
       body: RefreshIndicator(
         onRefresh: _fetchSellerData,
-        color: AppTheme.primary,
+        color: fira.brandPrimary,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Organization Context & Membership Card
+              // Organization Context & Membership Card (Quiet Deep Surface)
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      AppTheme.primary,
-                      Color(0xFF8B2BB8),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                  color: fira.brandDeep,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                    color: fira.brandPrimary.withValues(alpha: 0.25),
                   ),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primary.withValues(alpha: 0.35),
-                      blurRadius: 18,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,43 +276,55 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CircleAvatar(
-                          radius: 24,
-                          backgroundColor: Colors.white.withValues(alpha: 0.2),
-                          child: const Icon(Icons.business_rounded, color: Colors.white, size: 26),
+                          radius: 22,
+                          backgroundColor: Colors.white.withValues(alpha: 0.12),
+                          child: const Icon(Icons.business_outlined, color: Colors.white, size: 22),
                         ),
-                        const SizedBox(width: 14),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 orgName,
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 6),
                               Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.2),
+                                      color: Colors.white.withValues(alpha: 0.12),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
-                                      businessType,
-                                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
+                                      businessType.capitalizeFirst(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 6),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.2),
+                                      color: Colors.white.withValues(alpha: 0.12),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
-                                      'ROLE: $role',
-                                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
+                                      'Role: ${role.capitalizeFirst()}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -303,7 +332,7 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                             ],
                           ),
                         ),
-                        // Verification Badge (Trust is separate from subscription)
+                        // Verification Status
                         InkWell(
                           onTap: () {
                             Navigator.push(
@@ -317,17 +346,32 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
-                              color: isVerified ? Colors.green.shade600 : Colors.amber.shade800,
+                              color: isVerified
+                                  ? fira.success.withValues(alpha: 0.25)
+                                  : fira.pending.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isVerified
+                                    ? fira.success.withValues(alpha: 0.5)
+                                    : fira.pending.withValues(alpha: 0.6),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(isVerified ? Icons.verified : Icons.shield_outlined, color: Colors.white, size: 14),
+                                Icon(
+                                  isVerified ? Icons.verified : Icons.shield_outlined,
+                                  color: Colors.white,
+                                  size: 13,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  isVerified ? 'VERIFIED' : 'GET VERIFIED',
-                                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                  isVerified ? 'Verified' : 'Get verified',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ],
                             ),
@@ -336,36 +380,53 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const Divider(color: Colors.white24, height: 1),
-                    const SizedBox(height: 14),
+                    Divider(color: Colors.white.withValues(alpha: 0.12), height: 1),
+                    const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Current Subscription Plan', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                            Text(
+                              'Subscription plan',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.7),
+                                fontSize: 11,
+                              ),
+                            ),
                             const SizedBox(height: 2),
                             Text(
                               planName,
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
                             ),
                           ],
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: subStatus == 'grace'
-                                ? Colors.amber
-                                : (subStatus == 'active' ? Colors.white.withValues(alpha: 0.25) : Colors.redAccent),
-                            borderRadius: BorderRadius.circular(12),
+                                ? fira.pending.withValues(alpha: 0.3)
+                                : (subStatus == 'active'
+                                    ? Colors.white.withValues(alpha: 0.15)
+                                    : fira.danger.withValues(alpha: 0.3)),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: subStatus == 'grace'
+                                  ? fira.pending.withValues(alpha: 0.6)
+                                  : Colors.white.withValues(alpha: 0.2),
+                            ),
                           ),
                           child: Text(
-                            subStatus.toUpperCase(),
-                            style: TextStyle(
-                              color: subStatus == 'grace' ? Colors.black87 : Colors.white,
+                            subStatus == 'grace' ? 'Grace period' : subStatus.capitalizeFirst(),
+                            style: const TextStyle(
+                              color: Colors.white,
                               fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -375,38 +436,40 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                 ),
               ),
 
-              // Unverified Compliance Banner
+              // Unverified Compliance Notice
               if (!isVerified) ...[
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
                 Container(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.amber.shade50.withValues(alpha: isDark ? 0.15 : 1.0),
+                    color: fira.brandTint,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.amber.shade400),
+                    border: Border.all(
+                      color: fira.brandPrimary.withValues(alpha: 0.2),
+                    ),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.shield_outlined, color: Colors.amber.shade800, size: 28),
+                      Icon(Icons.shield_outlined, color: fira.brandPrimary, size: 24),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Compliance Verification Required',
+                              'Compliance verification required',
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: isDark ? Colors.white : Colors.amber.shade900,
+                                color: fira.onSurface,
                               ),
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Upload your ECTA export license and TIN to activate public lot publishing and bidding.',
+                              'Upload your export license and TIN to activate public lot publishing and bidding.',
                               style: TextStyle(
                                 fontSize: 11,
-                                color: isDark ? Colors.white70 : Colors.brown.shade800,
+                                color: fira.mutedText,
                               ),
                             ),
                           ],
@@ -415,9 +478,11 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                       const SizedBox(width: 8),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6D1A95),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          backgroundColor: fira.brandPrimary,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
@@ -429,39 +494,51 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                             ),
                           ).then((_) => _fetchSellerData());
                         },
-                        child: const Text('Verify', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                        child: const Text(
+                          'Verify',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ],
                   ),
                 ),
               ],
 
-              // Grace Period Alert (Hard Constraint: live deals continue without interruption)
+              // Grace Period Alert
               if (subStatus == 'grace') ...[
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.amber.shade50.withValues(alpha: isDark ? 0.15 : 1.0),
+                    color: fira.brandTint,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.amber.shade400),
+                    border: Border.all(
+                      color: fira.pending.withValues(alpha: 0.4),
+                    ),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 28),
+                      Icon(Icons.info_outline_rounded, color: fira.pending, size: 24),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Payment Grace Period Active',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.amber),
+                            Text(
+                              'Subscription grace period',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: fira.onSurface,
+                              ),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               'Grace period active until ${graceUntil ?? "14 days"}. All active deals, contracts, and documents remain 100% accessible.',
-                              style: TextStyle(fontSize: 11, color: isDark ? Colors.amber.shade200 : Colors.amber.shade900),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: fira.mutedText,
+                              ),
                             ),
                           ],
                         ),
@@ -471,24 +548,30 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                 ),
               ],
 
-              // Active Overrides Banner (Founding Member / Promotional)
+              // Active Overrides Banner
               if (overrides.isNotEmpty) ...[
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF6D1A95).withValues(alpha: 0.1),
+                    color: fira.brandTint,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF6D1A95).withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: fira.brandPrimary.withValues(alpha: 0.25),
+                    ),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.stars_rounded, color: AppTheme.primary, size: 22),
+                      Icon(Icons.stars_outlined, color: fira.brandPrimary, size: 20),
                       const SizedBox(width: 10),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Promotional override active: Founding Member Benefit applied.',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.primary),
+                          'Promotional override active: Founding member benefit applied.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: fira.brandPrimary,
+                          ),
                         ),
                       ),
                     ],
@@ -499,14 +582,21 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
               const SizedBox(height: 24),
 
               // Quotas & Resource Usage Grid
-              const Text('Resource Quotas & Entitlements', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                'Resource quotas & usage',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: fira.onSurface,
+                ),
+              ),
               const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
                     child: _buildMeterCard(
                       context: context,
-                      label: 'Active Lots',
+                      label: 'Active lots',
                       used: activeLotsUsed is int ? activeLotsUsed : int.tryParse(activeLotsUsed.toString()) ?? 0,
                       limit: activeLotsLimit,
                       icon: Icons.inventory_2_outlined,
@@ -517,7 +607,7 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                   Expanded(
                     child: _buildMeterCard(
                       context: context,
-                      label: 'RFQ Quotes/Mo',
+                      label: 'Monthly RFQs',
                       used: rfqUsed is int ? rfqUsed : int.tryParse(rfqUsed.toString()) ?? 0,
                       limit: rfqLimit,
                       icon: Icons.request_quote_outlined,
@@ -532,7 +622,7 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                   Expanded(
                     child: _buildMeterCard(
                       context: context,
-                      label: 'Team Seats',
+                      label: 'Team seats',
                       used: seatsUsed is int ? seatsUsed : int.tryParse(seatsUsed.toString()) ?? 0,
                       limit: seatsLimit,
                       icon: Icons.people_outline,
@@ -543,7 +633,7 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
                   Expanded(
                     child: _buildMeterCard(
                       context: context,
-                      label: 'Cloud Storage',
+                      label: 'Document storage',
                       used: storageUsed is int ? storageUsed : int.tryParse(storageUsed.toString()) ?? 0,
                       limit: storageLimit,
                       icon: Icons.cloud_outlined,
@@ -555,12 +645,19 @@ class _SellerPortalScreenState extends State<SellerPortalScreen> {
 
               const SizedBox(height: 28),
 
-              // Lots of the active business (slice 4): drafts, levels, hidden-until-Tier-1 banner.
+              // Lots of the active business: drafts, levels, hidden-until-Tier-1 banner.
               const SellerLotsSection(),
             ],
           ),
         ),
       ),
     );
+  }
+}
+
+extension on String {
+  String capitalizeFirst() {
+    if (isEmpty) return this;
+    return this[0].toUpperCase() + substring(1).toLowerCase();
   }
 }
