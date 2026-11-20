@@ -89,9 +89,22 @@ class ProfileController extends Controller
 
         $user->name = $request->name;
         if ($request->has('phone')) {
-            // A new number is saved unverified; verify it with POST /api/user/phone.
-            if ($error = $user->setPhoneFromProfile($request->phone)) {
-                return response()->json(['success' => false, 'code' => 'PHONE_TAKEN', 'message' => $error], 422);
+            // The profile form may add a first number (saved unverified). Changing or removing a number is
+            // a sensitive change: POST /api/user/phone (fresh auth + a code sent to the new number).
+            $sms = app(\App\Services\SmsEthiopiaService::class);
+            $norm = fn ($p) => ($p = trim((string) $p)) === '' ? null : ($sms->normalizePhoneNumber($p) ?? $p);
+            $current = $norm($user->phone);
+            $incoming = $norm($request->phone);
+            if ($current !== null && $incoming !== $current) {
+                return response()->json([
+                    'success' => false,
+                    'code' => 'PHONE_CHANGE_NEEDS_CODE',
+                    'message' => __('security.errors.phone_change_needs_code'),
+                ], 422);
+            }
+            if ($current === null && $incoming !== null && $user->setPhoneFromProfile($request->phone)) {
+                // Same answer whether the number is taken or invalid, so this cannot look up accounts.
+                return response()->json(['success' => false, 'code' => 'PHONE_UNAVAILABLE', 'message' => __('security.errors.phone_unavailable')], 422);
             }
         }
         if ($request->has('bio')) {
@@ -141,10 +154,12 @@ class ProfileController extends Controller
 
         $currentTokenId = $user->currentAccessToken()?->id;
         if ($currentTokenId) {
-            $user->tokens()->where('id', '!=', $currentTokenId)->delete();
+            $revoked = $user->tokens()->where('id', '!=', $currentTokenId)->delete();
         } else {
-            $user->tokens()->delete();
+            $revoked = $user->tokens()->delete();
         }
+
+        \App\Services\Auth\SecurityEvents::record($user, 'password_changed', $request, ['other_tokens_revoked' => $revoked]);
 
         return response()->json([
             'success' => true,
@@ -183,6 +198,8 @@ class ProfileController extends Controller
             'status' => 'pending',
             'reason' => $request->input('reason'),
         ]);
+
+        \App\Services\Auth\SecurityEvents::record($user, 'deletion_requested', $request);
 
         return response()->json([
             'success' => true,

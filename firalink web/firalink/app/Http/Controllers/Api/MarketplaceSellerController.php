@@ -62,7 +62,7 @@ class MarketplaceSellerController extends Controller
                     // Computed from reviewed documents (slice 3); 0 when expired or suspended.
                     'verification_tier' => $org->status !== 'suspended' && $org->hasActiveTier(1) ? (int) $org->verification_tier : 0,
                     'business_role' => $org->roleKey(),
-                    'is_verified' => (bool) $org->is_verified,
+                    'is_verified' => $org->hasActiveBadge(), // legacy: same rule as verification_tier
                     'my_role' => $org->memberships()->where('user_id', $user->id)->value('role') ?? 'owner',
                 ] : null,
                 'active_subscription' => $activeSub,
@@ -370,27 +370,26 @@ class MarketplaceSellerController extends Controller
     }
 
     /**
-     * POST /api/marketplace/subscribe/chapa/verify
-     * Verification endpoint for Chapa subscription payments.
+     * Chapa seller-plan payment check.
+     *   POST /api/marketplace/subscribe/chapa/verify  signed in; only the person who paid (others get 404)
+     *   GET  /api/marketplace/subscribe/chapa/callback  Chapa's callback; answers the status only
+     * The payment is always re-checked with Chapa (paid, full amount, right currency) before the plan starts.
      */
     public function chapaVerify(Request $request): JsonResponse
     {
-        $txRef = $request->input('tx_ref');
-        if (!$txRef) {
+        $txRef = (string) ($request->input('tx_ref') ?? $request->input('trx_ref') ?? '');
+        if ($txRef === '') {
             return response()->json(['success' => false, 'message' => 'tx_ref is required'], 400);
         }
 
+        $owner = $request->isMethod('post');
         $payment = Payment::where('chapa_tx_ref', $txRef)->first();
-        if (!$payment) {
+        if (!$payment || ($owner && (int) $payment->user_id !== (int) $request->user()?->id)) {
             return response()->json(['success' => false, 'message' => 'Payment reference not found'], 404);
         }
 
         if ($payment->status === 'completed') {
-            return response()->json([
-                'success' => true,
-                'message' => 'Payment already verified and completed.',
-                'data' => $payment->load('marketplaceSubscription.plan'),
-            ]);
+            return $this->planPaymentAnswer($payment, $owner, 'Payment already verified and completed.');
         }
 
         // Verify with Chapa API
@@ -416,11 +415,20 @@ class MarketplaceSellerController extends Controller
             $this->subscriptionService->activateSubscription($payment->marketplaceSubscription);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Subscription payment verified successfully! Your account features are now unlocked.',
-            'data' => $payment->load('marketplaceSubscription.plan'),
-        ]);
+        return $this->planPaymentAnswer($payment, $owner, 'Subscription payment verified successfully! Your account features are now unlocked.');
+    }
+
+    /** Status only; the plan name only for the person who paid. Never the payment row (amounts, user ids, gateway fields). */
+    private function planPaymentAnswer(Payment $payment, bool $owner, string $message): JsonResponse
+    {
+        $data = ['status' => 'completed'];
+        if ($owner) {
+            $sub = $payment->marketplaceSubscription()->with('plan')->first();
+            $data['subscription_status'] = $sub?->status;
+            $data['plan'] = $sub?->plan ? ['name' => $sub->plan->name, 'slug' => $sub->plan->slug] : null;
+        }
+
+        return response()->json(['success' => true, 'message' => $message, 'data' => $data]);
     }
 }
 

@@ -8,8 +8,10 @@ class SecurityRegressionTest extends TestCase
 {
     public function test_arbitrary_storage_route_blocks_private_storage_files(): void
     {
+        // The private disk is not served at all (auth gating 2026-11-20, S-15); /storage serves the public disk only.
         $response = $this->get('/storage/app/settings.json');
-        $response->assertStatus(403);
+        $this->assertContains($response->status(), [403, 404]);
+        $this->assertFalse((bool) config('filesystems.disks.local.serve'));
     }
 
     public function test_file_controller_preview_blocks_path_traversal(): void

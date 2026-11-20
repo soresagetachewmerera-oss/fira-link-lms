@@ -92,6 +92,14 @@ class StepUpController extends Controller
             : ($this->otp->verifyForIdentifier($this->identifier($user), (string) $request->input('code'), self::PURPOSE)['success'] ?? false);
 
         if (!$ok) {
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'security.step_up_failed',
+                'after_state' => ['method' => $request->filled('password') ? 'password' : 'code'],
+                'ip_address' => $request->ip(),
+                'user_agent' => mb_substr((string) $request->userAgent(), 0, 500),
+            ]);
+
             return response()->json(['success' => false, 'code' => 'INVALID_CREDENTIALS', 'message' => 'That code or password is not correct.'], 422);
         }
 
@@ -174,6 +182,9 @@ class StepUpController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
+        // In the app and by email to the new address, and by email to the old address too.
+        \App\Services\Auth\SecurityEvents::record($user, 'email_changed', $request, ['email_domain' => substr(strrchr($email, '@'), 1)], audit: false, alsoMail: $before ?: null);
+
         return response()->json(['success' => true, 'message' => 'Email updated.', 'user' => $user->fresh()]);
     }
 
@@ -220,6 +231,8 @@ class StepUpController extends Controller
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
         ]);
+
+        \App\Services\Auth\SecurityEvents::record($user, 'phone_changed', $request, ['phone_masked' => SmsLog::maskPhone($phone)], audit: false);
 
         return response()->json(['success' => true, 'message' => 'Phone number updated.', 'user' => $user->fresh()]);
     }

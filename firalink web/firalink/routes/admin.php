@@ -11,7 +11,6 @@ use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\BundleController;
-use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Controllers\Admin\AccountDeletionController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\PaymentGatewayController;
@@ -47,6 +46,12 @@ Route::middleware(['auth'])->prefix('staff/two-factor')->name('staff.two-factor.
     Route::post('/', 'verify')->middleware('throttle:6,1')->name('verify');
 });
 
+// "Confirm it is you" for class D staff actions (money, settings, users, suspension, payout confirmation).
+Route::middleware(['auth', 'staff.2fa'])->prefix('staff/confirm')->name('staff.confirm.')->controller(\App\Http\Controllers\Admin\StaffConfirmController::class)->group(function () {
+    Route::get('/', 'show')->name('show');
+    Route::post('/', 'confirm')->middleware('throttle:6,1')->name('store');
+});
+
 // Verification review queue: admins and reviewers, two-factor required. Decisions are audited.
 Route::middleware(['auth', 'staff.2fa', 'can:review-verifications'])->prefix('admin/verification-review')->name('admin.verification-review.')->controller(\App\Http\Controllers\Admin\VerificationReviewController::class)->group(function () {
     Route::get('/', 'index')->name('index');
@@ -57,8 +62,8 @@ Route::middleware(['auth', 'staff.2fa', 'can:review-verifications'])->prefix('ad
     Route::post('/documents/{document}/reject', 'reject')->name('reject');
     Route::post('/businesses/{organization}/tier3', 'grantTier3')->name('tier3.grant');
     Route::post('/businesses/{organization}/tier3/revoke', 'revokeTier3')->name('tier3.revoke');
-    Route::post('/businesses/{organization}/suspend', 'suspend')->name('suspend');
-    Route::post('/businesses/{organization}/unsuspend', 'unsuspend')->name('unsuspend');
+    Route::post('/businesses/{organization}/suspend', 'suspend')->middleware('sensitive')->name('suspend');
+    Route::post('/businesses/{organization}/unsuspend', 'unsuspend')->middleware('sensitive')->name('unsuspend');
     // Lot evidence (slice 4): same queue, same two-factor and self-review rules.
     Route::get('/lots/{id}', 'lot')->whereNumber('id')->name('lot');
     Route::get('/lot-pages/{lotPage}', 'lotPage')->middleware('signed')->name('lot-page');
@@ -72,8 +77,8 @@ Route::middleware(['auth', 'staff.2fa', 'can:review-verifications'])->prefix('ad
     Route::get('/reports/{report}', 'report')->whereNumber('report')->name('report');
     Route::get('/reports/{report}/evidence', 'reportEvidence')->whereNumber('report')->middleware('signed')->name('report-evidence');
     Route::post('/reports/{report}/decide', 'decide')->whereNumber('report')->name('report.decide');
-    Route::post('/payouts/{payout}/confirm', 'confirmPayout')->whereNumber('payout')->name('payout.confirm');
-    Route::post('/payouts/{payout}/reject', 'rejectPayout')->whereNumber('payout')->name('payout.reject');
+    Route::post('/payouts/{payout}/confirm', 'confirmPayout')->whereNumber('payout')->middleware('sensitive')->name('payout.confirm');
+    Route::post('/payouts/{payout}/reject', 'rejectPayout')->whereNumber('payout')->middleware('sensitive')->name('payout.reject');
 });
 
 // Coffee market sources: status, manual fetch, on/off switch, and the needs-review queue for suspicious prices.
@@ -107,7 +112,7 @@ Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('a
         Route::get('/rfqs', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'rfqs'])->name('rfqs');
         
         Route::get('/subscriptions', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'subscriptions'])->name('subscriptions');
-        Route::post('/subscriptions/{id}/approve', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'approveOfflineSubscription'])->name('subscriptions.approve');
+        Route::post('/subscriptions/{id}/approve', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'approveOfflineSubscription'])->middleware('sensitive')->name('subscriptions.approve');
     });
 
     // Dynamic SaaS Billing, Entitlements & Platform Subscriptions
@@ -147,11 +152,11 @@ Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('a
     Route::get('/settings/platform', [SettingsController::class, 'platform'])->name('settings.platform');
     Route::put('/settings/platform', [SettingsController::class, 'updatePlatform'])->name('settings.platform.update');
     Route::get('/settings/ai', [SettingsController::class, 'ai'])->name('settings.ai');
-    Route::put('/settings/ai', [SettingsController::class, 'updateAi'])->name('settings.ai.update');
+    Route::put('/settings/ai', [SettingsController::class, 'updateAi'])->middleware('sensitive')->name('settings.ai.update');
     Route::get('/settings/email-notifications', [SettingsController::class, 'emailNotifications'])->name('settings.email');
     Route::put('/settings/email-notifications', [SettingsController::class, 'updateEmailNotifications'])->name('settings.email.update');
     Route::get('/settings/smtp', [SettingsController::class, 'smtp'])->name('settings.smtp');
-    Route::put('/settings/smtp', [SettingsController::class, 'updateSmtp'])->name('settings.smtp.update');
+    Route::put('/settings/smtp', [SettingsController::class, 'updateSmtp'])->middleware('sensitive')->name('settings.smtp.update');
     Route::get('/settings/account-deletion', [SettingsController::class, 'accountDeletion'])->name('settings.account_deletion');
     Route::put('/settings/account-deletion', [SettingsController::class, 'updateAccountDeletion'])->name('settings.account_deletion.update');
     Route::get('/settings/course', [SettingsController::class, 'coursePolicies'])->name('settings.course');
@@ -163,17 +168,17 @@ Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('a
     Route::get('/settings/contact', [SettingsController::class, 'contact'])->name('settings.contact');
     Route::put('/settings/contact', [SettingsController::class, 'updateContact'])->name('settings.contact.update');
     Route::get('/settings/authentication', [SettingsController::class, 'authentication'])->name('settings.authentication');
-    Route::put('/settings/authentication', [SettingsController::class, 'updateAuthentication'])->name('settings.authentication.update');
+    Route::put('/settings/authentication', [SettingsController::class, 'updateAuthentication'])->middleware('sensitive')->name('settings.authentication.update');
     Route::get('/settings/recaptcha', [SettingsController::class, 'recaptcha'])->name('settings.recaptcha');
-    Route::put('/settings/recaptcha', [SettingsController::class, 'updateRecaptcha'])->name('settings.recaptcha.update');
+    Route::put('/settings/recaptcha', [SettingsController::class, 'updateRecaptcha'])->middleware('sensitive')->name('settings.recaptcha.update');
     Route::get('/settings/revenue', [SettingsController::class, 'revenue'])->name('settings.revenue');
-    Route::put('/settings/revenue', [SettingsController::class, 'updateRevenue'])->name('settings.revenue.update');
+    Route::put('/settings/revenue', [SettingsController::class, 'updateRevenue'])->middleware('sensitive')->name('settings.revenue.update');
     Route::get('/settings/withdrawals', [SettingsController::class, 'withdrawals'])->name('settings.withdrawals');
-    Route::put('/settings/withdrawals', [SettingsController::class, 'updateWithdrawals'])->name('settings.withdrawals.update');
+    Route::put('/settings/withdrawals', [SettingsController::class, 'updateWithdrawals'])->middleware('sensitive')->name('settings.withdrawals.update');
     Route::get('/settings/support', [SettingsController::class, 'support'])->name('settings.support');
     Route::put('/settings/support', [SettingsController::class, 'updateSupport'])->name('settings.support.update');
     Route::get('/settings/custom-scripts', [SettingsController::class, 'customScripts'])->name('settings.custom_scripts');
-    Route::put('/settings/custom-scripts', [SettingsController::class, 'updateCustomScripts'])->name('settings.custom_scripts.update');
+    Route::put('/settings/custom-scripts', [SettingsController::class, 'updateCustomScripts'])->middleware('sensitive')->name('settings.custom_scripts.update');
     Route::get('/settings/cron-setup', [SettingsController::class, 'cronSetup'])->name('settings.cron_setup');
     Route::put('/settings/cron-setup', [SettingsController::class, 'updateCronSetup'])->name('settings.cron_setup.update');
     Route::get('/settings/live-class', [SettingsController::class, 'liveClassSettings'])->name('settings.live_class');
@@ -181,15 +186,15 @@ Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('a
 
     // SMS Ethiopia & OTP Settings
     Route::get('/settings/sms', [SettingsController::class, 'smsSettings'])->name('settings.sms');
-    Route::put('/settings/sms/provider', [SettingsController::class, 'updateSmsProvider'])->name('settings.sms.provider.update');
+    Route::put('/settings/sms/provider', [SettingsController::class, 'updateSmsProvider'])->middleware('sensitive')->name('settings.sms.provider.update');
     Route::put('/settings/sms/otp', [SettingsController::class, 'updateSmsOtp'])->name('settings.sms.otp.update');
     Route::put('/settings/sms/template/{id}', [SettingsController::class, 'updateSmsTemplate'])->name('settings.sms.template.update');
     Route::post('/settings/sms/test', [SettingsController::class, 'sendTestSms'])->name('settings.sms.test');
     Route::delete('/settings/sms/logs', [SettingsController::class, 'clearSmsLogs'])->name('settings.sms.logs.clear');
 
     Route::get('/settings/gateways', [PaymentGatewayController::class, 'index'])->name('settings.gateways.index');
-    Route::put('/settings/gateways/{identifier}', [PaymentGatewayController::class, 'update'])->name('settings.gateways.update');
-    Route::post('/settings/gateways/{identifier}/test', [PaymentGatewayController::class, 'testConnection'])->name('settings.gateways.test');
+    Route::put('/settings/gateways/{identifier}', [PaymentGatewayController::class, 'update'])->middleware('sensitive')->name('settings.gateways.update');
+    Route::post('/settings/gateways/{identifier}/test', [PaymentGatewayController::class, 'testConnection'])->middleware('sensitive')->name('settings.gateways.test');
 
     // Language Manager
     Route::get('/settings/languages', [LanguageController::class, 'index'])->name('languages.index');
@@ -264,9 +269,9 @@ Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('a
     Route::get('/payments/pending', [PaymentController::class, 'pending'])->name('payments.pending');
     Route::get('/payments/offline-pending', [PaymentController::class, 'offlinePending'])->name('payments.offline-pending');
     Route::get('/payments/{id}', [PaymentController::class, 'show'])->name('payments.show');
-    Route::put('/payments/{id}/update-status', [PaymentController::class, 'updateStatus'])->name('payments.update-status');
-    Route::post('/payments/{id}/approve', [PaymentController::class, 'approve'])->name('payments.approve');
-    Route::post('/payments/{id}/reject', [PaymentController::class, 'reject'])->name('payments.reject');
+    Route::put('/payments/{id}/update-status', [PaymentController::class, 'updateStatus'])->middleware('sensitive')->name('payments.update-status');
+    Route::post('/payments/{id}/approve', [PaymentController::class, 'approve'])->middleware('sensitive')->name('payments.approve');
+    Route::post('/payments/{id}/reject', [PaymentController::class, 'reject'])->middleware('sensitive')->name('payments.reject');
 
     // Reports & Analytics
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
@@ -278,11 +283,11 @@ Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('a
     // Payout management
     Route::get('/withdrawals', [WithdrawalController::class, 'index'])->name('withdrawals.index');
     Route::get('/withdrawals/{withdrawal}', [WithdrawalController::class, 'show'])->name('withdrawals.show');
-    Route::put('/withdrawals/{withdrawal}/status', [WithdrawalController::class, 'updateStatus'])->name('withdrawals.status');
+    Route::put('/withdrawals/{withdrawal}/status', [WithdrawalController::class, 'updateStatus'])->middleware('sensitive')->name('withdrawals.status');
 
     // Account deletion requests
     Route::get('/account-deletions', [AccountDeletionController::class, 'index'])->name('account-deletions.index');
-    Route::put('/account-deletions/{accountDeletionRequest}/approve', [AccountDeletionController::class, 'approve'])->name('account-deletions.approve');
+    Route::put('/account-deletions/{accountDeletionRequest}/approve', [AccountDeletionController::class, 'approve'])->middleware('sensitive')->name('account-deletions.approve');
     Route::put('/account-deletions/{accountDeletionRequest}/reject', [AccountDeletionController::class, 'reject'])->name('account-deletions.reject');
 
     // Review management
@@ -294,12 +299,10 @@ Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('a
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
     Route::delete('/reviews/{reviewId}/replies/{replyId}', [ReviewController::class, 'deleteReply'])->name('reviews.delete-reply');
 
-    // Impersonation
-    Route::post('/impersonate/instructor/{id}', [ImpersonationController::class, 'impersonate'])->name('impersonate.instructor');
-    Route::post('/impersonate/student/{id}', [ImpersonationController::class, 'impersonateStudent'])->name('impersonate.student');
 
     // User management
-    Route::resource('users', UserController::class)->only(['index', 'show', 'destroy']);
+    Route::resource('users', UserController::class)->only(['index', 'show']);
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->middleware('sensitive')->name('users.destroy');
 
     // Course management
     Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');

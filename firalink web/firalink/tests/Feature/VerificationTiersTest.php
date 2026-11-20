@@ -409,8 +409,8 @@ class VerificationTiersTest extends TestCase
         $org = $this->approveBusiness($org, 'exporter');
         $admin = $this->makeUser('admin');
 
-        $this->actingAsStaff($admin)->postJson(route('admin.verification-review.suspend', $org), [])->assertStatus(422);
-        $this->actingAsStaff($admin)->post(route('admin.verification-review.suspend', $org), ['reason' => 'Scam reports'])->assertRedirect();
+        $this->actingAsStaff($admin, fresh: true)->postJson(route('admin.verification-review.suspend', $org), [])->assertStatus(422);
+        $this->actingAsStaff($admin, fresh: true)->post(route('admin.verification-review.suspend', $org), ['reason' => 'Scam reports'])->assertRedirect();
 
         $org->refresh();
         $this->assertSame('suspended', $org->workspaceStatus());

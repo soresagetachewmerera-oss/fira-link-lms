@@ -29,8 +29,7 @@ class EventBookingVerificationController extends Controller
             'reference' => $booking->reference,
             'status' => ucfirst($booking->status ?? EventBooking::STATUS_PENDING),
             'attendee' => $booking->full_name ?: ($booking->user?->name ?? 'Guest'),
-            'email' => $booking->email ?: $booking->user?->email,
-            'phone' => $booking->phone,
+            // Ticket check at the door (QR code): no email or phone, anyone holding the ticket can open it.
             'seats' => $booking->seats,
             'booked_at' => optional($booking->booked_at)->format('M d, Y H:i'),
             'event' => $event ? [

@@ -24,10 +24,6 @@ class CheckApprovedInstructor
 
         $user = Auth::user();
         
-        if (session('impersonating_admin_id')) {
-            return $next($request);
-        }
-        
         if ($user->role !== 'instructor') {
             abort(403, 'Only instructors can access this page');
         }

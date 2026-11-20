@@ -53,11 +53,19 @@ trait ApprovesBusinesses
     }
 
     /** A staff user with an enrolled authenticator who passed the code in this session. */
-    protected function actingAsStaff(User $user): static
+    /**
+     * @param bool $fresh also confirmed "it is you" within the last 10 minutes (class D staff actions:
+     *                    money, settings, suspension, payout confirmation), as after /staff/confirm
+     */
+    protected function actingAsStaff(User $user, bool $fresh = false): static
     {
         $this->enrolStaffTwoFactor($user);
+        $session = [StaffTwoFactor::SESSION_USER => $user->id];
+        if ($fresh) {
+            $session['fresh_auth_at'] = now()->timestamp;
+        }
 
-        return $this->actingAs($user)->withSession([StaffTwoFactor::SESSION_USER => $user->id]);
+        return $this->actingAs($user)->withSession($session);
     }
 
     /** Returns the plain TOTP secret. */

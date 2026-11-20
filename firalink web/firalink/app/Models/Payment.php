@@ -15,6 +15,18 @@ use Illuminate\Support\Facades\Storage;
  */
 class Payment extends Model
 {
+    /**
+     * Never in JSON: gateway secrets and the private receipt path. Receipts are served through a signed,
+     * owner-checked route; the app reads `receipt_url`.
+     */
+    protected $hidden = [
+        'razorpay_signature',
+        'stripe_client_secret',
+        'paystack_access_code',
+        'sslcommerz_session_key',
+        'receipt_file',
+    ];
+
     protected $fillable = [
         'user_id',
         'bundle_id',

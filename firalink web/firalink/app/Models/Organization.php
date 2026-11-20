@@ -70,6 +70,15 @@ class Organization extends Model
         return 'exporter'; // legacy seller types (cooperative, commercial_farm, ...)
     }
 
+    /**
+     * The only rule for showing a verification badge anywhere: Tier 1 or higher from reviewed documents,
+     * still valid, and the business is not suspended. Never a plan, a payment or a legacy flag.
+     */
+    public function hasActiveBadge(): bool
+    {
+        return $this->status !== 'suspended' && $this->hasActiveTier(1);
+    }
+
     /** Tier 1 or higher now: valid tier and not past its valid-until date. */
     public function hasActiveTier(int $tier = 1): bool
     {

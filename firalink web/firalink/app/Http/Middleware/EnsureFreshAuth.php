@@ -36,6 +36,14 @@ class EnsureFreshAuth
             ], 403);
         }
 
+        // Admins and reviewers confirm on the staff page (authenticator code or password), then repeat the action.
+        if (\App\Services\Auth\StaffTwoFactor::isStaff($user)) {
+            $request->session()->put('fresh_auth.return', url()->previous());
+
+            return redirect()->route('staff.confirm.show')
+                ->withErrors(['fresh_auth' => __('security.confirm.needed', ['minutes' => FreshAuth::WINDOW_MINUTES])]);
+        }
+
         return back()->withErrors([
             'fresh_auth' => 'For your security, sign out and sign in again, then repeat this action within '
                 . FreshAuth::WINDOW_MINUTES . ' minutes.',

@@ -299,11 +299,14 @@ class EventController extends Controller
         }
     }
 
-    public function confirmation(string $reference): View
+    public function confirmation(Request $request, string $reference): View
     {
         $booking = EventBooking::with(['event', 'payment', 'user'])
             ->where('reference', $reference)
             ->firstOrFail();
+        // Names, contact details and payment: only the person who booked, or an admin (same 404 otherwise).
+        $viewer = $request->user();
+        abort_unless($viewer && ($viewer->isAdmin() || ($booking->user_id && (int) $booking->user_id === (int) $viewer->id)), 404);
 
         $qrPayload = json_encode([
             'reference' => $booking->reference,

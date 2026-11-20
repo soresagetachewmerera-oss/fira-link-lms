@@ -77,6 +77,31 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(160)->by($request->user()?->id ?: $request->ip());
         });
+        // Every public (class A) API route: per IP, guests and signed-in callers alike.
+        RateLimiter::for('public', function (Request $request) {
+            return Limit::perMinute((int) config('security.public_rate_per_minute', 120))->by('public|' . $request->ip());
+        });
+        // Sensitive (class D) actions: per user and per IP, on top of fresh authentication.
+        RateLimiter::for('sensitive', function (Request $request) {
+            $limits = [Limit::perMinute((int) config('security.sensitive_per_ip_per_minute', 30))->by('sensitive-ip|' . $request->ip())];
+            if ($id = $request->user()?->id) {
+                $limits[] = Limit::perMinute((int) config('security.sensitive_per_user_per_minute', 10))->by('sensitive-user|' . $id);
+            }
+
+            return $limits;
+        });
+        // Fira AI for guests: per IP per day, on top of the per-minute limit in the controller (decision D-1).
+        RateLimiter::for('ai-guest-daily', function (Request $request) {
+            if ($request->user('sanctum') || \Illuminate\Support\Facades\Auth::user()) {
+                return Limit::none();
+            }
+
+            return Limit::perDay((int) config('security.ai_guest_per_day', 30))->by('ai-guest|' . $request->ip());
+        });
+        // Public web forms (contact, newsletter, blog comments): per IP.
+        RateLimiter::for('public-form', function (Request $request) {
+            return Limit::perMinute(5)->by('public-form|' . $request->ip());
+        });
         // Public coffee market data (guests included): per IP.
         RateLimiter::for('market-public', function (Request $request) {
             return Limit::perMinute((int) config('market.public_rate_per_minute', 60))->by('market-public|' . $request->ip());

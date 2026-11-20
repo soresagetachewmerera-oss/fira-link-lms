@@ -13,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
+        // Global, so it sees the rendered 401/403 even when auth middleware throws before group middleware.
+        $middleware->append(\App\Http\Middleware\LogDeniedRequests::class);
 
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
@@ -23,6 +25,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified.role' => \App\Http\Middleware\CheckOrganizationVerified::class,
             'fresh.auth' => \App\Http\Middleware\EnsureFreshAuth::class,
             'staff.2fa' => \App\Http\Middleware\EnsureStaffTwoFactor::class,
+        ]);
+
+        // Class D (sensitive) actions: limited per user and IP, then a code or password within 10 minutes.
+        $middleware->group('sensitive', [
+            'throttle:sensitive',
+            \App\Http\Middleware\EnsureFreshAuth::class,
         ]);
 
         $middleware->web(append: [

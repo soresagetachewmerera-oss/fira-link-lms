@@ -19,21 +19,12 @@ class CheckRole
     {
         if (!Auth::check()) {
             if ($request->is('api/*') || $request->expectsJson()) {
-                return response()->json(['message' => 'Unauthenticated.'], 401);
+                return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
             }
             return redirect()->route('login');
         }
 
         $user = Auth::user();
-        
-        if (session('impersonating_admin_id')) {
-            if ($role === 'instructor' && session('impersonating_instructor_id')) {
-                return $next($request);
-            }
-            if ($role === 'student' && session('impersonating_student_id')) {
-                return $next($request);
-            }
-        }
         
         if ($user->role !== $role) {
             abort(403, 'Unauthorized access');

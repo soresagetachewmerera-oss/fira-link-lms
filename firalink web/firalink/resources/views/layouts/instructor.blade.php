@@ -54,7 +54,6 @@
     @include('partials.header-top')
     @include('partials.header')
 
-    @include('partials.impersonation-banner')
 
     @yield('breadcrumb')
 

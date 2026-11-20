@@ -47,7 +47,7 @@
                 <div>
                     <h3 class="font-bold text-gray-900 text-base">
                         {{ $org->name }}
-                        @if($org->is_verified)
+                        @if($org->hasActiveBadge())
                             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 ml-2">
                                 <i class="fas fa-check-circle"></i> VERIFIED ENTITY
                             </span>
@@ -59,7 +59,7 @@
                     </h3>
                     <p class="text-xs text-gray-500 mt-0.5">
                         Active Verified Roles: 
-                        @if(!empty($org->verified_roles))
+                        @if($org->hasActiveBadge() && !empty($org->verified_roles))
                             @foreach($org->verified_roles as $role)
                                 <span class="uppercase font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded text-[11px] mr-1">{{ $role }}</span>
                             @endforeach

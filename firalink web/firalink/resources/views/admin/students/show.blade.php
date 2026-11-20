@@ -60,14 +60,7 @@
                     <!-- Action Buttons -->
                     <div class="row mb-4">
                         <div class="col-12">
-                            <form action="{{ route('admin.impersonate.student', $student->id) }}" method="POST"
-                                class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-user-secret"></i> Login as Student
-                                </button>
-                            </form>
-                            <a href="{{ route('admin.students.edit', $student->id) }}" class="btn btn-warning ml-2">
+                            <a href="{{ route('admin.students.edit', $student->id) }}" class="btn btn-warning">
                                 <i class="fas fa-edit"></i> Edit Details
                             </a>
                         </div>

@@ -72,7 +72,23 @@ class CoffeeListing extends Model
 
     // Never in JSON: a private file path, and the person behind the lot (their user record and
     // seller profile hold email, phone, TIN and document paths). Buyers see the business only.
-    protected $hidden = ['evidence_document_path', 'seller', 'seller_profile', 'sellerProfile'];
+    // seller_id is a user id (lets anyone enumerate accounts); buyers need the business, not the person.
+    protected $hidden = ['evidence_document_path', 'seller', 'seller_profile', 'sellerProfile', 'seller_id'];
+
+    /**
+     * The business is always sent as BusinessSummary: the tier only while it is active and the business
+     * is not suspended, and never the raw verification or legacy columns (is_verified, verified_roles,
+     * verification_valid_until, ...). Auth gating 2026-11-20, S-11 / B-1.
+     */
+    public function toArray()
+    {
+        $array = parent::toArray();
+        if ($this->relationLoaded('organization')) {
+            $array['organization'] = \App\Support\BusinessSummary::of($this->organization);
+        }
+
+        return $array;
+    }
 
     protected $casts = [
         'evidence_valid_until' => 'datetime',

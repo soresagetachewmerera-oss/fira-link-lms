@@ -18,7 +18,6 @@ use App\Http\Controllers\Front\NewsletterController;
 use App\Http\Controllers\Front\PageController;
 use App\Http\Controllers\Front\HomeController;
 use App\Http\Controllers\Front\BundleController;
-use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Controllers\Front\CertificateVerificationController;
 use App\Http\Controllers\Student\AiChatController;
 use App\Models\CustomPage;
@@ -56,7 +55,7 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
         // Organization Verification & Compliance Center (Web)
         Route::get('/verification', [\App\Http\Controllers\Front\OrganizationVerificationWebController::class, 'index'])->name('verification.center');
         Route::post('/verification/submit', [\App\Http\Controllers\Front\OrganizationVerificationWebController::class, 'submitDetails'])->name('verification.submit');
-        Route::post('/verification/upload-document', [\App\Http\Controllers\Front\OrganizationVerificationWebController::class, 'uploadDocument'])->middleware('fresh.auth')->name('verification.upload');
+        Route::post('/verification/upload-document', [\App\Http\Controllers\Front\OrganizationVerificationWebController::class, 'uploadDocument'])->middleware('sensitive')->name('verification.upload');
         Route::delete('/verification/documents/{id}', [\App\Http\Controllers\Front\OrganizationVerificationWebController::class, 'deleteDocument'])->name('verification.delete-document');
         Route::get('/verification/documents/{id}/download', [\App\Http\Controllers\VerificationDocumentDownloadController::class, 'download'])->name('verification.download');
     });
@@ -105,7 +104,7 @@ Route::get('/terms-conditions', function () {
 // About and contact routes
 Route::get('/about', AboutController::class)->name('about');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
-Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+Route::post('/contact', [ContactController::class, 'submit'])->middleware('throttle:public-form')->name('contact.submit');
 
 // Instructors routes
 Route::get('/instructors', [InstructorController::class, 'index'])->name('instructors.index');
@@ -116,7 +115,7 @@ Route::get('/instructors/{instructor}', [InstructorController::class, 'show'])
 // Testimonials and newsletter routes
 Route::get('/testimonials', [TestimonialController::class, 'index'])->name('testimonials.index');
 Route::get('/pages/{customPage:slug}', PageController::class)->name('pages.show');
-Route::post('/newsletter/subscribe', [NewsletterController::class, 'store'])->name('newsletter.subscribe');
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'store'])->middleware('throttle:public-form')->name('newsletter.subscribe');
 
 // Custom pages routes
 try {
@@ -145,7 +144,7 @@ Route::get('/bundles/{id}', [BundleController::class, 'show'])->name('bundles.sh
 
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
-Route::post('/blog/{slug}/comments', [BlogCommentController::class, 'store'])->name('blog.comments.store');
+Route::post('/blog/{slug}/comments', [BlogCommentController::class, 'store'])->middleware('throttle:public-form')->name('blog.comments.store');
 
 // Payment callbacks
 Route::post('/payment/razorpay/callback', [CourseEnrollmentController::class, 'razorpayCallback'])->name('payment.razorpay.callback');
@@ -162,17 +161,17 @@ Route::post('/payment/chapa/webhook', [CourseEnrollmentController::class, 'chapa
 
 // Events routes
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
-Route::get('/events/bookings/verify/{reference}', EventBookingVerificationController::class)->name('events.bookings.verify');
+Route::get('/events/bookings/verify/{reference}', EventBookingVerificationController::class)->middleware('throttle:public')->name('events.bookings.verify');
 Route::match(['get', 'post'], '/events/payment/chapa/callback', [EventController::class, 'chapaCallback'])->name('events.chapa.callback');
-Route::get('/events/booking/confirmation/{reference}', [EventController::class, 'confirmation'])->name('events.confirmation');
+Route::get('/events/booking/confirmation/{reference}', [EventController::class, 'confirmation'])->middleware('auth')->name('events.confirmation');
 
 // Tours routes
 Route::get('/tours', [TourController::class, 'index'])->name('tours.index');
 Route::get('/tours/{slug}', [TourController::class, 'show'])->name('tours.show');
-Route::get('/tours/{slug}/book', [TourController::class, 'book'])->name('tours.book');
-Route::post('/tours/{slug}/book', [TourController::class, 'processBooking'])->name('tours.book.process');
+Route::get('/tours/{slug}/book', [TourController::class, 'bookInApp'])->name('tours.book');
+Route::post('/tours/{slug}/book', [TourController::class, 'bookInApp'])->name('tours.book.process');
 Route::match(['get', 'post'], '/tours/payment/chapa/callback', [TourController::class, 'chapaCallback'])->name('tours.chapa.callback');
-Route::get('/tours/booking/confirmation/{reference}', [TourController::class, 'confirmation'])->name('tours.confirmation');
+Route::get('/tours/booking/confirmation/{reference}', [TourController::class, 'confirmation'])->middleware('auth')->name('tours.confirmation');
 
 // Event bookings routes
 Route::middleware('auth')->group(function () {
@@ -197,8 +196,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/courses/{courseId}/reviews', [ReviewController::class, 'store'])->name('courses.reviews.store');
     Route::put('/courses/{courseId}/reviews/{reviewId}', [ReviewController::class, 'update'])->name('courses.reviews.update');
 
-    // Admin impersonation routes
-    Route::post('/admin/stop-impersonating', [ImpersonationController::class, 'stopImpersonating'])->name('admin.stop-impersonating');
 });
 
 // Cron runner route

@@ -506,12 +506,13 @@
                     <div class="mkt-profile-title-area">
                         <div class="mkt-profile-heading-row">
                             <h1 class="mkt-profile-title">{{ $seller->company_name }}</h1>
-                            @if($seller->verification_status === 'verified')
-                                <span class="mkt-verified-badge" title="ECTA Verified Exporter">
+                            {{-- Badge only from the reviewed tier (active, not suspended), never the old profile flag --}}
+                            @if($seller->organization?->hasActiveBadge())
+                                <span class="mkt-verified-badge" title="{{ __('verification.public.verified_tier', ['tier' => $seller->organization->verification_tier]) }}">
                                     <svg fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                     </svg>
-                                    ECTA Verified
+                                    {{ __('verification.public.verified_tier', ['tier' => $seller->organization->verification_tier]) }}
                                 </span>
                             @endif
                         </div>

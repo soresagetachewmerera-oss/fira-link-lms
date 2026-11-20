@@ -152,7 +152,8 @@ class MarketplaceSubscriptionService
         }
 
         if ($gateway === 'chapa') {
-            $txRef = 'MKT-SUB-' . $user->id . '-' . time();
+            // Random: the reference is sent to Chapa and back in URLs, so it must not reveal or allow guessing a user.
+            $txRef = 'MKT-SUB-' . \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(24));
 
             // Create initial payment record
             $payment = Payment::create([

@@ -83,7 +83,7 @@ class MarketplaceWebController extends Controller
     public function suppliers(Request $request)
     {
         // Only businesses approved as sellers appear to buyers.
-        $query = MarketplaceSellerProfile::with(['user'])
+        $query = MarketplaceSellerProfile::with(['user', 'organization'])
             ->visibleToBuyers()
             ->withCount(['listings' => fn($q) => $q->active()->visibleToBuyers()]);
 
@@ -117,7 +117,7 @@ class MarketplaceWebController extends Controller
         // Hidden until the business is approved as a seller (404, same as not found).
         $seller = MarketplaceSellerProfile::where('company_slug', $slug)
             ->visibleToBuyers()
-            ->with(['user', 'listings' => fn($q) => $q->active()->visibleToBuyers()->with('primaryImage')])
+            ->with(['user', 'organization', 'listings' => fn($q) => $q->active()->visibleToBuyers()->with('primaryImage')])
             ->firstOrFail();
 
         return view('marketplace.supplier-show', compact('seller'));

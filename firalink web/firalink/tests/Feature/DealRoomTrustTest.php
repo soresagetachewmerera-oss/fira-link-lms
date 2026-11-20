@@ -241,9 +241,9 @@ class DealRoomTrustTest extends TestCase
         // Reviewer: name check and a call to the number on file.
         $reviewer = $this->makeUser('admin');
         $account = PayoutAccount::find($newId);
-        $this->actingAsStaff($reviewer)->post(route('admin.verification-review.payout.confirm', $newId), ['checks' => ['name_matches' => 1]])->assertSessionHas('error');
+        $this->actingAsStaff($reviewer, fresh: true)->post(route('admin.verification-review.payout.confirm', $newId), ['checks' => ['name_matches' => 1]])->assertSessionHas('error');
         $this->assertSame(PayoutAccount::STATUS_PENDING, $account->fresh()->status);
-        $this->actingAsStaff($reviewer)->post(route('admin.verification-review.payout.confirm', $newId), ['checks' => ['name_matches' => 1, 'called_on_file' => 1]])->assertSessionHas('success');
+        $this->actingAsStaff($reviewer, fresh: true)->post(route('admin.verification-review.payout.confirm', $newId), ['checks' => ['name_matches' => 1, 'called_on_file' => 1]])->assertSessionHas('success');
         $this->assertSame(PayoutAccount::STATUS_CONFIRMED, $account->fresh()->status);
         $this->assertNotNull($account->fresh()->called_on_file_at);
 
@@ -262,12 +262,12 @@ class DealRoomTrustTest extends TestCase
 
         $insider = $this->member($org, 'member');
         $insider->forceFill(['role' => 'admin'])->save();
-        $this->actingAsStaff($insider)->post(route('admin.verification-review.payout.confirm', $id), ['checks' => ['name_matches' => 1]])->assertSessionHas('error');
+        $this->actingAsStaff($insider, fresh: true)->post(route('admin.verification-review.payout.confirm', $id), ['checks' => ['name_matches' => 1]])->assertSessionHas('error');
 
         $reviewer = $this->makeUser('admin');
         $this->actingAsStaff($reviewer)->get(route('admin.verification-review.index', ['tab' => 'payouts']))->assertOk()->assertSee('Someone Else PLC')->assertSee('3333')->assertDontSee('1000111122223333');
-        $this->actingAsStaff($reviewer)->post(route('admin.verification-review.payout.reject', $id), ['reason' => ''])->assertSessionHas('error');
-        $this->actingAsStaff($reviewer)->post(route('admin.verification-review.payout.reject', $id), ['reason' => 'Name does not match the licence'])->assertSessionHas('success');
+        $this->actingAsStaff($reviewer, fresh: true)->post(route('admin.verification-review.payout.reject', $id), ['reason' => ''])->assertSessionHas('error');
+        $this->actingAsStaff($reviewer, fresh: true)->post(route('admin.verification-review.payout.reject', $id), ['reason' => 'Name does not match the licence'])->assertSessionHas('success');
         $this->assertSame(PayoutAccount::STATUS_REJECTED, PayoutAccount::find($id)->status);
 
         Sanctum::actingAs($owner);
@@ -400,7 +400,7 @@ class DealRoomTrustTest extends TestCase
         $this->confirmedPayoutAccount($sellerOrg);
 
         $admin = $this->makeUser('admin');
-        $this->actingAsStaff($admin)->post(route('admin.verification-review.suspend', $sellerOrg), ['reason' => 'Report #1'])->assertSessionHas('success');
+        $this->actingAsStaff($admin, fresh: true)->post(route('admin.verification-review.suspend', $sellerOrg), ['reason' => 'Report #1'])->assertSessionHas('success');
         $deal = DealRoom::find($id);
         $this->assertNotNull($deal->paused_at);
         $this->assertSame('business_suspended', $deal->pause_reason);
@@ -410,7 +410,7 @@ class DealRoomTrustTest extends TestCase
         Sanctum::actingAs($buyer);
         $this->getJson("/api/deal-rooms/{$id}")->assertJsonPath('data.paused', true)->assertJsonPath('data.seller.verification_tier', 0);
 
-        $this->actingAsStaff($admin)->post(route('admin.verification-review.unsuspend', $sellerOrg), ['reason' => 'Checked'])->assertSessionHas('success');
+        $this->actingAsStaff($admin, fresh: true)->post(route('admin.verification-review.unsuspend', $sellerOrg), ['reason' => 'Checked'])->assertSessionHas('success');
         $this->assertNull(DealRoom::find($id)->paused_at);
         $this->slip($buyer, $id, 'payment_escrow')->assertOk();
     }

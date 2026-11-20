@@ -103,15 +103,6 @@
                                         <i class="fas fa-times"></i> Reject
                                     </button>
                                 @endif
-                                @if ($instructor->is_approved)
-                                    <form action="{{ route('admin.impersonate.instructor', $instructor->id) }}"
-                                        method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-user-secret"></i> Login as Instructor
-                                        </button>
-                                    </form>
-                                @endif
                                 <a href="{{ route('admin.instructors.edit', $instructor->id) }}" class="btn btn-warning">
                                     <i class="fas fa-edit"></i> Edit Details
                                 </a>

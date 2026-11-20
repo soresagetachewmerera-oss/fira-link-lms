@@ -138,7 +138,7 @@ class EventsToursAcademyTest extends TestCase
         $this->getJson("/api/user/bookings/{$booking->id}")->assertStatus(403);
 
         $admin = $this->admin();
-        $this->actingAsStaff($admin)->post(route('admin.payments.approve', $payment->id))->assertRedirect();
+        $this->actingAsStaff($admin, fresh: true)->post(route('admin.payments.approve', $payment->id))->assertRedirect();
         $this->assertSame(EventBooking::STATUS_CONFIRMED, $booking->fresh()->status);
         $this->assertSame('paid', $booking->fresh()->payment_status);
         $this->assertSame($admin->id, (int) $payment->fresh()->confirmed_by);
@@ -155,7 +155,7 @@ class EventsToursAcademyTest extends TestCase
         $payment = Payment::where('event_booking_id', $id)->firstOrFail();
 
         $admin = $this->admin();
-        $this->actingAsStaff($admin)->post(route('admin.payments.reject', $payment->id), ['reason' => 'Amount does not match'])->assertRedirect();
+        $this->actingAsStaff($admin, fresh: true)->post(route('admin.payments.reject', $payment->id), ['reason' => 'Amount does not match'])->assertRedirect();
         $this->assertSame('cancelled', EventBooking::find($id)->status);
         $this->assertSame(1, $e->fresh()->remainingSeats());
     }
@@ -216,7 +216,7 @@ class EventsToursAcademyTest extends TestCase
 
         $admin = $this->admin();
         $deposit = Payment::where('tour_booking_id', $booking->id)->where('purpose', 'tour_deposit')->firstOrFail();
-        $this->actingAsStaff($admin)->post(route('admin.payments.approve', $deposit->id))->assertRedirect();
+        $this->actingAsStaff($admin, fresh: true)->post(route('admin.payments.approve', $deposit->id))->assertRedirect();
         $booking->refresh();
         $this->assertSame(TourBooking::STATUS_CONFIRMED, $booking->status);
         $this->assertSame('deposit_paid', $booking->payment_status);
@@ -228,7 +228,7 @@ class EventsToursAcademyTest extends TestCase
 
         $balance = Payment::where('tour_booking_id', $booking->id)->where('purpose', 'tour_balance')->firstOrFail();
         $this->assertSame(14000.0, (float) $balance->amount);
-        $this->actingAsStaff($admin)->post(route('admin.payments.approve', $balance->id))->assertRedirect();
+        $this->actingAsStaff($admin, fresh: true)->post(route('admin.payments.approve', $balance->id))->assertRedirect();
         $this->assertSame('paid', $booking->fresh()->payment_status);
         $this->assertNotNull($booking->fresh()->balance_paid_at);
 

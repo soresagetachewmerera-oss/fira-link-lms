@@ -60,14 +60,9 @@ class FileController extends Controller
         $hasValidSignature = $request->hasValidSignature();
         $protected = $lessons->reject(fn ($l) => (bool) $l->is_preview);
         if ($protected->isNotEmpty() && !$hasValidSignature) {
+            // Bearer token, web session or a signed URL. A token in the query string is not accepted:
+            // URLs end up in access logs and browser history (GAP-051).
             $user = $request->user('sanctum') ?: auth('sanctum')->user() ?: \Illuminate\Support\Facades\Auth::user();
-
-            if (!$user && $request->filled('token')) {
-                $token = \Laravel\Sanctum\PersonalAccessToken::findToken((string) $request->query('token'));
-                if ($token) {
-                    $user = $token->tokenable;
-                }
-            }
 
             if (!$user) {
                 return response()->json(['error' => 'Authentication required to stream this course video.'], 401);

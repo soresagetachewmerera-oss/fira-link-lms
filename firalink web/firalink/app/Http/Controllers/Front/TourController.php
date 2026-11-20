@@ -107,201 +107,17 @@ class TourController extends Controller
         ]);
     }
 
-    public function book(Request $request, string $slug): View
-    {
-        $tour = Tour::published()->where('slug', $slug)->firstOrFail();
-        $remainingSeats = $tour->remainingSeats();
-
-        if ($remainingSeats <= 0) {
-            return redirect()->route('tours.show', $tour->slug)
-                ->with('error', 'Sorry, this tour is currently fully booked.');
-        }
-
-        $gatewayService = app(PaymentGatewayService::class);
-        $chapaEnabled = $gatewayService->isEnabled('chapa');
-        $offlineEnabled = $gatewayService->isEnabled('offline');
-
-        return view('tours.book', [
-            'pageTitle' => 'Book Tour: ' . $tour->title,
-            'tour' => $tour,
-            'remainingSeats' => $remainingSeats,
-            'chapaEnabled' => $chapaEnabled,
-            'offlineEnabled' => $offlineEnabled,
-            'user' => Auth::user(),
-        ]);
-    }
-
-    public function processBooking(Request $request, string $slug)
+    /**
+     * Tour booking is in the Fira Link app (slice 8: signed in, host business, future dates, deposit).
+     * The website no longer takes bookings: both the form and its POST send the visitor back to the tour.
+     */
+    public function bookInApp(string $slug): RedirectResponse
     {
         $tour = Tour::published()->where('slug', $slug)->firstOrFail();
 
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'email' => 'required|email|max:150',
-            'phone' => 'required|string|max:30',
-            'participants' => 'required|integer|min:1|max:20',
-            'schedule_date' => 'nullable|date',
-            'departure_time' => 'nullable|string|max:50',
-            'special_requests' => 'nullable|string|max:1000',
-            'payment_method' => 'required|string|in:chapa,free',
-        ]);
+        \Devrabiul\ToastMagic\Facades\ToastMagic::info(__('security.bookings.book_in_app'));
 
-        $participants = (int)$validated['participants'];
-        $remainingSeats = $tour->remainingSeats();
-
-        if ($remainingSeats < $participants) {
-            return back()->withInput()->with('error', "Only {$remainingSeats} seat(s) are remaining for this tour.");
-        }
-
-        $unitPrice = (float)$tour->price;
-        $totalAmount = $unitPrice * $participants;
-        $reference = TourBooking::generateReference();
-        $user = Auth::user();
-
-        // Enforce payment: paid tours cannot be booked as free
-        if ($totalAmount > 0 && $validated['payment_method'] === 'free') {
-            return back()->withInput()->with('error', 'This tour requires payment of ' . number_format($totalAmount, 2) . ' ETB. You cannot book a paid expedition as free.');
-        }
-
-        if ($totalAmount > 0 && $validated['payment_method'] !== 'chapa') {
-            return back()->withInput()->with('error', 'Please select a valid payment method to proceed with your booking.');
-        }
-
-        if ($totalAmount <= 0) {
-            $validated['payment_method'] = 'free';
-        }
-
-        DB::beginTransaction();
-        try {
-            $booking = TourBooking::create([
-                'tour_id' => $tour->id,
-                'user_id' => $user?->id,
-                'reference' => $reference,
-                'first_name' => $validated['first_name'],
-                'last_name' => $validated['last_name'],
-                'email' => $validated['email'],
-                'phone' => $validated['phone'],
-                'participants' => $participants,
-                'schedule_date' => $validated['schedule_date'] ?? $tour->start_date,
-                'departure_time' => $validated['departure_time'] ?? $tour->departure_time,
-                'unit_price' => $unitPrice,
-                'total_amount' => $totalAmount,
-                'currency' => 'ETB',
-                'status' => ($totalAmount <= 0) ? TourBooking::STATUS_CONFIRMED : TourBooking::STATUS_PENDING,
-                'payment_status' => ($totalAmount <= 0) ? TourBooking::PAYMENT_PAID : TourBooking::PAYMENT_PENDING,
-                'special_requests' => $validated['special_requests'] ?? null,
-                'booked_at' => now(),
-            ]);
-
-            // Handle Free Tour
-            if ($totalAmount <= 0) {
-                DB::commit();
-                return redirect()->route('tours.confirmation', ['reference' => $booking->reference])
-                    ->with('success', 'Your tour booking has been confirmed successfully!');
-            }
-
-            // Handle Chapa Gateway Payment
-            if ($validated['payment_method'] === 'chapa') {
-                $txRef = 'CHAPA_TOUR_' . $booking->id . '_' . time();
-
-                $payment = Payment::create([
-                    'user_id' => $user?->id,
-                    'tour_booking_id' => $booking->id,
-                    'payment_method' => Payment::PAYMENT_METHOD_CHAPA,
-                    'amount' => $totalAmount,
-                    'status' => Payment::STATUS_PENDING,
-                    'chapa_tx_ref' => $txRef,
-                ]);
-
-                $booking->update(['payment_id' => $payment->id]);
-
-                // Create Chapa Session
-                $chapaSession = $this->createChapaSession($totalAmount, $booking, $tour, $txRef);
-                DB::commit();
-
-                if (!empty($chapaSession['checkout_url'])) {
-                    return redirect()->away($chapaSession['checkout_url']);
-                }
-
-                throw new \Exception('Chapa did not return a valid checkout URL.');
-            }
-
-            throw new \Exception('Invalid payment method for paid tour.');
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            Log::error('Tour booking error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return back()->withInput()->with('error', 'Booking processing error: ' . $e->getMessage());
-        }
-    }
-
-    private function createChapaSession(float $amount, TourBooking $booking, Tour $tour, string $txRef): array
-    {
-        if (!\App\Support\ChapaSwitch::enabled()) {
-            throw new \RuntimeException(\App\Support\ChapaSwitch::offMessage());
-        }
-        $gatewayService = app(PaymentGatewayService::class);
-        $credentials = $gatewayService->credentialsFor('chapa');
-        $secretKey = $credentials['secret_key'] ?? env('CHAPA_SECRET_KEY');
-
-        if (empty($secretKey)) {
-            throw new \RuntimeException('Chapa credentials (secret_key) are not configured.');
-        }
-
-        $rawTourDesc = 'Tour ' . ($tour->title ?? 'Booking');
-        $customTourDesc = substr(preg_replace('/[^a-zA-Z0-9\-_ .]/', '', $rawTourDesc), 0, 50);
-        if (empty($customTourDesc)) {
-            $customTourDesc = 'Tour Booking';
-        }
-
-        $payload = [
-            'amount' => number_format($amount, 2, '.', ''),
-            'currency' => $tour->currency ?? 'ETB',
-            'email' => $booking->email,
-            'first_name' => $booking->first_name,
-            'last_name' => $booking->last_name,
-            'tx_ref' => $txRef,
-            'callback_url' => route('tours.chapa.callback'),
-            'return_url' => route('tours.chapa.callback', ['tx_ref' => $txRef]),
-            'customization' => [
-                'title' => 'Fira Link Tour',
-                'description' => $customTourDesc,
-            ],
-        ];
-
-        $ch = curl_init('https://api.chapa.co/v1/transaction/initialize');
-        curl_setopt_array($ch, [
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 25,
-            CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . $secretKey,
-                'Content-Type: application/json',
-            ],
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => 2,
-        ]);
-
-        $response = curl_exec($ch);
-        $curlError = curl_error($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($curlError) {
-            throw new \Exception('Chapa connection error: ' . $curlError);
-        }
-
-        $responseData = json_decode($response, true);
-        if (!$responseData || ($responseData['status'] ?? '') !== 'success') {
-            $msg = $responseData['message'] ?? 'Unable to connect to Chapa checkout.';
-            throw new \Exception('Chapa initialization error: ' . $msg);
-        }
-
-        return [
-            'checkout_url' => $responseData['data']['checkout_url'] ?? null,
-            'tx_ref' => $txRef,
-        ];
+        return redirect()->route('tours.show', $tour->slug);
     }
 
     public function chapaCallback(Request $request): RedirectResponse
@@ -382,11 +198,14 @@ class TourController extends Controller
         }
     }
 
-    public function confirmation(string $reference): View
+    public function confirmation(Request $request, string $reference): View
     {
         $booking = TourBooking::with(['tour', 'payment', 'user'])
             ->where('reference', $reference)
             ->firstOrFail();
+        // Names, contact details and payment: only the person who booked, or an admin (same 404 otherwise).
+        $viewer = $request->user();
+        abort_unless($viewer && ($viewer->isAdmin() || ($booking->user_id && (int) $booking->user_id === (int) $viewer->id)), 404);
 
         $qrPayload = json_encode([
             'reference' => $booking->reference,

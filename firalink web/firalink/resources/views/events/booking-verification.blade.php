@@ -32,12 +32,6 @@
                                 <h2 class="h6 text-uppercase text-muted">{{ __('frontend.attendee_info') }}</h2>
                                 <div class="mt-2">
                                     <p class="mb-1"><strong>{{ $details['attendee'] }}</strong></p>
-                                    @if ($details['email'])
-                                        <p class="mb-1 text-muted">{{ $details['email'] }}</p>
-                                    @endif
-                                    @if ($details['phone'])
-                                        <p class="mb-0 text-muted">{{ $details['phone'] }}</p>
-                                    @endif
                                 </div>
                             </div>
 

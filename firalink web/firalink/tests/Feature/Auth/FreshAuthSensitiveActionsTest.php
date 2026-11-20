@@ -154,13 +154,16 @@ class FreshAuthSensitiveActionsTest extends TestCase
         $this->assertNotNull($fresh->phone_verified_at);
     }
 
-    public function test_profile_phone_change_without_code_is_saved_unverified(): void
+    public function test_profile_form_cannot_change_a_phone_without_a_code(): void
     {
+        // Auth gating 2026-11-20 (S-6): changing a number is a sensitive change (POST /api/user/phone).
         $user = $this->makeUser();
         $user->forceFill(['email' => 'pp_' . Str::random(8) . '@example.test', 'phone' => '251911555666', 'phone_verified_at' => now()])->save();
         Sanctum::actingAs($user);
 
-        $this->postJson('/api/user/profile', ['name' => $user->name, 'email' => $user->email, 'phone' => '0911777888'])->assertOk();
-        $this->assertNull($user->fresh()->phone_verified_at, 'A number set without a code must not stay verified.');
+        $this->postJson('/api/user/profile', ['name' => $user->name, 'email' => $user->email, 'phone' => '0911777888'])
+            ->assertStatus(422)->assertJsonPath('code', 'PHONE_CHANGE_NEEDS_CODE');
+        $this->assertSame('251911555666', $user->fresh()->phone);
+        $this->assertNotNull($user->fresh()->phone_verified_at);
     }
 }

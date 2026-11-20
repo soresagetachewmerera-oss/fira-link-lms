@@ -192,10 +192,12 @@ class SettingsController extends Controller
 
             $currentTokenId = $user->currentAccessToken()?->id;
             if ($currentTokenId) {
-                $user->tokens()->where('id', '!=', $currentTokenId)->delete();
+                $revoked = $user->tokens()->where('id', '!=', $currentTokenId)->delete();
             } else {
-                $user->tokens()->delete();
+                $revoked = $user->tokens()->delete();
             }
+
+            \App\Services\Auth\SecurityEvents::record($user, 'password_changed', $request, ['other_tokens_revoked' => $revoked]);
 
             return response()->json([
                 'success' => true,
@@ -235,6 +237,8 @@ class SettingsController extends Controller
             'role' => $user->role,
             'status' => 'pending',
         ]);
+
+        \App\Services\Auth\SecurityEvents::record($user, 'deletion_requested', $request);
 
         return response()->json([
             'success' => true,

@@ -39,8 +39,10 @@ class OrganizationController extends Controller
             'has_tin' => !empty($org->tin_number),
             'membership_role' => $membership->role,
             'status' => $org->workspaceStatus(),
-            'is_verified' => (bool) $org->is_verified, // legacy field for older app versions
-            'verified_roles' => $org->verified_roles ?? [],
+            // Legacy fields for older app versions: derived from the active tier (not expired, not
+            // suspended), never the stored flags, which can lag behind an expiry or a suspension.
+            'is_verified' => $org->hasActiveBadge(),
+            'verified_roles' => $org->hasActiveBadge() ? ($org->verified_roles ?? []) : [],
             'visible_to_buyers' => VerificationReviewService::isApprovedSeller($org),
             'needs_manual_review' => (bool) $org->needs_manual_review,
             'is_active_workspace' => $current?->id === $org->id,

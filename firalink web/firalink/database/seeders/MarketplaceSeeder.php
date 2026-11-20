@@ -168,6 +168,14 @@ class MarketplaceSeeder extends Seeder
             );
         }
 
+        // Everything below is demo data: people, lots, requests, and seller profiles flagged "verified"
+        // without any document review. Never outside APP_ENV=local (auth gating 2026-11-20, B-2).
+        if (!app()->environment('local')) {
+            $this->command?->warn('MarketplaceSeeder: plans seeded. Demo sellers, lots and requests run only when APP_ENV=local.');
+
+            return;
+        }
+
         // ==========================================
         // 2. VERIFIED ETHIOPIAN EXPORTERS (Multiple Origins)
         // ==========================================

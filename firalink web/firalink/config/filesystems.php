@@ -33,7 +33,9 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Off: the private root also holds the verification vault. Private files are served only by
+            // owner- and staff-checked controllers.
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],

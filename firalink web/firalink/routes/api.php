@@ -30,131 +30,132 @@ use App\Http\Controllers\Api\LiveClassController;
 use App\Http\Controllers\Api\FocusController;
 use App\Http\Controllers\Api\HabitController;
 
-Route::get('/settings', [SettingController::class, 'index']);
-Route::get('/settings/pages', [CustomPageController::class, 'index']);
-Route::get('/settings/pages/{slug}', [CustomPageController::class, 'show']);
+// Public (class A) routes and sign-in: per-IP limit. Anything not listed in config/public_routes.php
+// must be inside an auth:sanctum group (enforced by tests/Feature/Security/RouteInventoryTest).
+Route::middleware('throttle:public')->group(function () {
+    Route::get('/settings', [SettingController::class, 'index']);
+    Route::get('/settings/pages', [CustomPageController::class, 'index']);
+    Route::get('/settings/pages/{slug}', [CustomPageController::class, 'show']);
 
-// Fira AI (Powered by Google Gemini AI) - Open with optional Sanctum token
-Route::get('/fira-ai/status', [AiChatController::class, 'status']);
-Route::get('/fira-ai', [AiChatController::class, 'index']);
-Route::post('/fira-ai/send', [AiChatController::class, 'sendMessage']);
-Route::post('/fira-ai/analyze-document', [AiChatController::class, 'analyzeDocument'])
-    ->middleware(['auth:sanctum', 'throttle:10,1']);
-// Connection test calls Gemini (cost): admins only.
-Route::match(['GET', 'POST'], '/fira-ai/test', [AiChatController::class, 'testConnection'])->middleware(['auth:sanctum', 'role:admin']);
-Route::get('/ai-chat', [AiChatController::class, 'index']);
-Route::post('/ai-chat/send', [AiChatController::class, 'sendMessage']);
-Route::post('/ai-chat/analyze-document', [AiChatController::class, 'analyzeDocument'])
-    ->middleware(['auth:sanctum', 'throttle:10,1']);
+    // Fira AI (Powered by Google Gemini AI) - Open with optional Sanctum token
+    Route::get('/fira-ai/status', [AiChatController::class, 'status']);
+    Route::get('/fira-ai', [AiChatController::class, 'index']);
+    Route::post('/fira-ai/send', [AiChatController::class, 'sendMessage'])->middleware('throttle:ai-guest-daily');
+    Route::post('/fira-ai/analyze-document', [AiChatController::class, 'analyzeDocument'])
+        ->middleware(['auth:sanctum', 'throttle:10,1']);
+    // Connection test calls Gemini (cost): admins only.
+    Route::match(['GET', 'POST'], '/fira-ai/test', [AiChatController::class, 'testConnection'])->middleware(['auth:sanctum', 'role:admin']);
+    Route::get('/ai-chat', [AiChatController::class, 'index']);
+    Route::post('/ai-chat/send', [AiChatController::class, 'sendMessage'])->middleware('throttle:ai-guest-daily');
+    Route::post('/ai-chat/analyze-document', [AiChatController::class, 'analyzeDocument'])
+        ->middleware(['auth:sanctum', 'throttle:10,1']);
 
-Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/login/otp/verify', [AuthController::class, 'verifyOtp']);
-    Route::post('/login/otp/resend', [AuthController::class, 'resendOtp']);
-    // Registration SMS OTP Verification
-    Route::post('/register/verify', [AuthController::class, 'verifyRegistrationOtp']);
-    Route::post('/register/resend', [AuthController::class, 'resendRegistrationOtp']);
-    Route::post('/register/change-phone', [AuthController::class, 'changeRegistrationPhone']);
-    // SMS Ethiopia Phone Verification & Password Recovery
-    Route::post('/phone/verify/send', [AuthController::class, 'sendPhoneOtp']);
-    Route::post('/phone/verify/check', [AuthController::class, 'verifyPhoneOtp']);
-    Route::post('/password/forgot/otp', [AuthController::class, 'sendPasswordResetOtp']);
-    Route::post('/password/reset/otp', [AuthController::class, 'resetPasswordWithOtp']);
+    Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
+        Route::post('/register', [AuthController::class, 'register']);
+        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/login/otp/verify', [AuthController::class, 'verifyOtp']);
+        Route::post('/login/otp/resend', [AuthController::class, 'resendOtp']);
+        // Registration SMS OTP Verification
+        Route::post('/register/verify', [AuthController::class, 'verifyRegistrationOtp']);
+        Route::post('/register/resend', [AuthController::class, 'resendRegistrationOtp']);
+        Route::post('/register/change-phone', [AuthController::class, 'changeRegistrationPhone']);
+        // SMS Ethiopia Phone Verification & Password Recovery
+        Route::post('/phone/verify/send', [AuthController::class, 'sendPhoneOtp']);
+        Route::post('/phone/verify/check', [AuthController::class, 'verifyPhoneOtp']);
+        Route::post('/password/forgot/otp', [AuthController::class, 'sendPasswordResetOtp']);
+        Route::post('/password/reset/otp', [AuthController::class, 'resetPasswordWithOtp']);
 
-    // Phone sign-in: one step for new and returning users (slice 1)
-    Route::post('/phone/start', [\App\Http\Controllers\Api\PhoneAuthController::class, 'start']);
-    Route::post('/phone/email-fallback', [\App\Http\Controllers\Api\PhoneAuthController::class, 'emailFallback']);
-    Route::post('/phone/verify', [\App\Http\Controllers\Api\PhoneAuthController::class, 'verify']);
-    Route::post('/phone/complete', [\App\Http\Controllers\Api\PhoneAuthController::class, 'complete']);
+        // Phone sign-in: one step for new and returning users (slice 1)
+        Route::post('/phone/start', [\App\Http\Controllers\Api\PhoneAuthController::class, 'start']);
+        Route::post('/phone/email-fallback', [\App\Http\Controllers\Api\PhoneAuthController::class, 'emailFallback']);
+        Route::post('/phone/verify', [\App\Http\Controllers\Api\PhoneAuthController::class, 'verify']);
+        Route::post('/phone/complete', [\App\Http\Controllers\Api\PhoneAuthController::class, 'complete']);
 
-    // Email and password sign-up (no phone needed), confirmed by an emailed 6-digit code
-    Route::post('/email/register/start', [\App\Http\Controllers\Api\EmailSignUpController::class, 'start']);
-    Route::post('/email/register/verify', [\App\Http\Controllers\Api\EmailSignUpController::class, 'verify']);
+        // Email and password sign-up (no phone needed), confirmed by an emailed 6-digit code
+        Route::post('/email/register/start', [\App\Http\Controllers\Api\EmailSignUpController::class, 'start']);
+        Route::post('/email/register/verify', [\App\Http\Controllers\Api\EmailSignUpController::class, 'verify']);
 
-    // Forgot password by phone or email: identical answers whether or not the account exists
-    Route::post('/password/forgot', [\App\Http\Controllers\Api\PasswordResetController::class, 'forgot']);
-    Route::post('/password/verify-code', [\App\Http\Controllers\Api\PasswordResetController::class, 'verifyCode']);
-    Route::post('/password/reset', [\App\Http\Controllers\Api\PasswordResetController::class, 'reset']);
-});
+        // Forgot password by phone or email: identical answers whether or not the account exists
+        Route::post('/password/forgot', [\App\Http\Controllers\Api\PasswordResetController::class, 'forgot']);
+        Route::post('/password/verify-code', [\App\Http\Controllers\Api\PasswordResetController::class, 'verifyCode']);
+        Route::post('/password/reset', [\App\Http\Controllers\Api\PasswordResetController::class, 'reset']);
+    });
 
-// Fresh authentication for sensitive actions (signed-in users)
-Route::middleware(['auth:sanctum', 'throttle:10,1'])->group(function () {
-    Route::post('/auth/step-up/code', [\App\Http\Controllers\Api\StepUpController::class, 'sendCode']);
-    Route::post('/auth/step-up/verify', [\App\Http\Controllers\Api\StepUpController::class, 'verify']);
-    Route::post('/user/phone', [\App\Http\Controllers\Api\StepUpController::class, 'changePhone'])->middleware('fresh.auth');
-    Route::post('/user/email/code', [\App\Http\Controllers\Api\StepUpController::class, 'sendEmailChangeCode'])->middleware('fresh.auth');
-    Route::post('/user/email', [\App\Http\Controllers\Api\StepUpController::class, 'changeEmail'])->middleware('fresh.auth');
-});
+    // Fresh authentication for sensitive actions (signed-in users)
+    Route::middleware(['auth:sanctum', 'throttle:10,1'])->group(function () {
+        Route::post('/auth/step-up/code', [\App\Http\Controllers\Api\StepUpController::class, 'sendCode']);
+        Route::post('/auth/step-up/verify', [\App\Http\Controllers\Api\StepUpController::class, 'verify']);
+        Route::post('/user/phone', [\App\Http\Controllers\Api\StepUpController::class, 'changePhone'])->middleware('sensitive');
+        Route::post('/user/email/code', [\App\Http\Controllers\Api\StepUpController::class, 'sendEmailChangeCode'])->middleware('sensitive');
+        Route::post('/user/email', [\App\Http\Controllers\Api\StepUpController::class, 'changeEmail'])->middleware('sensitive');
+    });
 
-Route::get('/home', [HomeController::class, 'index']);
-Route::get('/courses/recent', [HomeController::class, 'recentCourses']);
-Route::get('/courses', [CourseController::class, 'index']);
-// Categories
-Route::get('/categories', [CourseController::class, 'categories']);
-Route::get('/courses/{id}', [CourseController::class, 'show']);
-Route::get('/bundles', [BundleController::class, 'index']);
-Route::get('/bundles/{id}', [BundleController::class, 'show']);
-Route::get('/video/stream', [FileController::class, 'stream'])->name('api.video.stream');
-Route::get('/instructors', [InstructorController::class, 'index']);
-Route::get('/instructors/{id}', [InstructorController::class, 'show']);
-Route::get('/events', [EventController::class, 'index']);
-Route::get('/events/{id}', [EventController::class, 'show']);
-Route::get('/tours', [TourController::class, 'index']);
-Route::get('/tours/{id}', [TourController::class, 'show']);
-// Slice 8: tour booking and event/tour payment checks need sign-in (inside the auth group below).
-Route::post('/payments/chapa/verify', [CourseEnrollmentController::class, 'chapaVerify']);
-Route::post('/courses/payments/chapa/verify', [CourseEnrollmentController::class, 'chapaVerify']);
-Route::get('/certificates/download/signed/{id}', [CertificateController::class, 'downloadSigned'])->name('api.certificates.download.signed')->middleware('signed');
+    Route::get('/home', [HomeController::class, 'index']);
+    Route::get('/courses/recent', [HomeController::class, 'recentCourses']);
+    Route::get('/courses', [CourseController::class, 'index']);
+    // Categories
+    Route::get('/categories', [CourseController::class, 'categories']);
+    Route::get('/courses/{id}', [CourseController::class, 'show']);
+    Route::get('/bundles', [BundleController::class, 'index']);
+    Route::get('/bundles/{id}', [BundleController::class, 'show']);
+    Route::get('/video/stream', [FileController::class, 'stream'])->name('api.video.stream');
+    Route::get('/instructors', [InstructorController::class, 'index']);
+    Route::get('/instructors/{id}', [InstructorController::class, 'show']);
+    Route::get('/events', [EventController::class, 'index']);
+    Route::get('/events/{id}', [EventController::class, 'show']);
+    Route::get('/tours', [TourController::class, 'index']);
+    Route::get('/tours/{id}', [TourController::class, 'show']);
+    // Slice 8: tour booking and event/tour payment checks need sign-in (inside the auth group below).
+    Route::get('/certificates/download/signed/{id}', [CertificateController::class, 'downloadSigned'])->name('api.certificates.download.signed')->middleware('signed');
 
 
-// Certificate Verification (Public)
-Route::post('/verify-certificate', [ApiCertificateVerificationController::class, 'verify']);
-Route::get('/verify-certificate/{code}', [ApiCertificateVerificationController::class, 'show']);
+    // Certificate Verification (Public)
+    Route::post('/verify-certificate', [ApiCertificateVerificationController::class, 'verify']);
+    Route::get('/verify-certificate/{code}', [ApiCertificateVerificationController::class, 'show']);
 
-// Public seller check by Fira ID only (slice 3). Rate-limited per IP; no list, search or TIN lookup.
-Route::get('/sellers/{firaId}', [\App\Http\Controllers\Api\PublicSellerController::class, 'show'])->middleware('throttle:public-seller');
+    // Public seller check by Fira ID only (slice 3). Rate-limited per IP; no list, search or TIN lookup.
+    Route::get('/sellers/{firaId}', [\App\Http\Controllers\Api\PublicSellerController::class, 'show'])->middleware('throttle:public-seller');
 
-// Community Q&A (Public)
-Route::get('/community/questions', [CommunityController::class, 'index']);
-Route::get('/community/questions/{id}', [CommunityController::class, 'show']);
+    // Community Q&A (Public)
+    Route::get('/community/questions', [CommunityController::class, 'index']);
+    Route::get('/community/questions/{id}', [CommunityController::class, 'show']);
 
-// Coffee B2B Marketplace (Public Discovery & Exploration)
-Route::prefix('marketplace')->group(function () {
-    Route::get('/listings', [\App\Http\Controllers\Api\MarketplaceController::class, 'index']);
-    Route::get('/listings/{idOrSlug}', [\App\Http\Controllers\Api\MarketplaceController::class, 'show']);
-    Route::get('/filters', [\App\Http\Controllers\Api\MarketplaceController::class, 'filters']);
-    Route::get('/plans', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'plans']);
-    Route::get('/subscribe/chapa/callback', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'chapaVerify'])->name('api.marketplace.chapa.callback');
-    Route::post('/subscribe/chapa/verify', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'chapaVerify']);
-});
+    // Coffee B2B Marketplace (Public Discovery & Exploration)
+    Route::prefix('marketplace')->group(function () {
+        Route::get('/listings', [\App\Http\Controllers\Api\MarketplaceController::class, 'index']);
+        Route::get('/listings/{idOrSlug}', [\App\Http\Controllers\Api\MarketplaceController::class, 'show']);
+        Route::get('/filters', [\App\Http\Controllers\Api\MarketplaceController::class, 'filters']);
+        Route::get('/plans', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'plans']);
+        Route::get('/subscribe/chapa/callback', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'chapaVerify'])->name('api.marketplace.chapa.callback');
+    });
 
-// Business setup options: entity types, roles, countries (one list, slice 2)
-Route::get('/workspaces/options', [\App\Http\Controllers\Api\OrganizationController::class, 'options']);
+    // Business setup options: entity types, roles, countries (one list, slice 2)
+    Route::get('/workspaces/options', [\App\Http\Controllers\Api\OrganizationController::class, 'options']);
 
-// SaaS Dynamic Entitlements API (Server Authority Snapshot)
-Route::get('/org/{id}/entitlements', [\App\Http\Controllers\Api\OrganizationEntitlementApiController::class, 'show'])->middleware(['auth:sanctum', 'throttle:api']);
-Route::middleware('auth:sanctum')->get('/user/organization/entitlements', [\App\Http\Controllers\Api\OrganizationEntitlementApiController::class, 'current']);
-Route::post('/billing/webhook/{provider}', [\App\Http\Controllers\BillingWebhookController::class, 'handle']);
+    // SaaS Dynamic Entitlements API (Server Authority Snapshot)
+    Route::get('/org/{id}/entitlements', [\App\Http\Controllers\Api\OrganizationEntitlementApiController::class, 'show'])->middleware(['auth:sanctum', 'throttle:api']);
+    Route::middleware('auth:sanctum')->get('/user/organization/entitlements', [\App\Http\Controllers\Api\OrganizationEntitlementApiController::class, 'current']);
+    Route::post('/billing/webhook/{provider}', [\App\Http\Controllers\BillingWebhookController::class, 'handle']);
 
-// Coffee market data: stored, validated prices with source and source time (public, per-IP limit, MarketSeriesPolicy).
-Route::prefix('market')->middleware('throttle:market-public')->controller(\App\Http\Controllers\Api\MarketDataController::class)->group(function () {
-    Route::get('/overview', 'overview');
-    Route::get('/series', 'series');
-    Route::get('/sources', 'sources');
-    // The old chart, tick and ticker endpoints generated prices at random. They now answer "unavailable".
-    Route::get('/chart-data', 'retired');
-    Route::get('/live-tick', 'retired');
-    Route::get('/ticker', 'retired');
-});
+    // Coffee market data: stored, validated prices with source and source time (public, per-IP limit, MarketSeriesPolicy).
+    Route::prefix('market')->middleware('throttle:market-public')->controller(\App\Http\Controllers\Api\MarketDataController::class)->group(function () {
+        Route::get('/overview', 'overview');
+        Route::get('/series', 'series');
+        Route::get('/sources', 'sources');
+        // The old chart, tick and ticker endpoints generated prices at random. They now answer "unavailable".
+        Route::get('/chart-data', 'retired');
+        Route::get('/live-tick', 'retired');
+        Route::get('/ticker', 'retired');
+    });
 
-// Coffee Export Toolkit & Market Intelligence (Public)
-Route::prefix('coffee-toolkit')->group(function () {
-    Route::get('/hub-summary', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'hubSummary']);
-    Route::get('/market-intelligence', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'getMarketIntelligence']);
-    Route::get('/coffee-prices', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'getCoffeePrices']);
-    Route::post('/calculate', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'calculate']);
-    Route::post('/assess', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'assessReadiness']);
+    // Coffee Export Toolkit & Market Intelligence (Public)
+    Route::prefix('coffee-toolkit')->group(function () {
+        Route::get('/hub-summary', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'hubSummary']);
+        Route::get('/market-intelligence', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'getMarketIntelligence']);
+        Route::get('/coffee-prices', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'getCoffeePrices']);
+        Route::post('/calculate', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'calculate']);
+        Route::post('/assess', [\App\Http\Controllers\Api\CoffeeToolkitController::class, 'assessReadiness']);
+    });
 });
 
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
@@ -164,8 +165,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // Profile & Settings
     Route::post('/user/profile', [ProfileController::class, 'updateProfile']);
     Route::post('/user/profile-photo', [ProfileController::class, 'updateProfilePhoto']);
-    Route::post('/user/password', [ProfileController::class, 'updatePassword'])->middleware('fresh.auth');
-    Route::post('/user/delete-request', [ProfileController::class, 'requestDeleteAccount']);
+    Route::post('/user/password', [ProfileController::class, 'updatePassword'])->middleware('sensitive');
+    Route::post('/user/delete-request', [ProfileController::class, 'requestDeleteAccount'])->middleware('sensitive');
     Route::get('/user/delete-request', [ProfileController::class, 'getDeleteRequestStatus']);
     Route::get('/user/settings/notifications', [ProfileController::class, 'getNotificationSettings']);
     Route::put('/user/settings/notifications', [ProfileController::class, 'updateNotificationSettings']);
@@ -187,7 +188,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('/{id}/sign-contract', [\App\Http\Controllers\Api\DealRoomController::class, 'signContract']);
         Route::post('/{id}/milestones/{milestoneId}/advance', [\App\Http\Controllers\Api\DealRoomController::class, 'advanceMilestone']);
         // Admin or finance only: confirm a milestone after the bank confirms it
-        Route::post('/{id}/milestones/{milestoneId}/confirm', [\App\Http\Controllers\Api\DealRoomController::class, 'confirmMilestone'])->middleware('fresh.auth');
+        Route::post('/{id}/milestones/{milestoneId}/confirm', [\App\Http\Controllers\Api\DealRoomController::class, 'confirmMilestone'])->middleware('sensitive');
         Route::post('/{id}/dispute', [\App\Http\Controllers\Api\DealRoomController::class, 'raiseDispute']);
         Route::post('/{id}/complete', [\App\Http\Controllers\Api\DealRoomController::class, 'completeDeal']);
         // Slice 7: the deal room's business chat thread
@@ -212,7 +213,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     // Slice 7: the seller's payout bank account (owner changes it; reviewer confirms it).
     Route::get('/payout-account', [\App\Http\Controllers\Api\PayoutAccountController::class, 'show']);
-    Route::post('/payout-account', [\App\Http\Controllers\Api\PayoutAccountController::class, 'store'])->middleware('fresh.auth');
+    Route::post('/payout-account', [\App\Http\Controllers\Api\PayoutAccountController::class, 'store'])->middleware('sensitive');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
@@ -239,6 +240,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/user/tour-bookings/{id}/pay-balance', [TourController::class, 'payBalance']);
     // Only Chapa and bank slips are supported; the old Razorpay/Stripe/PayPal/... verify routes were removed (GAP-035).
     Route::post('/payments/chapa/verify', [CourseEnrollmentController::class, 'chapaVerify']);
+    Route::post('/courses/payments/chapa/verify', [CourseEnrollmentController::class, 'chapaVerify']);
     Route::post('/events/payments/chapa/verify', [EventController::class, 'chapaVerify']);
     Route::post('/tours/payments/chapa/verify', [TourController::class, 'chapaVerify']);
     Route::get('/user/courses', [CourseController::class, 'myCourses']);
@@ -322,7 +324,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
         // Verification & Compliance Dossier (Multi-Role)
         Route::get('/verification/status', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'status']);
-        Route::post('/verification/documents', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'uploadDocument'])->middleware('fresh.auth');
+        Route::post('/verification/documents', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'uploadDocument'])->middleware('sensitive');
         Route::delete('/verification/documents/{id}', [\App\Http\Controllers\Api\OrganizationVerificationController::class, 'deleteDocument']);
 
         // Samples (slice 6): between businesses, checked by MarketplaceSamplePolicy.
@@ -341,6 +343,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
         // Subscriptions & Upgrades
         Route::post('/subscribe', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'subscribe']);
+        Route::post('/subscribe/chapa/verify', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'chapaVerify']);
     });
 
     // Coffee Export Toolkit (Protected User Operations)
@@ -400,8 +403,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
 // Instructor App Routes
 Route::prefix('instructor')->group(function () {
-    Route::post('/verify-certificate', [ApiCertificateVerificationController::class, 'verify']);
-    Route::get('/verify-certificate/{code}', [ApiCertificateVerificationController::class, 'show']);
+    Route::post('/verify-certificate', [ApiCertificateVerificationController::class, 'verify'])->middleware('throttle:public');
+    Route::get('/verify-certificate/{code}', [ApiCertificateVerificationController::class, 'show'])->middleware('throttle:public');
 
     Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
         Route::post('/register', [\App\Http\Controllers\Api\Instructor\AuthController::class, 'register']);
@@ -422,8 +425,8 @@ Route::prefix('instructor')->group(function () {
             Route::get('/', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'index']);
             Route::post('/profile', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'updateProfile']);
             Route::post('/profile-photo', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'updateProfilePhoto']);
-            Route::post('/password', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'updatePassword'])->middleware('fresh.auth');
-            Route::post('/delete-request', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'deleteAccount']);
+            Route::post('/password', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'updatePassword'])->middleware('sensitive');
+            Route::post('/delete-request', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'deleteAccount'])->middleware('sensitive');
             Route::put('/notifications', [\App\Http\Controllers\Api\Instructor\SettingsController::class, 'updateNotifications']);
         });
 
@@ -475,7 +478,7 @@ Route::prefix('instructor')->group(function () {
         // Earnings & Withdrawals
         Route::get('/earnings', [\App\Http\Controllers\Api\Instructor\EarningsController::class, 'index']);
         Route::get('/withdrawals', [\App\Http\Controllers\Api\Instructor\EarningsController::class, 'withdrawals']);
-        Route::post('/withdrawals', [\App\Http\Controllers\Api\Instructor\EarningsController::class, 'storeWithdrawal'])->middleware('fresh.auth');
+        Route::post('/withdrawals', [\App\Http\Controllers\Api\Instructor\EarningsController::class, 'storeWithdrawal'])->middleware('sensitive');
 
         // Coupons
         Route::get('/coupons', [\App\Http\Controllers\Api\Instructor\CouponController::class, 'index']);
@@ -514,7 +517,7 @@ Route::prefix('instructor')->group(function () {
 // ==========================================
 // FIRA EXPORT DOCS STUDIO API
 // ==========================================
-Route::prefix('export-docs')->group(function () {
+Route::prefix('export-docs')->middleware('throttle:public')->group(function () {
     // Template Catalog & Calculation (Public / Instant Explore)
     Route::get('/templates', [\App\Http\Controllers\Api\ExportDocsApiController::class, 'templates']);
     Route::get('/templates/{code}', [\App\Http\Controllers\Api\ExportDocsApiController::class, 'template']);

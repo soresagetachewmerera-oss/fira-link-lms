@@ -79,14 +79,6 @@
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <form action="{{ route('admin.impersonate.student', $student->id) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-primary"
-                                                        title="Login as Student">
-                                                        <i class="fas fa-user-secret"></i>
-                                                    </button>
-                                                </form>
                                                 <a href="{{ route('admin.students.edit', $student->id) }}"
                                                     class="btn btn-sm btn-warning" title="Edit">
                                                     <i class="fas fa-edit"></i>

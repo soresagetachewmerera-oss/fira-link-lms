@@ -100,12 +100,12 @@ Route::middleware(['auth', 'role:instructor'])->prefix('instructor')->name('inst
     // Earnings routes
     Route::get('/earnings', [EarningsController::class, 'index'])->name('earnings');
     Route::get('/withdrawals', [EarningsController::class, 'withdrawals'])->name('withdrawals');
-    Route::post('/withdrawals', [EarningsController::class, 'storeWithdrawal'])->middleware('fresh.auth')->name('withdrawals.store');
+    Route::post('/withdrawals', [EarningsController::class, 'storeWithdrawal'])->middleware('sensitive')->name('withdrawals.store');
 
     // Settings routes
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::put('/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile.update');
-    Route::put('/settings/password', [SettingsController::class, 'updatePassword'])->middleware('fresh.auth')->name('settings.password.update');
+    Route::put('/settings/password', [SettingsController::class, 'updatePassword'])->middleware('sensitive')->name('settings.password.update');
     Route::put('/settings/notifications', [SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
     Route::delete('/settings/account', [SettingsController::class, 'destroy'])->name('settings.account.destroy');
 
