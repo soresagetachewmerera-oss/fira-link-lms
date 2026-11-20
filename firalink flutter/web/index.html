@@ -48,7 +48,7 @@
       padding: 0;
       width: 100%;
       height: 100%;
-      background-color: #140526;
+      background-color: #0F0B1E;
       font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       overflow: hidden;
       -webkit-font-smoothing: antialiased;
@@ -61,16 +61,16 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: radial-gradient(circle at 50% 40%, rgba(109, 26, 149, 0.45) 0%, rgba(59, 7, 100, 0.28) 45%, #140526 80%);
+      background-color: #0F0B1E;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 99999;
       opacity: 1;
-      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       box-sizing: border-box;
-      padding: 20px;
+      padding: 24px;
     }
 
     #fira-loading-screen.fade-out {
@@ -81,49 +81,28 @@
     /* Center Emblem Stack */
     .emblem-wrapper {
       position: relative;
-      width: 160px;
-      height: 160px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 32px;
-    }
-
-    .pulsing-outer-ring {
-      position: absolute;
-      width: 154px;
-      height: 154px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(192, 132, 252, 0.22);
-      animation: firaPulseRing 2.4s ease-in-out infinite;
-    }
-
-    .pulsing-inner-ring {
-      position: absolute;
-      width: 126px;
-      height: 126px;
-      border-radius: 50%;
-      border: 1.8px solid rgba(245, 158, 11, 0.32);
-      animation: firaPulseInner 2.4s ease-in-out infinite;
+      margin-bottom: 20px;
     }
 
     .emblem-container {
       position: relative;
       width: 96px;
       height: 96px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #3B0764 0%, #24043D 100%);
-      border: 2px solid rgba(245, 158, 11, 0.65);
-      box-shadow: 0 0 32px rgba(109, 26, 149, 0.7), 0 0 16px rgba(245, 158, 11, 0.35);
+      border-radius: 24px;
+      background: #1E0533;
+      border: 1.5px solid rgba(109, 26, 149, 0.40);
+      box-shadow: 0 8px 24px rgba(109, 26, 149, 0.22);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 18px;
+      padding: 16px;
       box-sizing: border-box;
     }
 
-    .emblem-container img,
-    .emblem-container svg {
+    .emblem-container img {
       width: 100%;
       height: 100%;
       object-fit: contain;
@@ -132,45 +111,30 @@
     /* Brand Typography */
     .brand-title {
       font-size: 28px;
-      font-weight: 900;
-      letter-spacing: 4.5px;
-      margin: 0 0 12px 0;
-      background: linear-gradient(180deg, #FFFFFF 0%, #FDE68A 50%, #FFFFFF 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+      letter-spacing: 3.5px;
+      margin: 0 0 8px 0;
+      color: #FFFFFF;
       text-align: center;
       text-transform: uppercase;
-    }
-
-    .subtitle-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 6px 16px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      color: #E9D5FF;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1.8px;
-      margin-bottom: 10px;
-      text-transform: uppercase;
+      font-family: 'Montserrat', sans-serif;
     }
 
     .tagline {
       font-size: 13px;
       font-weight: 400;
-      color: rgba(255, 255, 255, 0.65);
-      letter-spacing: 0.3px;
-      margin: 0 0 32px 0;
+      color: rgba(255, 255, 255, 0.70);
+      letter-spacing: 0.4px;
+      margin: 0 0 28px 0;
       text-align: center;
+      font-family: 'Montserrat', sans-serif;
     }
 
     /* Sleek Indeterminate Loading Bar */
     .loader-track {
-      width: 160px;
+      width: 140px;
       height: 3.5px;
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.10);
       border-radius: 999px;
       overflow: hidden;
       position: relative;
@@ -182,37 +146,9 @@
       left: 0;
       height: 100%;
       width: 45%;
-      background: linear-gradient(90deg, #F59E0B, #C084FC, #6D1A95);
+      background: #8B2BB8;
       border-radius: 999px;
-      animation: firaIndeterminate 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
-    }
-
-    @keyframes firaPulseRing {
-
-      0%,
-      100% {
-        transform: scale(0.96);
-        opacity: 0.4;
-      }
-
-      50% {
-        transform: scale(1.08);
-        opacity: 0.85;
-      }
-    }
-
-    @keyframes firaPulseInner {
-
-      0%,
-      100% {
-        transform: scale(1.04);
-        opacity: 0.85;
-      }
-
-      50% {
-        transform: scale(0.96);
-        opacity: 0.45;
-      }
+      animation: firaIndeterminate 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
     }
 
     @keyframes firaIndeterminate {
@@ -223,7 +159,7 @@
 
       50% {
         left: 30%;
-        width: 60%;
+        width: 50%;
       }
 
       100% {
@@ -238,14 +174,11 @@
   <!-- Fira Link Official Branded Splash / Loading Screen -->
   <div id="fira-loading-screen">
     <div class="emblem-wrapper">
-      <div class="pulsing-outer-ring"></div>
-      <div class="pulsing-inner-ring"></div>
       <div class="emblem-container">
         <img src="icons/Icon-192.png" alt="Fira Link Emblem">
       </div>
     </div>
     <div class="brand-title">FIRA LINK</div>
-    <div class="subtitle-badge">GLOBAL TRADE &bull; AI STUDIO &bull; SAFARIS</div>
     <div class="tagline">The Gateway of African Trade &amp; Excellence</div>
     <div class="loader-track">
       <div class="loader-indicator"></div>
