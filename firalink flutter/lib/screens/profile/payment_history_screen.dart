@@ -3,6 +3,7 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:open_filex/open_filex.dart';
+import '../../widgets/fira_error_state.dart';
 import '../../providers/settings_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../models/payment.dart';
@@ -21,6 +22,7 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
   final Set<String> _paymentMethods = {};
   final List<Payment> _payments = [];
   bool _isLoading = true;
+  Object? _error;
   int _page = 1;
   bool _hasMore = true;
   String _selectedFilter = 'All';
@@ -63,7 +65,9 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
 
     try {
       final newPayments = await _paymentService.getMyPayments(page: _page);
+      if (!mounted) return;
       setState(() {
+        _error = null;
         if (newPayments.isEmpty) {
           _hasMore = false;
         } else {
@@ -75,7 +79,7 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
         }
       });
     } catch (e) {
-      debugPrint('Error loading payments: $e');
+      if (mounted) setState(() => _error = e);
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -239,6 +243,8 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
             Expanded(
               child: _isLoading && _payments.isEmpty
                   ? Center(child: CircularProgressIndicator())
+                  : _error != null && _payments.isEmpty
+                  ? FiraErrorState(error: _error, onRetry: () => _loadPayments())
                   : _filteredPayments.isEmpty
                   ? _EmptyState(
                       icon: Icons.payment,

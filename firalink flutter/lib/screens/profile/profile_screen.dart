@@ -19,6 +19,8 @@ import '../marketplace/seller_home_screen.dart';
 import 'workspace_switcher_sheet.dart';
 import '../../providers/workspace_provider.dart';
 import '../../widgets/workspace_status_pill.dart';
+import '../../widgets/auth/auth_gate.dart';
+import '../../theme/fira_colors.dart';
 
 class _LanguageData {
   const _LanguageData({
@@ -211,6 +213,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, auth, child) {
+        // Guests and unconfirmed sessions never see account, business or activity rows
+        // (auth gating 2026-11-20): nothing renders first and hides later.
+        if (!auth.isAuthenticated) {
+          return _GuestProfileView(
+            offline: auth.status == AuthStatus.offline,
+            checking: auth.status == AuthStatus.unknown,
+            onRetry: auth.loadUser,
+            onLanguage: () => _showLanguageSheet(context),
+          );
+        }
         final user = auth.user;
         return Scaffold(
           backgroundColor: AppTheme.getBackgroundColor(context),
@@ -1215,6 +1227,88 @@ class _MenuItemWithCustomIcon extends StatelessWidget {
               size: 20,
               color: AppTheme.getTextColor(context).withValues(alpha: 0.4),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Profile tab for a guest (or a stored session that could not be checked yet). Only public
+/// things: sign in, language, settings (about, help, terms, privacy). Auth gating 2026-11-20.
+class _GuestProfileView extends StatelessWidget {
+  const _GuestProfileView({
+    required this.offline,
+    required this.checking,
+    required this.onRetry,
+    required this.onLanguage,
+  });
+
+  final bool offline;
+  final bool checking;
+  final VoidCallback onRetry;
+  final VoidCallback onLanguage;
+
+  @override
+  Widget build(BuildContext context) {
+    final fira = context.fira;
+    final l10n = context.l10n;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Scaffold(
+      key: const Key('profile-guest-view'),
+      backgroundColor: AppTheme.getBackgroundColor(context),
+      extendBody: true,
+      body: SafeArea(
+        bottom: false,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, HomeDesignConstants.bottomDockClearance),
+          children: <Widget>[
+            if (checking)
+              const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator()))
+            else ...[
+              Semantics(
+                header: true,
+                child: Text(
+                  offline ? l10n.connectionProblemTitle : l10n.guestProfileTitle,
+                  style: textTheme.titleLarge?.copyWith(color: fira.onSurface),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                offline ? l10n.sessionCheckFailedBody : l10n.guestProfileBody,
+                style: textTheme.bodyMedium?.copyWith(color: fira.mutedText),
+              ),
+              const SizedBox(height: 16),
+              if (offline)
+                FilledButton.icon(
+                  key: const Key('profile-retry'),
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: Text(l10n.retry),
+                )
+              else
+                FilledButton(
+                  key: const Key('profile-sign-in'),
+                  onPressed: () => SignInResume.start(context),
+                  child: Text(l10n.signInOrCreateAccount),
+                ),
+            ],
+            const SizedBox(height: 24),
+            _ProfileGroup(children: [
+              _MenuItemWithCustomIcon(
+                icon: Icons.translate_rounded,
+                title: l10n.language,
+                subtitle: Localizations.localeOf(context).languageCode == 'am' ? 'አማርኛ' : 'English',
+                onTap: onLanguage,
+              ),
+              _MenuItemWithCustomIcon(
+                icon: Icons.settings_outlined,
+                title: l10n.settings,
+                subtitle: l10n.settingsSubtitle,
+                onTap: () => Navigator.of(context).pushNamed(AppRouter.settings),
+              ),
+            ]),
           ],
         ),
       ),

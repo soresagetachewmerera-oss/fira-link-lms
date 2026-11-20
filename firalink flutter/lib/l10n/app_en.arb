@@ -1573,5 +1573,22 @@
   "producerExporter": "Producer & Exporter",
   "indicativeFob": "Indicative FOB",
   "inquireAction": "Inquire",
-  "sampleAction": "Sample"
+  "sampleAction": "Sample",
+  "signInToContinueTitle": "Sign in to continue",
+  "signInToContinueBody": "You need a Fira Link account for this. Signing in with your phone number takes a minute.",
+  "signInOrCreateAccount": "Sign in or create account",
+  "notNow": "Not now",
+  "sessionCheckFailedBody": "We could not check your sign-in. Check your connection and try again.",
+  "guestProfileTitle": "You are browsing as a guest",
+  "guestProfileBody": "Sign in to save lots, request samples, message sellers, book events and tours, and see your account.",
+  "phoneLockedHint": "Your phone number is used to sign in. Changing it needs a code sent to the new number.",
+  "emailLockedHint": "Your email is used to sign in. Changing it needs a code sent to the new address.",
+  "profileSaved": "Profile saved",
+  "profilePhotoSaved": "Profile photo saved",
+  "passwordChangedOtherDevices": "Password changed. Other devices were signed out.",
+  "tooManyAttemptsRetry": "Too many attempts. Wait a moment and try again.",
+  "itemUnavailable": "This item is not available. It may have been removed, or it is not yours to open.",
+  "sellerLicenseStated": "Export licence stated by the seller: {license}",
+  "exportDocsProActiveTitle": "Export Docs Studio Pro is active",
+  "exportDocsProActiveBody": "Unlimited exports for all templates. A plan never changes your verification."
 }

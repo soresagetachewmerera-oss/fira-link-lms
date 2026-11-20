@@ -1,3 +1,4 @@
+import '../../widgets/auth/auth_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
@@ -139,6 +140,8 @@ class _CoffeeProfitCalculatorScreenState
   }
 
   Future<void> _handleSave() async {
+    // Calculating is public; saving needs an account (asked before any request).
+    if (!await ensureSignedIn(context) || !mounted) return;
     final provider = context.read<CoffeeToolkitProvider>();
     final params = {
       'deal_title': _dealTitleController.text,

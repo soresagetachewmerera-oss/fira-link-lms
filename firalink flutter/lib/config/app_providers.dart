@@ -16,7 +16,8 @@ class AppProviders {
   static List<SingleChildWidget> get providers {
     return [
       ChangeNotifierProvider(create: (_) => AuthProvider()..loadUser()),
-      ChangeNotifierProvider(create: (_) => WorkspaceProvider()..loadWorkspaces()),
+      // Loaded by SessionWatcher once the session is confirmed (never for guests).
+      ChangeNotifierProvider(create: (_) => WorkspaceProvider()),
       ChangeNotifierProvider(create: (_) => WishlistProvider()),
       ChangeNotifierProvider(create: (_) => AiSuggestionsProvider()),
       ChangeNotifierProvider(create: (_) => DashboardProvider()),

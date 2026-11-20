@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../providers/auth_provider.dart';
+import '../l10n/app_localizations.dart';
+import '../theme/fira_colors.dart';
+import '../widgets/auth/auth_gate.dart';
+import '../screens/marketplace/samples_screen.dart';
 import '../screens/auth/auth_screen.dart';
 import '../screens/auth/phone_sign_in_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
@@ -54,6 +56,7 @@ import '../screens/search/search_screen.dart';
 
 class AppRouter {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<ScaffoldMessengerState> messengerKey = GlobalKey<ScaffoldMessengerState>();
   static const String onboarding = '/onboarding';
   static const String auth = '/auth';
   static const String emailSignIn = '/auth/email';
@@ -104,43 +107,48 @@ class AppRouter {
   static const String publicVerification = '/verify-seller';
   static const String createWorkspace = '/profile/workspaces/create';
 
-  // List of routes that require authentication
-  static final List<String> _protectedRoutes = [
-    dashboard,
-    profile,
-    dealRoom,
-    sampleTracking,
-    createWorkspace,
-    myCourses,
-    myAssignments,
-    myQuizAttempts,
-    certificates,
-    myTicketBookings,
-    payments,
-    editProfile,
-    changePassword,
-    paymentHistory,
-    notifications,
-    wishlist,
-    qaRoom,
-    messages,
-    chatScreen,
-  ];
+  /// Default deny (auth gating 2026-11-20): only these routes are open to guests (class A). Every
+  /// other route is wrapped in [RequireSignIn], so a guest opening it from a deep link, a
+  /// notification or the back stack sees "Sign in to continue" and nothing of the screen.
+  static const Set<String> publicRoutes = {
+    onboarding,
+    auth,
+    emailSignIn,
+    home,
+    '/home2',
+    profile, // the Profile tab shows the guest view to guests
+    marketplace,
+    coffeeListingDetail, // view only; save, sample, message and RFQ ask for sign-in first
+    marketplacePricing,
+    publicVerification,
+    verifyCertificate,
+    aiChat, // decision D-1: public with a strict limit on the server
+    coffeeToolkit,
+    coffeeCalculator, // calculation is public; saving asks for sign-in first
+    coffeeReadiness, // scored without saving for guests
+    coffeeMarket,
+    exportDocsStudio, // templates and calculator are public; the studio asks for sign-in
+    languageChoice,
+    settings, // guests see only language, about, help, terms and privacy
+  };
+
+  static bool isPublic(String? routeName) => publicRoutes.contains(routeName);
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     final String? routeName = settings.name;
-
-    // Check if the route is protected
-    if (_protectedRoutes.contains(routeName)) {
-      return MaterialPageRoute(
-        builder: (context) =>
-            AuthGuard(child: _buildScreen(routeName, settings.arguments)),
-      );
-    }
+    final Widget screen = _buildScreen(routeName, settings.arguments);
 
     return MaterialPageRoute(
-      builder: (context) => _buildScreen(routeName, settings.arguments),
+      settings: settings,
+      builder: (context) => isPublic(routeName) ? screen : RequireSignIn(child: screen),
     );
+  }
+
+  /// An id from a route argument (int, or a String from a push payload). Null when missing.
+  static int? _intArg(dynamic arguments) {
+    if (arguments is int) return arguments;
+    if (arguments is String) return int.tryParse(arguments);
+    return null;
   }
 
   static Widget _buildScreen(String? routeName, dynamic arguments) {
@@ -245,11 +253,12 @@ class AppRouter {
       case intentSelection:
         return const IntentSelectionScreen();
       case dealRoom:
-        final id = arguments is int ? arguments : 1;
-        return DealRoomHubScreen(dealRoomId: id);
+        // Never a default id: a missing or bad id must not open someone else's deal room.
+        final id = _intArg(arguments);
+        return id == null ? const UnavailableScreen() : DealRoomHubScreen(dealRoomId: id);
       case sampleTracking:
-        final id = arguments is int ? arguments : 1;
-        return SampleTrackingScreen(sampleId: id);
+        final id = _intArg(arguments);
+        return id == null ? const SamplesScreen() : SampleTrackingScreen(sampleId: id);
       case publicVerification:
         return PublicSellerVerificationScreen(firaId: arguments is String ? arguments : null);
       case createWorkspace:
@@ -261,22 +270,25 @@ class AppRouter {
   }
 }
 
-class AuthGuard extends StatelessWidget {
-  final Widget child;
-
-  const AuthGuard({super.key, required this.child});
+/// A link or notification pointed at something that does not exist or is not yours.
+class UnavailableScreen extends StatelessWidget {
+  const UnavailableScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, auth, _) {
-        if (auth.isAuthenticated) {
-          return child;
-        } else {
-          // Redirect to sign-in if not authenticated
-          return const PhoneSignInScreen();
-        }
-      },
+    final fira = context.fira;
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Text(
+            context.l10n.itemUnavailable,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: fira.mutedText),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -77,4 +77,13 @@ class AiChatProvider with ChangeNotifier {
     _error = null;
     notifyListeners();
   }
+
+  /// Session ended or a new one started (SessionWatcher): forget the previous person's data.
+  void resetSession() {
+    _messages = [];
+    _isLoading = false;
+    _isSending = false;
+    _error = null;
+    notifyListeners();
+  }
 }

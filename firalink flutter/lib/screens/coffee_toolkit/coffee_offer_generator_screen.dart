@@ -1,3 +1,4 @@
+import '../../widgets/auth/auth_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
@@ -106,6 +107,7 @@ Validity: 14 days from issue''';
   }
 
   Future<void> _handleGenerateOffer() async {
+    if (!await ensureSignedIn(context) || !mounted) return;
     final provider = context.read<CoffeeToolkitProvider>();
     final params = {
       'exporter_name': _exporterNameController.text,

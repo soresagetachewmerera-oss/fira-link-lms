@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/export_docs_service.dart';
 import '../../theme/app_theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../theme/fira_colors.dart';
 import '../../widgets/fira_error_state.dart';
 import 'export_doc_editor_screen.dart';
 import 'widgets/verification_prompt_dialog.dart';
@@ -803,24 +804,26 @@ class _ExportDocsStudioScreenState extends State<ExportDocsStudioScreen> with Si
 
     final isPro = _trialInfo?['is_pro'] == true;
     if (isPro) {
+      // A paid plan, not a verification: no verified tick and no success green (auth gating B-6).
+      final fira = context.fira;
       return Container(
+        key: const Key('export-docs-pro-banner'),
         margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.green.withValues(alpha: 0.1),
+          color: fira.brandTint,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.green.shade600.withValues(alpha: 0.3)),
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.verified, color: Colors.green, size: 24),
-            SizedBox(width: 10),
+            Icon(Icons.workspace_premium_outlined, color: fira.brandPrimary, size: 24),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Fira Export Docs Studio Pro Active', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: Colors.green)),
-                  Text('Unlimited exports for all 30 templates with EUDR GPS & bank schedules.', style: TextStyle(fontSize: 11, color: Colors.black54)),
+                  Text(context.l10n.exportDocsProActiveTitle, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: fira.onSurface)),
+                  Text(context.l10n.exportDocsProActiveBody, style: TextStyle(fontSize: 11, color: fira.mutedText)),
                 ],
               ),
             ),

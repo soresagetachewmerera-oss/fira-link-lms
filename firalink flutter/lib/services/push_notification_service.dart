@@ -265,7 +265,8 @@ class PushNotificationService {
         navigator.pushNamed(AppRouter.marketplaceRfqs);
       }
     } else if (type == 'sample' || data['sample_id'] != null) {
-      navigator.pushNamed(AppRouter.sampleTracking);
+      // The router parses the id; without one it opens the samples list (never a default sample).
+      navigator.pushNamed(AppRouter.sampleTracking, arguments: data['sample_id']?.toString());
     } else if (type == 'verification') {
       navigator.pushNamed(AppRouter.marketplaceVerification);
     } else if (type == 'lot_evidence' && listingId != null && listingId.isNotEmpty) {

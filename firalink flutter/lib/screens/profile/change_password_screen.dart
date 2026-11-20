@@ -39,7 +39,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Password updated successfully',
+                context.l10n.passwordChangedOtherDevices,
                 style: TextStyle(color: AppTheme.getTextColor(context)),
               ),
               backgroundColor: AppTheme.getCardColor(context),

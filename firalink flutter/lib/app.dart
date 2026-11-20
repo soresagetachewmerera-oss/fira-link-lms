@@ -9,6 +9,7 @@ import 'providers/settings_provider.dart';
 import 'router/app_router.dart';
 import 'screens/splash/splash_wrapper.dart';
 import 'theme/app_theme.dart';
+import 'widgets/auth/session_watcher.dart';
 
 /// Root widget of the application
 class EduExApp extends StatelessWidget {
@@ -34,6 +35,7 @@ class EduExApp extends StatelessWidget {
 
     return MaterialApp(
       navigatorKey: AppRouter.navigatorKey,
+      scaffoldMessengerKey: AppRouter.messengerKey,
       debugShowCheckedModeBanner: false,
       title: settingsProvider.settings?.siteName ?? AppConfig.appTitle,
       theme: AppTheme.theme,
@@ -69,7 +71,11 @@ class EduExApp extends StatelessWidget {
               context,
             ).textScaler.clamp(minScaleFactor: 0.8, maxScaleFactor: 1.2),
           ),
-          child: child ?? const SizedBox.shrink(),
+          child: SessionWatcher(
+            navigatorKey: AppRouter.navigatorKey,
+            messengerKey: AppRouter.messengerKey,
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
     );

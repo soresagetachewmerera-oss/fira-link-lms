@@ -159,4 +159,15 @@ class AiSuggestionsProvider with ChangeNotifier {
     _suggestedCourses.clear();
     notifyListeners();
   }
+
+  /// Session ended or a new one started (SessionWatcher): forget the previous person's data.
+  void resetSession() {
+    _selectedCategoryIds.clear();
+    _selectedSkillLevel = null;
+    _selectedGoal = null;
+    _suggestedCourses = [];
+    _isProcessing = false;
+    _hasPreferences = false;
+    notifyListeners();
+  }
 }

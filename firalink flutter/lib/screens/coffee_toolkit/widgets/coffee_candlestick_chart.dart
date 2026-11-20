@@ -466,7 +466,7 @@ class _CoffeeCandlestickChartWidgetState extends State<CoffeeCandlestickChartWid
             ),
             child: Row(
               children: [
-                const Icon(Icons.verified_user, size: 12, color: Color(0xFF10B981)),
+                const Icon(Icons.info_outline_rounded, size: 12, color: Colors.white54),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(

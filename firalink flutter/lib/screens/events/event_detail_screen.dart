@@ -1,3 +1,4 @@
+import '../../widgets/auth/auth_gate.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1102,7 +1103,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       ),
                     )
                   : ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        if (!await ensureSignedIn(context) || !context.mounted) return;
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) =>

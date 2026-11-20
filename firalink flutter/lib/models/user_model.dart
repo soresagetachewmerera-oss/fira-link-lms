@@ -11,9 +11,6 @@ class User {
   final String? bio;
   final int? activeOrganizationId;
   final String? onboardingIntent;
-  final bool isVerifiedSeller;
-  final bool isVerifiedExporter;
-  final bool isVerifiedBuyer;
   final String? activePlanCode;
 
   String? get profilePhotoUrl =>
@@ -30,9 +27,6 @@ class User {
     this.bio,
     this.activeOrganizationId,
     this.onboardingIntent,
-    this.isVerifiedSeller = false,
-    this.isVerifiedExporter = false,
-    this.isVerifiedBuyer = false,
     this.activePlanCode,
   });
 
@@ -60,9 +54,6 @@ class User {
       bio: json['bio']?.toString(),
       activeOrganizationId: (json['active_organization_id'] as num?)?.toInt(),
       onboardingIntent: json['onboarding_intent']?.toString(),
-      isVerifiedSeller: json['is_verified_seller'] == true || json['is_verified_seller'] == 1,
-      isVerifiedExporter: json['is_verified_exporter'] == true || json['is_verified_exporter'] == 1,
-      isVerifiedBuyer: json['is_verified_buyer'] == true || json['is_verified_buyer'] == 1,
       activePlanCode: json['active_plan_code']?.toString(),
     );
   }
@@ -79,9 +70,6 @@ class User {
       'bio': bio,
       'active_organization_id': activeOrganizationId,
       'onboarding_intent': onboardingIntent,
-      'is_verified_seller': isVerifiedSeller,
-      'is_verified_exporter': isVerifiedExporter,
-      'is_verified_buyer': isVerifiedBuyer,
       'active_plan_code': activePlanCode,
     };
   }

@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../services/api_exception.dart';
 import '../services/base_service.dart';
 
 class ProfileService extends BaseService {
+  /// Name, bio and a first phone number. Email and an existing phone are not sent: changing them
+  /// needs a code to the new address or number (server: PHONE_CHANGE_NEEDS_CODE, EMAIL_CHANGE_NEEDS_CODE).
+  /// Throws [ApiException] with the server's code on failure.
   Future<Map<String, dynamic>> updateProfile({
     required String name,
-    required String email,
     String? phone,
     String? bio,
   }) async {
@@ -19,18 +22,12 @@ class ProfileService extends BaseService {
       },
       body: jsonEncode({
         'name': name,
-        'email': email,
-        'phone': phone,
+        if (phone != null && phone.isNotEmpty) 'phone': phone,
         'bio': bio,
       }),
     );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      final body = jsonDecode(response.body);
-      throw Exception(body['message'] ?? 'Failed to update profile');
-    }
+    return jsonDecode(requireSuccess(response).body) as Map<String, dynamic>;
   }
 
   Future<void> updatePassword({
@@ -59,16 +56,14 @@ class ProfileService extends BaseService {
     }
   }
 
-  Future<void> submitDeleteRequest() async {
+  /// The raw answer, so the caller can run it through FreshAuthSheet: the server needs a fresh
+  /// code or password for this (403 FRESH_AUTH_REQUIRED). Throws [ApiException.network] offline.
+  Future<http.Response> submitDeleteRequest() async {
     final headers = await getHeaders();
-    final response = await http.post(
-      Uri.parse('${BaseService.baseUrl}/user/delete-request'),
-      headers: headers,
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Failed to submit delete request: ${response.body}');
-    }
+    return guardedRequest(() => http.post(
+          Uri.parse('${BaseService.baseUrl}/user/delete-request'),
+          headers: headers,
+        ));
   }
 
   Future<Map<String, dynamic>?> getDeleteRequestStatus() async {

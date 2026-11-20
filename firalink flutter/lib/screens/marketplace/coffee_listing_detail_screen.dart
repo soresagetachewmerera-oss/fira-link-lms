@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../widgets/auth/auth_gate.dart';
 import '../../services/api_exception.dart';
 import '../../services/marketplace_service.dart';
 import '../../l10n/app_localizations.dart';
@@ -75,14 +74,7 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
 
   Future<void> _toggleSave() async {
     if (_listing == null) return;
-    final auth = context.read<AuthProvider>();
-    if (!auth.isAuthenticated) {
-      VerificationPromptDialog.showAuthRequired(
-        context,
-        actionDescription: 'bookmark lots to your trade wishlist',
-      );
-      return;
-    }
+    if (!await ensureSignedIn(context) || !mounted) return;
 
     try {
       final res = await _marketplaceService.toggleSaveListing(_listing['id']);
@@ -103,12 +95,8 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
     }
   }
 
-  void _showSampleDialog() {
-    final auth = context.read<AuthProvider>();
-    if (!auth.isAuthenticated) {
-      VerificationPromptDialog.showAuthRequired(context, actionDescription: context.l10n.lotRequestSample);
-      return;
-    }
+  Future<void> _showSampleDialog() async {
+    if (!await ensureSignedIn(context) || !mounted) return;
     final org = _listing['organization'];
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => RequestSampleScreen(
@@ -121,15 +109,8 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
     ));
   }
 
-  void _showInquiryDialog() {
-    final auth = context.read<AuthProvider>();
-    if (!auth.isAuthenticated) {
-      VerificationPromptDialog.showAuthRequired(
-        context,
-        actionDescription: 'send trade inquiries to Ethiopian exporters',
-      );
-      return;
-    }
+  Future<void> _showInquiryDialog() async {
+    if (!await ensureSignedIn(context) || !mounted) return;
 
     final subjectCtrl = TextEditingController(text: 'Commercial Inquiry for ${_listing['title']}');
     final messageCtrl = TextEditingController();
@@ -652,11 +633,14 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                                       style: TextStyle(fontSize: 12, color: context.fira.success, fontWeight: FontWeight.w600),
                                     ),
                                   if (license != null)
-                                    Text('ECTA License: $license', style: TextStyle(fontSize: 11, color: context.fira.mutedText)),
+                                    Text(context.l10n.translate('sellerLicenseStated', {'license': license}),
+                                        key: const Key('detail-license-stated'), style: TextStyle(fontSize: 11, color: context.fira.mutedText)),
                                 ],
                               ),
                             ),
-                            Icon(Icons.verified, color: context.fira.success, size: 20),
+                            if (tier != null && tier > 0)
+                              Icon(Icons.verified, key: const Key('detail-verified-icon'), color: context.fira.success, size: 20,
+                                  semanticLabel: context.l10n.translate('sellerVerifiedTier', {'tier': tier})),
                           ],
                         ),
                       ],
@@ -671,11 +655,8 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                   const SizedBox(height: 16),
                   FilledButton.tonalIcon(
                     key: const Key('lot-request-quote'),
-                    onPressed: () {
-                      if (!context.read<AuthProvider>().isAuthenticated) {
-                        VerificationPromptDialog.showAuthRequired(context, actionDescription: context.l10n.exporterRequestQuote);
-                        return;
-                      }
+                    onPressed: () async {
+                      if (!await ensureSignedIn(context) || !context.mounted) return;
                       Navigator.of(context).push(MaterialPageRoute(
                         builder: (_) => CreateRfqScreen(prefillListingId: (_listing['id'] as num?)?.toInt()),
                       ));
@@ -686,11 +667,8 @@ class _CoffeeListingDetailScreenState extends State<CoffeeListingDetailScreen> {
                   if (_listing['organization'] is Map && (_listing['organization'] as Map)['id'] != null)
                     OutlinedButton.icon(
                       key: const Key('lot-message-seller'),
-                      onPressed: () {
-                        if (!context.read<AuthProvider>().isAuthenticated) {
-                          VerificationPromptDialog.showAuthRequired(context, actionDescription: context.l10n.messageSeller);
-                          return;
-                        }
+                      onPressed: () async {
+                        if (!await ensureSignedIn(context) || !context.mounted) return;
                         openSellerChat(
                           context,
                           sellerOrganizationId: ((_listing['organization'] as Map)['id'] as num).toInt(),

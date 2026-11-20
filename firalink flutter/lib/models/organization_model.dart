@@ -34,8 +34,6 @@ class OrganizationModel {
   /// exporter, supplier, broker or buyer (older records may hold a legacy business type).
   final String businessType;
   final String? entityType;
-  final bool isVerified;
-  final List<String> verifiedRoles;
   final String country;
   final String? role; // Current user's role in this workspace (owner, manager, staff)
   final bool isActiveWorkspace;
@@ -50,8 +48,6 @@ class OrganizationModel {
     required this.slug,
     required this.businessType,
     this.entityType,
-    this.isVerified = false,
-    this.verifiedRoles = const [],
     this.country = 'Ethiopia',
     this.role,
     this.isActiveWorkspace = false,
@@ -61,26 +57,15 @@ class OrganizationModel {
     this.needsManualReview = false,
   });
 
-  bool get isExporter => verifiedRoles.contains('exporter');
-  bool get isBuyer => verifiedRoles.contains('buyer');
-  bool get isSupplier => verifiedRoles.contains('supplier');
-  bool get isBroker => verifiedRoles.contains('broker');
   bool get isOwner => role == 'owner';
 
   factory OrganizationModel.fromJson(Map<String, dynamic> json) {
-    List<String> roles = [];
-    if (json['verified_roles'] is List) {
-      roles = (json['verified_roles'] as List).map((e) => e.toString()).toList();
-    }
-
     return OrganizationModel(
       id: (json['id'] as num?)?.toInt() ?? 0,
       name: json['name']?.toString() ?? '',
       slug: json['slug']?.toString() ?? '',
       businessType: (json['business_role'] ?? json['business_type'])?.toString() ?? 'exporter',
       entityType: json['entity_type']?.toString(),
-      isVerified: json['is_verified'] == true || json['is_verified'] == 1,
-      verifiedRoles: roles,
       country: json['country']?.toString() ?? 'Ethiopia',
       role: (json['membership_role'] ?? json['role'])?.toString(),
       isActiveWorkspace: json['is_active_workspace'] == true,
@@ -98,8 +83,6 @@ class OrganizationModel {
       'slug': slug,
       'business_role': businessType,
       'entity_type': entityType,
-      'is_verified': isVerified,
-      'verified_roles': verifiedRoles,
       'country': country,
       'membership_role': role,
       'is_active_workspace': isActiveWorkspace,

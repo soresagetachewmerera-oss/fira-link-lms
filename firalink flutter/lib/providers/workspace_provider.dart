@@ -31,14 +31,6 @@ class WorkspaceProvider with ChangeNotifier {
   bool get reachedBusinessLimit => _ownedBusinesses >= _maxOwnedBusinesses;
   int get maxOwnedBusinesses => _maxOwnedBusinesses;
 
-  bool _hasVerifiedRole(String role) =>
-      _currentOrganization?.isVerified == true && _currentOrganization?.verifiedRoles.contains(role) == true;
-
-  bool get isVerifiedExporter => _hasVerifiedRole('exporter');
-  bool get isVerifiedBuyer => _hasVerifiedRole('buyer');
-  bool get isVerifiedSupplier => _hasVerifiedRole('supplier');
-  bool get isVerifiedBroker => _hasVerifiedRole('broker');
-
   Future<void> loadWorkspaces() async {
     _isLoading = true;
     _error = null;
@@ -100,4 +92,16 @@ class WorkspaceProvider with ChangeNotifier {
   Future<TeamRoster> loadTeam(int organizationId) => _service.getMembers(organizationId);
 
   Future<void> removeMember(int organizationId, int userId) => _service.removeMember(organizationId, userId);
+
+  /// Session ended or a new one started (SessionWatcher): forget the previous person's data.
+  void resetSession() {
+    _currentOrganization = null;
+    _organizations = [];
+    _intents = [];
+    _maxOwnedBusinesses = 3;
+    _ownedBusinesses = 0;
+    _isLoading = false;
+    _error = null;
+    notifyListeners();
+  }
 }

@@ -1593,6 +1593,23 @@ const Map<String, String> kLangAm = {
   'indicativeFob': "የFOB አመላካች ዋጋ",
   'inquireAction': "ይጠይቁ",
   'sampleAction': "ናሙና",
+  'signInToContinueTitle': "ለመቀጠል ይግቡ",
+  'signInToContinueBody': "ለዚህ የፊራ ሊንክ መለያ ያስፈልግዎታል። በስልክ ቁጥርዎ መግባት አንድ ደቂቃ ይወስዳል።",
+  'signInOrCreateAccount': "ይግቡ ወይም መለያ ይፍጠሩ",
+  'notNow': "አሁን አይደለም",
+  'sessionCheckFailedBody': "መግባትዎን ማረጋገጥ አልቻልንም። ግንኙነትዎን ያረጋግጡ እና እንደገና ይሞክሩ።",
+  'guestProfileTitle': "እንደ እንግዳ እየተመለከቱ ነው",
+  'guestProfileBody': "ሎቶችን ለማስቀመጥ፣ ናሙና ለመጠየቅ፣ ሻጮችን ለማነጋገር፣ ዝግጅቶችንና ጉብኝቶችን ለማስያዝ እና መለያዎን ለማየት ይግቡ።",
+  'phoneLockedHint': "ስልክ ቁጥርዎ ለመግባት ይጠቅማል። መቀየሩ ወደ አዲሱ ቁጥር የሚላክ ኮድ ይፈልጋል።",
+  'emailLockedHint': "ኢሜይልዎ ለመግባት ይጠቅማል። መቀየሩ ወደ አዲሱ አድራሻ የሚላክ ኮድ ይፈልጋል።",
+  'profileSaved': "መገለጫው ተቀምጧል",
+  'profilePhotoSaved': "የመገለጫ ፎቶው ተቀምጧል",
+  'passwordChangedOtherDevices': "የይለፍ ቃሉ ተቀይሯል። ሌሎች መሣሪያዎች ከመለያው ወጥተዋል።",
+  'tooManyAttemptsRetry': "በጣም ብዙ ሙከራዎች። ትንሽ ቆይተው እንደገና ይሞክሩ።",
+  'itemUnavailable': "ይህ ንጥል አይገኝም። ተወግዶ ሊሆን ይችላል፣ ወይም እርስዎ ሊከፍቱት አይችሉም።",
+  'sellerLicenseStated': "በሻጩ የተገለጸ የኤክስፖርት ፈቃድ፦ {license}",
+  'exportDocsProActiveTitle': "የኤክስፖርት ሰነዶች ስቱዲዮ ፕሮ ንቁ ነው",
+  'exportDocsProActiveBody': "ለሁሉም አብነቶች ያልተገደበ ኤክስፖርት። ዕቅድ ማረጋገጫዎን በፍጹም አይቀይርም።",
 };
 
 const Map<String, String> langAm = kLangAm;

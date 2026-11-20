@@ -4,6 +4,8 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../../widgets/fira_error_state.dart';
+import '../../services/api_exception.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/profile_service.dart';
 import '../../theme/app_theme.dart';
@@ -25,6 +27,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _lastNameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
+  late bool _phoneLocked;
   late TextEditingController _bioController;
 
   Uint8List? _localPhotoBytes;
@@ -44,6 +47,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _lastNameController = TextEditingController(text: lastName);
     _emailController = TextEditingController(text: user?.email ?? '');
     _phoneController = TextEditingController(text: user?.phone ?? '');
+    _phoneLocked = (user?.phone ?? '').isNotEmpty;
     _bioController = TextEditingController(text: user?.bio ?? '');
   }
 
@@ -80,7 +84,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           messenger.showSnackBar(
             SnackBar(
               content: Text(
-                'Profile photo updated successfully',
+                context.l10n.profilePhotoSaved,
                 style: TextStyle(color: textColor),
               ),
               backgroundColor: cardColor,
@@ -92,10 +96,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     } catch (e) {
       if (mounted) {
         messenger.showSnackBar(
-          SnackBar(
-            content: Text('Error uploading photo: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(FiraErrorText.message(context, e, isAction: true))),
         );
       }
     } finally {
@@ -113,6 +114,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final textColor = AppTheme.getTextColor(context);
       final cardColor = AppTheme.getCardColor(context);
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final l10n = context.l10n;
 
       try {
         final fullName =
@@ -120,8 +122,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         await _profileService.updateProfile(
           name: fullName,
-          email: _emailController.text.trim(),
-          phone: _phoneController.text.trim(),
+          phone: _phoneLocked ? null : _phoneController.text.trim(),
           bio: _bioController.text.trim(),
         );
 
@@ -132,7 +133,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           messenger.showSnackBar(
             SnackBar(
               content: Text(
-                'Profile updated successfully',
+                l10n.profileSaved,
                 style: TextStyle(color: textColor),
               ),
               backgroundColor: cardColor,
@@ -143,9 +144,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         }
       } catch (e) {
         if (mounted) {
-          messenger.showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-          );
+          final message = e is ApiException && e.code == 'PHONE_CHANGE_NEEDS_CODE'
+              ? l10n.phoneLockedHint
+              : FiraErrorText.message(context, e, isAction: true);
+          messenger.showSnackBar(SnackBar(content: Text(message)));
         }
       } finally {
         if (mounted) setState(() => _isLoading = false);
@@ -287,37 +289,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       const SizedBox(height: 20),
                       // Email
+                      // Read-only: a sign-in channel, changed only with a code (and phone-only
+                      // accounts have no email, so it is never required here).
                       TextFormField(
+                        key: const Key('edit-profile-email'),
                         controller: _emailController,
+                        readOnly: true,
                         keyboardType: TextInputType.emailAddress,
                         decoration: _inputDecoration(
                           context,
                           label: context.l10n.email,
-                          hint: 'Enter your email',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
+                          hint: context.l10n.email,
+                        ).copyWith(helperText: context.l10n.emailLockedHint, helperMaxLines: 3),
                       ),
                       const SizedBox(height: 20),
                       // Phone
+                      // A first number can be added here; changing a number needs a code.
                       TextFormField(
+                        key: const Key('edit-profile-phone'),
                         controller: _phoneController,
+                        readOnly: _phoneLocked,
                         keyboardType: TextInputType.phone,
                         decoration: _inputDecoration(
                           context,
-                          label: 'Phone Number',
-                          hint: 'Enter your phone number',
-                        ),
-                        validator: (value) {
-                          return null; // Phone is optional in backend validation but typical to have
-                        },
+                          label: context.l10n.phoneNumber,
+                          hint: context.l10n.phoneNumber,
+                        ).copyWith(helperText: _phoneLocked ? context.l10n.phoneLockedHint : null, helperMaxLines: 3),
                       ),
                       const SizedBox(height: 20),
                       // Bio

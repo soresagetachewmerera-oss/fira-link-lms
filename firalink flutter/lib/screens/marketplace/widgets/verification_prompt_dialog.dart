@@ -1,99 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_theme.dart';
 import '../../../router/app_router.dart';
+import '../../../widgets/auth/auth_gate.dart';
 
 class VerificationPromptDialog {
-  /// Prompt visitor to sign in or register before attempting a B2B action
+  /// Prompt a guest to sign in before a B2B action. Delegates to the app-wide gate
+  /// ([ensureSignedIn]: localized sheet, sign-in, back to this screen). [actionDescription] is kept
+  /// for older callers and no longer shown.
   static Future<void> showAuthRequired(
     BuildContext context, {
-    String actionDescription = 'execute this trade action',
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return showModalBottomSheet(
-      context: context,
-      backgroundColor: isDark ? AppTheme.surfaceDark : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.lock_person_outlined,
-                    color: AppTheme.primary,
-                    size: 36,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Sign In Required',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'To $actionDescription, please sign in or register your business entity with Fira Link.',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey, height: 1.4),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      Navigator.pushNamed(context, AppRouter.auth);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    child: const Text(
-                      'Sign In / Register',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('Continue Browsing as Visitor', style: TextStyle(color: Colors.grey)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    String actionDescription = '',
+  }) async {
+    await ensureSignedIn(context);
   }
 
   /// Show role verification modal for unverified, pending, rejected, or expired accounts

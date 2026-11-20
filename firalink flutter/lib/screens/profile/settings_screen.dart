@@ -16,6 +16,10 @@ import '../../providers/settings_provider.dart';
 import '../../services/profile_service.dart';
 import '../../config/config.dart';
 import '../common/webview_screen.dart';
+import '../../services/api_exception.dart';
+import '../../widgets/auth/auth_gate.dart';
+import '../../widgets/auth/fresh_auth_sheet.dart';
+import '../../widgets/fira_error_state.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -202,17 +206,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     if (confirmed == true && mounted) {
-      // Show loading indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()),
-      );
-
       try {
-        await ProfileService().submitDeleteRequest();
+        // Sensitive: the server asks for a fresh code or password first (FreshAuthSheet).
+        final res = await FreshAuthSheet.run(context, () => ProfileService().submitDeleteRequest());
+        requireSuccess(res);
         if (mounted) {
-          Navigator.pop(context); // Close loading
           // Refresh status
           await Provider.of<AuthProvider>(
             context,
@@ -233,12 +231,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           }
         }
       } catch (e) {
-        if (mounted) {
-          Navigator.pop(context); // Close loading
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Error: $e')));
-        }
+        if (mounted) showFiraActionError(context, e);
       }
     }
   }
@@ -320,6 +313,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 24),
 
+              // Guests: no account section at all (auth gating 2026-11-20). Only sign in.
+              if (!context.watch<AuthProvider>().isAuthenticated) ...[
+                Container(
+                  key: const Key('settings-guest-sign-in'),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.getCardColor(context),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: _MenuItemWithCustomIcon(
+                    icon: Icons.login_rounded,
+                    title: context.l10n.signInOrCreateAccount,
+                    subtitle: context.l10n.signInToContinueBody,
+                    onTap: () => SignInResume.start(context),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ] else ...[
               // Account Settings Section
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -404,6 +415,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 24),
+              ],
 
               // Privacy & Security Section
               Padding(

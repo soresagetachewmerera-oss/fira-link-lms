@@ -10,6 +10,7 @@ import 'coffee_offer_generator_screen.dart';
 import 'coffee_readiness_screen.dart';
 import 'coffee_market_screen.dart';
 import '../../l10n/app_localizations.dart';
+import '../../theme/fira_colors.dart';
 
 class CoffeeToolkitHubScreen extends StatefulWidget {
   const CoffeeToolkitHubScreen({super.key});
@@ -429,7 +430,7 @@ class _CoffeeToolkitHubScreenState extends State<CoffeeToolkitHubScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.verified, size: 14, color: Color(0xFF6D1A95)),
+                    Icon(Icons.info_outline_rounded, size: 14, color: context.fira.brandPrimary),
                     const SizedBox(width: 6),
                     Text(
                       'ECTA Floor Corridor:',

@@ -332,4 +332,16 @@ class CourseDiscussionProvider extends ChangeNotifier {
       replies: replies,
     );
   }
+
+  /// Session ended or a new one started (SessionWatcher): forget the previous person's data.
+  void resetSession() {
+    _discussions = [];
+    _selectedDiscussion = null;
+    _isLoading = false;
+    _isActionLoading = false;
+    _error = null;
+    _currentPage = 1;
+    _hasMore = true;
+    notifyListeners();
+  }
 }

@@ -1,3 +1,4 @@
+import '../../widgets/auth/auth_gate.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../models/tour.dart';
@@ -149,7 +150,8 @@ class _TourDetailScreenState extends State<TourDetailScreen> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: tour.remainingSeats > 0
-                      ? () {
+                      ? () async {
+                          if (!await ensureSignedIn(context) || !context.mounted) return;
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => TourBookingScreen(tour: tour),

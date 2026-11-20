@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
+import '../../widgets/auth/auth_gate.dart';
 import '../../theme/app_theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
@@ -119,6 +120,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           description: Text(result['message'] ?? 'Phone verified and account activated!'),
           autoCloseDuration: const Duration(seconds: 3),
         );
+        if (SignInResume.tryResume(context)) return;
         if (widget.isRegistration) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => const IntentSelectionScreen()),

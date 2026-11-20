@@ -298,4 +298,16 @@ class CoffeeToolkitProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// Session ended or a new one started (SessionWatcher): forget the previous person's data.
+  void resetSession() {
+    _recentCalculations = [];
+    _recentOffers = [];
+    _latestAssessmentScore = null;
+    _latestAssessmentTier = null;
+    _latestAssessmentData = null;
+    _currentCalculationResult = null;
+    _error = null;
+    notifyListeners();
+  }
 }

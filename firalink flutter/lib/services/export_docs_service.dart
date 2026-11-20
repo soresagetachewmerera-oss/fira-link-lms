@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
 import 'base_service.dart';
+import 'session_reset.dart';
 import '../config/config.dart';
 
 class ExportDocsService extends BaseService {
@@ -131,7 +131,7 @@ class ExportDocsService extends BaseService {
       final url = getDownloadUrl(documentId, format);
       final response = await http.get(Uri.parse(url), headers: headers);
       if (response.statusCode == 200) {
-        final dir = await getTemporaryDirectory();
+        final dir = await SessionReset.exportDocsDirectory(); // deleted on sign-out
         final file = File('${dir.path}/$filename');
         await file.writeAsBytes(response.bodyBytes);
         return file.path;

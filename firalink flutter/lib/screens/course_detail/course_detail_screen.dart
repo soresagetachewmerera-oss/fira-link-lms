@@ -1,3 +1,4 @@
+import '../../widgets/auth/auth_gate.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1357,7 +1358,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          if (!await ensureSignedIn(context) || !context.mounted) return;
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) =>

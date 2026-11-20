@@ -1,3 +1,4 @@
+import '../../widgets/auth/auth_gate.dart';
 import 'package:flutter/material.dart';
 import '../../models/bundle.dart';
 import '../../theme/app_theme.dart';
@@ -255,7 +256,7 @@ class BundleDetailScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     elevation: 0,
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     final dummyCourse = Course(
                       id: bundle.id,
                       title: bundle.title,
@@ -265,6 +266,7 @@ class BundleDetailScreen extends StatelessWidget {
                       rating: 0.0,
                       studentsCount: totalStudents,
                     );
+                    if (!await ensureSignedIn(context) || !context.mounted) return;
                     Navigator.push(
                       context,
                       MaterialPageRoute(

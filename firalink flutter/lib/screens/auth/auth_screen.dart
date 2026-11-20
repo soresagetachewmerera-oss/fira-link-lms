@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
+import '../../widgets/auth/auth_gate.dart';
 import '../../theme/app_theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
@@ -287,6 +288,7 @@ class _LoginFormState extends State<_LoginForm> {
           autoCloseDuration: const Duration(seconds: 3),
         );
 
+        if (SignInResume.tryResume(context)) return;
         if (Navigator.of(context).canPop()) {
           Navigator.of(context).pop();
         } else {
@@ -696,6 +698,7 @@ class _SignUpFormState extends State<_SignUpForm> {
           autoCloseDuration: const Duration(seconds: 3),
         );
 
+        if (SignInResume.tryResume(context)) return;
         if (Navigator.of(context).canPop()) {
           Navigator.of(context).pop();
         } else {

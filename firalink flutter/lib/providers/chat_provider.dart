@@ -227,4 +227,18 @@ class ChatProvider extends ChangeNotifier {
     stopPolling();
     super.dispose();
   }
+
+  /// Session ended or a new one started (SessionWatcher): forget the previous person's data.
+  void resetSession() {
+    stopPolling();
+    _conversations = [];
+    _requests = [];
+    _unreadCount = 0;
+    _messages = [];
+    _activeConversation = null;
+    _isLoading = false;
+    _isSending = false;
+    _error = null;
+    notifyListeners();
+  }
 }

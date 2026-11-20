@@ -31,4 +31,7 @@ class WishlistProvider with ChangeNotifier {
   bool isInWishlist(int courseId) {
     return _items.any((item) => item.id == courseId);
   }
+
+  /// The device wishlist is cleared by SessionReset; reload the (now empty) list.
+  Future<void> resetSession() => loadWishlist();
 }

@@ -38,4 +38,12 @@ class DashboardProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// Session ended or a new one started (SessionWatcher): forget the previous person's data.
+  void resetSession() {
+    _dashboardData = null;
+    _isLoading = false;
+    _error = null;
+    notifyListeners();
+  }
 }

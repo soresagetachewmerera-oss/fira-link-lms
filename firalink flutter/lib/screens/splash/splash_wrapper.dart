@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,14 +27,33 @@ class _SplashWrapperState extends State<SplashWrapper> {
     });
   }
 
+  /// Waits until the stored session is checked (never decides while it is still unknown).
+  Future<void> _waitForSession(AuthProvider auth) async {
+    if (auth.status != AuthStatus.unknown) return;
+    final done = Completer<void>();
+    void listener() {
+      if (auth.status != AuthStatus.unknown && !done.isCompleted) done.complete();
+    }
+
+    auth.addListener(listener);
+    try {
+      await done.future.timeout(const Duration(seconds: 15), onTimeout: () {});
+    } finally {
+      auth.removeListener(listener);
+    }
+  }
+
   void _checkAuthAndNavigate() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    await _waitForSession(authProvider);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     if (!mounted) return;
 
     final route = decideStartupRoute(
-      isAuthenticated: authProvider.isAuthenticated,
+      // A stored session that could not be checked (offline) is kept: Home, with protected screens
+      // offering Retry. It is never shown as a guest (decision D-13).
+      isAuthenticated: authProvider.isAuthenticated || authProvider.status == AuthStatus.offline,
       languageChosen: prefs.getBool(StartupPrefs.languageChosen) ?? false,
       seenOnboarding: prefs.getBool(StartupPrefs.seenOnboarding) ?? false,
     );

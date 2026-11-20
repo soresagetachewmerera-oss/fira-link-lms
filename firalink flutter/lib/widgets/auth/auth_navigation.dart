@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../router/app_router.dart';
 import '../../screens/splash/startup_route.dart';
 import '../../theme/fira_colors.dart';
+import 'auth_gate.dart';
 
 /// Browse without an account (design: "Explore as guest").
 Future<void> exploreAsGuest(BuildContext context) async {
@@ -13,8 +14,10 @@ Future<void> exploreAsGuest(BuildContext context) async {
   Navigator.of(context).pushNamedAndRemoveUntil(AppRouter.home, (_) => false);
 }
 
-/// After sign-in: new accounts choose their intent first, returning users go Home.
+/// After sign-in: back to the screen that asked for it (a gate, see auth_gate.dart), otherwise new
+/// accounts choose their intent first and returning users go Home.
 void goAfterSignIn(BuildContext context, {required bool isNewUser}) {
+  if (SignInResume.tryResume(context)) return;
   Navigator.of(context).pushNamedAndRemoveUntil(
     isNewUser ? AppRouter.intentSelection : AppRouter.home,
     (_) => false,
