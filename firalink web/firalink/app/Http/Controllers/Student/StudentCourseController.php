@@ -845,7 +845,7 @@ class StudentCourseController extends Controller
                     if (preg_match('/(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/', $lc->recording_url, $matches)) {
                         $videoData['is_youtube'] = true;
                         $videoData['youtube_id'] = $matches[2];
-                        $videoData['embed_url'] = 'https://www.youtube.com/embed/' . $matches[2];
+                        $videoData['embed_url'] = $this->youtubeEmbedUrl($matches[2]);
                     } elseif (preg_match('/vimeo\.com\/(\d+)/', $lc->recording_url, $matches)) {
                         $videoData['is_vimeo'] = true;
                         $videoData['vimeo_id'] = $matches[1];
@@ -863,7 +863,7 @@ class StudentCourseController extends Controller
             if (preg_match('/(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/', $lesson->video_url, $matches)) {
                 $videoData['is_youtube'] = true;
                 $videoData['youtube_id'] = $matches[2];
-                $videoData['embed_url'] = 'https://www.youtube.com/embed/' . $matches[2];
+                $videoData['embed_url'] = $this->youtubeEmbedUrl($matches[2]);
             }
             elseif (preg_match('/vimeo\.com\/(\d+)/', $lesson->video_url, $matches)) {
                 $videoData['is_vimeo'] = true;
@@ -876,6 +876,15 @@ class StudentCourseController extends Controller
         }
         
         return $videoData;
+    }
+
+    /**
+     * Use YouTube's privacy-enhanced player and suppress related-video suggestions.
+     * The player remains subject to YouTube's own controls and terms of service.
+     */
+    private function youtubeEmbedUrl(string $videoId): string
+    {
+        return 'https://www.youtube-nocookie.com/embed/' . $videoId . '?rel=0&modestbranding=1&playsinline=1';
     }
 
     public function viewAssignmentSubmission($submissionId)

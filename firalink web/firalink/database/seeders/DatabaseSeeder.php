@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             PlatformSettingSeeder::class,
             CourseCategorySeeder::class,
             CourseLanguageSeeder::class,
+            FreeBusinessPitfallsCourseSeeder::class,
             BlogCategorySeeder::class,
             BlogPostSeeder::class,
             MenuSeeder::class,
