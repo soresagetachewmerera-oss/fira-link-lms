@@ -120,7 +120,22 @@ class LotEvidenceService
 
     private function store(CoffeeListing $lot, User $by, string $kind, array $files, array $attributes): LotEvidence
     {
-        $ev = DB::transaction(function () use ($lot, $by, $kind, $files, $attributes) {
+        $totalBytes = 0;
+        foreach ($files as $file) {
+            $totalBytes += (int) $file->getSize();
+        }
+
+        $entitlements = app(\App\Services\EntitlementService::class);
+        if ($lot->organization && !$entitlements->canUploadBytes($lot->organization, $totalBytes)) {
+            throw new VerificationException(
+                'STORAGE_LIMIT_REACHED',
+                'Document and evidence storage quota reached. Please upgrade your plan.',
+                403,
+                $entitlements->limitReachedResponse($lot->organization, 'storage_gb')
+            );
+        }
+
+        $ev = DB::transaction(function () use ($lot, $by, $kind, $files, $attributes, $entitlements, $totalBytes) {
             $ev = LotEvidence::create($attributes + [
                 'listing_id' => $lot->id,
                 'organization_id' => $lot->organization_id,
@@ -129,6 +144,10 @@ class LotEvidenceService
                 'submitted_at' => now(),
             ]);
             $ev->forceFill(['status' => LotEvidence::STATUS_IN_REVIEW])->save();
+
+            if ($lot->organization) {
+                $entitlements->trackStorage($lot->organization, $totalBytes);
+            }
 
             foreach (array_values($files) as $i => $file) {
                 $mime = $file->getMimeType();

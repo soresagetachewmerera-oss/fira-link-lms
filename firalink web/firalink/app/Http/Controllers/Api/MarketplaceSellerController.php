@@ -430,5 +430,67 @@ class MarketplaceSellerController extends Controller
 
         return response()->json(['success' => true, 'message' => $message, 'data' => $data]);
     }
+
+    /**
+     * POST /api/marketplace/subscribe/cancel
+     * Cancel subscription auto-renewal at period end (Owner only).
+     */
+    public function cancelSubscription(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $org = $user->currentOrganization() ?? $user->primaryOrganization();
+
+        if (!$org) {
+            return response()->json([
+                'success' => false,
+                'code' => 'ORGANIZATION_REQUIRED',
+                'message' => 'No active organization found.',
+            ], 422);
+        }
+
+        if (!$org->canManageBilling($user)) {
+            return response()->json([
+                'success' => false,
+                'code' => 'OWNER_ONLY',
+                'message' => 'Only the organization owner can manage subscription cancellation.',
+            ], 403);
+        }
+
+        $subscription = $org->activeSubscription;
+        if (!$subscription) {
+            return response()->json([
+                'success' => false,
+                'code' => 'NO_ACTIVE_SUBSCRIPTION',
+                'message' => 'No active commercial subscription found.',
+            ], 404);
+        }
+
+        $subscription->update([
+            'cancel_at_period_end' => true,
+        ]);
+
+        \App\Models\SubscriptionEvent::create([
+            'subscription_id' => $subscription->id,
+            'organization_id' => $org->id,
+            'event_type' => \App\Models\SubscriptionEvent::EVENT_CANCELED,
+            'from_plan_id' => $subscription->plan_id,
+            'metadata' => ['cancel_at_period_end' => true, 'initiated_by' => $user->id],
+            'created_by' => $user->id,
+            'created_at' => now(),
+        ]);
+
+        \App\Models\AuditLog::log('subscription_cancel_scheduled', $subscription, [], ['cancel_at_period_end' => true], $org->id);
+
+        app(\App\Services\EntitlementService::class)->invalidate($org);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Plan renewal has been cancelled. Your benefits remain active until the end of the billing period.',
+            'data' => [
+                'cancel_at_period_end' => true,
+                'current_period_end' => $subscription->current_period_end?->toIso8601String(),
+            ],
+        ]);
+    }
 }
 

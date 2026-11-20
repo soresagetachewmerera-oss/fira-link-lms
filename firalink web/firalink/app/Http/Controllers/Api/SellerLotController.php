@@ -213,6 +213,138 @@ class SellerLotController extends Controller
         return response()->json(['success' => true, 'data' => $this->lotJson($lot->refresh(), true)], 201);
     }
 
+    /**
+     * POST /marketplace/seller/lots/bulk-import
+     * Bulk CSV import of lots. Gated by 'bulk_csv_lot_upload' SaaS entitlement.
+     */
+    public function bulkImport(Request $request, EntitlementService $entitlements): JsonResponse
+    {
+        $user = $request->user();
+        $org = $user->currentOrganization();
+        $can = Gate::inspect('create', [CoffeeListing::class, $org]);
+        if ($can->denied()) {
+            return $this->denied($can);
+        }
+
+        if (!$entitlements->can($org, 'bulk_csv_lot_upload')) {
+            return response()->json(
+                array_merge(['success' => false], $entitlements->limitReachedResponse($org, 'bulk_csv_lot_upload')),
+                403
+            );
+        }
+
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|file|max:5120',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => 'Invalid file upload', 'errors' => $validator->errors()], 422);
+        }
+
+        $file = $request->file('file');
+        $extension = strtolower($file->getClientOriginalExtension());
+        if (!in_array($extension, ['csv', 'txt'], true)) {
+            return response()->json(['success' => false, 'message' => 'The file must be a valid CSV file.'], 422);
+        }
+
+        $handle = fopen($file->getRealPath(), 'r');
+        if (!$handle) {
+            return response()->json(['success' => false, 'message' => 'Failed to read CSV file.'], 422);
+        }
+
+        $header = fgetcsv($handle);
+        if (!$header) {
+            fclose($handle);
+            return response()->json(['success' => false, 'message' => 'CSV file is empty.'], 422);
+        }
+
+        // Normalize header
+        $header = array_map(fn($h) => strtolower(trim(str_replace([' ', '-'], '_', (string) $h))), $header);
+
+        $imported = [];
+        $errors = [];
+        $rowNum = 1;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            $rowNum++;
+            if (empty(array_filter($row))) {
+                continue; // skip blank line
+            }
+
+            if (count($row) !== count($header)) {
+                $errors[] = "Row #{$rowNum}: column count mismatch.";
+                continue;
+            }
+
+            $data = array_combine($header, $row);
+            $origin = trim($data['origin_region'] ?? $data['origin'] ?? '');
+            if (empty($origin)) {
+                $errors[] = "Row #{$rowNum}: origin_region is required.";
+                continue;
+            }
+
+            $title = trim($data['title'] ?? '') ?: ($origin . ' Green Coffee Lot');
+            $processing = strtolower(trim($data['processing_method'] ?? $data['processing'] ?? 'washed'));
+            if (!in_array($processing, ['washed', 'natural', 'honey', 'anaerobic', 'experimental'], true)) {
+                $processing = 'washed';
+            }
+
+            $grade = strtolower(trim($data['grade'] ?? 'grade_1'));
+            if (!in_array($grade, ['grade_1', 'grade_2', 'grade_3', 'grade_4', 'grade_5', 'undergrade'], true)) {
+                $grade = 'grade_1';
+            }
+
+            $bags = max(1, (int) ($data['quantity_bags'] ?? $data['bags'] ?? 50));
+            $bagWeight = max(1.0, (float) ($data['bag_weight_kg'] ?? 60.0));
+            $price = max(0.5, (float) ($data['price_per_kg_usd'] ?? $data['price'] ?? 5.0));
+            $cropYear = trim($data['crop_year'] ?? '') ?: date('Y');
+
+            $lot = new CoffeeListing([
+                'title' => $title,
+                'origin_region' => $origin,
+                'processing_method' => $processing,
+                'grade' => $grade,
+                'variety' => trim($data['variety'] ?? 'Heirloom'),
+                'altitude_meters' => (int) ($data['altitude_meters'] ?? 1900),
+                'quantity_bags' => $bags,
+                'bag_weight_kg' => $bagWeight,
+                'total_quantity_kg' => $bags * $bagWeight,
+                'price_per_kg_usd' => $price,
+                'crop_year' => $cropYear,
+                'description' => trim($data['description'] ?? 'Imported via Bulk CSV'),
+            ]);
+
+            $lot->forceFill([
+                'seller_id' => $user->id,
+                'organization_id' => $org->id,
+                'status' => 'draft',
+                'evidence_level' => 'claimed',
+            ])->save();
+
+            $imported[] = $lot->id;
+        }
+
+        fclose($handle);
+
+        if (!empty($imported)) {
+            AuditLog::create([
+                'user_id' => $user->id,
+                'organization_id' => $org->id,
+                'action' => 'lots_bulk_imported',
+                'metadata' => ['count' => count($imported), 'lot_ids' => array_slice($imported, 0, 20)],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'created_at' => now(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'imported_count' => count($imported),
+            'imported_ids' => $imported,
+            'errors' => $errors,
+        ], count($imported) > 0 ? 201 : 422);
+    }
+
     public function update(Request $request, CoffeeListing $lot): JsonResponse
     {
         $can = Gate::inspect('update', $lot);

@@ -98,6 +98,14 @@ class EntitlementService
                 ->count();
         }
 
+        if ($featureKey === 'storage_gb') {
+            $bytes = UsageCounter::where('organization_id', $org->id)
+                ->where('feature_key', 'storage_bytes')
+                ->where('period_key', 'forever')
+                ->value('count') ?? 0;
+            return (int) ceil($bytes / (1024 * 1024 * 1024));
+        }
+
         // Standard usage counter table
         $counter = UsageCounter::where('organization_id', $org->id)
             ->where('feature_key', $featureKey)
@@ -194,6 +202,82 @@ class EntitlementService
             $this->invalidate($org);
 
             return true;
+        });
+    }
+
+    /**
+     * Check if an organization has enough storage quota to upload additional bytes.
+     */
+    public function canUploadBytes(Organization $org, int $additionalBytes): bool
+    {
+        $limitGb = $this->limit($org, 'storage_gb');
+        if ($limitGb === -1) {
+            return true; // Unlimited
+        }
+        if ($limitGb <= 0) {
+            return false;
+        }
+
+        $currentBytes = UsageCounter::where('organization_id', $org->id)
+            ->where('feature_key', 'storage_bytes')
+            ->where('period_key', 'forever')
+            ->value('count') ?? 0;
+
+        $maxBytes = $limitGb * 1024 * 1024 * 1024;
+        return ($currentBytes + $additionalBytes) <= $maxBytes;
+    }
+
+    /**
+     * Track newly uploaded file bytes for an organization.
+     */
+    public function trackStorage(Organization $org, int $bytes): void
+    {
+        if ($bytes <= 0) {
+            return;
+        }
+
+        DB::transaction(function () use ($org, $bytes) {
+            $counter = UsageCounter::where('organization_id', $org->id)
+                ->where('feature_key', 'storage_bytes')
+                ->where('period_key', 'forever')
+                ->lockForUpdate()
+                ->first();
+
+            if (!$counter) {
+                UsageCounter::create([
+                    'organization_id' => $org->id,
+                    'feature_key' => 'storage_bytes',
+                    'period_key' => 'forever',
+                    'count' => $bytes,
+                ]);
+            } else {
+                $counter->increment('count', $bytes);
+            }
+
+            $this->invalidate($org);
+        });
+    }
+
+    /**
+     * Release storage bytes when a file is deleted.
+     */
+    public function releaseStorage(Organization $org, int $bytes): void
+    {
+        if ($bytes <= 0) {
+            return;
+        }
+
+        DB::transaction(function () use ($org, $bytes) {
+            $counter = UsageCounter::where('organization_id', $org->id)
+                ->where('feature_key', 'storage_bytes')
+                ->where('period_key', 'forever')
+                ->lockForUpdate()
+                ->first();
+
+            if ($counter) {
+                $counter->update(['count' => max(0, $counter->count - $bytes)]);
+                $this->invalidate($org);
+            }
         });
     }
 

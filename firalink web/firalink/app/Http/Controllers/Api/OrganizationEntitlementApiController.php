@@ -36,6 +36,7 @@ class OrganizationEntitlementApiController extends Controller
         }
 
         $snapshot = $this->entitlementService->snapshot($org);
+        $snapshot['is_owner'] = $user ? $org->isOwner($user) : false;
 
         return response()->json([
             'success' => true,
@@ -63,6 +64,7 @@ class OrganizationEntitlementApiController extends Controller
         }
 
         $snapshot = $this->entitlementService->snapshot($org);
+        $snapshot['is_owner'] = $org->isOwner($user);
 
         return response()->json([
             'success' => true,

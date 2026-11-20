@@ -318,6 +318,10 @@ class OrganizationController extends Controller
         }
 
         $isOwner = $org->isOwner($user);
+        $entitlements = app(\App\Services\EntitlementService::class);
+        $seatLimit = $entitlements->limit($org, 'seats');
+        $seatUsed = $entitlements->used($org, 'seats');
+        $canAddMembers = $isOwner && ($seatLimit === -1 || $seatUsed < $seatLimit);
 
         $members = OrganizationMembership::with('user')
             ->where('organization_id', $org->id)
@@ -340,7 +344,12 @@ class OrganizationController extends Controller
                 'organization_id' => $org->id,
                 'organization_name' => $org->name,
                 'viewer_is_owner' => $isOwner,
-                'can_add_members' => false, // seats come later
+                'can_add_members' => $canAddMembers,
+                'seats' => [
+                    'limit' => $seatLimit,
+                    'used' => $seatUsed,
+                    'remaining' => $seatLimit === -1 ? -1 : max(0, $seatLimit - $seatUsed),
+                ],
                 'members' => $members,
             ],
         ]);
@@ -376,6 +385,21 @@ class OrganizationController extends Controller
 
         $targetUser = User::where('email', $request->input('email'))->first();
 
+        // Enforce SaaS Team Seats Quota
+        $alreadyActive = OrganizationMembership::where('organization_id', $org->id)
+            ->where('user_id', $targetUser->id)
+            ->where('is_active', true)
+            ->exists();
+
+        $entitlements = app(\App\Services\EntitlementService::class);
+        if (!$alreadyActive && !$entitlements->can($org, 'seats')) {
+            return response()->json(array_merge([
+                'success' => false,
+                'code' => 'SEAT_LIMIT_REACHED',
+                'message' => 'Team seat limit reached. Upgrade your plan to invite more team members.',
+            ], $entitlements->limitReachedResponse($org, 'seats')), 403);
+        }
+
         $membership = OrganizationMembership::updateOrCreate(
             [
                 'organization_id' => $org->id,
@@ -388,6 +412,8 @@ class OrganizationController extends Controller
                 'joined_at' => now(),
             ]
         );
+
+        $entitlements->invalidate($org);
 
         AuditLog::create([
             'user_id' => $user->id,
@@ -444,6 +470,7 @@ class OrganizationController extends Controller
         }
 
         $membership->update(['is_active' => false]);
+        app(\App\Services\EntitlementService::class)->invalidate($org);
 
         // The removed member loses this workspace at once (also enforced on every read).
         User::where('id', $userId)->where('active_organization_id', $org->id)->update(['active_organization_id' => null]);

@@ -152,6 +152,28 @@ class DealRoomController extends Controller
             ], 422);
         }
 
+        // SaaS Active Deal Rooms Quota Enforcement
+        $entitlements = app(\App\Services\EntitlementService::class);
+        $sellerOrg = \App\Models\Organization::find($orgId);
+        if ($sellerOrg && !$entitlements->can($sellerOrg, 'active_deal_rooms')) {
+            return response()->json(array_merge([
+                'success' => false,
+                'code' => 'DEAL_ROOM_LIMIT_REACHED',
+                'message' => 'The seller has reached their active deal room limit on their current plan.',
+            ], $entitlements->limitReachedResponse($sellerOrg, 'active_deal_rooms')), 403);
+        }
+
+        if ($buyerOrgId) {
+            $buyerOrg = \App\Models\Organization::find($buyerOrgId);
+            if ($buyerOrg && !$entitlements->can($buyerOrg, 'active_deal_rooms')) {
+                return response()->json(array_merge([
+                    'success' => false,
+                    'code' => 'DEAL_ROOM_LIMIT_REACHED',
+                    'message' => 'Your business has reached its active deal room limit on your current plan.',
+                ], $entitlements->limitReachedResponse($buyerOrg, 'active_deal_rooms')), 403);
+            }
+        }
+
         $dealRoom = DealRoom::create([
             'deal_reference' => 'DR-' . strtoupper(Str::random(8)),
             'organization_id' => $orgId,
@@ -166,6 +188,13 @@ class DealRoomController extends Controller
         ]);
 
         $dealRoom->forceFill(['buyer_organization_id' => $buyerOrgId])->save();
+
+        if ($sellerOrg) {
+            $entitlements->invalidate($sellerOrg);
+        }
+        if (isset($buyerOrg) && $buyerOrg) {
+            $entitlements->invalidate($buyerOrg);
+        }
 
         // Slice 6: an approved sample's seal ID goes into the contract, so the shipped coffee can
         // be compared with the retained copy.

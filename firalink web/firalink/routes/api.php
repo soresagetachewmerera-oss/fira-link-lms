@@ -180,6 +180,15 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::delete('/organizations/{id}/members/{userId}', [\App\Http\Controllers\Api\OrganizationController::class, 'removeMember']);
     Route::post('/user/onboarding-intent', [\App\Http\Controllers\Api\OrganizationController::class, 'saveIntent']);
 
+    // SaaS B2B Compliance Audit Trail & Export
+    Route::get('/organizations/{id}/audit-logs', [\App\Http\Controllers\Api\OrganizationAuditLogController::class, 'index']);
+    Route::get('/organizations/{id}/audit-logs/export', [\App\Http\Controllers\Api\OrganizationAuditLogController::class, 'export']);
+
+    // SaaS B2B Developer API Key Management
+    Route::get('/organizations/{id}/api-tokens', [\App\Http\Controllers\Api\OrganizationApiKeyController::class, 'index']);
+    Route::post('/organizations/{id}/api-tokens', [\App\Http\Controllers\Api\OrganizationApiKeyController::class, 'store']);
+    Route::delete('/organizations/{id}/api-tokens/{tokenId}', [\App\Http\Controllers\Api\OrganizationApiKeyController::class, 'destroy']);
+
     // Deal Rooms & Contract Milestone Execution
     Route::prefix('deal-rooms')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\DealRoomController::class, 'index']);
@@ -312,6 +321,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::prefix('seller/lots')->controller(\App\Http\Controllers\Api\SellerLotController::class)->group(function () {
             Route::get('/', 'index');
             Route::post('/', 'store');
+            Route::post('/bulk-import', 'bulkImport');
             Route::get('/{lot}', 'show')->whereNumber('lot');
             Route::put('/{lot}', 'update')->whereNumber('lot');
             Route::delete('/{lot}', 'destroy')->whereNumber('lot');
@@ -344,6 +354,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         // Subscriptions & Upgrades
         Route::post('/subscribe', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'subscribe']);
         Route::post('/subscribe/chapa/verify', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'chapaVerify']);
+        Route::post('/subscribe/cancel', [\App\Http\Controllers\Api\MarketplaceSellerController::class, 'cancelSubscription']);
     });
 
     // Coffee Export Toolkit (Protected User Operations)

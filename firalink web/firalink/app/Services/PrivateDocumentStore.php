@@ -145,13 +145,35 @@ class PrivateDocumentStore
     }
 
     /**
+     * Check if organization has enough storage quota.
+     */
+    public function checkStorageQuota(\App\Models\Organization $org, UploadedFile $file): ?array
+    {
+        $entitlements = app(\App\Services\EntitlementService::class);
+        if (!$entitlements->canUploadBytes($org, (int) $file->getSize())) {
+            return array_merge([
+                'success' => false,
+                'code' => 'STORAGE_LIMIT_REACHED',
+                'message' => 'Document and evidence storage quota reached. Please upgrade your plan.',
+            ], $entitlements->limitReachedResponse($org, 'storage_gb'));
+        }
+        return null;
+    }
+
+    /**
      * Store an already-validated file on the private disk with a server-chosen name.
      */
-    public function store(UploadedFile $file, string $directory): string
+    public function store(UploadedFile $file, string $directory, ?\App\Models\Organization $org = null): string
     {
         $extension = self::EXTENSIONS[$file->getMimeType()] ?? 'bin';
 
-        return $file->storeAs(trim($directory, '/'), Str::uuid() . '.' . $extension, self::DISK);
+        $path = $file->storeAs(trim($directory, '/'), Str::uuid() . '.' . $extension, self::DISK);
+
+        if ($org) {
+            app(\App\Services\EntitlementService::class)->trackStorage($org, (int) $file->getSize());
+        }
+
+        return $path;
     }
 
     /**

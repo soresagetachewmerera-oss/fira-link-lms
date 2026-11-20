@@ -19,6 +19,7 @@ class SubscriptionEvent extends Model
     const EVENT_FAILED = 'failed';
     const EVENT_GRACE_STARTED = 'grace_started';
     const EVENT_EXPIRED = 'expired';
+    const EVENT_CANCELED = 'canceled';
     const EVENT_OVERRIDE_APPLIED = 'override_applied';
     const EVENT_ADMIN_CHANGED = 'admin_changed';
 
