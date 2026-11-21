@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\UserNotificationSetting;
 use App\Services\NotificationPreferenceService;
 use App\Services\OtpService;
-use App\Mail\WelcomeMail;
 use App\Mail\AdminNewRegistrationMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -446,6 +445,8 @@ class AuthController extends Controller
         } catch (\Throwable $e) {
             \Log::error('Registration welcome SMS error: ' . $e->getMessage());
         }
+        // Catalogue welcome (in-app, and email when the account has one). Once per account.
+        app(\App\Services\Notifications\WelcomeMessage::class)->send($user);
 
         // Generate access token (fresh: the user just proved the phone with a code)
         $newToken = $user->createToken('auth_token');

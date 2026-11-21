@@ -8,7 +8,6 @@ use App\Models\UserNotificationSetting;
 use App\Services\NotificationPreferenceService;
 use App\Services\OtpService;
 use App\Services\FileUploadService;
-use App\Mail\WelcomeMail;
 use App\Mail\AdminNewRegistrationMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -110,9 +109,8 @@ class AuthController extends Controller
             $emailPreferences = settings('email.preferences', []);
 
             try {
-                if (!empty($emailPreferences['send_welcome_email'])) {
-                    Mail::to($user->email)->send(new WelcomeMail($user));
-                }
+                // Catalogue welcome (shared layout); it reads the same "send welcome email" setting.
+                app(\App\Services\Notifications\WelcomeMessage::class)->send($user);
 
                 if (!empty($emailPreferences['notify_admin_new_registration'])) {
                     $adminEmail = settings('contact.details.support_email', config('mail.from.address'));

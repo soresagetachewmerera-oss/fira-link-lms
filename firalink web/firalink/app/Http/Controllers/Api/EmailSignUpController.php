@@ -151,6 +151,9 @@ class EmailSignUpController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
+        // The email was just confirmed with a code: welcome.
+        app(\App\Services\Notifications\WelcomeMessage::class)->send($user);
+
         $token = $user->createToken('auth_token');
         FreshAuth::markToken($token);
 

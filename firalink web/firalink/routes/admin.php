@@ -52,6 +52,12 @@ Route::middleware(['auth', 'staff.2fa'])->prefix('staff/confirm')->name('staff.c
     Route::post('/', 'confirm')->middleware('throttle:6,1')->name('store');
 });
 
+// Message templates preview (messaging slice 2): admins only, two-factor required. Sends nothing.
+Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin/messages')->name('admin.messages.')->controller(\App\Http\Controllers\Admin\MessagePreviewController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/{type}', 'show')->where('type', '[a-z]+\.[a-z0-9_]+')->name('show');
+});
+
 // Verification review queue: admins and reviewers, two-factor required. Decisions are audited.
 Route::middleware(['auth', 'staff.2fa', 'can:review-verifications'])->prefix('admin/verification-review')->name('admin.verification-review.')->controller(\App\Http\Controllers\Admin\VerificationReviewController::class)->group(function () {
     Route::get('/', 'index')->name('index');

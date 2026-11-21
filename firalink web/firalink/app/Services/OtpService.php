@@ -2,12 +2,13 @@
 
 namespace App\Services;
 
-use App\Mail\LoginOtpMail;
+use App\Notifications\Catalog\Channel;
+use App\Notifications\Catalog\NotificationType;
+use App\Services\Notifications\Notifier;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 /**
  * OtpService
@@ -211,11 +212,7 @@ class OtpService
             'expires_at' => $expiresAt,
         ], $expiresAt);
 
-        try {
-            Mail::to($user->email)->send(new LoginOtpMail($user, $code, $expiresAt));
-        } catch (\Throwable $e) {
-            Log::error('OTP email fallback failed: ' . $e->getMessage());
-
+        if (!$this->emailCode($user, $code, $expiresAt, $purpose)) {
             return ['success' => false, 'code' => 'EMAIL_FAILED', 'message' => 'The email could not be sent.'];
         }
 
@@ -339,6 +336,31 @@ class OtpService
     }
 
     /**
+     * The catalogue email for a code (messaging slice 2): the purpose decides the wording; the
+     * code appears only in the code box. Sent immediately. False when the mail could not be sent.
+     */
+    private function emailCode(User $user, string $code, \DateTimeInterface $expiresAt, string $purpose): bool
+    {
+        return app(Notifier::class)->send($user, self::codeType($purpose), [
+            'code' => $code,
+            'minutes' => $this->expiryMinutes(),
+            'expires_at' => \Illuminate\Support\Carbon::instance($expiresAt)->toIso8601String(),
+        ], null, [Channel::Mail]);
+    }
+
+    /** Which catalogue message a code purpose uses. */
+    public static function codeType(string $purpose): NotificationType
+    {
+        return match (true) {
+            str_contains($purpose, 'reset') => NotificationType::OtpPasswordReset,
+            in_array($purpose, ['email_signup', 'registration', 'sign_up', 'signup'], true) => NotificationType::OtpSignUp,
+            $purpose === 'step_up' => NotificationType::OtpStepUp,
+            in_array($purpose, ['email_change', 'phone_verify', 'phone_change'], true) => NotificationType::OtpContactChange,
+            default => NotificationType::OtpSignIn,
+        };
+    }
+
+    /**
      * Get remaining cooldown seconds.
      */
     public function getCooldownRemaining(string $identifier, string $purpose): int
@@ -394,11 +416,7 @@ class OtpService
 
         // Send Email if email is available
         if (!empty($user->email)) {
-            try {
-                Mail::to($user->email)->send(new LoginOtpMail($user, $code, $expiresAt));
-            } catch (\Throwable $e) {
-                Log::error('LoginOtpMail dispatch failed: ' . $e->getMessage());
-            }
+            $this->emailCode($user, $code, $expiresAt, $purpose);
         }
 
         // Send SMS via official SMS Ethiopia gateway if phone is available (never in local test-code mode)

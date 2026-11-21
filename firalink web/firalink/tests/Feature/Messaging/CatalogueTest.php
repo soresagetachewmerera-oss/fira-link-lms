@@ -293,7 +293,7 @@ class CatalogueTest extends TestCase
     {
         $allowed = [
             // channels and the gateway itself
-            'app/Channels/SmsChannel.php', 'app/Services/SmsEthiopiaService.php',
+            'app/Channels/SmsChannel.php', 'app/Channels/FiraMailChannel.php', 'app/Services/SmsEthiopiaService.php',
             // legacy senders, converted group by group in messaging slices 2 to 5 (then removed here)
             'app/Http/Controllers/Admin/NewsletterController.php', 'app/Http/Controllers/Admin/ReviewController.php',
             'app/Http/Controllers/Admin/SettingsController.php', 'app/Http/Controllers/Api/AuthController.php',

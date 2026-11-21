@@ -300,6 +300,9 @@ class PhoneAuthController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
+        // The phone was just confirmed with a code: welcome (in-app; email when the account has one).
+        app(\App\Services\Notifications\WelcomeMessage::class)->send($user);
+
         return $this->signedIn($user, true);
     }
 

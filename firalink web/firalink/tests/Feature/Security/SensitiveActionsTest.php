@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Security;
 
-use App\Mail\LoginOtpMail;
+use App\Mail\FiraCodeMail;
 use App\Models\AuditLog;
 use App\Models\Payment;
 use App\Models\Tour;
@@ -72,8 +72,12 @@ class SensitiveActionsTest extends TestCase
 
     public function test_email_change_tells_the_old_address_too(): void
     {
+        // Mail is faked; notifications really run (the code email is a catalogue notification).
         Mail::fake();
-        Notification::fake();
+        $sent = [];
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Notifications\Events\NotificationSent::class, function ($e) use (&$sent) {
+            $sent[] = $e;
+        });
         $user = User::factory()->create(['email' => 'old_' . Str::lower(Str::random(8)) . '@example.test', 'phone' => null]);
         $old = $user->email;
         $new = 'new_' . Str::lower(Str::random(8)) . '@example.test';
@@ -82,15 +86,14 @@ class SensitiveActionsTest extends TestCase
 
         $this->postJson('/api/user/email/code', ['email' => $new])->assertOk();
         $code = null;
-        Mail::assertSent(LoginOtpMail::class, function (LoginOtpMail $m) use ($new, &$code) {
+        Mail::assertSent(FiraCodeMail::class, function (FiraCodeMail $m) use ($new, &$code) {
             return $m->hasTo($new) && ($code = $m->code);
         });
         $this->postJson('/api/user/email', ['email' => $new, 'code' => $code])->assertOk();
 
-        Notification::assertSentTo($user, SecurityNotice::class, fn (SecurityNotice $n) => $n->event === 'email_changed');
-        Notification::assertSentOnDemand(SecurityNotice::class, function (SecurityNotice $n, array $channels, AnonymousNotifiable $to) use ($old) {
-            return $n->event === 'email_changed' && ($to->routes['mail'] ?? null) === $old;
-        });
+        $notices = collect($sent)->filter(fn ($e) => $e->notification instanceof SecurityNotice && $e->notification->event === 'email_changed');
+        $this->assertTrue($notices->contains(fn ($e) => $e->notifiable instanceof User && $e->notifiable->id === $user->id), 'The person is told.');
+        $this->assertTrue($notices->contains(fn ($e) => $e->notifiable instanceof AnonymousNotifiable && ($e->notifiable->routes['mail'] ?? null) === $old), 'The old address is told.');
     }
 
     public function test_the_profile_form_cannot_change_or_remove_a_phone_number(): void
@@ -278,7 +281,7 @@ class SensitiveActionsTest extends TestCase
             'role' => 'admin', 'is_approved' => true, 'phone_verified_at' => now()->toIso8601String(),
         ])->assertOk();
         $code = null;
-        Mail::assertSent(LoginOtpMail::class, function (LoginOtpMail $m) use ($email, &$code) {
+        Mail::assertSent(FiraCodeMail::class, function (FiraCodeMail $m) use ($email, &$code) {
             return $m->hasTo($email) && ($code = $m->code);
         });
         $this->postJson('/api/auth/email/register/verify', ['email' => $email, 'code' => $code, 'role' => 'admin'])->assertSuccessful();

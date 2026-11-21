@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Mail\LoginOtpMail;
+use App\Mail\FiraCodeMail;
 use App\Models\User;
 use App\Services\Auth\FreshAuth;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -30,7 +30,7 @@ class EmailSignUpAndChangeTest extends TestCase
     private function mailedCodeTo(string $email): ?string
     {
         $code = null;
-        Mail::assertSent(LoginOtpMail::class, function (LoginOtpMail $m) use ($email, &$code) {
+        Mail::assertSent(FiraCodeMail::class, function (FiraCodeMail $m) use ($email, &$code) {
             if ($m->hasTo($email)) {
                 $code = $m->code;
                 return true;
@@ -91,7 +91,7 @@ class EmailSignUpAndChangeTest extends TestCase
         $taken = $this->start($existing->email)->json();
 
         $this->assertSame($fresh, $taken);
-        Mail::assertNotSent(LoginOtpMail::class, fn (LoginOtpMail $m) => $m->hasTo($existing->email));
+        Mail::assertNotSent(FiraCodeMail::class, fn (FiraCodeMail $m) => $m->hasTo($existing->email));
     }
 
     public function test_sign_up_code_expires_and_locks_like_phone_codes(): void
@@ -133,7 +133,7 @@ class EmailSignUpAndChangeTest extends TestCase
 
         $this->postJson('/api/user/email/code', ['email' => $new])->assertOk();
         $code = $this->mailedCodeTo($new);
-        Mail::assertNotSent(LoginOtpMail::class, fn (LoginOtpMail $m) => $m->hasTo($user->email));
+        Mail::assertNotSent(FiraCodeMail::class, fn (FiraCodeMail $m) => $m->hasTo($user->email));
 
         $this->postJson('/api/user/email', ['email' => $new, 'code' => $code === '000000' ? '111111' : '000000'])->assertStatus(422);
         $this->postJson('/api/user/email', ['email' => $new, 'code' => $code])->assertOk();
@@ -152,7 +152,7 @@ class EmailSignUpAndChangeTest extends TestCase
         $taken = $this->postJson('/api/user/email/code', ['email' => $other->email])->assertOk()->json();
         $free = $this->postJson('/api/user/email/code', ['email' => 'free_' . Str::lower(Str::random(8)) . '@example.test'])->json();
         $this->assertSame($taken['message'], $free['message']);
-        Mail::assertNotSent(LoginOtpMail::class, fn (LoginOtpMail $m) => $m->hasTo($other->email));
+        Mail::assertNotSent(FiraCodeMail::class, fn (FiraCodeMail $m) => $m->hasTo($other->email));
 
         $this->postJson('/api/user/email', ['email' => $other->email, 'code' => '123456'])->assertStatus(422);
         $this->assertNotSame($other->email, $user->fresh()->email);

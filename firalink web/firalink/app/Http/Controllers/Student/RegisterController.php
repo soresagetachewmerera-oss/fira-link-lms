@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\RecaptchaService;
-use App\Mail\WelcomeMail;
 use App\Mail\AdminNewRegistrationMail;
 use Devrabiul\ToastMagic\Facades\ToastMagic;
 use Illuminate\Http\Request;

@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Mail\LoginOtpMail;
+use App\Mail\FiraCodeMail;
 use App\Models\AuditLog;
 use App\Models\User;
 use App\Services\SmsEthiopiaService;
@@ -225,7 +225,7 @@ class PhoneSignInTest extends TestCase
         $expected = $this->postJson('/api/auth/phone/email-fallback', ['phone' => $phone])->assertOk()->json('message');
 
         $mailed = null;
-        Mail::assertSent(LoginOtpMail::class, function (LoginOtpMail $mail) use ($user, &$mailed) {
+        Mail::assertSent(FiraCodeMail::class, function (FiraCodeMail $mail) use ($user, &$mailed) {
             $mailed = $mail->code;
             return $mail->hasTo($user->email);
         });

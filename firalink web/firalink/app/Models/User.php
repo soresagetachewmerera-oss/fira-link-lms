@@ -35,6 +35,19 @@ class User extends Authenticatable implements MustVerifyEmail, \Illuminate\Contr
     use HasFactory, Notifiable, HasApiTokens, HasRoles, \Laravel\Fortify\TwoFactorAuthenticatable;
 
     /**
+     * Website "forgot password": the catalogue email with the shared layout (messaging slice 2),
+     * sent immediately. The link carries the one-time token only; the email address is not put in
+     * the URL (the person types it on the reset page).
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        app(\App\Services\Notifications\Notifier::class)->send($this, \App\Notifications\Catalog\NotificationType::PasswordResetLink, [
+            'reset_url' => route('password.reset', ['token' => $token]),
+            'minutes' => (int) config('auth.passwords.users.expire', 60),
+        ], null, [\App\Notifications\Catalog\Channel::Mail]);
+    }
+
+    /**
      * Send the email verification notification.
      *
      * @return void

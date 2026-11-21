@@ -23,7 +23,7 @@ final class Channel
     public static function driver(string $channel): ?string
     {
         return match ($channel) {
-            self::Mail => 'mail',
+            self::Mail => \App\Channels\FiraMailChannel::class,
             self::Database => 'database',
             self::Push => FcmChannel::class,
             self::Sms => SmsChannel::class,

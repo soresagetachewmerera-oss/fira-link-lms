@@ -139,6 +139,8 @@ class PhoneVerificationController extends Controller
         } catch (\Throwable $e) {
             \Log::error('Welcome SMS failed after phone verification: ' . $e->getMessage());
         }
+        // Catalogue welcome (in-app, and email when the account has one). Once per account.
+        app(\App\Services\Notifications\WelcomeMessage::class)->send($user);
 
         if ($user->role === 'student') {
             Auth::login($user);

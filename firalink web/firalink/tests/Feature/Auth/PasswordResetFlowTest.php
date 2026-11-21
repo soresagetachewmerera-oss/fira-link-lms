@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Mail\LoginOtpMail;
+use App\Mail\FiraCodeMail;
 use App\Models\User;
 use App\Services\SmsEthiopiaService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -43,7 +43,7 @@ class PasswordResetFlowTest extends TestCase
     private function mailedCode(User $user): string
     {
         $code = null;
-        Mail::assertSent(LoginOtpMail::class, function (LoginOtpMail $m) use ($user, &$code) {
+        Mail::assertSent(FiraCodeMail::class, function (FiraCodeMail $m) use ($user, &$code) {
             if ($m->hasTo($user->email)) {
                 $code = $m->code;
                 return true;
@@ -67,7 +67,7 @@ class PasswordResetFlowTest extends TestCase
         $this->assertSame($knownPhone, $unknownPhone);
 
         // Only the real account got codes.
-        Mail::assertSent(LoginOtpMail::class, 1);
+        Mail::assertSent(FiraCodeMail::class, 1);
         $this->assertSame(1, $this->sms->sent);
     }
 

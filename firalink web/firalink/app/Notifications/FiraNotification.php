@@ -215,10 +215,22 @@ class FiraNotification extends Notification implements ShouldQueue
         return app(MessageText::class)->get($this->type, 'sms', $this->localeFor($notifiable), $this->params, required: false);
     }
 
-    /** Email arrives in slice 2 (shared layout and components). Until then a catalogue type cannot email. */
-    public function toMail(object $notifiable)
+    /** The shared email layout with this type's texts (messaging slice 2). */
+    public function toMail(object $notifiable): \App\Mail\FiraMail
     {
-        throw new \LogicException("Email for {$this->type->value} is built in messaging slice 2 (shared layout).");
+        $locale = $this->localeFor($notifiable);
+        $content = app(\App\Services\Notifications\EmailContent::class)->build($this, $notifiable, $locale);
+        $class = $this->type->messageClass()->value;
+
+        $mail = !empty($this->params['code']) && is_scalar($this->params['code'])
+            ? new \App\Mail\FiraCodeMail($content, $class, $this->type->value, (string) $this->params['code'])
+            : new \App\Mail\FiraMail($content, $class, $this->type->value);
+
+        $to = $notifiable instanceof AnonymousNotifiable
+            ? $notifiable->routes['mail']
+            : ($notifiable->routeNotificationFor('mail', $this) ?? $notifiable->email);
+
+        return $mail->locale($locale)->to($to);
     }
 
     /** Stale messages are dropped instead of arriving late. */
