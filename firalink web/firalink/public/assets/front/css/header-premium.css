@@ -13,28 +13,6 @@
     --fira-header-bg: rgba(255, 255, 255, 0.95);
 }
 
-/* Skip to Main Content (Accessibility WCAG AA) */
-.fira-skip-link {
-    position: absolute;
-    top: -100px;
-    left: 24px;
-    z-index: 10000;
-    padding: 10px 18px;
-    border-radius: 8px;
-    background: #6D1A95;
-    color: #FFFFFF !important;
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none !important;
-    box-shadow: 0 4px 14px rgba(59, 7, 100, 0.25);
-    transition: top 0.2s ease-out;
-}
-.fira-skip-link:focus {
-    top: 16px;
-    outline: 3px solid #F3E8FF;
-    outline-offset: 2px;
-}
-
 /* 1. Header Shell */
 .fira-site-header {
     position: sticky;
@@ -691,18 +669,61 @@
     }
 }
 
-@media (max-width: 575px) {
-    .fira-header-bar {
-        min-height: 64px;
+    @media (max-width: 768px) {
+        .fira-header-bar {
+            min-height: 64px;
+            gap: 12px;
+        }
+
+        .fira-header-actions {
+            gap: 8px;
+        }
     }
 
-    .fira-header-logo img {
-        width: 118px;
+    @media (max-width: 575px) {
+        .fira-header-bar {
+            min-height: 60px;
+            gap: 8px;
+        }
+
+        .fira-header-logo img {
+            width: 116px;
+        }
+
+        .fira-header-actions .fira-header-btn-secondary,
+        .fira-header-actions .fira-header-btn-primary {
+            display: none;
+            /* In phone viewport, auth actions live in mobile drawer */
+        }
     }
 
-    .fira-header-actions .fira-header-btn-secondary,
-    .fira-header-actions .fira-header-btn-primary {
-        display: none;
-        /* In phone viewport, auth actions live in mobile drawer */
+    @media (max-width: 480px) {
+        .fira-header-container {
+            padding-inline: 14px;
+        }
+
+        .fira-header-logo img {
+            width: 108px;
+        }
+
+        .fira-user-name {
+            display: none;
+        }
+
+        .fira-user-profile-btn {
+            padding: 0 8px 0 6px;
+            gap: 4px;
+        }
+
+        .fira-lang-btn {
+            height: 34px;
+            padding: 0 8px;
+            font-size: 12px;
+        }
+
+        .fira-menu-toggle {
+            width: 38px;
+            height: 38px;
+            padding: 9px;
+        }
     }
-}

@@ -8,8 +8,6 @@
     $currentLocale = app()->getLocale();
 @endphp
 
-<a href="#main-content" class="fira-skip-link">Skip to main content</a>
-
 <header id="header-sticky" class="fira-site-header" data-site-header>
     <div class="fira-header-container">
         <div class="fira-header-bar">

@@ -33,6 +33,22 @@
             return mobilePanel && mobilePanel.classList.contains('info-open');
         }
 
+        function openMobilePanel() {
+            if (!mobilePanel) return;
+            mobilePanel.classList.add('info-open');
+            if (overlay) overlay.classList.add('overlay-open');
+            syncMobileAccessibility(true);
+            window.setTimeout(focusFirstPanelControl, 50);
+        }
+
+        function closeMobilePanel() {
+            if (!mobilePanel) return;
+            mobilePanel.classList.remove('info-open');
+            if (overlay) overlay.classList.remove('overlay-open');
+            syncMobileAccessibility(false);
+            if (lastFocused) lastFocused.focus();
+        }
+
         function syncMobileAccessibility(open) {
             if (!mobilePanel || !menuToggle) return;
             mobilePanel.setAttribute('aria-hidden', String(!open));
@@ -61,60 +77,61 @@
         }
 
         if (menuToggle) {
-            menuToggle.addEventListener('click', function () {
-                lastFocused = menuToggle;
-                window.setTimeout(function () {
-                    syncMobileAccessibility(panelIsOpen());
-                    if (panelIsOpen()) focusFirstPanelControl();
-                }, 30);
-            });
-        }
-
-        [closeButton, overlay].forEach(function (control) {
-            if (!control) return;
-            control.addEventListener('click', function () {
-                window.setTimeout(function () {
-                    syncMobileAccessibility(false);
-                    if (lastFocused) lastFocused.focus();
-                }, 30);
-            });
-        });
-
-        document.addEventListener('click', function (event) {
-            if (desktopDropdown && !desktopDropdown.contains(event.target)) setDesktopDropdown(false);
-        });
-
-        document.addEventListener('keydown', function (event) {
-            if (event.key !== 'Escape') return;
-            setDesktopDropdown(false);
-            if (panelIsOpen() && closeButton) closeButton.click();
-        });
-
-        if (mobilePanel) {
-            mobilePanel.addEventListener('keydown', function (event) {
-                if (event.key !== 'Tab' || !panelIsOpen()) return;
-                var controls = Array.prototype.slice.call(mobilePanel.querySelectorAll('a[href], button:not([disabled])'));
-                if (!controls.length) return;
-                var first = controls[0];
-                var last = controls[controls.length - 1];
-                if (event.shiftKey && document.activeElement === first) {
+                menuToggle.addEventListener('click', function (event) {
                     event.preventDefault();
-                    last.focus();
-                } else if (!event.shiftKey && document.activeElement === last) {
-                    event.preventDefault();
-                    first.focus();
+                    event.stopPropagation();
+                    lastFocused = menuToggle;
+                    if (panelIsOpen()) {
+                        closeMobilePanel();
+                    } else {
+                        openMobilePanel();
+                    }
+                });
+            }
+
+            [closeButton, overlay].forEach(function (control) {
+                if (!control) return;
+                    control.addEventListener('click', function (event) {
+                        event.preventDefault();
+                        closeMobilePanel();
+                    });
+                });
+
+                document.addEventListener('click', function (event) {
+                    if (desktopDropdown && !desktopDropdown.contains(event.target)) setDesktopDropdown(false);
+                });
+
+                document.addEventListener('keydown', function (event) {
+                    if (event.key !== 'Escape') return;
+                    setDesktopDropdown(false);
+                    if (panelIsOpen()) closeMobilePanel();
+                });
+
+                if (mobilePanel) {
+                    mobilePanel.addEventListener('keydown', function (event) {
+                        if (event.key !== 'Tab' || !panelIsOpen()) return;
+                        var controls = Array.prototype.slice.call(mobilePanel.querySelectorAll('a[href], button:not([disabled])'));
+                        if (!controls.length) return;
+                        var first = controls[0];
+                        var last = controls[controls.length - 1];
+                        if (event.shiftKey && document.activeElement === first) {
+                            event.preventDefault();
+                            last.focus();
+                        } else if (!event.shiftKey && document.activeElement === last) {
+                            event.preventDefault();
+                            first.focus();
+                        }
+                    });
                 }
-            });
-        }
 
-        syncHeader();
-        syncMobileAccessibility(false);
-        window.addEventListener('scroll', syncHeader, { passive: true });
-    }
+                syncHeader();
+                syncMobileAccessibility(false);
+                window.addEventListener('scroll', syncHeader, { passive: true });
+            }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initPremiumHeader);
-    } else {
-        initPremiumHeader();
-    }
-}());
+                document.addEventListener('DOMContentLoaded', initPremiumHeader);
+            } else {
+                initPremiumHeader();
+            }
+        } ());

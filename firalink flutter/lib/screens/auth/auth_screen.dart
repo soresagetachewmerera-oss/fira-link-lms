@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import '../../widgets/auth/auth_gate.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/fira_colors.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../config/config.dart';
@@ -80,18 +81,9 @@ class _BackgroundDecoration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: <Color>[
-            AppTheme.getBackgroundColor(context),
-            AppTheme.getCardColor(context),
-          ],
-          stops: const <double>[0.0, 0.5],
-        ),
-      ),
+      color: isDark ? AppTheme.surfaceDark : const Color(0xFFF9F7FA),
     );
   }
 }
@@ -127,17 +119,20 @@ class _LoginCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fira = context.fira;
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.getCardColor(context),
+        color: fira.card,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(32),
           topRight: Radius.circular(32),
         ),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: AppTheme.getTextColor(context).withValues(alpha: 0.08),
-            blurRadius: 20,
+            color: fira.brandDeep.withValues(alpha: 0.06),
+            blurRadius: 24,
             offset: const Offset(0, -4),
           ),
         ],
@@ -145,37 +140,55 @@ class _LoginCard extends StatelessWidget {
       child: Column(
         children: <Widget>[
           const SizedBox(height: 20),
-          // Tab bar - bigger
+          // Segmented brand tab bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Container(
-              height: 56,
+              height: 50,
+              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.dark
+                color: isDarkMode
                     ? AppTheme.surfaceDark
-                    : Colors.grey[100],
+                    : const Color(0xFFF3E8FF).withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDarkMode
+                      ? const Color(0xFF3B0764).withValues(alpha: 0.3)
+                      : const Color(0xFFE9D5FF),
+                  width: 1,
+                ),
               ),
               child: TabBar(
                 controller: tabController,
                 indicator: BoxDecoration(
-                  color: AppTheme.getTextColor(context),
-                  borderRadius: BorderRadius.circular(16),
+                  color: fira.brandPrimary,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: fira.brandPrimary.withValues(alpha: 0.25),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 indicatorSize: TabBarIndicatorSize.tab,
                 isScrollable: false,
                 padding: EdgeInsets.zero,
                 labelPadding: EdgeInsets.zero,
-                labelColor: AppTheme.getCardColor(context),
-                unselectedLabelColor: AppTheme.getTextColor(context),
+                labelColor: Colors.white,
+                unselectedLabelColor: isDarkMode
+                    ? Colors.white.withValues(alpha: 0.7)
+                    : fira.onSurface.withValues(alpha: 0.7),
                 labelStyle: const TextStyle(
-                  fontSize: 16,
+                  fontFamily: 'Montserrat',
+                  fontSize: 15,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.2,
                 ),
                 unselectedLabelStyle: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Montserrat',
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
                   letterSpacing: 0.2,
                 ),
                 dividerColor: Colors.transparent,
@@ -186,10 +199,10 @@ class _LoginCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
           // Tab bar view with forms
           SizedBox(
-            height: 720,
+            height: 640,
             child: TabBarView(
               controller: tabController,
               children: <Widget>[
@@ -199,6 +212,7 @@ class _LoginCard extends StatelessWidget {
                   onPasswordVisibilityToggle: onPasswordVisibilityToggle,
                 ),
                 _SignUpForm(
+                  tabController: tabController,
                   isPasswordVisible: isPasswordVisible,
                   onPasswordVisibilityToggle: onPasswordVisibilityToggle,
                 ),
@@ -347,6 +361,8 @@ class _LoginFormState extends State<_LoginForm> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final fira = context.fira;
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24.0, 8.0, 24.0, 0),
@@ -355,34 +371,42 @@ class _LoginFormState extends State<_LoginForm> {
         children: <Widget>[
           TextField(
             controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
+            autofillHints: const [AutofillHints.email],
+            textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               labelText: context.l10n.email,
-              hintText: 'tom@mail.com',
+              hintText: 'name@company.com',
               filled: true,
-              fillColor: Theme.of(context).brightness == Brightness.dark
-                  ? AppTheme.surfaceDark.withValues(alpha: 0.5)
-                  : Colors.grey[50],
+              fillColor: isDarkMode
+                  ? AppTheme.surfaceDark.withValues(alpha: 0.6)
+                  : Colors.white,
               labelStyle: TextStyle(
-                color: AppTheme.getTextColor(context),
+                color: fira.mutedText,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
+              floatingLabelStyle: TextStyle(
+                color: fira.brandPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
               hintStyle: TextStyle(
-                color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
-                fontSize: 16,
+                color: fira.mutedText.withValues(alpha: 0.5),
+                fontSize: 15,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context).withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(
+                  color: Color(0xFFE9D5FF),
                   width: 1,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context),
-                  width: 2,
+                  color: fira.brandPrimary,
+                  width: 1.5,
                 ),
               ),
               contentPadding: const EdgeInsets.symmetric(
@@ -391,89 +415,80 @@ class _LoginFormState extends State<_LoginForm> {
               ),
             ),
             style: TextStyle(
-              color: AppTheme.getTextColor(context),
-              fontSize: 16,
+              color: fira.onSurface,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           TextField(
             controller: _passwordController,
             obscureText: !widget.isPasswordVisible,
+            autofillHints: const [AutofillHints.password],
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _handleLogin(),
             decoration: InputDecoration(
               labelText: context.l10n.password,
-              hintText: '********',
+              hintText: '••••••••',
               filled: true,
-              fillColor: Theme.of(context).brightness == Brightness.dark
-                  ? AppTheme.surfaceDark.withValues(alpha: 0.5)
-                  : Colors.grey[50],
+              fillColor: isDarkMode
+                  ? AppTheme.surfaceDark.withValues(alpha: 0.6)
+                  : Colors.white,
               labelStyle: TextStyle(
-                color: AppTheme.getTextColor(context),
+                color: fira.mutedText,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
+              floatingLabelStyle: TextStyle(
+                color: fira.brandPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
               hintStyle: TextStyle(
-                color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
-                fontSize: 16,
-                letterSpacing: 2,
+                color: fira.mutedText.withValues(alpha: 0.5),
+                fontSize: 15,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context).withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(
+                  color: Color(0xFFE9D5FF),
                   width: 1,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context),
-                  width: 2,
+                  color: fira.brandPrimary,
+                  width: 1.5,
                 ),
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 16,
               ),
-              suffixIcon: Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: TextButton(
-                  onPressed: widget.onPasswordVisibilityToggle,
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    backgroundColor: AppTheme.getTextColor(
-                      context,
-                    ).withValues(alpha: 0.1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    widget.isPasswordVisible ? context.l10n.hide : context.l10n.show,
-                    style: TextStyle(
-                      color: AppTheme.getTextColor(context),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  widget.isPasswordVisible
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: fira.mutedText,
+                  size: 20,
                 ),
+                onPressed: widget.onPasswordVisibilityToggle,
+                tooltip: widget.isPasswordVisible ? context.l10n.hide : context.l10n.show,
               ),
             ),
             style: TextStyle(
-              color: AppTheme.getTextColor(context),
-              fontSize: 16,
-              letterSpacing: widget.isPasswordVisible ? 0 : 2,
+              color: fira.onSurface,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           // Forgot password link
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: () {
                 Navigator.of(context).push(
@@ -483,30 +498,32 @@ class _LoginFormState extends State<_LoginForm> {
                 );
               },
               style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                foregroundColor: fira.brandPrimary,
               ),
               child: Text(
                 context.l10n.forgotPassword,
                 style: TextStyle(
-                  color: AppTheme.getTextColor(context),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  color: fira.brandPrimary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 20),
 
           SizedBox(
             width: double.infinity,
-            height: 56,
+            height: 52,
             child: ElevatedButton(
               onPressed: authProvider.isLoading ? null : _handleLogin,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.getTextColor(context),
-                foregroundColor: AppTheme.getCardColor(context),
+                backgroundColor: fira.brandPrimary,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: fira.brandPrimary.withValues(alpha: 0.6),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -514,8 +531,8 @@ class _LoginFormState extends State<_LoginForm> {
               ),
               child: authProvider.isLoading
                   ? const SizedBox(
-                      height: 24,
-                      width: 24,
+                      height: 22,
+                      width: 22,
                       child: CircularProgressIndicator(
                         color: Colors.white,
                         strokeWidth: 2,
@@ -524,46 +541,110 @@ class _LoginFormState extends State<_LoginForm> {
                   : Text(
                       context.l10n.login,
                       style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.3,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
                       ),
                     ),
             ),
           ),
+          const SizedBox(height: 20),
+
+          // Divider: --- or ---
+          Row(
+            children: [
+              const Expanded(
+                child: Divider(color: Color(0xFFE9D5FF), height: 1),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  context.l10n.orDivider,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: fira.mutedText,
+                  ),
+                ),
+              ),
+              const Expanded(
+                child: Divider(color: Color(0xFFE9D5FF), height: 1),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
-          // Email sign-in is its own flow; phone is the main way in (and the way to sign up).
-          Center(
-            child: TextButton(
+
+          // Secondary full-width button: Phone sign-in
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: OutlinedButton.icon(
+              icon: Icon(
+                Icons.phone_android_rounded,
+                size: 20,
+                color: fira.onSurface,
+              ),
+              label: Text(
+                context.l10n.useMyPhoneInstead,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: fira.onSurface,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                backgroundColor: isDarkMode ? AppTheme.surfaceDark : Colors.white,
+                side: const BorderSide(color: Color(0xFFE9D5FF), width: 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
               onPressed: () => Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (_) => const PhoneSignInScreen()),
               ),
-              child: Text(context.l10n.useMyPhoneInstead),
             ),
           ),
+          const SizedBox(height: 12),
+
+          // Switch tab to Sign Up
           Center(
             child: TextButton(
-              onPressed: () => Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const PhoneSignInScreen()),
+              onPressed: () => widget.tabController.animateTo(1),
+              style: TextButton.styleFrom(
+                foregroundColor: fira.brandPrimary,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
-              child: Text(context.l10n.newToFiraCreateAccount),
+              child: Text(
+                context.l10n.newToFiraCreateAccount,
+                style: TextStyle(
+                  color: fira.brandPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
-          Center(
-            child: TextButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const EmailSignUpScreen()),
-              ),
-              child: Text(context.l10n.createAccountWithEmail, textAlign: TextAlign.center),
-            ),
-          ),
+          const SizedBox(height: 4),
+
+          // Explore as guest
           Center(
             child: TextButton(
               onPressed: () => exploreAsGuest(context),
-              child: Text(context.l10n.exploreAsGuest),
+              style: TextButton.styleFrom(
+                foregroundColor: fira.mutedText,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+              child: Text(
+                context.l10n.exploreAsGuest,
+                style: TextStyle(
+                  color: fira.mutedText,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ),
-          SizedBox(height: MediaQuery.of(context).padding.bottom + 24),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
         ],
       ),
     );
@@ -572,10 +653,12 @@ class _LoginFormState extends State<_LoginForm> {
 
 class _SignUpForm extends StatefulWidget {
   const _SignUpForm({
+    required this.tabController,
     required this.isPasswordVisible,
     required this.onPasswordVisibilityToggle,
   });
 
+  final TabController tabController;
   final bool isPasswordVisible;
   final VoidCallback onPasswordVisibilityToggle;
 
@@ -734,6 +817,8 @@ class _SignUpFormState extends State<_SignUpForm> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final fira = context.fira;
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24.0, 8.0, 24.0, 0),
@@ -746,34 +831,40 @@ class _SignUpFormState extends State<_SignUpForm> {
               Expanded(
                 child: TextField(
                   controller: _firstNameController,
+                  textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     labelText: context.l10n.firstName,
                     hintText: 'John',
                     filled: true,
-                    fillColor: Theme.of(context).brightness == Brightness.dark
-                        ? AppTheme.surfaceDark.withValues(alpha: 0.5)
-                        : Colors.grey[50],
+                    fillColor: isDarkMode
+                        ? AppTheme.surfaceDark.withValues(alpha: 0.6)
+                        : Colors.white,
                     labelStyle: TextStyle(
-                      color: AppTheme.getTextColor(context),
+                      color: fira.mutedText,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
+                    floatingLabelStyle: TextStyle(
+                      color: fira.brandPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                     hintStyle: TextStyle(
-                      color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
+                      color: fira.mutedText.withValues(alpha: 0.5),
                       fontSize: 15,
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: AppTheme.getTextColor(context).withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: Color(0xFFE9D5FF),
                         width: 1,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide(
-                        color: AppTheme.getTextColor(context),
-                        width: 2,
+                        color: fira.brandPrimary,
+                        width: 1.5,
                       ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
@@ -782,8 +873,9 @@ class _SignUpFormState extends State<_SignUpForm> {
                     ),
                   ),
                   style: TextStyle(
-                    color: AppTheme.getTextColor(context),
+                    color: fira.onSurface,
                     fontSize: 15,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -791,34 +883,40 @@ class _SignUpFormState extends State<_SignUpForm> {
               Expanded(
                 child: TextField(
                   controller: _lastNameController,
+                  textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     labelText: context.l10n.lastName,
                     hintText: 'Doe',
                     filled: true,
-                    fillColor: Theme.of(context).brightness == Brightness.dark
-                        ? AppTheme.surfaceDark.withValues(alpha: 0.5)
-                        : Colors.grey[50],
+                    fillColor: isDarkMode
+                        ? AppTheme.surfaceDark.withValues(alpha: 0.6)
+                        : Colors.white,
                     labelStyle: TextStyle(
-                      color: AppTheme.getTextColor(context),
+                      color: fira.mutedText,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
+                    floatingLabelStyle: TextStyle(
+                      color: fira.brandPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                     hintStyle: TextStyle(
-                      color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
+                      color: fira.mutedText.withValues(alpha: 0.5),
                       fontSize: 15,
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: AppTheme.getTextColor(context).withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: Color(0xFFE9D5FF),
                         width: 1,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide(
-                        color: AppTheme.getTextColor(context),
-                        width: 2,
+                        color: fira.brandPrimary,
+                        width: 1.5,
                       ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
@@ -827,8 +925,9 @@ class _SignUpFormState extends State<_SignUpForm> {
                     ),
                   ),
                   style: TextStyle(
-                    color: AppTheme.getTextColor(context),
+                    color: fira.onSurface,
                     fontSize: 15,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -836,10 +935,11 @@ class _SignUpFormState extends State<_SignUpForm> {
           ),
           const SizedBox(height: 16),
 
-          // MANDATORY PHONE NUMBER FIELD - PROMINENT WITH ETHIOPIAN +251 BADGE
+          // Mandatory phone number with +251 badge
           TextField(
             controller: _phoneController,
             keyboardType: TextInputType.phone,
+            textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               labelText: 'Phone Number (Required for SMS OTP) *',
               hintText: '0911234567 or 0711234567',
@@ -851,21 +951,21 @@ class _SignUpFormState extends State<_SignUpForm> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.phone_android,
+                      Icons.phone_android_rounded,
                       size: 20,
-                      color: AppTheme.getTextColor(context),
+                      color: fira.brandPrimary,
                     ),
                     const SizedBox(width: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppTheme.getTextColor(context).withValues(alpha: 0.08),
+                        color: fira.brandTint,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         '+251',
                         style: TextStyle(
-                          color: AppTheme.getTextColor(context),
+                          color: fira.brandPrimary,
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                         ),
@@ -875,34 +975,39 @@ class _SignUpFormState extends State<_SignUpForm> {
                 ),
               ),
               filled: true,
-              fillColor: Theme.of(context).brightness == Brightness.dark
-                  ? AppTheme.surfaceDark.withValues(alpha: 0.5)
-                  : Colors.grey[50],
+              fillColor: isDarkMode
+                  ? AppTheme.surfaceDark.withValues(alpha: 0.6)
+                  : Colors.white,
               labelStyle: TextStyle(
-                color: AppTheme.getTextColor(context),
+                color: fira.mutedText,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              floatingLabelStyle: TextStyle(
+                color: fira.brandPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
               hintStyle: TextStyle(
-                color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
+                color: fira.mutedText.withValues(alpha: 0.5),
                 fontSize: 15,
               ),
               helperStyle: TextStyle(
-                color: AppTheme.getTextColor(context).withValues(alpha: 0.6),
+                color: fira.mutedText,
                 fontSize: 12,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context).withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(
+                  color: Color(0xFFE9D5FF),
                   width: 1,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context),
-                  width: 2,
+                  color: fira.brandPrimary,
+                  width: 1.5,
                 ),
               ),
               contentPadding: const EdgeInsets.symmetric(
@@ -911,8 +1016,8 @@ class _SignUpFormState extends State<_SignUpForm> {
               ),
             ),
             style: TextStyle(
-              color: AppTheme.getTextColor(context),
-              fontSize: 16,
+              color: fira.onSurface,
+              fontSize: 15,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -922,34 +1027,41 @@ class _SignUpFormState extends State<_SignUpForm> {
           TextField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
+            autofillHints: const [AutofillHints.email],
+            textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               labelText: context.l10n.email,
               hintText: 'john@mail.com',
               filled: true,
-              fillColor: Theme.of(context).brightness == Brightness.dark
-                  ? AppTheme.surfaceDark.withValues(alpha: 0.5)
-                  : Colors.grey[50],
+              fillColor: isDarkMode
+                  ? AppTheme.surfaceDark.withValues(alpha: 0.6)
+                  : Colors.white,
               labelStyle: TextStyle(
-                color: AppTheme.getTextColor(context),
+                color: fira.mutedText,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
+              floatingLabelStyle: TextStyle(
+                color: fira.brandPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
               hintStyle: TextStyle(
-                color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
+                color: fira.mutedText.withValues(alpha: 0.5),
                 fontSize: 15,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context).withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(
+                  color: Color(0xFFE9D5FF),
                   width: 1,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context),
-                  width: 2,
+                  color: fira.brandPrimary,
+                  width: 1.5,
                 ),
               ),
               contentPadding: const EdgeInsets.symmetric(
@@ -958,8 +1070,9 @@ class _SignUpFormState extends State<_SignUpForm> {
               ),
             ),
             style: TextStyle(
-              color: AppTheme.getTextColor(context),
+              color: fira.onSurface,
               fontSize: 15,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 16),
@@ -967,161 +1080,141 @@ class _SignUpFormState extends State<_SignUpForm> {
           TextField(
             controller: _passwordController,
             obscureText: !widget.isPasswordVisible,
+            autofillHints: const [AutofillHints.newPassword],
+            textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               labelText: context.l10n.password,
-              hintText: '********',
+              hintText: '••••••••',
               filled: true,
-              fillColor: Theme.of(context).brightness == Brightness.dark
-                  ? AppTheme.surfaceDark.withValues(alpha: 0.5)
-                  : Colors.grey[50],
+              fillColor: isDarkMode
+                  ? AppTheme.surfaceDark.withValues(alpha: 0.6)
+                  : Colors.white,
               labelStyle: TextStyle(
-                color: AppTheme.getTextColor(context),
+                color: fira.mutedText,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
+              floatingLabelStyle: TextStyle(
+                color: fira.brandPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
               hintStyle: TextStyle(
-                color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
-                fontSize: 16,
-                letterSpacing: 2,
+                color: fira.mutedText.withValues(alpha: 0.5),
+                fontSize: 15,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context).withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(
+                  color: Color(0xFFE9D5FF),
                   width: 1,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context),
-                  width: 2,
+                  color: fira.brandPrimary,
+                  width: 1.5,
                 ),
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 16,
               ),
-              suffixIcon: Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: TextButton(
-                  onPressed: widget.onPasswordVisibilityToggle,
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    backgroundColor: AppTheme.getTextColor(
-                      context,
-                    ).withValues(alpha: 0.1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    widget.isPasswordVisible ? context.l10n.hide : context.l10n.show,
-                    style: TextStyle(
-                      color: AppTheme.getTextColor(context),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  widget.isPasswordVisible
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: fira.mutedText,
+                  size: 20,
                 ),
+                onPressed: widget.onPasswordVisibilityToggle,
+                tooltip: widget.isPasswordVisible ? context.l10n.hide : context.l10n.show,
               ),
             ),
             style: TextStyle(
-              color: AppTheme.getTextColor(context),
-              fontSize: 16,
-              letterSpacing: widget.isPasswordVisible ? 0 : 2,
+              color: fira.onSurface,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           TextField(
             controller: _confirmPasswordController,
             obscureText: !widget.isPasswordVisible,
+            autofillHints: const [AutofillHints.newPassword],
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _handleSignUp(),
             decoration: InputDecoration(
               labelText: context.l10n.confirmPassword,
-              hintText: '********',
+              hintText: '••••••••',
               filled: true,
-              fillColor: Theme.of(context).brightness == Brightness.dark
-                  ? AppTheme.surfaceDark.withValues(alpha: 0.5)
-                  : Colors.grey[50],
+              fillColor: isDarkMode
+                  ? AppTheme.surfaceDark.withValues(alpha: 0.6)
+                  : Colors.white,
               labelStyle: TextStyle(
-                color: AppTheme.getTextColor(context),
+                color: fira.mutedText,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
+              floatingLabelStyle: TextStyle(
+                color: fira.brandPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
               hintStyle: TextStyle(
-                color: AppTheme.getTextColor(context).withValues(alpha: 0.5),
-                fontSize: 16,
-                letterSpacing: 2,
+                color: fira.mutedText.withValues(alpha: 0.5),
+                fontSize: 15,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context).withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(
+                  color: Color(0xFFE9D5FF),
                   width: 1,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(
-                  color: AppTheme.getTextColor(context),
-                  width: 2,
+                  color: fira.brandPrimary,
+                  width: 1.5,
                 ),
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 16,
               ),
-              suffixIcon: Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: TextButton(
-                  onPressed: widget.onPasswordVisibilityToggle,
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    backgroundColor: AppTheme.getTextColor(
-                      context,
-                    ).withValues(alpha: 0.1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    widget.isPasswordVisible ? context.l10n.hide : context.l10n.show,
-                    style: TextStyle(
-                      color: AppTheme.getTextColor(context),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  widget.isPasswordVisible
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: fira.mutedText,
+                  size: 20,
                 ),
+                onPressed: widget.onPasswordVisibilityToggle,
+                tooltip: widget.isPasswordVisible ? context.l10n.hide : context.l10n.show,
               ),
             ),
             style: TextStyle(
-              color: AppTheme.getTextColor(context),
-              fontSize: 16,
-              letterSpacing: widget.isPasswordVisible ? 0 : 2,
+              color: fira.onSurface,
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
 
           SizedBox(
             width: double.infinity,
-            height: 56,
+            height: 52,
             child: ElevatedButton(
               onPressed: authProvider.isLoading ? null : _handleSignUp,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.getTextColor(context),
-                foregroundColor: AppTheme.getCardColor(context),
+                backgroundColor: fira.brandPrimary,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: fira.brandPrimary.withValues(alpha: 0.6),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -1129,8 +1222,8 @@ class _SignUpFormState extends State<_SignUpForm> {
               ),
               child: authProvider.isLoading
                   ? const SizedBox(
-                      height: 24,
-                      width: 24,
+                      height: 22,
+                      width: 22,
                       child: CircularProgressIndicator(
                         color: Colors.white,
                         strokeWidth: 2,
@@ -1139,14 +1232,101 @@ class _SignUpFormState extends State<_SignUpForm> {
                   : Text(
                       context.l10n.signup,
                       style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.3,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
                       ),
                     ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
+
+          // Divider: --- or ---
+          Row(
+            children: [
+              const Expanded(
+                child: Divider(color: Color(0xFFE9D5FF), height: 1),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  context.l10n.orDivider,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: fira.mutedText,
+                  ),
+                ),
+              ),
+              const Expanded(
+                child: Divider(color: Color(0xFFE9D5FF), height: 1),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Switch back to Login
+          Center(
+            child: TextButton(
+              onPressed: () => widget.tabController.animateTo(0),
+              style: TextButton.styleFrom(
+                foregroundColor: fira.brandPrimary,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+              child: Text(
+                context.l10n.backToSignIn,
+                style: TextStyle(
+                  color: fira.brandPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+
+          // International email sign-up (no Ethiopian phone)
+          Center(
+            child: TextButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const EmailSignUpScreen()),
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: fira.mutedText,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              ),
+              child: Text(
+                context.l10n.createAccountWithEmail,
+                style: TextStyle(
+                  color: fira.mutedText,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+
+          // Explore as guest
+          Center(
+            child: TextButton(
+              onPressed: () => exploreAsGuest(context),
+              style: TextButton.styleFrom(
+                foregroundColor: fira.mutedText,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+              child: Text(
+                context.l10n.exploreAsGuest,
+                style: TextStyle(
+                  color: fira.mutedText,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
         ],
       ),
     );
