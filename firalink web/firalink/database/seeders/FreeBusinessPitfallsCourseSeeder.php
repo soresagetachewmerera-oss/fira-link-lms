@@ -469,7 +469,7 @@ class FreeBusinessPitfallsCourseSeeder extends Seeder
                 'title' => 'Essential documentation for international coffee export',
                 'description' => 'An introduction to incoterms, export documents, certifications, and customs-ready paperwork.',
                 'video_type' => 'url',
-                'video_url' => 'https://youtu.be/AtyMQVgz6xw',
+                'video_url' => 'https://www.youtube.com/embed/AtyMQVgz6xw',
                 // The source video is 18:03; duration is stored as whole minutes.
                 'duration' => 18,
                 'is_preview' => false,
