@@ -307,6 +307,284 @@
     font-weight: 600;
 }
 
+/* ==========================================================================
+   COFFEE LOT CARDS (RESPONSIVE LISTING)
+   ========================================================================== */
+.fira-lot-card {
+    background: #FFFFFF;
+    border: 1px solid var(--fira-border-hairline, #E9E4F0);
+    border-radius: var(--fira-radius-card, 16px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-width: 0;
+    transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.fira-lot-card:hover {
+    border-color: var(--fira-primary);
+    transform: translateY(-2px);
+}
+.fira-lot-thumb {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    width: 100%;
+    overflow: hidden;
+    background: var(--fira-primary-tint, #F3E8FF);
+}
+.fira-lot-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+.fira-lot-card:hover .fira-lot-thumb img {
+    transform: scale(1.02);
+}
+.fira-lot-thumb-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 1;
+}
+.fira-lot-body {
+    padding: clamp(16px, 2.5vw, 22px);
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-width: 0;
+}
+.fira-lot-origin {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--fira-primary);
+    margin-bottom: 6px;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+.fira-lot-title {
+    font-size: clamp(1.05rem, 1.4vw, 1.15rem);
+    font-weight: 700;
+    color: var(--fira-neutral-900, #1E1B4B);
+    line-height: 1.35;
+    margin: 0 0 14px;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+.fira-lot-title a {
+    color: inherit;
+    text-decoration: none;
+}
+.fira-lot-title a:hover {
+    color: var(--fira-primary);
+}
+.fira-lot-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    background: var(--fira-neutral-100, #F9F7FA);
+    border: 1px solid var(--fira-border-hairline, #E9E4F0);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 16px;
+    min-width: 0;
+}
+.fira-lot-meta-item {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.fira-lot-meta-label {
+    font-size: 0.71875rem;
+    color: var(--fira-neutral-500, #6B7280);
+    line-height: 1.3;
+}
+.fira-lot-meta-val {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--fira-neutral-900, #1E1B4B);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+.fira-lot-pricing {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--fira-border-hairline, #E9E4F0);
+}
+.fira-lot-price-block {
+    min-width: 0;
+}
+.fira-lot-price-val {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--fira-primary-dark, #3B0764);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+.fira-lot-price-sub {
+    font-size: 0.75rem;
+    color: var(--fira-neutral-500, #6B7280);
+    margin-top: 3px;
+}
+.fira-lot-btn {
+    min-height: 40px;
+    padding: 0 16px;
+    font-size: 13.5px;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   PRACTICAL TRADE COURSE CARDS (MATCHING COURSES PAGE)
+   ========================================================================== */
+.fira-course-card {
+    background: #FFFFFF;
+    border: 1px solid var(--fira-border-hairline, #E9E4F0);
+    border-radius: var(--fira-radius-card, 16px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-width: 0;
+    transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.fira-course-card:hover {
+    border-color: var(--fira-primary);
+    transform: translateY(-2px);
+}
+.fira-course-thumb {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    overflow: hidden;
+    background: #F3F4F6;
+}
+.fira-course-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+.fira-course-card:hover .fira-course-thumb img {
+    transform: scale(1.02);
+}
+.fira-course-thumb-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 1;
+}
+.fira-course-body {
+    padding: clamp(16px, 2.5vw, 22px);
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-width: 0;
+}
+.fira-course-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 0.8125rem;
+    color: var(--fira-neutral-500, #6B7280);
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+.fira-course-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.fira-course-meta-item i {
+    color: var(--fira-primary);
+    font-size: 0.875rem;
+}
+.fira-course-meta-item strong {
+    color: var(--fira-neutral-900, #1E1B4B);
+}
+.fira-course-title {
+    font-size: clamp(1.05rem, 1.4vw, 1.15rem);
+    font-weight: 700;
+    color: var(--fira-neutral-900, #1E1B4B);
+    line-height: 1.35;
+    margin: 0 0 10px;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+.fira-course-title a {
+    color: inherit;
+    text-decoration: none;
+}
+.fira-course-title a:hover {
+    color: var(--fira-primary);
+}
+.fira-course-desc {
+    font-size: 0.84375rem;
+    color: var(--fira-neutral-700, #4B4869);
+    line-height: 1.6;
+    margin: 0 0 16px;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+.fira-course-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--fira-border-hairline, #E9E4F0);
+}
+.fira-course-price-wrap {
+    min-width: 0;
+}
+.fira-course-price-label {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fira-neutral-500, #6B7280);
+    margin-bottom: 2px;
+}
+.fira-course-price {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--fira-primary-dark, #3B0764);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+.fira-course-price--free {
+    color: #15803D;
+}
+.fira-course-btn {
+    min-height: 40px;
+    padding: 0 16px;
+    font-size: 13.5px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+    .fira-lot-pricing, .fira-course-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    .fira-lot-btn, .fira-course-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
 /* Sections */
 .fira-home-band {
     background: #FFFFFF;
@@ -411,19 +689,17 @@
 
 @section('content')
 
-<!-- 1. Hero Section: Full Company Scope (Coffee B2B, Terminal, Academy, Logistics) -->
+<!-- 1. Hero Section: Clean, direct, specific to Ethiopian trade -->
 <section class="lms-hero" aria-labelledby="homepage-hero-title">
     <div class="container lms-hero__container">
         <div class="lms-hero__grid">
             <div>
-                <p class="fira-route"><span class="fira-route__line" aria-hidden="true"><i></i><i></i><i></i></span>Addis Ababa · Modjo · Djibouti</p>
                 <h1 id="homepage-hero-title" class="lms-hero__title">Learn to import and export through Ethiopia</h1>
                 <p class="lms-hero__copy">
-                    Practical courses on sourcing, customs, logistics, and coffee export — backed by our live B2B coffee marketplace, market terminal, and origin expeditions.
+                    Practical training in customs clearance, corridor logistics, and Ethiopian green coffee export — backed by our physical trade operations.
                 </p>
                 <div class="lms-hero__actions">
-                    <a href="{{ route('courses') }}" class="lms-hero__primary">Explore courses <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-                    <a href="{{ route('marketplace.index') }}" class="lms-hero__secondary">Browse coffee lots</a>
+                    <a href="{{ route('courses') }}" class="lms-hero__primary">Explore trade courses <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                 </div>
             </div>
             <div class="lms-hero__visual">
@@ -527,7 +803,6 @@
     <div class="container lms-hero__container">
         <div class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-4">
             <div>
-                <p class="fira-route"><span class="fira-route__line" aria-hidden="true"><i></i><i></i><i></i></span>Direct Sourcing</p>
                 <h2 class="fira-home-h2">Verified Ethiopian Coffee Lots</h2>
                 <p style="color: var(--fira-neutral-500); margin-top: 4px;">Spot and forward contracts from certified washing stations in Gedeo, Sidama, and Guji.</p>
             </div>
@@ -536,113 +811,116 @@
             </a>
         </div>
 
-        <div class="row g-4">
-            <div class="col-lg-4 col-md-6">
-                <div class="fira-lot-card">
-                    <div class="fira-lot-thumb" style="background-image: url('{{ asset('storage/hero/fira_hero_drying_beds.jpg') }}');">
+        <div class="row g-4 fira-lots-grid">
+            <div class="col-xl-4 col-lg-4 col-md-6 col-12 d-flex">
+                <div class="fira-lot-card w-100">
+                    <div class="fira-lot-thumb">
+                        <img src="{{ asset('storage/hero/fira_hero_drying_beds.jpg') }}" alt="Chelchele Anaerobic Micro-Lot" loading="lazy">
                         <span class="fira-badge fira-badge-pending fira-lot-thumb-badge" style="background: rgba(243, 232, 255, 0.95);">Grade 1 Natural</span>
                     </div>
                     <div class="fira-lot-body">
                         <span class="fira-lot-origin">Yirgacheffe • Chelchele Station</span>
-                        <h4 class="fira-lot-title">Chelchele Anaerobic Micro-Lot</h4>
+                        <h3 class="fira-lot-title"><a href="{{ route('marketplace.index') }}">Chelchele Anaerobic Micro-Lot</a></h3>
                         <div class="fira-lot-meta-grid">
                             <div class="fira-lot-meta-item">
-                                <div>SCA Cupping</div>
-                                <div class="fira-lot-meta-val">88.75 Q</div>
+                                <span class="fira-lot-meta-label">SCA Cupping</span>
+                                <span class="fira-lot-meta-val">88.75 Q</span>
                             </div>
                             <div class="fira-lot-meta-item">
-                                <div>Elevation</div>
-                                <div class="fira-lot-meta-val">2,150 MASL</div>
+                                <span class="fira-lot-meta-label">Elevation</span>
+                                <span class="fira-lot-meta-val">2,150 MASL</span>
                             </div>
                             <div class="fira-lot-meta-item">
-                                <div>Available Volume</div>
-                                <div class="fira-lot-meta-val">120 Bags (7.2 MT)</div>
+                                <span class="fira-lot-meta-label">Available Volume</span>
+                                <span class="fira-lot-meta-val">120 Bags (7.2 MT)</span>
                             </div>
                             <div class="fira-lot-meta-item">
-                                <div>Moisture</div>
-                                <div class="fira-lot-meta-val">10.8%</div>
+                                <span class="fira-lot-meta-label">Moisture</span>
+                                <span class="fira-lot-meta-val">10.8%</span>
                             </div>
                         </div>
                         <div class="fira-lot-pricing">
-                            <div>
+                            <div class="fira-lot-price-block">
                                 <div class="fira-lot-price-val">$5.20 / lb</div>
                                 <div class="fira-lot-price-sub">FOB Djibouti Port</div>
                             </div>
-                            <a href="{{ route('marketplace.index') }}" class="fira-btn fira-btn-primary fira-btn-md">Request sample</a>
+                            <a href="{{ route('marketplace.index') }}" class="fira-btn fira-btn-primary fira-lot-btn">Request sample</a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6">
-                <div class="fira-lot-card">
-                    <div class="fira-lot-thumb" style="background-image: url('{{ asset('storage/hero/fira_hero_cupping_lab.jpg') }}');">
+            <div class="col-xl-4 col-lg-4 col-md-6 col-12 d-flex">
+                <div class="fira-lot-card w-100">
+                    <div class="fira-lot-thumb">
+                        <img src="{{ asset('storage/hero/fira_hero_cupping_lab.jpg') }}" alt="Bensa Washed 74158 Selection" loading="lazy">
                         <span class="fira-badge fira-badge-success fira-lot-thumb-badge" style="background: rgba(220, 252, 231, 0.95);">Grade 2 Washed</span>
                     </div>
                     <div class="fira-lot-body">
                         <span class="fira-lot-origin">Sidama • Bensa Station</span>
-                        <h4 class="fira-lot-title">Bensa Washed 74158 Selection</h4>
+                        <h3 class="fira-lot-title"><a href="{{ route('marketplace.index') }}">Bensa Washed 74158 Selection</a></h3>
                         <div class="fira-lot-meta-grid">
                             <div class="fira-lot-meta-item">
-                                <div>SCA Cupping</div>
-                                <div class="fira-lot-meta-val">87.50 Q</div>
+                                <span class="fira-lot-meta-label">SCA Cupping</span>
+                                <span class="fira-lot-meta-val">87.50 Q</span>
                             </div>
                             <div class="fira-lot-meta-item">
-                                <div>Elevation</div>
-                                <div class="fira-lot-meta-val">1,980 MASL</div>
+                                <span class="fira-lot-meta-label">Elevation</span>
+                                <span class="fira-lot-meta-val">1,980 MASL</span>
                             </div>
                             <div class="fira-lot-meta-item">
-                                <div>Available Volume</div>
-                                <div class="fira-lot-meta-val">320 Bags (1 FCL)</div>
+                                <span class="fira-lot-meta-label">Available Volume</span>
+                                <span class="fira-lot-meta-val">320 Bags (1 FCL)</span>
                             </div>
                             <div class="fira-lot-meta-item">
-                                <div>Moisture</div>
-                                <div class="fira-lot-meta-val">11.1%</div>
+                                <span class="fira-lot-meta-label">Moisture</span>
+                                <span class="fira-lot-meta-val">11.1%</span>
                             </div>
                         </div>
                         <div class="fira-lot-pricing">
-                            <div>
+                            <div class="fira-lot-price-block">
                                 <div class="fira-lot-price-val">$4.65 / lb</div>
                                 <div class="fira-lot-price-sub">FOB Djibouti Port</div>
                             </div>
-                            <a href="{{ route('marketplace.index') }}" class="fira-btn fira-btn-primary fira-btn-md">Request sample</a>
+                            <a href="{{ route('marketplace.index') }}" class="fira-btn fira-btn-primary fira-lot-btn">Request sample</a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6">
-                <div class="fira-lot-card">
-                    <div class="fira-lot-thumb" style="background-image: url('{{ asset('storage/hero/fira_hero_highland_harvest.jpg') }}');">
+            <div class="col-xl-4 col-lg-4 col-md-6 col-12 d-flex">
+                <div class="fira-lot-card w-100">
+                    <div class="fira-lot-thumb">
+                        <img src="{{ asset('storage/hero/fira_hero_highland_harvest.jpg') }}" alt="Hambela Highland Natural Lot" loading="lazy">
                         <span class="fira-badge fira-badge-pending fira-lot-thumb-badge" style="background: rgba(243, 232, 255, 0.95);">Grade 1 Natural</span>
                     </div>
                     <div class="fira-lot-body">
                         <span class="fira-lot-origin">Guji • Hambela Wamena</span>
-                        <h4 class="fira-lot-title">Hambela Highland Natural Lot</h4>
+                        <h3 class="fira-lot-title"><a href="{{ route('marketplace.index') }}">Hambela Highland Natural Lot</a></h3>
                         <div class="fira-lot-meta-grid">
                             <div class="fira-lot-meta-item">
-                                <div>SCA Cupping</div>
-                                <div class="fira-lot-meta-val">88.25 Q</div>
+                                <span class="fira-lot-meta-label">SCA Cupping</span>
+                                <span class="fira-lot-meta-val">88.25 Q</span>
                             </div>
                             <div class="fira-lot-meta-item">
-                                <div>Elevation</div>
-                                <div class="fira-lot-meta-val">2,200 MASL</div>
+                                <span class="fira-lot-meta-label">Elevation</span>
+                                <span class="fira-lot-meta-val">2,200 MASL</span>
                             </div>
                             <div class="fira-lot-meta-item">
-                                <div>Available Volume</div>
-                                <div class="fira-lot-meta-val">180 Bags (10.8 MT)</div>
+                                <span class="fira-lot-meta-label">Available Volume</span>
+                                <span class="fira-lot-meta-val">180 Bags (10.8 MT)</span>
                             </div>
                             <div class="fira-lot-meta-item">
-                                <div>Moisture</div>
-                                <div class="fira-lot-meta-val">10.5%</div>
+                                <span class="fira-lot-meta-label">Moisture</span>
+                                <span class="fira-lot-meta-val">10.5%</span>
                             </div>
                         </div>
                         <div class="fira-lot-pricing">
-                            <div>
+                            <div class="fira-lot-price-block">
                                 <div class="fira-lot-price-val">$5.10 / lb</div>
                                 <div class="fira-lot-price-sub">FOB Djibouti Port</div>
                             </div>
-                            <a href="{{ route('marketplace.index') }}" class="fira-btn fira-btn-primary fira-btn-md">Request sample</a>
+                            <a href="{{ route('marketplace.index') }}" class="fira-btn fira-btn-primary fira-lot-btn">Request sample</a>
                         </div>
                     </div>
                 </div>
@@ -657,9 +935,8 @@
         <div class="fira-catalog-section-header">
             <div class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-4">
                 <div>
-                    <p class="fira-route"><span class="fira-route__line" aria-hidden="true"><i></i><i></i><i></i></span>Course catalog</p>
                     <h2 class="fira-home-h2">Practical trade courses</h2>
-                    <p style="color: var(--fira-neutral-500); margin-top: 4px;">Sourcing, customs, logistics, and export operations</p>
+                    <p style="color: var(--fira-neutral-500); margin-top: 4px;">Sourcing, customs clearance, freight logistics, and export operations.</p>
                 </div>
                 <div class="fira-catalog-tabs">
                     <a href="{{ route('courses') }}" class="fira-tab-pill active">All courses</a>
@@ -669,35 +946,51 @@
                 </div>
             </div>
         </div>
-        <div class="row g-4">
+        <div class="row g-4 fira-courses-grid">
             @forelse($featuredCourses as $index => $course)
-                <div class="col-xl-4 col-lg-6 col-md-6">
-                    <div class="fira-course-card">
-                        <div class="fira-course-thumb" style="background-image: url('{{ $course->featured_image_url }}');">
-                            <span class="fira-badge fira-badge-info" style="position: absolute; top: 12px; left: 12px;">
+                @php
+                    $courseLessons = $course->topics ? $course->topics->sum(fn($t) => $t->lessons ? $t->lessons->count() : 0) : 0;
+                    if ($courseLessons === 0) {
+                        $courseLessons = 12;
+                    }
+                    $instructorName = optional($course->instructor)->name ?: 'Firaol Kebede';
+                @endphp
+                <div class="col-xl-4 col-lg-4 col-md-6 col-12 d-flex">
+                    <div class="fira-course-card w-100">
+                        <div class="fira-course-thumb">
+                            <img src="{{ $course->featured_image_url }}" alt="{{ $course->title }}" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('assets/front/img/home-1/courses/courses-01.jpg') }}';">
+                            <span class="fira-badge fira-badge-info fira-course-thumb-badge">
                                 {{ $course->getAttribute('display_category') }}
                             </span>
                         </div>
                         <div class="fira-course-body">
-                            <div class="fira-course-instructor">
-                                Mentor: <strong>{{ optional($course->instructor)->name ?? 'Firaol Kebede' }}</strong>
+                            <div class="fira-course-meta-row">
+                                <div class="fira-course-meta-item">
+                                    <i class="fa-regular fa-user" aria-hidden="true"></i>
+                                    <span>Mentor: <strong>{{ $instructorName }}</strong></span>
+                                </div>
+                                <div class="fira-course-meta-item">
+                                    <i class="fa-regular fa-circle-play" aria-hidden="true"></i>
+                                    <span>{{ $courseLessons }} lessons</span>
+                                </div>
                             </div>
-                            <h4 style="font-size: 1.0625rem; font-weight: 700; color: var(--fira-text-primary); margin-bottom: 8px; line-height: 1.35;">
-                                <a href="{{ route('courses.show', $course) }}" style="color: inherit; text-decoration: none;">
+                            <h3 class="fira-course-title">
+                                <a href="{{ route('courses.show', $course->id) }}">
                                     {{ $course->title }}
                                 </a>
-                            </h4>
-                            <p style="font-size: 0.8125rem; color: var(--fira-text-secondary); line-height: 1.6; margin-bottom: 16px;">
-                                {{ Str::limit(strip_tags($course->description ?? ''), 110) }}
+                            </h3>
+                            <p class="fira-course-desc">
+                                {{ Str::limit(strip_tags($course->description ?? ''), 115) }}
                             </p>
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--fira-border-hairline);">
-                                <div>
-                                    <span style="font-size: 1rem; font-weight: 700; color: {{ $course->getAttribute('is_free') ? 'var(--fira-success)' : 'var(--fira-brand-deep)' }}; font-variant-numeric: tabular-nums;">
+                            <div class="fira-course-footer">
+                                <div class="fira-course-price-wrap">
+                                    <span class="fira-course-price-label">Tuition</span>
+                                    <div class="fira-course-price {{ $course->getAttribute('is_free') ? 'fira-course-price--free' : '' }}">
                                         {{ $course->getAttribute('is_free') ? 'Free Enrollment' : currency_format($course->getAttribute('display_price')) }}
-                                    </span>
+                                    </div>
                                 </div>
-                                <a href="{{ route('courses.show', $course) }}" class="fira-btn fira-btn-secondary fira-btn-md" style="height: 38px; padding: 0 14px; font-size: 13px;">
-                                    View course
+                                <a href="{{ route('courses.show', $course->id) }}" class="fira-btn fira-btn-primary fira-course-btn">
+                                    View course <i class="fa-solid fa-arrow-right ms-1" aria-hidden="true"></i>
                                 </a>
                             </div>
                         </div>
