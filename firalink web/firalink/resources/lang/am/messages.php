@@ -21,6 +21,7 @@ return [
         'open' => 'ቅድመ-እይታ',
         'not_written' => 'ገና አልተጻፈም',
         'text' => 'ተራ ጽሑፍ',
+        'sms_managed' => 'ኮዶች የሚላኩት ከመልዕክት ካታሎጉ በእንግሊዝኛና በአማርኛ ነው። ይህ የተቀመጠ ጽሑፍ ከእንግዲህ ጥቅም ላይ አይውልም።',
         'push' => 'ፑሽ',
     ],
 
@@ -43,6 +44,8 @@ return [
 
     'security' => [
         'otp_sign_in' => [
+            // One SMS segment; no link; the code only here and in the email code box.
+            'sms' => 'ፊራ ሊንክ፦ ኮድዎ :code ነው። በ:minutes ደቂቃ ያበቃል። ለማንም አያጋሩት።',
             'subject' => 'የፊራ ሊንክ መግቢያ ኮድዎ',
             'preheader' => 'መግባትዎን ለመጨረስ ይህን ኮድ ይጠቀሙ። በ:minutes ደቂቃ ውስጥ ጊዜው ያልፋል።',
             'eyebrow' => 'መግቢያ',
@@ -51,6 +54,8 @@ return [
             'notice' => 'ይህን ኮድ ለማንም አያጋሩ። የፊራ ሊንክ ሠራተኞች በፍጹም አይጠይቁትም። ለመግባት ካልሞከሩ ይህን ኢሜይል ችላ ይበሉ፤ መለያዎ ደህንነቱ እንደተጠበቀ ነው።',
         ],
         'otp_sign_up' => [
+            // One SMS segment; no link; the code only here and in the email code box.
+            'sms' => 'ፊራ ሊንክ፦ የምዝገባ ኮድዎ :code ነው። በ:minutes ደቂቃ ያበቃል። ለማንም አያጋሩት።',
             'subject' => 'ለፊራ ሊንክ ኢሜይልዎን ያረጋግጡ',
             'preheader' => 'መለያዎን መፍጠር ለመጨረስ ይህን ኮድ ይጠቀሙ።',
             'eyebrow' => 'መለያ መፍጠር',
@@ -59,6 +64,8 @@ return [
             'notice' => 'ይህን ኮድ ለማንም አያጋሩ። ለፊራ ሊንክ ካልተመዘገቡ ይህን ኢሜይል ችላ ይበሉ።',
         ],
         'otp_password_reset' => [
+            // One SMS segment; no link; the code only here and in the email code box.
+            'sms' => 'ፊራ ሊንክ፦ የይለፍ ቃል መቀየሪያ ኮድዎ :code ነው። በ:minutes ደቂቃ ያበቃል። ለማንም አያጋሩት።',
             'subject' => 'የፊራ ሊንክ የይለፍ ቃልዎን ይቀይሩ',
             'preheader' => 'አዲስ የይለፍ ቃል ለመምረጥ ይህን ኮድ ይጠቀሙ።',
             'eyebrow' => 'የይለፍ ቃል መቀየር',
@@ -67,6 +74,8 @@ return [
             'notice' => 'ጥያቄውን ያቀረቡት እርስዎ ካልሆኑ ኮዱን አይጠቀሙ፤ የይለፍ ቃልዎ አይቀየርም። ይህን ኮድ ለማንም አያጋሩ።',
         ],
         'otp_step_up' => [
+            // One SMS segment; no link; the code only here and in the email code box.
+            'sms' => 'ፊራ ሊንክ፦ የማረጋገጫ ኮድዎ :code ነው። በ:minutes ደቂቃ ያበቃል። ለማንም አያጋሩት።',
             'subject' => 'በፊራ ሊንክ እርስዎ መሆንዎን ያረጋግጡ',
             'preheader' => 'ጥንቃቄ የሚፈልግ ለውጥ ለማረጋገጥ ይህን ኮድ ይጠቀሙ።',
             'eyebrow' => 'የደህንነት ማረጋገጫ',
@@ -75,6 +84,8 @@ return [
             'notice' => 'አሁን ምንም ለውጥ እያደረጉ ካልሆነ ኮዱን አይጠቀሙ፤ የይለፍ ቃልዎንም ይቀይሩ።',
         ],
         'otp_contact_change' => [
+            // One SMS segment; no link; the code only here and in the email code box.
+            'sms' => 'ፊራ ሊንክ፦ ቁጥርዎን ማረጋገጫ ኮድ :code ነው። በ:minutes ደቂቃ ያበቃል። ለማንም አያጋሩት።',
             'subject' => 'ለፊራ ሊንክ አዲሱን ኢሜይልዎን ያረጋግጡ',
             'preheader' => 'አዲሱን የመገናኛ መረጃዎን ለማረጋገጥ ይህን ኮድ ይጠቀሙ።',
             'eyebrow' => 'የመገናኛ መረጃ',

@@ -1070,6 +1070,11 @@ class SettingsController extends Controller
     public function updateSmsTemplate(Request $request, $id)
     {
         $template = SmsTemplate::findOrFail($id);
+        if ($template->isManagedByCatalogue()) {
+            ToastMagic::warning(__('messages.preview.sms_managed'));
+
+            return back()->with('active_tab', 'templates');
+        }
 
         $request->validate([
             'content'    => ['required', 'string', 'max:500'],

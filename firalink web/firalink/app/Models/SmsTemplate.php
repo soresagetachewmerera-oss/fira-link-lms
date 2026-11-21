@@ -9,6 +9,17 @@ class SmsTemplate extends Model
 {
     use HasFactory;
 
+    /**
+     * Codes are sent from the message catalogue in English and Amharic (messaging slice 3,
+     * resources/lang/{en,am}/messages.php). These stored templates are no longer used and cannot be edited.
+     */
+    public const CATALOGUE_KEYS = ['otp', 'otp_verification', 'password_reset'];
+
+    public function isManagedByCatalogue(): bool
+    {
+        return in_array($this->key, self::CATALOGUE_KEYS, true);
+    }
+
     protected $fillable = [
         'key',
         'name',

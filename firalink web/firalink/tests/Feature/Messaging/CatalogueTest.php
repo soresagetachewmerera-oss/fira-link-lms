@@ -302,7 +302,7 @@ class CatalogueTest extends TestCase
             'app/Http/Controllers/Auth/LoginOtpController.php', 'app/Http/Controllers/Auth/PhoneVerificationController.php',
             'app/Http/Controllers/Front/ContactController.php', 'app/Http/Controllers/Front/CourseEnrollmentController.php',
             'app/Http/Controllers/Front/ReviewController.php', 'app/Http/Controllers/Instructor/CourseBuilderController.php',
-            'app/Http/Controllers/Instructor/EventBookingEmailController.php', 'app/Models/User.php', 'app/Services/OtpService.php',
+            'app/Http/Controllers/Instructor/EventBookingEmailController.php', 'app/Models/User.php',
         ];
         $pattern = '/Mail::(to|send|raw|html|queue)\(|->sendFromTemplate\(|->sendOtp\(|->sendWelcomeNotification\(|->sendEnrollmentNotification\(|->sendPaymentConfirmation\(|Service->send\(|sms->send\(|smsService->send\(/';
 

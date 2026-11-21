@@ -308,6 +308,14 @@
                                                 </span>
                                             </div>
 
+                                            @if ($template->isManagedByCatalogue())
+                                                <div class="card-body">
+                                                    <div class="alert alert-info mb-0" role="status">
+                                                        {{ __('messages.preview.sms_managed') }}
+                                                        <a href="{{ route('admin.messages.index') }}">{{ __('messages.preview.title') }}</a>
+                                                    </div>
+                                                </div>
+                                            @else
                                             <form action="{{ route('admin.settings.sms.template.update', $template->id) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
@@ -354,6 +362,7 @@
                                                     </button>
                                                 </div>
                                             </form>
+                                            @endif
                                         </div>
                                     </div>
                                 @empty

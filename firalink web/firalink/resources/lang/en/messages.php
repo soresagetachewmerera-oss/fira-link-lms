@@ -26,6 +26,7 @@ return [
         'open' => 'Preview',
         'not_written' => 'not written yet',
         'text' => 'Plain text',
+        'sms_managed' => 'Codes are sent from the message catalogue in English and Amharic. This stored text is no longer used.',
         'push' => 'Push',
     ],
 
@@ -48,6 +49,8 @@ return [
 
     'security' => [
         'otp_sign_in' => [
+            // One SMS segment; no link; the code only here and in the email code box.
+            'sms' => 'Fira Link: your code is :code. It expires in :minutes minutes. Never share it.',
             'subject' => 'Your Fira Link sign-in code',
             'preheader' => 'Use this code to finish signing in. It expires in :minutes minutes.',
             'eyebrow' => 'Sign in',
@@ -56,6 +59,8 @@ return [
             'notice' => 'Never share this code. Fira Link staff will never ask for it. If you did not try to sign in, ignore this email; your account stays safe.',
         ],
         'otp_sign_up' => [
+            // One SMS segment; no link; the code only here and in the email code box.
+            'sms' => 'Fira Link: your sign-up code is :code. It expires in :minutes minutes. Never share it.',
             'subject' => 'Confirm your email for Fira Link',
             'preheader' => 'Use this code to finish creating your account.',
             'eyebrow' => 'Create your account',
@@ -64,6 +69,8 @@ return [
             'notice' => 'Never share this code. If you did not sign up for Fira Link, ignore this email.',
         ],
         'otp_password_reset' => [
+            // One SMS segment; no link; the code only here and in the email code box.
+            'sms' => 'Fira Link: your password reset code is :code. It expires in :minutes minutes. Never share it.',
             'subject' => 'Reset your Fira Link password',
             'preheader' => 'Use this code to choose a new password.',
             'eyebrow' => 'Password reset',
@@ -72,6 +79,8 @@ return [
             'notice' => 'If this was not you, do not use the code. Your password stays the same. Never share this code with anyone.',
         ],
         'otp_step_up' => [
+            // One SMS segment; no link; the code only here and in the email code box.
+            'sms' => 'Fira Link: your security code is :code. It expires in :minutes minutes. Never share it.',
             'subject' => 'Confirm it is you on Fira Link',
             'preheader' => 'Use this code to confirm a sensitive change.',
             'eyebrow' => 'Security check',
@@ -80,6 +89,8 @@ return [
             'notice' => 'If you are not making a change right now, do not use the code, and change your password.',
         ],
         'otp_contact_change' => [
+            // One SMS segment; no link; the code only here and in the email code box.
+            'sms' => 'Fira Link: your code to confirm this number is :code. It expires in :minutes minutes. Never share it.',
             'subject' => 'Confirm your new email for Fira Link',
             'preheader' => 'Use this code to confirm your new contact details.',
             'eyebrow' => 'Contact details',

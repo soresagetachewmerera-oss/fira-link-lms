@@ -164,7 +164,8 @@ class FiraNotification extends Notification implements ShouldQueue
 
     public function localeFor(object $notifiable): string
     {
-        $locale = $notifiable instanceof User ? $notifiable->preferredLocale() : ($this->locale ?? 'en');
+        // A person: saved language, else the app's language for this request (new accounts). An address: the sender's choice.
+        $locale = $notifiable instanceof User ? \App\Services\Notifications\MessageLocale::for($notifiable) : ($this->locale ?? 'en');
 
         return in_array($locale, ['en', 'am'], true) ? $locale : 'en';
     }

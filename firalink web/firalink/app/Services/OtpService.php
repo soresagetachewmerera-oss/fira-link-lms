@@ -163,7 +163,7 @@ class OtpService
 
         $sent = $this->testCodeActive()
             ? ['success' => true]
-            : app(SmsEthiopiaService::class)->sendOtp($phone, $code, $expiryMinutes, $user);
+            : $this->smsCode($phone, $code, $expiryMinutes, $purpose, $user);
 
         return [
             'success' => $sent['success'] ?? false,
@@ -348,6 +348,29 @@ class OtpService
         ], null, [Channel::Mail]);
     }
 
+    /**
+     * The catalogue SMS for a code (messaging slice 3): short, no link, in the person's language
+     * (saved language, else the app's language), sent immediately. Never logged with the code
+     * (the gateway log masks it; the delivery log has no text).
+     *
+     * @return array{success: bool, message: string}
+     */
+    private function smsCode(string $phone, string $code, int $minutes, string $purpose, ?User $user): array
+    {
+        $ok = app(Notifier::class)->sendToAddress(
+            Channel::Sms,
+            $phone,
+            self::codeType($purpose),
+            ['code' => $code, 'minutes' => $minutes],
+            null,
+            \App\Services\Notifications\MessageLocale::for($user),
+        );
+
+        return $ok
+            ? ['success' => true, 'message' => 'Verification code sent via SMS.']
+            : ['success' => false, 'message' => 'The SMS could not be sent.'];
+    }
+
     /** Which catalogue message a code purpose uses. */
     public static function codeType(string $purpose): NotificationType
     {
@@ -422,8 +445,7 @@ class OtpService
         // Send SMS via official SMS Ethiopia gateway if phone is available (never in local test-code mode)
         if (!empty($user->phone) && !$this->testCodeActive()) {
             try {
-                $smsService = app(SmsEthiopiaService::class);
-                $smsService->sendOtp($user->phone, $code, $expiryMinutes, $user);
+                $this->smsCode($user->phone, $code, $expiryMinutes, $purpose, $user);
             } catch (\Throwable $e) {
                 Log::error('SMS Ethiopia OTP failed: ' . $e->getMessage());
             }
@@ -501,7 +523,7 @@ class OtpService
         // Dispatch SMS (local development with the test code: nothing is sent)
         $dispatchResult = $this->testCodeActive()
             ? ['success' => true, 'message' => 'Test code mode (local only).']
-            : $smsService->sendOtp($normalizedPhone, $code, $expiryMinutes, $user);
+            : $this->smsCode($normalizedPhone, $code, $expiryMinutes, $purpose, $user);
 
         return [
             'success'            => $dispatchResult['success'] ?? false,

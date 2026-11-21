@@ -255,6 +255,10 @@ Run on the production server **in this order**. Always run the dry run first and
     - New code sends messages only through `App\Services\Notifications\Notifier` (catalogue
       `App\Notifications\Catalog\NotificationType`); `tests/Feature/Messaging/CatalogueTest` fails on new direct
       `Mail::to()` or SMS gateway calls.
+    - Slices 2 and 3: codes, the website reset link and welcome use the shared email layout and catalogue SMS
+      (en + am, one segment). The stored admin SMS templates `otp`, `otp_verification` and `password_reset` are no
+      longer used and are read-only. Set `MAIL_FROM_SECURITY`, `MAIL_FROM_NO_REPLY`, `MAIL_SUPPORT_ADDRESS` and the
+      DNS records in `docs/messaging/email-delivery.md` before go-live; the site must serve `/assets/email/`.
 
 ## 4. Workflow per slice
 
