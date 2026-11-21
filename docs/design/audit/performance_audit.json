@@ -1,0 +1,71 @@
+[
+  {
+    "page": "Home",
+    "url": "https://fira-link.com/",
+    "totalRequests": 64,
+    "transferBytes": {
+      "html": 0,
+      "css": 162893,
+      "js": 133717,
+      "images": 6077150,
+      "fonts": 894940,
+      "other": 72162894,
+      "total": 79431594
+    },
+    "metrics": {
+      "domInteractive": 2932,
+      "domContentLoaded": 2934.7999999970198,
+      "complete": 5632.600000008941,
+      "firstPaint": 2760,
+      "firstContentfulPaint": 2760,
+      "cls": 0
+    },
+    "totalDurationMs": 6156
+  },
+  {
+    "page": "Courses",
+    "url": "https://fira-link.com/courses",
+    "totalRequests": 53,
+    "transferBytes": {
+      "html": 0,
+      "css": 162893,
+      "js": 133717,
+      "images": 1389400,
+      "fonts": 1287076,
+      "other": 529,
+      "total": 2973615
+    },
+    "metrics": {
+      "domInteractive": 459.70000000298023,
+      "domContentLoaded": 478.1000000089407,
+      "complete": 788.7000000029802,
+      "firstPaint": 488,
+      "firstContentfulPaint": 488,
+      "cls": 0
+    },
+    "totalDurationMs": 1344
+  },
+  {
+    "page": "Market Prices",
+    "url": "https://fira-link.com/market-prices",
+    "totalRequests": 45,
+    "transferBytes": {
+      "html": 0,
+      "css": 162893,
+      "js": 133717,
+      "images": 126175,
+      "fonts": 1287076,
+      "other": 1139,
+      "total": 1711000
+    },
+    "metrics": {
+      "domInteractive": 532.5,
+      "domContentLoaded": 542.9000000059605,
+      "complete": 549.2000000029802,
+      "firstPaint": 552,
+      "firstContentfulPaint": 552,
+      "cls": 0
+    },
+    "totalDurationMs": 1172
+  }
+]
