@@ -4,22 +4,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Fira Link Academy - Production SEO Configuration
+    | Fira Link Platform - Production SEO Configuration
     |--------------------------------------------------------------------------
     */
 
-    'brand_name' => 'Fira Link Academy',
+    'brand_name' => 'Fira Link Platform',
     'legal_name' => 'Fira Link Business Solution',
-    'alternate_names' => ['Fira Link', 'FiraLink Academy', 'Fira Link Business Solution'],
+    'alternate_names' => ['Fira Link', 'FiraLink Platform', 'Fira Link Business Solution'],
     'primary_color' => '#6D1A95',
-    'tagline' => 'Learn Import & Export Business in Ethiopia',
+    'tagline' => 'Trade, Sourcing & Export Platform in Ethiopia',
 
     // Canonical base URL (defaults to production domain)
     'canonical_domain' => env('CANONICAL_DOMAIN', 'https://fira-link.com'),
 
     // Default Meta
-    'default_title' => 'Fira Link Academy | Learn Import & Export Business in Ethiopia',
-    'default_description' => 'Master practical import-export, customs clearance, port logistics, and global trade in Ethiopia and East Africa with Fira Link Academy. Explore programs today.',
+    'default_title' => 'Fira Link Platform | Trade, Sourcing & Export Platform in Ethiopia',
+    'default_description' => 'Master practical import-export, customs clearance, port logistics, and global trade in Ethiopia and East Africa with Fira Link Platform. Explore programs today.',
     'default_og_image' => '/og-image.png',
 
     // Real Social Profiles (No placeholders)

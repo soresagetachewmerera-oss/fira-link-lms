@@ -136,6 +136,63 @@ class AppRouter {
 
   static bool isPublic(String? routeName) => publicRoutes.contains(routeName);
 
+  /// Every named route (a push or inbox tap may only open one of these).
+  static const Set<String> allRoutes = {
+    onboarding,
+    auth,
+    emailSignIn,
+    dashboard,
+    home,
+    search,
+    profile,
+    aiChat,
+    coffeeToolkit,
+    coffeeCalculator,
+    coffeeOfferGenerator,
+    coffeeReadiness,
+    coffeeMarket,
+    marketplace,
+    coffeeListingDetail,
+    marketplaceRfqs,
+    marketplaceCreateRfq,
+    marketplaceSellerPortal,
+    marketplaceCreateListing,
+    marketplacePricing,
+    subscriptionManagement,
+    marketplaceVerification,
+    exportDocsStudio,
+    myCourses,
+    myAssignments,
+    myQuizAttempts,
+    certificates,
+    verifyCertificate,
+    myTicketBookings,
+    payments,
+    editProfile,
+    changePassword,
+    paymentHistory,
+    notifications,
+    wishlist,
+    qaRoom,
+    studyTimer,
+    focusProgress,
+    weeklyReview,
+    aiSuggestions,
+    settings,
+    notificationSettings,
+    messages,
+    chatScreen,
+    languageChoice,
+    intentSelection,
+    dealRoom,
+    sampleTracking,
+    publicVerification,
+    createWorkspace,
+  };
+
+  static bool isKnownRoute(String? routeName) => routeName != null && allRoutes.contains(routeName);
+
+
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     final String? routeName = settings.name;
     final Widget screen = _buildScreen(routeName, settings.arguments);

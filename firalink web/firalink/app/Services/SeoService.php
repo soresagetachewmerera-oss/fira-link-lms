@@ -80,8 +80,8 @@ class SeoService
             '@type' => 'WebSite',
             '@id' => $base . '#website',
             'url' => $base,
-            'name' => config('seo.brand_name', 'Fira Link Academy'),
-            'alternateName' => config('seo.alternate_names', ['Fira Link', 'FiraLink Academy']),
+            'name' => config('seo.brand_name', 'Fira Link Platform'),
+            'alternateName' => config('seo.alternate_names', ['Fira Link', 'FiraLink Platform']),
             'description' => config('seo.default_description'),
             'publisher' => [
                 '@id' => $base . '#organization',
@@ -111,19 +111,19 @@ class SeoService
             '@context' => 'https://schema.org',
             '@type' => 'EducationalOrganization',
             '@id' => $base . '#organization',
-            'name' => config('seo.brand_name', 'Fira Link Academy'),
+            'name' => config('seo.brand_name', 'Fira Link Platform'),
             'legalName' => config('seo.legal_name', 'Fira Link Business Solution'),
             'url' => $base,
             'logo' => [
                 '@type' => 'ImageObject',
                 '@id' => $base . '#logo',
                 'url' => $base . 'logo.png',
-                'caption' => config('seo.brand_name', 'Fira Link Academy'),
+                'caption' => config('seo.brand_name', 'Fira Link Platform'),
                 'width' => 512,
                 'height' => 512,
             ],
             'image' => $base . 'og-image.png',
-            'description' => 'Fira Link Academy is the specialized digital learning and business development institution of Fira Link Business Solution, providing practical import-export, customs compliance, and port logistics training for Ethiopia and East Africa.',
+            'description' => 'Fira Link Platform is the specialized digital trade and business development platform of Fira Link Business Solution, providing practical import-export, customs compliance, and port logistics training for Ethiopia and East Africa.',
             'address' => [
                 '@type' => 'PostalAddress',
                 'streetAddress' => $contact['address'] ?? 'Bole Sub-City',
@@ -229,7 +229,7 @@ class SeoService
             'url' => $url,
             'provider' => [
                 '@type' => 'EducationalOrganization',
-                'name' => config('seo.brand_name', 'Fira Link Academy'),
+                'name' => config('seo.brand_name', 'Fira Link Platform'),
                 'sameAs' => $base . '/',
             ],
             'inLanguage' => 'en',
@@ -318,7 +318,7 @@ class SeoService
             ],
             'publisher' => [
                 '@type' => 'Organization',
-                'name' => config('seo.brand_name', 'Fira Link Academy'),
+                'name' => config('seo.brand_name', 'Fira Link Platform'),
                 'logo' => [
                     '@type' => 'ImageObject',
                     'url' => $base . '/logo.png',

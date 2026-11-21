@@ -24,6 +24,9 @@ class CertificatesController extends Controller
         $completedEnrollments = Enrollment::with('course.instructor')
             ->where('user_id', $user->id)
             ->where('status', Enrollment::STATUS_COMPLETED)
+            ->whereHas('course', function ($q) {
+                $q->where('pricing_model', '!=', 'free');
+            })
             ->orderByDesc('updated_at')
             ->get()
             ->map(function (Enrollment $enrollment) use ($user) {
@@ -33,7 +36,7 @@ class CertificatesController extends Controller
                     'id' => $enrollment->id,
                     'course_id' => $course?->id,
                     'course_title' => $course?->title,
-                    'instructor_name' => $course?->instructor->name ?? 'Instructor',
+                    'instructor_name' => $course?->instructor?->name ?? 'Firaol Kebede',
                     'completed_at' => $enrollment->updated_at,
                     'certificate_number' => sprintf(
                         'CERT-%06d-%s',

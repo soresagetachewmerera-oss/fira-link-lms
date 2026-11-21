@@ -76,7 +76,7 @@ class FreeToolsController extends Controller
             ->take(3)
             ->get(['id', 'title', 'slug', 'thumbnail', 'price', 'level']);
 
-        $brandName = config('seo.brand_name', 'Fira Link Academy');
+        $brandName = config('seo.brand_name', 'Fira Link Platform');
         $pageTitle = 'Free Trade Tools & Market Intelligence | ' . $brandName;
         $metaDescription = 'Free international trade suite for Ethiopian commerce: live coffee export benchmark pricing, official ECTA minimum prices, Djibouti corridor costing, tariff calculator, and Fira AI market synthesis.';
         $breadcrumbs = [

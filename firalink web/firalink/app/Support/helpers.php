@@ -256,7 +256,7 @@ if (!function_exists('site_name')) {
      */
     function site_name(): string
     {
-        return branding_settings('site_name', platform_settings('site_name', config('app.name', 'Fira Link Academy')));
+        return branding_settings('site_name', platform_settings('site_name', config('app.name', 'Fira Link Platform')));
     }
 }
 

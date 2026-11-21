@@ -38,7 +38,7 @@
                             <i class="fas fa-info-circle fa-lg mr-3" style="color: #7c3aed;"></i>
                             <div>
                                 <strong style="color: #0f172a;">Standardized Payment Gateway:</strong>
-                                <span class="text-muted">Chapa is the sole enabled payment gateway for Fira Link Academy, processing transactions strictly in Ethiopian Birr (ETB) via Telebirr, CBE Birr, and Bank/Card transfers. All alternative payment methods are disabled.</span>
+                                <span class="text-muted">Chapa is the sole enabled payment gateway for Fira Link Platform, processing transactions strictly in Ethiopian Birr (ETB) via Telebirr, CBE Birr, and Bank/Card transfers. All alternative payment methods are disabled.</span>
                             </div>
                         </div>
                     </div>

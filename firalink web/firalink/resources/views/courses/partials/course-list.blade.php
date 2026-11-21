@@ -11,12 +11,8 @@
     @endphp
     <div class="col-xl-6 col-lg-6 col-md-6 wow fadeInUp" data-wow-delay="{{ $delay }}s">
         <div class="mhq-courses-box-items mt-0">
-            <div class="mhq-courses-image">
-                @if ($course->featured_image)
-                    <img src="{{ asset('storage/' . $course->featured_image) }}" alt="{{ $course->title }}" loading="lazy">
-                @else
-                    <img src="{{ asset('assets/front/img/home-1/courses/courses-01.jpg') }}" alt="{{ $course->title }}" loading="lazy">
-                @endif
+            <div class="mhq-courses-image" style="aspect-ratio: 16 / 9; overflow: hidden; background: #f3f4f6;">
+                <img src="{{ $course->featured_image_url }}" alt="{{ $course->title }}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.onerror=null;this.src='{{ asset('assets/front/img/home-1/courses/courses-01.jpg') }}';">
                 @if ($course->category)
                     <span class="post-box">
                         {{ ucfirst($course->category) }}
@@ -62,15 +58,15 @@
                         @if ($course->instructor && $course->instructor->profile_photo)
                             <div class="img">
                                 <img src="{{ asset('storage/' . $course->instructor->profile_photo) }}"
-                                    alt="{{ $course->instructor->name }}" loading="lazy">
+                                    alt="{{ $course->instructor->name ?? 'Firaol Kebede' }}" loading="lazy">
                             </div>
                         @else
                             <div class="img">
                                 <img src="{{ asset('assets/front/img/home-1/courses/client-01.png') }}"
-                                    alt="{{ $course->instructor->name ?? __('frontend.instructor') }}" loading="lazy">
+                                    alt="{{ $course->instructor->name ?? 'Firaol Kebede' }}" loading="lazy">
                             </div>
                         @endif
-                        {{ $course->instructor->name ?? __('frontend.instructor') }}
+                        {{ $course->instructor->name ?? 'Firaol Kebede' }}
                     </div>
                     <h2>{{ $price }}</h2>
                 </div>

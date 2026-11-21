@@ -9,7 +9,7 @@ use Illuminate\Contracts\View\View;
 class ProgramController extends Controller
 {
     /**
-     * Display the Fira Link Academy Flagship Programs page.
+     * Display the Fira Link Platform Flagship Programs page.
      */
     public function index(): View
     {
@@ -21,7 +21,7 @@ class ProgramController extends Controller
             ->get();
 
         $pageTitle = 'Trade Programs & Specialized Training Tracks';
-        $metaDescription = 'Explore professional import-export programs at Fira Link Academy in Ethiopia: Coffee Sourcing & Export, Customs Clearance, Freight Corridors, and Market Acquisition.';
+        $metaDescription = 'Explore professional import-export programs at Fira Link Platform in Ethiopia: Coffee Sourcing & Export, Customs Clearance, Freight Corridors, and Market Acquisition.';
 
         $breadcrumbs = [
             'Programs' => route('programs'),

@@ -58,6 +58,8 @@ class Course extends Model
 
     protected $appends = [
         'thumbnail',
+        'featured_image_url',
+        'instructor_name',
         'price',
         'discounted_price',
         'rating',
@@ -152,16 +154,29 @@ class Course extends Model
     }
 
 
-    public function getThumbnailAttribute()
+    public function getFeaturedImageUrlAttribute(): string
     {
-        if (!$this->featured_image) {
-            return null;
+        if (!empty($this->featured_image)) {
+            if (str_starts_with($this->featured_image, 'http://') || str_starts_with($this->featured_image, 'https://')) {
+                return $this->featured_image;
+            }
+            if (str_starts_with($this->featured_image, 'assets/')) {
+                return asset($this->featured_image);
+            }
+            return asset('storage/' . ltrim($this->featured_image, '/'));
         }
-        if (str_starts_with($this->featured_image, 'http://') || str_starts_with($this->featured_image, 'https://')) {
-            return $this->featured_image;
-        }
-        $host = request()->hasHeader('Host') ? request()->getSchemeAndHttpHost() : config('app.url');
-        return rtrim($host, '/') . '/storage/' . ltrim($this->featured_image, '/');
+
+        return asset('assets/front/img/home-1/courses/courses-01.jpg');
+    }
+
+    public function getThumbnailAttribute(): string
+    {
+        return $this->featured_image_url;
+    }
+
+    public function getInstructorNameAttribute(): string
+    {
+        return $this->instructor?->name ?? 'Firaol Kebede';
     }
 
     public function getPriceAttribute()

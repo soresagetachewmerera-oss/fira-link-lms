@@ -32,8 +32,8 @@ class FaqController extends Controller
         if ($faqItems->isEmpty()) {
             $faqItems = collect([
                 [
-                    'question' => 'What is Fira Link Academy?',
-                    'answer' => 'Fira Link Academy is the digital learning and trade development division of Fira Link Business Solution, based in Addis Ababa, Ethiopia. We provide practical, operational training in import-export business management, customs clearance, commodity trade, and logistics corridor operations.',
+                    'question' => 'What is Fira Link Platform?',
+                    'answer' => 'Fira Link Platform is the digital learning and trade development division of Fira Link Business Solution, based in Addis Ababa, Ethiopia. We provide practical, operational training in import-export business management, customs clearance, commodity trade, and logistics corridor operations.',
                 ],
                 [
                     'question' => 'Who are the courses designed for?',
@@ -49,7 +49,7 @@ class FaqController extends Controller
                 ],
                 [
                     'question' => 'Do students receive a verifiable certificate?',
-                    'answer' => 'Yes. Upon successfully completing all course modules, assignments, and practical compliance assessments, graduates receive an official certificate from Fira Link Academy featuring a unique verification QR code verifiable on our portal.',
+                    'answer' => 'Yes. Upon successfully completing all eligible paid course modules, assignments, and practical compliance assessments, graduates receive an official certificate from Fira Link Platform featuring a unique verification QR code verifiable on our portal.',
                 ],
                 [
                     'question' => 'Are the tools in the Free Trade Suite really free?',
@@ -62,7 +62,7 @@ class FaqController extends Controller
             ]);
         }
 
-        $brandName = config('seo.brand_name', 'Fira Link Academy');
+        $brandName = config('seo.brand_name', 'Fira Link Platform');
         $breadcrumbs = [
             ['name' => 'Home', 'url' => url('/')],
             ['name' => 'FAQ', 'url' => url('/faq')],
@@ -70,7 +70,7 @@ class FaqController extends Controller
 
         return view('faq', [
             'pageTitle' => 'Frequently Asked Questions | ' . $brandName,
-            'metaDescription' => 'Find clear answers to common questions about Fira Link Academy courses, enrollment, tuition, certificates, trade expeditions, and free business tools in Ethiopia.',
+            'metaDescription' => 'Find clear answers to common questions about Fira Link Platform courses, enrollment, tuition, certificates, trade expeditions, and free business tools in Ethiopia.',
             'breadcrumbs' => $breadcrumbs,
             'faqItems' => $faqItems,
             'schemaFaqs' => $faqItems->all(),

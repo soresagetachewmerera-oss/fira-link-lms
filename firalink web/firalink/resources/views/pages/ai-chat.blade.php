@@ -74,7 +74,7 @@
                                         </div>
                                         <div>
                                             <div class="p-3 shadow-sm" style="background: #ffffff; border-radius: 4px 18px 18px 18px; font-size: 14.5px; line-height: 1.6; color: #1e293b; border: 1px solid #e2e8f0;">
-                                                <strong>Welcome to Fira AI.</strong> I am your interactive advisor for <strong>Fira Link Academy</strong>.<br><br>
+                                                <strong>Welcome to Fira AI.</strong> I am your interactive advisor for <strong>Fira Link Platform</strong>.<br><br>
                                                 I can help you navigate Ethiopian specialty coffee exports, calculate profit margins, verify ECTA and EUDR regulations, or answer questions about our courses. Choose a starter topic below or type your question freely!
                                             </div>
                                             <div class="text-muted small mt-1" style="font-size: 11px;">Fira AI • Just now</div>

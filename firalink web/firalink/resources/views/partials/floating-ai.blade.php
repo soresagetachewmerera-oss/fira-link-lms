@@ -63,7 +63,7 @@
                     </div>
                     <div class="fira-msg-bubble bot-bubble">
                         <p class="mb-2">
-                            <strong>Welcome to Fira Link Academy.</strong> I am your trade and learning assistant.
+                            <strong>Welcome to Fira Link Platform.</strong> I am your trade and learning assistant.
                         </p>
                         <p class="mb-2">
                             Ask me about Ethiopian specialty coffee, ECTA export licensing, Incoterms, container freight, or our training programs.
@@ -782,7 +782,7 @@
                     </div>
                     <div class="fira-msg-bubble bot-bubble">
                         <p class="mb-2">
-                            <strong>Welcome to Fira Link Academy.</strong> I am your trade and learning assistant.
+                            <strong>Welcome to Fira Link Platform.</strong> I am your trade and learning assistant.
                         </p>
                         <p class="mb-2">
                             Ask me about Ethiopian specialty coffee, ECTA export licensing, Incoterms, container freight, or our training programs.

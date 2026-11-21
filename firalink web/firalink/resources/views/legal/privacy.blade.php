@@ -22,7 +22,7 @@
                     <div class="legal-content text-secondary" style="font-size: 15px; line-height: 1.8;">
                         <h2 class="h5 fw-bold text-dark mt-4 mb-2">1. Introduction &amp; Scope</h2>
                         <p>
-                            Fira Link Academy ("the Academy", "we", "us", or "our"), operated by Fira Link Business Solution in Addis Ababa, Ethiopia, is committed to safeguarding the privacy and personal data of our learners, event attendees, tour participants, and website visitors. This Privacy Policy details how we collect, process, store, and protect your information when you interact with our digital platform at fira-link.com and associated subdomains.
+                            Fira Link Platform ("the Platform", "we", "us", or "our"), operated by Fira Link Business Solution in Addis Ababa, Ethiopia, is committed to safeguarding the privacy and personal data of our learners, event attendees, tour participants, and website visitors. This Privacy Policy details how we collect, process, store, and protect your information when you interact with our digital platform at fira-link.com and associated subdomains.
                         </p>
 
                         <h2 class="h5 fw-bold text-dark mt-4 mb-2">2. Information We Collect</h2>
@@ -50,7 +50,7 @@
 
                         <h2 class="h5 fw-bold text-dark mt-4 mb-2">4. Data Sharing &amp; Third Parties</h2>
                         <p>
-                            Fira Link Academy does not sell, rent, or trade your personal information to third-party advertisers. Information is only shared with verified technical infrastructure providers required to operate the service (e.g., licensed payment processors such as Chapa, transactional SMS gateways, and secure cloud storage facilities).
+                            Fira Link Platform does not sell, rent, or trade your personal information to third-party advertisers. Information is only shared with verified technical infrastructure providers required to operate the service (e.g., licensed payment processors such as Chapa, transactional SMS gateways, and secure cloud storage facilities).
                         </p>
 
                         <h2 class="h5 fw-bold text-dark mt-4 mb-2">5. Data Retention &amp; Security</h2>

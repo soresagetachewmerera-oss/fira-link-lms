@@ -16,23 +16,23 @@
             <form action="{{ route('tours.index') }}" method="GET" class="row g-3 align-items-end">
                 <!-- Search Input -->
                 <div class="col-lg-4 col-md-6 col-12">
-                    <label class="fira-filter-label">
+                    <label class="fira-filter-label" for="tour-search-input">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <span>Search Expeditions</span>
                     </label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Destination, keyword, or title...">
+                        <input type="text" id="tour-search-input" name="search" value="{{ request('search') }}" class="form-control" placeholder="Destination, keyword, or title...">
                     </div>
                 </div>
 
                 <!-- Category Dropdown -->
                 <div class="col-lg-3 col-md-6 col-12">
-                    <label class="fira-filter-label">
+                    <label class="fira-filter-label" for="tour-category-select">
                         <i class="fa-solid fa-layer-group"></i>
                         <span>Category</span>
                     </label>
-                    <select name="category" class="form-select">
+                    <select id="tour-category-select" name="category" class="form-select">
                         <option value="">All Categories</option>
                         @foreach ($categories as $cat)
                             <option value="{{ $cat->category }}" {{ request('category') == $cat->category ? 'selected' : '' }}>
@@ -44,11 +44,11 @@
 
                 <!-- Difficulty Dropdown -->
                 <div class="col-lg-2 col-md-4 col-12">
-                    <label class="fira-filter-label">
+                    <label class="fira-filter-label" for="tour-difficulty-select">
                         <i class="fa-solid fa-mountain"></i>
                         <span>Difficulty</span>
                     </label>
-                    <select name="difficulty" class="form-select">
+                    <select id="tour-difficulty-select" name="difficulty" class="form-select">
                         <option value="">All Levels</option>
                         <option value="Easy" {{ request('difficulty') == 'Easy' ? 'selected' : '' }}>Easy</option>
                         <option value="Moderate" {{ request('difficulty') == 'Moderate' ? 'selected' : '' }}>Moderate</option>
@@ -58,11 +58,11 @@
 
                 <!-- Sort Dropdown -->
                 <div class="col-lg-2 col-md-4 col-12">
-                    <label class="fira-filter-label">
+                    <label class="fira-filter-label" for="tour-sort-select">
                         <i class="fa-solid fa-arrow-down-short-wide"></i>
                         <span>Sort By</span>
                     </label>
-                    <select name="sort" class="form-select">
+                    <select id="tour-sort-select" name="sort" class="form-select">
                         <option value="upcoming" {{ request('sort') == 'upcoming' ? 'selected' : '' }}>Upcoming Departures</option>
                         <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
                         <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Price: High to Low</option>

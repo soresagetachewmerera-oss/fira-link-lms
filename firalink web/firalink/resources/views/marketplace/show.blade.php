@@ -11,8 +11,8 @@
 @endpush
 
 @section('content')
-<div class="min-h-screen bg-gray-50/50 py-10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-[#F9F7FA] py-10">
+    <div class="max-w-[1200px] mx-auto px-6 max-sm:px-4">
         
         <!-- Breadcrumbs -->
         <nav class="flex items-center gap-2 text-xs text-gray-500 mb-6">
@@ -31,7 +31,7 @@
             <div class="lg:col-span-2 space-y-8">
                 
                 <!-- Main Visual Card -->
-                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-200">
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-200">
                     <div class="relative h-96 bg-gray-900 overflow-hidden">
                         @if($listing->primaryImage && $listing->primaryImage->url)
                             <img src="{{ $listing->primaryImage->url }}" alt="{{ $listing->title }}" class="w-full h-full object-cover">
@@ -78,7 +78,7 @@
                 </div>
 
                 <!-- Lot Overview & Description -->
-                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-200 space-y-6">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 space-y-6">
                     <div>
                         <div class="flex items-center gap-2 text-xs font-semibold text-[#6D1A95] uppercase tracking-wider mb-2">
                             <span>Specialty Grade {{ str_replace('grade_', '', $listing->grade) }}</span>
@@ -183,7 +183,7 @@
             <div class="space-y-6">
                 
                 <!-- Commercial Action Card -->
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-200 space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-6">
                     <div>
                         <span class="text-xs text-gray-400 uppercase font-semibold">Indicative FOB Djibouti Price</span>
                         <div class="mt-1 flex items-baseline gap-2">
@@ -247,7 +247,7 @@
                 </div>
 
                 <!-- Verified Exporter Profile Card -->
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-200 space-y-4">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-4">
                     <div class="flex items-start justify-between">
                         <div>
                             <span class="text-[11px] text-gray-400 uppercase font-semibold">Exporter & Producer</span>
@@ -295,7 +295,7 @@
 
 <!-- Sample Request Modal -->
 <div id="sample-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-gray-100">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-gray-100">
         <div class="flex items-center justify-between pb-4 border-b border-gray-100">
             <h3 class="text-lg font-bold text-gray-900">Request Green Coffee Sample</h3>
             <button type="button" onclick="document.getElementById('sample-modal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
@@ -337,7 +337,7 @@
 
 <!-- Commercial Inquiry Modal -->
 <div id="inquiry-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-gray-100">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-gray-100">
         <div class="flex items-center justify-between pb-4 border-b border-gray-100">
             <h3 class="text-lg font-bold text-gray-900">Commercial Trade Inquiry</h3>
             <button type="button" onclick="document.getElementById('inquiry-modal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">

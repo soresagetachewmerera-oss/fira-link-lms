@@ -13,7 +13,7 @@ class LegalController extends Controller
     public function privacy(): View
     {
         $pageTitle = 'Privacy Policy';
-        $metaDescription = 'Review the official privacy policy and data governance practices of Fira Link Academy and Fira Link Business Solution.';
+        $metaDescription = 'Review the official privacy policy and data governance practices of Fira Link Platform and Fira Link Business Solution.';
         $breadcrumbs = [
             'Privacy Policy' => route('privacy'),
         ];
@@ -27,7 +27,7 @@ class LegalController extends Controller
     public function terms(): View
     {
         $pageTitle = 'Terms of Service';
-        $metaDescription = 'Terms of service, course enrollment rules, intellectual property, and refund policies for Fira Link Academy.';
+        $metaDescription = 'Terms of service, course enrollment rules, intellectual property, and refund policies for Fira Link Platform.';
         $breadcrumbs = [
             'Terms of Service' => route('terms'),
         ];

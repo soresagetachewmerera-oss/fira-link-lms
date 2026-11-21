@@ -135,7 +135,7 @@ class CoursesController extends Controller
             ]);
         }
 
-        $brandName = config('seo.brand_name', 'Fira Link Academy');
+        $brandName = config('seo.brand_name', 'Fira Link Platform');
         $breadcrumbs = [
             ['name' => 'Home', 'url' => url('/')],
             ['name' => 'Courses', 'url' => url('/courses')],
@@ -225,7 +225,7 @@ class CoursesController extends Controller
         ];
 
         return view('courses.show', [
-            'pageTitle' => $course->title . ' | ' . config('seo.brand_name', 'Fira Link Academy'),
+            'pageTitle' => $course->title . ' | ' . config('seo.brand_name', 'Fira Link Platform'),
             'metaDescription' => $metaDescription,
             'breadcrumbs' => $breadcrumbs,
             'course' => $course,

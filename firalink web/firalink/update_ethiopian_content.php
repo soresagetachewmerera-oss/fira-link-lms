@@ -134,7 +134,7 @@ $eventUpdates = [
             'category' => 'Professional Workshop',
             'badge' => 'Certified Training',
             'video_url' => 'https://www.youtube.com/watch?v=Pu9Gujy0Bas',
-            'organizer' => 'Specialty Coffee Association (SCA) & Fira Link Academy',
+            'organizer' => 'Specialty Coffee Association (SCA) & Fira Link Platform',
         ],
     ],
     4 => [

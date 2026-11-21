@@ -33,6 +33,7 @@
                                                 <input type="hidden" name="instructor" value="{{ request('instructor') }}">
                                             @endif
                                             <input type="text" id="courseSearchInput" name="search"
+                                                aria-label="{{ __('frontend.search_courses') }}"
                                                 placeholder="{{ __('frontend.search_courses') }}" value="{{ request('search') }}">
                                             <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
                                         </form>

@@ -15,23 +15,23 @@
             <form action="{{ route('events.index') }}" method="GET" class="row g-3 align-items-end">
                 <!-- Search Input -->
                 <div class="col-lg-5 col-md-6 col-12">
-                    <label class="fira-filter-label">
+                    <label class="fira-filter-label" for="event-search-input">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <span>Search Events &amp; Venues</span>
                     </label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by conference, venue, keyword...">
+                        <input type="text" id="event-search-input" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by conference, venue, keyword...">
                     </div>
                 </div>
 
                 <!-- Event Type (Free / Paid) -->
                 <div class="col-lg-3 col-md-6 col-12">
-                    <label class="fira-filter-label">
+                    <label class="fira-filter-label" for="event-pass-select">
                         <i class="fa-solid fa-ticket"></i>
                         <span>Event Pass Type</span>
                     </label>
-                    <select name="type" class="form-select">
+                    <select id="event-pass-select" name="type" class="form-select">
                         <option value="">All Event Passes</option>
                         <option value="free" {{ request('type') == 'free' ? 'selected' : '' }}>Free Entry &amp; Public Summits</option>
                         <option value="paid" {{ request('type') == 'paid' ? 'selected' : '' }}>VIP &amp; Paid Masterclasses</option>
@@ -40,11 +40,11 @@
 
                 <!-- Sort Dropdown -->
                 <div class="col-lg-3 col-md-6 col-12">
-                    <label class="fira-filter-label">
+                    <label class="fira-filter-label" for="event-sort-select">
                         <i class="fa-solid fa-arrow-down-short-wide"></i>
                         <span>Sort Schedule</span>
                     </label>
-                    <select name="sort" class="form-select">
+                    <select id="event-sort-select" name="sort" class="form-select">
                         <option value="upcoming" {{ request('sort') == 'upcoming' ? 'selected' : '' }}>Upcoming Dates First</option>
                         <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Ticket Price: Low to High</option>
                         <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Ticket Price: High to Low</option>
@@ -365,7 +365,7 @@
             <div class="row align-items-center g-4">
                 <div class="col-lg-8 col-12">
                     <div class="fira-cta-content">
-                        <h3>Host an Event or Partner With Fira Link Academy</h3>
+                        <h3>Host an Event or Partner With Fira Link Platform</h3>
                         <p>
                             Looking to host a sector symposium, corporate masterclass, or cupping competition? Utilize our state-of-the-art training auditoriums, coffee sensory laboratories, and hybrid streaming infrastructure.
                         </p>

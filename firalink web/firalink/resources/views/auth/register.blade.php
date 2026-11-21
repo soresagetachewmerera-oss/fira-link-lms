@@ -2,17 +2,7 @@
 
 @section('content')
     <!-- Register Section Start -->
-    <section class="mhq-hero-section fix mhq-hero-1 bg-cover pt-6"
-        style="background-image: url('{{ asset('assets/front/img/home-1/hero/hero-bg.jpg') }}');">
-        <div class="hero-shape-1 float-bob-x">
-            <img src="{{ asset('assets/front/img/home-1/hero/shape-01.png') }}" alt="" aria-hidden="true">
-        </div>
-        <div class="hero-shape-2 float-bob-y">
-            <img src="{{ asset('assets/front/img/home-1/hero/shape-02.png') }}" alt="" aria-hidden="true">
-        </div>
-        <div class="hero-shape-3 float-bob-y">
-            <img src="{{ asset('assets/front/img/home-1/hero/shape-03.png') }}" alt="" aria-hidden="true">
-        </div>
+    <section class="mhq-hero-section fix mhq-hero-1 pt-6 pb-6" style="background: #F9F7FA; min-height: 85vh; display: flex; align-items: center;">
         <div class="container">
             <div class="row justify-content-center align-items-center">
                 <div class="col-lg-7 col-md-9">
@@ -22,7 +12,7 @@
                             <a href="{{ route('home') }}" class="register-logo mb-3">
                                 <img src="{{ branding_asset(['dark_logo_path', 'logos.secondary', 'primary_logo_path', 'logos.primary'], 'assets/front/img/logo/black-logo.svg') }}" alt="{{ $siteName }} logo">
                             </a>
-                            <h2 class="wow fadeInUp" data-wow-delay=".2s">{{ __('auth.create_your_account') }}</h2>
+                            <h1 class="wow fadeInUp" data-wow-delay=".2s" style="font-size: 1.75rem; font-weight: 700; color: #1E1B4B;">{{ __('auth.create_your_account') }}</h1>
                             <p class="wow fadeInUp" data-wow-delay=".3s">{{ __('auth.join_learners') }}</p>
                         </div>
 

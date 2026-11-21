@@ -19,7 +19,7 @@ class PricingController extends Controller
             ->get();
 
         $pageTitle = 'Pricing';
-        $metaDescription = 'Transparent course tuition, professional trade certification fees, and free business tools pricing at Fira Link Academy in Ethiopia.';
+        $metaDescription = 'Transparent course tuition, professional trade certification fees, and free business tools pricing at Fira Link Platform in Ethiopia.';
 
         $breadcrumbs = [
             'Pricing' => route('pricing'),

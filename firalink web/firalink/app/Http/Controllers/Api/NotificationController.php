@@ -105,7 +105,7 @@ class NotificationController extends Controller
     public function testPushNotification(Request $request, FcmService $fcmService)
     {
         $user = $request->user();
-        $title = $request->input('title', 'Fira Link Academy Test');
+        $title = $request->input('title', 'Fira Link Platform Test');
         $body  = $request->input('body', 'Push notifications are working properly on your device!');
         $data  = [
             'type' => 'test',

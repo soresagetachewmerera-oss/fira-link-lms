@@ -20,7 +20,7 @@
                     Four Professional Import-Export Tracks
                 </h2>
                 <p class="text-secondary" style="font-size: 17px; line-height: 1.7; max-width: 780px; margin: 0 auto;">
-                    Fira Link Academy delivers industry-backed training tracks built specifically for entrepreneurs, commercial traders, and logistics professionals operating across Ethiopia and the greater East African economic corridors.
+                    Fira Link Platform delivers industry-backed training tracks built specifically for entrepreneurs, commercial traders, and logistics professionals operating across Ethiopia and the greater East African economic corridors.
                 </p>
             </div>
         </div>
@@ -144,10 +144,10 @@
         <div class="p-4 p-md-5 rounded-4 mb-5" style="background: linear-gradient(135deg, #2A0845 0%, #6D1A95 100%); color: #FFFFFF;">
             <div class="row align-items-center">
                 <div class="col-lg-8">
-                    <span class="text-uppercase fw-bold text-warning small">Why Fira Link Academy</span>
+                    <span class="text-uppercase fw-bold text-warning small">Why Fira Link Platform</span>
                     <h3 class="fw-bold mt-2 text-white" style="font-size: 28px;">Grounded in Real Trade, Not Just Theory</h3>
                     <p class="text-white-50 mt-3" style="font-size: 16px; line-height: 1.7;">
-                        Unlike generic academic business courses, every program at Fira Link Academy is authored by experienced import-export practitioners and coffee exporters. Learners participate in case studies based on authentic commercial documents, interactive cargo cost calculators, and field expeditions to origin washing stations and dry ports.
+                        Unlike generic academic business courses, every program at Fira Link Platform is authored by experienced import-export practitioners and coffee exporters. Learners participate in case studies based on authentic commercial documents, interactive cargo cost calculators, and field expeditions to origin washing stations and dry ports.
                     </p>
                 </div>
                 <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">

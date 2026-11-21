@@ -515,7 +515,7 @@ class CoffeeMarketService
             }
         }
 
-        $prompt = "You are Fira AI, the Ethiopian coffee export intelligence assistant of Fira Link Academy.
+        $prompt = "You are Fira AI, the Ethiopian coffee export intelligence assistant of Fira Link Platform.
 
 The following is VERIFIED current market data. Analyze it accurately without inventing numbers.
 

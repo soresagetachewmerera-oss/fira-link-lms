@@ -40,7 +40,7 @@
 }
 
 .tools-page-root .container {
-    max-width: 1280px;
+    max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
     padding-left: 24px;

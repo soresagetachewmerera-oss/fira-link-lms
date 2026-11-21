@@ -1,4 +1,4 @@
-// File generated for Fira Link Academy (Firebase Project: fira-link)
+// File generated for Fira Link Platform (Firebase Project: fira-link)
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;

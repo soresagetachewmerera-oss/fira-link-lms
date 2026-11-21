@@ -17,10 +17,17 @@
                 </div>
             </div>
             <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
-                <a href="{{ route('student.courses.completion', $course->id) }}" class="theme-btn"
-                    style="background: white; color: var(--theme); border: none; padding: 12px 30px; font-weight: 600;">
-                    <i class="fas fa-certificate me-2"></i> {{ __('student.view_certificate') }}
-                </a>
+                @if ($course->pricing_model !== 'free')
+                    <a href="{{ route('student.courses.completion', $course->id) }}" class="theme-btn"
+                        style="background: white; color: var(--theme); border: none; padding: 12px 30px; font-weight: 600;">
+                        <i class="fas fa-certificate me-2"></i> {{ __('student.view_certificate') }}
+                    </a>
+                @else
+                    <a href="{{ route('courses') }}" class="theme-btn"
+                        style="background: white; color: var(--theme); border: none; padding: 12px 30px; font-weight: 600;">
+                        <i class="fas fa-arrow-right me-2"></i> Explore More Courses
+                    </a>
+                @endif
             </div>
         </div>
     </div>

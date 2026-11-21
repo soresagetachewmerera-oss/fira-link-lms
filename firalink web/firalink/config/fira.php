@@ -4,7 +4,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Fira Link Academy Introduction Video Configuration
+    | Fira Link Platform Introduction Video Configuration
     |--------------------------------------------------------------------------
     |
     | Centralized configuration for the 2-minute introductory platform video.
@@ -20,7 +20,7 @@ return [
         'duration_iso' => 'PT1M20S',
         'badge'        => '2-MINUTE PLATFORM OVERVIEW',
         'title'        => 'Discover What You Can Do With Fira Link',
-        'subtitle'     => 'See how Ethiopia\'s leading trade academy helps you master supplier sourcing, customs clearance, port logistics, and scale your import & export ventures.',
+        'subtitle'     => 'See how Ethiopia\'s leading trade platform helps you master supplier sourcing, customs clearance, port logistics, and scale your import & export ventures.',
         'cta_label'    => 'Watch 2-Minute Introduction',
     ],
 

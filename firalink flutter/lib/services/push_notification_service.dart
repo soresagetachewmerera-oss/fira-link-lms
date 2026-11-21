@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../firebase_options.dart';
 import '../router/app_router.dart';
 import 'notification_service.dart';
+import 'push_routes.dart';
 
 /// Top-level background notification handler required by Firebase Messaging.
 @pragma('vm:entry-point')
@@ -28,6 +29,9 @@ class PushNotificationService {
 
   static const String _fcmTokenKey = 'cached_fcm_token';
   bool _isInitialized = false;
+
+  /// App language for channel names (messaging slice 4).
+  String _lang = 'en';
 
   /// High importance notification channel for Android heads-up alerts
   static const AndroidNotificationChannel _highPriorityChannel = AndroidNotificationChannel(
@@ -142,6 +146,12 @@ class PushNotificationService {
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidPlugin != null) {
       await androidPlugin.createNotificationChannel(_highPriorityChannel);
+      // Messaging slice 4: one channel per kind of message (security, deals, learning, updates).
+      final prefs = await SharedPreferences.getInstance();
+      _lang = prefs.getString('language_code') ?? 'en';
+      for (final channel in PushChannels.all(_lang)) {
+        await androidPlugin.createNotificationChannel(channel);
+      }
     }
 
     // Set foreground notification presentation options for iOS
@@ -159,8 +169,10 @@ class PushNotificationService {
     final RemoteNotification? notification = message.notification;
     final Map<String, dynamic> data = message.data;
 
-    final String title = notification?.title ?? data['title'] ?? 'Fira Link Academy';
+    final String title = notification?.title ?? data['title'] ?? 'Fira Link Platform';
     final String body = notification?.body ?? data['message'] ?? data['body'] ?? '';
+
+    final channel = PushChannels.forData(data, _lang);
 
     _localNotifications.show(
       id: message.hashCode,
@@ -168,18 +180,20 @@ class PushNotificationService {
       body: body,
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
-          _highPriorityChannel.id,
-          _highPriorityChannel.name,
-          channelDescription: _highPriorityChannel.description,
-          importance: Importance.high,
-          priority: Priority.high,
+          channel.id,
+          channel.name,
+          channelDescription: channel.description,
+          importance: channel.importance,
+          priority: channel.importance == Importance.high ? Priority.high : Priority.defaultPriority,
           icon: '@mipmap/ic_launcher',
+          color: PushChannels.color,
           playSound: true,
         ),
-        iOS: const DarwinNotificationDetails(
+        iOS: DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,
+          threadIdentifier: data['thread']?.toString(),
         ),
       ),
       payload: jsonEncode(data),
@@ -246,9 +260,32 @@ class PushNotificationService {
   }
 
   /// Handle notification tap & deep link routing
+  /// A tap that arrived before the first screen was shown (cold start): opened right after it.
+  Map<String, dynamic>? _pendingTap;
+  bool _appReady = false;
+
+  /// Called by SplashWrapper once the first screen is on top.
+  void markAppReady() {
+    _appReady = true;
+    final pending = _pendingTap;
+    _pendingTap = null;
+    if (pending != null) handleNotificationTap(pending);
+  }
+
   void handleNotificationTap(Map<String, dynamic> data) {
     final navigator = AppRouter.navigatorKey.currentState;
-    if (navigator == null) return;
+    if (navigator == null || !_appReady) {
+      _pendingTap = data;
+      return;
+    }
+
+    // Catalogue messages (messaging slice 4): a known route and an id. Every private route goes
+    // through RequireSignIn, so a signed-out person signs in first and then lands on the target.
+    final target = PushTarget.fromData(data);
+    if (target != null) {
+      navigator.pushNamed(target.route, arguments: target.argument);
+      return;
+    }
 
     final String? type = data['type']?.toString();
     final String? courseId = data['course_id']?.toString();

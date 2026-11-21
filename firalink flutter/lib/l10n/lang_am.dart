@@ -2,7 +2,7 @@
 const Map<String, String> kLangAm = {
   'about': "ስለ እኛ",
   'aboutEvent': "ስለ ዝግጅቱ",
-  'aboutSubtitle': "ስለ ፊራ ሊንክ አካዳሚ የበለጠ ይወቁ",
+  'aboutSubtitle': "ስለ ፊራ ሊንክ ፕላትፎርም የበለጠ ይወቁ",
   'aboutThisBundle': "ስለዚህ ጥቅል",
   'aboutThisCourse': "ስለዚህ ኮርስ",
   'aboutThisEvent': "ስለዚህ ዝግጅት",

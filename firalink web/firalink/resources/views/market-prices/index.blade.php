@@ -12,11 +12,11 @@
 
 @push('styles')
 <style>
-    .prices-page { --prices-brand: var(--fira-primary); --prices-brand-dark: var(--fira-primary-dark); --prices-brand-tint: var(--fira-primary-tint);
-        --prices-ink: var(--fira-neutral-900); --prices-body: var(--fira-neutral-700); --prices-muted: var(--fira-neutral-500);
-        --prices-border: var(--fira-neutral-300); --prices-subtle: var(--fira-neutral-100);
+    .prices-page { --prices-brand: #6D1A95; --prices-brand-dark: #3B0764; --prices-brand-tint: #F3E8FF;
+        --prices-ink: #1E1B4B; --prices-body: #4A4658; --prices-muted: #6B7280;
+        --prices-border: #E9E4F0; --prices-subtle: #F9F7FA;
         min-height: 100vh; padding-bottom: 64px; color: var(--prices-body); background: #fff; font-family: 'Inter', sans-serif; }
-    .prices-container { width: min(calc(100% - 32px), 1280px); margin-inline: auto; }
+    .prices-container { width: 100%; max-width: 1200px; margin-inline: auto; padding-inline: 24px; }
     .prices-intro { padding: 48px 0 32px; border-bottom: 1px solid var(--prices-border); }
     .prices-breadcrumb { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; color: var(--prices-muted); font-size: 12px; }
     .prices-breadcrumb li + li::before { content: '/'; margin-right: 8px; color: var(--prices-border); }
@@ -71,7 +71,8 @@
     .prices-next-item p { margin: 5px 0 0; color: var(--prices-muted); font-size: 12px; line-height: 1.55; }
     .prices-page :is(button, a, tr):focus-visible { outline: 3px solid var(--prices-brand); outline-offset: 2px; }
     @media (max-width: 900px) { .prices-intro-grid, .prices-top, .prices-next { grid-template-columns: 1fr; } }
-    @media (max-width: 640px) { .prices-container { width: calc(100% - 32px); } .prices-intro { padding: 32px 0 24px; } .prices-section-head { flex-direction: column; align-items: start; gap: 8px; } .prices-btn { width: 100%; } }
+    @media (max-width: 767px) { .prices-container { padding-inline: 16px; } }
+    @media (max-width: 640px) { .prices-intro { padding: 32px 0 24px; } .prices-section-head { flex-direction: column; align-items: start; gap: 8px; } .prices-btn { width: 100%; } }
     @media (prefers-reduced-motion: no-preference) { .prices-range, .prices-btn { transition: background-color .2s ease-out, color .2s ease-out; } }
 </style>
 @endpush

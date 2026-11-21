@@ -3,10 +3,10 @@
 @php
     $isPrivate = true;
     $pageTitle = 'Page Not Found';
-    $metaDescription = 'The requested page was not found on Fira Link Academy. Explore our trade programs, certified courses, or return to the homepage.';
+    $metaDescription = 'The requested page was not found on Fira Link Platform. Explore our trade programs, certified courses, or return to the homepage.';
 @endphp
 
-@section('title', 'Page Not Found | Fira Link Academy')
+@section('title', 'Page Not Found | Fira Link Platform')
 
 @section('breadcrumb')
     @include('partials.breadcrumb', [
@@ -23,7 +23,7 @@
                     <img src="{{ asset('assets/front/img/404-img.png') }}" alt="404 illustration">
                 </div>
                 <h2 class="mt-4">Oops! The page you were looking for doesn’t exist.</h2>
-                <p class="mb-4">It might have been moved, renamed, or deleted. Use the links below to continue exploring Fira Link Academy:</p>
+                <p class="mb-4">It might have been moved, renamed, or deleted. Use the links below to continue exploring Fira Link Platform:</p>
                 <div class="d-flex justify-content-center flex-wrap gap-3 mb-4">
                     <a href="{{ route('home') }}" class="theme-btn">
                         Go To Homepage

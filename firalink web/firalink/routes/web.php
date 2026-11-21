@@ -264,6 +264,11 @@ Route::get('/subscriptions', fn() => redirect()->route('courses'))->name('subscr
 Route::get('/student/subscription', fn() => redirect()->route('student.dashboard'))->name('student.subscription');
 Route::post('/subscriptions/{id}/checkout', fn() => redirect()->route('courses'))->name('subscriptions.process-checkout');
 
+// Fira Link Design System v2.0 Live Styleguide & Component Lab
+Route::get('/styleguide', function () {
+    return view('styleguide');
+})->name('styleguide');
+
 // Slice 8: the payer's own bank slip, private disk, signed link from Payment::receipt_url.
 Route::get('/payments/{payment}/receipt', [\App\Http\Controllers\Api\PaymentController::class, 'showReceipt'])
     ->middleware(['auth', 'signed'])->whereNumber('payment')->name('payments.receipt.show');

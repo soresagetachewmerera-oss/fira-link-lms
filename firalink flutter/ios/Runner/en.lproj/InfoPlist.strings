@@ -1,4 +1,4 @@
-"CFBundleDisplayName" = "Fira Link Academy";
+"CFBundleDisplayName" = "Fira Link Platform";
 "CFBundleName" = "Fira Link";
 "NSCameraUsageDescription" = "Fira Link uses the camera to photograph payment receipts, capture coffee lot evidence, and scan business verification documents.";
 "NSPhotoLibraryUsageDescription" = "Fira Link requires access to your photo library to upload bank payment slips, coffee lot evidence photos, and business verification documents.";

@@ -85,7 +85,7 @@ HTML,
     <li><strong>Baraka:</strong> The third and final round, known as the cup of blessing, sealing the gathering with goodwill.</li>
 </ol>
 
-<p>Through the <strong>Fira Link Academy</strong> and Origin Tours, international coffee professionals are immersed in this living heritage, discovering that the true essence of specialty coffee was mastered centuries ago in the Ethiopian highlands.</p>
+<p>Through the <strong>Fira Link Platform</strong> and Origin Tours, international coffee professionals are immersed in this living heritage, discovering that the true essence of specialty coffee was mastered centuries ago in the Ethiopian highlands.</p>
 HTML,
                 'featured_image' => 'storage/blogs/blog-2-traditional-ethiopian-jebena-ceremony.jpg',
                 'tags' => ['jebena', 'ethiopian-coffee', 'culture', 'buna', 'heritage', 'habesha'],

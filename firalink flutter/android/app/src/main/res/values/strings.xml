@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Fira Link Academy</string>
+    <string name="app_name">Fira Link Platform</string>
     <string name="notification_channel_name">Fira Link Notifications</string>
     <string name="notification_channel_description">Course alerts, market rates, and updates</string>
 </resources>

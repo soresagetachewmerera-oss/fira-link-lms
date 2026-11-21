@@ -22,12 +22,12 @@
                     <div class="legal-content text-secondary" style="font-size: 15px; line-height: 1.8;">
                         <h2 class="h5 fw-bold text-dark mt-4 mb-2">1. Agreement to Terms</h2>
                         <p>
-                            By creating an account, enrolling in a training course, reserving a tour, or accessing free export calculators on Fira Link Academy (operated by Fira Link Business Solution), you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you must discontinue using our services immediately.
+                            By creating an account, enrolling in a training course, reserving a tour, or accessing free export calculators on Fira Link Platform (operated by Fira Link Business Solution), you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you must discontinue using our services immediately.
                         </p>
 
                         <h2 class="h5 fw-bold text-dark mt-4 mb-2">2. Educational Services &amp; Account Responsibility</h2>
                         <p>
-                            Fira Link Academy provides digital learning modules, commercial trade documentation guides, export calculators, and organized origin tours. You agree to provide accurate registration details and maintain the security of your credentials. Sharing account access with third parties is strictly prohibited and may result in immediate license termination without refund.
+                            Fira Link Platform provides digital learning modules, commercial trade documentation guides, export calculators, and organized origin tours. You agree to provide accurate registration details and maintain the security of your credentials. Sharing account access with third parties is strictly prohibited and may result in immediate license termination without refund.
                         </p>
 
                         <h2 class="h5 fw-bold text-dark mt-4 mb-2">3. Intellectual Property Rights</h2>
@@ -42,7 +42,7 @@
 
                         <h2 class="h5 fw-bold text-dark mt-4 mb-2">5. Disclaimer of Trade Warranties</h2>
                         <p>
-                            While our courses are authored by active trade practitioners and designed to reflect accurate regulatory protocols, international trade conditions fluctuate. Fira Link Academy does not guarantee specific commercial revenue, foreign exchange allocations, or customs clearance approvals for individual private enterprises. Learners remain responsible for their independent commercial contracts.
+                            While our courses are authored by active trade practitioners and designed to reflect accurate regulatory protocols, international trade conditions fluctuate. Fira Link Platform does not guarantee specific commercial revenue, foreign exchange allocations, or customs clearance approvals for individual private enterprises. Learners remain responsible for their independent commercial contracts.
                         </p>
 
                         <h2 class="h5 fw-bold text-dark mt-4 mb-2">6. Governing Law &amp; Jurisdiction</h2>

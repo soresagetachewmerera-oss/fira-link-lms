@@ -68,7 +68,7 @@ class BlogController extends Controller
 
         $meta = frontend_meta('blog', null, []);
 
-        $brandName = config('seo.brand_name', 'Fira Link Academy');
+        $brandName = config('seo.brand_name', 'Fira Link Platform');
         $breadcrumbs = [
             ['name' => 'Home', 'url' => url('/')],
             ['name' => 'Blog', 'url' => url('/blog')],
@@ -101,7 +101,7 @@ class BlogController extends Controller
             ->where('slug', $slug)
             ->firstOrFail();
 
-        $brandName = config('seo.brand_name', 'Fira Link Academy');
+        $brandName = config('seo.brand_name', 'Fira Link Platform');
         $breadcrumbs = [
             ['name' => 'Home', 'url' => url('/')],
             ['name' => 'Blog', 'url' => url('/blog')],

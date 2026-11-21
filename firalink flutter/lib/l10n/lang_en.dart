@@ -2,7 +2,7 @@
 const Map<String, String> kLangEn = {
   'about': "About",
   'aboutEvent': "About Event",
-  'aboutSubtitle': "Learn more about Fira Link Academy",
+  'aboutSubtitle': "Learn more about Fira Link Platform",
   'aboutThisBundle': "About This Bundle",
   'aboutThisCourse': "About This Course",
   'aboutThisEvent': "About This Event",

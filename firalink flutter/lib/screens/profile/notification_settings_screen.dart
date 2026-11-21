@@ -29,7 +29,7 @@ class _NotificationSettingsScreenState
     setState(() => _isSendingTest = true);
     try {
       final res = await _notificationService.sendTestPush(
-        title: 'Fira Link Academy',
+        title: 'Fira Link Platform',
         body: 'Push notification received successfully! ??',
       );
       if (mounted) {

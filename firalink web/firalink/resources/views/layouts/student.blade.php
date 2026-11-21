@@ -52,7 +52,6 @@
     <div class="mouseCursor cursor-inner"></div>
 
     @include('partials.mobile-nav')
-    @include('partials.header-top')
     @include('partials.header')
 
 

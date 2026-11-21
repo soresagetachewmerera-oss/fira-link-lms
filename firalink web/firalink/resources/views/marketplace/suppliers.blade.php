@@ -9,19 +9,19 @@
 @push('styles')
 <style>
     .marketplace-page {
-        --mkt-brand: #6d1a95;
-        --mkt-brand-dark: #51126f;
-        --mkt-brand-soft: #f7f0fa;
-        --mkt-brand-border: #e8d5f2;
-        --mkt-ink: #18141b;
-        --mkt-body: #544c59;
-        --mkt-muted: #746b79;
-        --mkt-line: #e9e5eb;
-        --mkt-surface: #ffffff;
+        --mkt-brand: #6D1A95;
+        --mkt-brand-dark: #3B0764;
+        --mkt-brand-soft: #F3E8FF;
+        --mkt-brand-border: #E9E4F0;
+        --mkt-ink: #1E1B4B;
+        --mkt-body: #4A4658;
+        --mkt-muted: #6B7280;
+        --mkt-line: #E9E4F0;
+        --mkt-surface: #FFFFFF;
         min-height: 100vh;
         padding-bottom: 72px;
         color: var(--mkt-ink);
-        background: #faf9fb;
+        background: #F9F7FA;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
@@ -30,8 +30,10 @@
     }
 
     .mkt-shell {
-        width: min(100% - 40px, 1320px);
+        width: 100%;
+        max-width: 1200px;
         margin-inline: auto;
+        padding-inline: 24px;
     }
 
     /* Hero Section */
@@ -837,7 +839,7 @@
 
     @media (max-width: 767px) {
         .mkt-shell {
-            width: min(100% - 24px, 1320px);
+            padding-inline: 16px;
         }
 
         .mkt-hero {

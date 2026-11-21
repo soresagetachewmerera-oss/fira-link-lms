@@ -66,17 +66,17 @@ HTML,
             [
                 'title' => 'Request Account & Data Deletion',
                 'slug' => 'delete-account',
-                'description' => 'Instructions and public request channels for deleting your Fira Link Academy account and associated personal data in accordance with Google Play developer policies.',
+                'description' => 'Instructions and public request channels for deleting your Fira Link Platform account and associated personal data in accordance with Google Play developer policies.',
                 'content' => <<<HTML
 <div class="account-deletion-container" style="max-width: 850px; margin: 0 auto; line-height: 1.7;">
     <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; padding: 32px 24px; border-radius: 12px; margin-bottom: 30px; text-align: center;">
         <h1 style="color: white; margin: 0 0 10px 0; font-size: 28px;">Account and Associated Data Deletion</h1>
-        <p style="margin: 0; font-size: 16px; opacity: 0.95;">Fira Link Academy — Google Play Policy & Data Privacy Compliance</p>
+        <p style="margin: 0; font-size: 16px; opacity: 0.95;">Fira Link Platform — Google Play Policy & Data Privacy Compliance</p>
     </div>
 
     <section style="margin-bottom: 28px;">
         <h2 style="color: #1e293b; font-size: 22px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">1. Overview & Your Rights</h2>
-        <p>At <strong>Fira Link Academy</strong> (operated by <strong>Fira Link Business Solution</strong>), we respect your fundamental right to control your personal data and digital footprint. In full compliance with Google Play Store Developer Policies, GDPR, and data protection laws, any user who has registered an account through our mobile app (<code>com.firalink.academy</code>) or web platform can request the permanent deletion of their account and all associated personal data at any time.</p>
+        <p>At <strong>Fira Link Platform</strong> (operated by <strong>Fira Link Business Solution</strong>), we respect your fundamental right to control your personal data and digital footprint. In full compliance with Google Play Store Developer Policies, GDPR, and data protection laws, any user who has registered an account through our mobile app (<code>com.firalink.academy</code>) or web platform can request the permanent deletion of their account and all associated personal data at any time.</p>
         <p>You do <strong>not</strong> need to have the app currently installed on your device to submit a deletion request.</p>
     </section>
 
@@ -86,7 +86,7 @@ HTML,
             <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; background-color: #f8fafc;">
                 <h3 style="color: #2563eb; margin-top: 0; font-size: 18px;">Option A: In-App Request (Recommended if you have the app)</h3>
                 <ol style="margin-bottom: 0; padding-left: 20px;">
-                    <li>Open the <strong>Fira Link Academy</strong> application on your Android device.</li>
+                    <li>Open the <strong>Fira Link Platform</strong> application on your Android device.</li>
                     <li>Log in to your account and tap on the <strong>Profile / Settings</strong> tab.</li>
                     <li>Scroll down to the account management section and tap <strong>Delete Account</strong>.</li>
                     <li>Confirm your request. Your account deletion will be queued immediately.</li>
@@ -97,7 +97,7 @@ HTML,
                 <h3 style="color: #2563eb; margin-top: 0; font-size: 18px;">Option B: Web or Email Request (No App Installation Required)</h3>
                 <p>If you have uninstalled the app or cannot access your device, you can request account and data deletion through any of the following direct channels:</p>
                 <ul>
-                    <li><strong>Direct Email:</strong> Send an email to <a href="mailto:support@fira-link.com" style="color: #2563eb; font-weight: 600;">support@fira-link.com</a> or <a href="mailto:contact@fira-link.com" style="color: #2563eb; font-weight: 600;">contact@fira-link.com</a> with the subject: <code>Account Deletion Request - Fira Link Academy</code>. Please include the registered email address or phone number associated with your account.</li>
+                    <li><strong>Direct Email:</strong> Send an email to <a href="mailto:support@fira-link.com" style="color: #2563eb; font-weight: 600;">support@fira-link.com</a> or <a href="mailto:contact@fira-link.com" style="color: #2563eb; font-weight: 600;">contact@fira-link.com</a> with the subject: <code>Account Deletion Request - Fira Link Platform</code>. Please include the registered email address or phone number associated with your account.</li>
                     <li><strong>Web Contact Form:</strong> Visit our official web contact form at <a href="https://lms.fira-link.com/contact" target="_blank" style="color: #2563eb; font-weight: 600;">https://lms.fira-link.com/contact</a> and specify your account deletion request.</li>
                     <li><strong>Support Phone:</strong> Reach our customer support team at <span style="font-weight: 600;">+251 91 122 3344</span>.</li>
                 </ul>

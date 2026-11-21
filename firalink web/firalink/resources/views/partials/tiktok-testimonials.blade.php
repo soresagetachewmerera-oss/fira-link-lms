@@ -14,13 +14,11 @@
     <div class="container">
         
         <!-- 1. Centered Section Header -->
-        <div class="fira-learner-header text-center wow fadeInUp" data-wow-delay=".1s">
-            <div class="fira-learner-badge">
-                <span>LEARNER STORIES</span>
-            </div>
-            
+        <div class="fira-learner-header text-center">
+            <p class="fira-route"><span class="fira-route__line" aria-hidden="true"><i></i><i></i><i></i></span>Learner stories</p>
+
             <h2 id="learner-stories-heading" class="fira-learner-heading">
-                What Learners Say About <span class="purple-highlight">Our Platform</span>
+                What learners say
             </h2>
             
             <p class="fira-learner-subheading">
@@ -28,10 +26,7 @@
             </p>
 
             <div class="fira-learner-sub-meta">
-                <span class="fira-verified-pill">
-                    <i class="fa-solid fa-circle-check text-success" aria-hidden="true"></i>
-                    <span>Learner video reviews</span>
-                </span>
+                <span class="fira-verified-pill">Learner video reviews</span>
                 <span class="fira-meta-dot" aria-hidden="true">•</span>
                 <a href="https://www.tiktok.com/@firaol_kebede_25" target="_blank" rel="noopener noreferrer" class="fira-channel-pill" title="Visit @firaol_kebede_25 on TikTok">
                     <svg class="fira-tiktok-svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -108,15 +103,15 @@
 
     <div class="container">
         <!-- Bottom Community Action Banner -->
-        <div class="fira-learner-bottom-cta text-center wow fadeInUp" data-wow-delay=".2s">
+        <div class="fira-learner-bottom-cta text-center">
             <div class="fira-learner-cta-box">
                 <div class="fira-cta-text">
                     <i class="fa-solid fa-graduation-cap fira-purple-icon" aria-hidden="true"></i>
-                    <span>Ready to master export operations, customs clearance, and global trade corridors?</span>
+                    <span>Learn export operations, customs clearance and the Djibouti corridor at your own pace</span>
                 </div>
                 <div class="fira-cta-buttons">
                     <a href="{{ route('courses') }}" class="theme-btn fira-btn-purple">
-                        Explore Programs <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                        Explore courses <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
                     </a>
                     <a href="https://www.tiktok.com/@firaol_kebede_25" target="_blank" rel="noopener noreferrer" class="fira-btn-outline-dark">
                         <svg class="fira-tiktok-svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

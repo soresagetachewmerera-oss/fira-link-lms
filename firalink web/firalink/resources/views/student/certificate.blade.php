@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course Completion Certificate | Fira Link Academy</title>
+    <title>Course Completion Certificate | Fira Link Platform</title>
     <style>
         @page {
             size: 297mm 235mm;
@@ -213,7 +213,7 @@
 
             <div class="certificate-content">
                 <div class="certificate-heading">
-                    <div style="font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: #6D1A95; font-weight: 700; margin-bottom: 5px;">Fira Link Academy</div>
+                    <div style="font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: #6D1A95; font-weight: 700; margin-bottom: 5px;">Fira Link Platform</div>
                     <h1 class="other-font" style="color: #6D1A95;">Course Completion Certificate</h1>
                     <p class="other-font">This certificate proudly acknowledges that</p>
                     <div class="recipient-name">{{ $student_name }}</div>
@@ -224,7 +224,7 @@
                     <div class="course-title">{{ $course_title }}</div>
                     <div class="course-subtitle">(Trade Training Masterclass)</div>
                     <div class="certificate-description">
-                        Completion of this program signifies professional dedication, rigorous practical study, and verified competency in international trade operations with Fira Link Academy. Art of Excellence!!
+                        Completion of this program signifies professional dedication, rigorous practical study, and verified competency in international trade operations with Fira Link Platform. Art of Excellence!!
                     </div>
                 </div>
 

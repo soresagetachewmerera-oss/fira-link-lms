@@ -63,7 +63,7 @@ class ContactController extends Controller
             })
             ->values();
 
-        $brandName = config('seo.brand_name', 'Fira Link Academy');
+        $brandName = config('seo.brand_name', 'Fira Link Platform');
         $contactConfig = config('seo.contact', []);
 
         if ($contactMethods->isEmpty()) {
@@ -94,7 +94,7 @@ class ContactController extends Controller
 
         $heroSettings = array_merge([
             'eyebrow' => 'Get in Touch',
-            'heading' => 'Connect With Fira Link Academy',
+            'heading' => 'Connect With Fira Link Platform',
             'description' => "Have questions about our trade curriculum, coffee origin expeditions, or corporate training partnerships? Reach out to our admissions and trade advisory team in Addis Ababa.",
         ], $heroSettings);
 

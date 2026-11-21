@@ -94,7 +94,7 @@ class HomeController extends Controller
             ->take(6)
             ->get()
             ->map(function (Course $course) {
-                $course->setAttribute('display_image', $this->resolveMedia($course->featured_image, 'assets/front/img/home-1/courses/courses-01.jpg'));
+                $course->setAttribute('display_image', $course->featured_image_url);
                 $course->setAttribute('instructor_avatar', $this->resolveMedia(optional($course->instructor)->profile_photo, 'assets/front/img/home-1/courses/client-01.png'));
                 $course->setAttribute('display_price', $this->resolvePrice($course));
                 $course->setAttribute('is_free', $course->pricing_model === 'free' || $course->getAttribute('display_price') <= 0);

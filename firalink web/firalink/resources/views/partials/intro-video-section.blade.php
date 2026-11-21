@@ -9,9 +9,6 @@
 <section id="intro-video-section" class="fira-video-section fira-only-video-section" aria-label="Fira Link Video Overview">
     <div class="container fira-video-container">
         <div class="fira-video-showcase-wrap">
-            <!-- Subtle Ambient Purple Glow -->
-            <div class="fira-video-ambient-glow" aria-hidden="true"></div>
-
             <!-- Fully Responsive Video Player Container (16:9 Aspect Ratio) -->
             <div class="fira-video-player-container">
                 <video 

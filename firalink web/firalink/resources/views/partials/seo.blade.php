@@ -7,20 +7,20 @@
     $isPrivate = ($isPrivate ?? false) || request()->is('admin*', 'student*', 'instructor*', 'login*', 'register*', 'password*', 'checkout*', 'payment*', 'cron*', 'verify*') || http_response_code() === 404;
 
     // Title formulation (50-60 characters ideal for SERP)
-    $siteBrand = config('seo.brand_name', 'Fira Link Academy');
+    $siteBrand = config('seo.brand_name', 'Fira Link Platform');
     if ($isHome) {
-        $finalTitle = 'Fira Link Academy | Learn Import & Export Business in Ethiopia';
+        $finalTitle = 'Fira Link Platform | Trade, Sourcing & Export Platform in Ethiopia';
     } elseif (!empty($pageTitle)) {
         $cleanTitle = trim($pageTitle);
         $finalTitle = str_contains($cleanTitle, $siteBrand) ? $cleanTitle : "{$cleanTitle} | {$siteBrand}";
     } else {
-        $finalTitle = "{$siteBrand} | Learn Import & Export Business in Ethiopia";
+        $finalTitle = "{$siteBrand} | Trade, Sourcing & Export Platform in Ethiopia";
     }
 
     // Description formulation (140-160 characters ideal)
     $finalDesc = !empty($metaDescription) 
         ? trim($metaDescription) 
-        : config('seo.default_description', 'Master practical import-export, customs clearance, port logistics, and global trade in Ethiopia and East Africa with Fira Link Academy. Explore programs today.');
+        : config('seo.default_description', 'Master practical import-export, customs clearance, port logistics, and global trade in Ethiopia and East Africa with Fira Link Platform. Explore programs today.');
 
     // OG Image
     $ogImage = !empty($metaImage) ? $seoService->normalizeUrl($metaImage) : url(config('seo.default_og_image', '/og-image.png'));

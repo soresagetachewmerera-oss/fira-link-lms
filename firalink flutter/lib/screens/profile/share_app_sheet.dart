@@ -53,7 +53,7 @@ class _ShareAppSheet extends StatelessWidget {
 
     // Using share_plus to share the app link
     // ignore: deprecated_member_use
-    Share.share('Check out Fira Link Academy! Practical Import-Export & International Trade Training: https://firalink.com');
+    Share.share('Check out Fira Link Platform! Practical Import-Export & International Trade Training: https://firalink.com');
   }
 
   @override
@@ -91,7 +91,7 @@ class _ShareAppSheet extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'Share Fira Link Academy',
+                'Share Fira Link Platform',
                 style: TextStyle(
                   color: AppTheme.getTextColor(context),
                   fontSize: 20,
@@ -188,7 +188,7 @@ class _ShareAppSheet extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            'Fira Link Academy',
+                            'Fira Link Platform',
                             style: TextStyle(
                               color: AppTheme.getTextColor(context),
                               fontSize: 16,

@@ -20,14 +20,18 @@
                             <div class="col-xl-6 col-lg-6 col-md-6 wow fadeInUp"
                                 data-wow-delay="{{ $enrollment['animation_delay'] }}s">
                                 <div class="mhq-courses-box-items mt-0">
-                                    <div class="mhq-courses-image">
-                                        @if ($enrollment['featured_image'])
-                                            <img src="{{ asset('storage/' . $enrollment['featured_image']) }}"
-                                                alt="{{ $enrollment['course_title'] }}">
-                                        @else
-                                            <img src="{{ asset('assets/front/img/home-1/courses/courses-01.jpg') }}"
-                                                alt="{{ $enrollment['course_title'] }}">
-                                        @endif
+                                    <div class="mhq-courses-image" style="aspect-ratio: 16 / 9; overflow: hidden; background: #f3f4f6;">
+                                        @php
+                                            $thumb = $enrollment['featured_image'] ?? null;
+                                            if ($thumb && (str_starts_with($thumb, 'http://') || str_starts_with($thumb, 'https://'))) {
+                                                $thumbUrl = $thumb;
+                                            } elseif ($thumb) {
+                                                $thumbUrl = asset('storage/' . ltrim($thumb, '/'));
+                                            } else {
+                                                $thumbUrl = asset('assets/front/img/home-1/courses/courses-01.jpg');
+                                            }
+                                        @endphp
+                                        <img src="{{ $thumbUrl }}" alt="{{ $enrollment['course_title'] }}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.onerror=null;this.src='{{ asset('assets/front/img/home-1/courses/courses-01.jpg') }}';">
                                         @if ($enrollment['course_category'])
                                             <span class="post-box">
                                                 {{ $enrollment['course_category'] }}

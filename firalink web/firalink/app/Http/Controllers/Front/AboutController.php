@@ -83,7 +83,7 @@ class AboutController extends Controller
                 return $review;
             });
 
-        $brandName = config('seo.brand_name', 'Fira Link Academy');
+        $brandName = config('seo.brand_name', 'Fira Link Platform');
         $parentName = config('seo.parent_organization', 'Fira Link Business Solution');
 
         $heroSettings = array_merge([

@@ -11,14 +11,9 @@
     <section class="mhq-courses-details-section section-padding">
         <div class="container">
             <div class="mhq-courses-details-area">
-                <div class="mhq-image wow fadeInUp" data-wow-delay=".3s" style="position: relative; overflow: hidden;">
-                    @if ($course->featured_image)
-                        <img src="{{ asset('storage/' . $course->featured_image) }}" alt="{{ $course->title }}"
-                            style="width: 100%; height: auto; display: block;">
-                    @else
-                        <img src="{{ asset('assets/front/img/inner/courses-details/courses-details.jpg') }}"
-                            alt="{{ $course->title }}" style="width: 100%; height: auto; display: block;">
-                    @endif
+                <div class="mhq-image wow fadeInUp" data-wow-delay=".3s" style="position: relative; overflow: hidden; border-radius: 20px; aspect-ratio: 16 / 9; max-height: 480px; background: #1E0533;">
+                    <img src="{{ $course->featured_image_url }}" alt="{{ $course->title }}"
+                        style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.onerror=null;this.src='{{ asset('assets/front/img/inner/courses-details/courses-details.jpg') }}';">
                     @if ($course->intro_video)
                         <div class="intro-video-overlay"
                             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s ease; cursor: pointer; z-index: 10;">
@@ -267,41 +262,22 @@
                                         <div id="Instructors" class="tab-pane fade" role="tabpanel">
                                             <div class="instructors-items">
                                                 <h3>{{ __('frontend.instructors') }}</h3>
-                                                @if ($course->instructor)
-                                                    <div class="instructors-box-items">
-                                                        <div class="thumb">
-                                                            @if ($course->instructor->profile_photo)
-                                                                <img src="{{ asset('storage/' . $course->instructor->profile_photo) }}"
-                                                                    alt="{{ $course->instructor->name }}" loading="lazy">
-                                                            @else
-                                                                <img src="{{ asset('assets/front/img/inner/courses-details/courses-01.png') }}"
-                                                                    alt="{{ $course->instructor->name }}" loading="lazy">
-                                                            @endif
-                                                        </div>
-                                                        <div class="content">
-                                                            <h4>{{ $course->instructor->name }}</h4>
-                                                            @if ($course->instructor->specialization)
-                                                                <span>{{ $course->instructor->specialization }}</span>
-                                                            @endif
-                                                            @if ($course->instructor->bio)
-                                                                <p>{{ $course->instructor->bio }}</p>
-                                                            @else
-                                                                <p>{{ __('frontend.instr_fallback_bio') }}</p>
-                                                            @endif
-                                                            <div class="social-icon">
-                                                                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                                                                <a href="#"><i class="fab fa-instagram"></i></a>
-                                                                <a href="#"><i class="fab fa-dribbble"></i></a>
-                                                                <a href="#"><i class="fab fa-behance"></i></a>
-                                                                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                                                            </div>
-                                                        </div>
+                                                @php
+                                                    $instructorName = $course->instructor?->name ?? 'Firaol Kebede';
+                                                    $instructorSpecialization = $course->instructor?->specialization ?? 'Lead Trade Mentor & Export Practitioner';
+                                                    $instructorBio = $course->instructor?->bio ?? 'Lead instructor and trade practitioner guiding entrepreneurs and exporters across Ethiopian agribusiness and global trade.';
+                                                    $instructorPhoto = $course->instructor?->profile_photo ? asset('storage/' . $course->instructor->profile_photo) : asset('assets/front/img/inner/courses-details/courses-01.png');
+                                                @endphp
+                                                <div class="instructors-box-items">
+                                                    <div class="thumb">
+                                                        <img src="{{ $instructorPhoto }}" alt="{{ $instructorName }}" loading="lazy">
                                                     </div>
-                                                @else
-                                                    <div class="alert alert-info">
-                                                        <p>{{ __('frontend.instr_not_available') }}</p>
+                                                    <div class="content">
+                                                        <h4>{{ $instructorName }}</h4>
+                                                        <span>{{ $instructorSpecialization }}</span>
+                                                        <p>{{ $instructorBio }}</p>
                                                     </div>
-                                                @endif
+                                                </div>
                                             </div>
                                         </div>
                                         @if ($totalReviews > 0 || $canReview)
@@ -576,7 +552,7 @@
                                             {{ ucfirst($course->language) }}
                                         </li>
                                     @endif
-                                    @if ($course->certifications || $course->certifications == '')
+                                    @if ($course->pricing_model !== 'free' && ($course->certifications || $course->certifications == 'yes'))
                                         <li>
                                             <span>
                                                 <i class="fas fa-certificate me-2"></i>
@@ -594,15 +570,13 @@
                                             {{ $course->schedule_date->format('d M, Y') }}
                                         </li>
                                     @endif
-                                    @if ($course->instructor)
-                                        <li>
-                                            <span>
-                                                <i class="far fa-user me-2"></i>
-                                                {{ __('frontend.instructor') }}
-                                            </span>
-                                            {{ $course->instructor->name }}
-                                        </li>
-                                    @endif
+                                    <li>
+                                        <span>
+                                            <i class="far fa-user me-2"></i>
+                                            {{ __('frontend.instructor') }}
+                                        </span>
+                                        {{ $course->instructor?->name ?? 'Firaol Kebede' }}
+                                    </li>
                                 </ul>
                                 @php
                                     $rawPrice = $course->sale_price ?? $course->regular_price;

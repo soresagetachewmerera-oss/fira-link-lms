@@ -1268,10 +1268,14 @@ class StudentCourseController extends Controller
 
         $course = Course::with('instructor')->findOrFail($courseId);
 
+        if ($course->pricing_model === 'free') {
+            abort(403, 'Certificates are not issued for free introductory courses.');
+        }
+
         $certificateData = [
             'student_name' => $user->name,
             'course_title' => $course->title,
-            'instructor_name' => $course->instructor->name,
+            'instructor_name' => $course->instructor?->name ?? 'Firaol Kebede',
             'completion_date' => $enrollment->updated_at->format('F d, Y'),
             'certificate_number' => 'CERT-' . str_pad($enrollment->id, 6, '0', STR_PAD_LEFT) . '-' . strtoupper(substr(md5($user->id . $course->id), 0, 6)),
             'background_base64' => $this->certificateBackgroundBase64(),

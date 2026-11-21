@@ -9,7 +9,7 @@ class AppConfig {
   const AppConfig._();
 
   /// Global app title
-  static const String appTitle = 'Fira Link Academy';
+  static const String appTitle = 'Fira Link Platform';
 
   /// App version
   static const String appVersion = '1.0.0';

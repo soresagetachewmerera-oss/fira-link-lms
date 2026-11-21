@@ -138,7 +138,7 @@
                     <span class="text-uppercase fw-bold text-muted small">Flexible Payment Methods</span>
                     <h3 class="h4 fw-bold text-dark mt-1">Pay Locally or Internationally With Ease</h3>
                     <p class="text-secondary mb-0" style="font-size: 15px; line-height: 1.7;">
-                        Fira Link Academy supports instant electronic settlement via Ethiopian commercial banks and modern fintech gateways. Whether you are paying from Addis Ababa or across the diaspora, enrollment is confirmed immediately upon transaction verification.
+                        Fira Link Platform supports instant electronic settlement via Ethiopian commercial banks and modern fintech gateways. Whether you are paying from Addis Ababa or across the diaspora, enrollment is confirmed immediately upon transaction verification.
                     </p>
                 </div>
                 <div class="col-lg-5 mt-4 mt-lg-0">

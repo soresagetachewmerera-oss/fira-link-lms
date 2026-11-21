@@ -117,7 +117,7 @@
     <table class="meta-table header">
         <tr>
             <td>
-                <div class="logo-title">FIRA LINK ACADEMY &amp; TRADE SUITE</div>
+                <div class="logo-title">FIRA LINK PLATFORM &amp; TRADE SUITE</div>
                 <div class="sub-title">Verified Ethiopian Coffee Export Offer</div>
                 <div style="margin-top: 6px; font-size: 11px; color: #475569;">
                     Exporter: <strong>{{ $offer->exporter_name }}</strong><br>
