@@ -20,8 +20,17 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
  *
  * @package App\Models
  */
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, \Illuminate\Contracts\Translation\HasLocalePreference
 {
+    /**
+     * The language for messages to this person (email, SMS, push, in-app): the saved app or site
+     * language, English when none or another one is stored (messaging slice 1).
+     */
+    public function preferredLocale(): string
+    {
+        return in_array($this->locale, ['en', 'am'], true) ? $this->locale : 'en';
+    }
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens, HasRoles, \Laravel\Fortify\TwoFactorAuthenticatable;
 

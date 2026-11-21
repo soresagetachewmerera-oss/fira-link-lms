@@ -43,8 +43,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(append: [
             \App\Http\Middleware\SetLocale::class,
             \App\Http\Middleware\EnsurePhoneIsVerified::class,
+            \App\Http\Middleware\RememberUserLocale::class,
         ]);
-        
+
         // Exclude payment callback routes, public AI chat, and public free tools from CSRF verification
         $middleware->validateCsrfTokens(except: [
             'payment/razorpay/callback',

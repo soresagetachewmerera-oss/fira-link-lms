@@ -19,12 +19,13 @@ class FcmChannel
      *
      * @param  mixed  $notifiable
      * @param  \Illuminate\Notifications\Notification  $notification
-     * @return void
+     * @return array|null the FCM result (success/failure/skipped counts), so the delivery log can
+     *                    record what really happened; null when there was nothing to send
      */
-    public function send($notifiable, Notification $notification): void
+    public function send($notifiable, Notification $notification): ?array
     {
         if (!method_exists($notifiable, 'deviceTokens')) {
-            return;
+            return null;
         }
 
         $payload = [];
@@ -40,14 +41,14 @@ class FcmChannel
         }
 
         if (empty($payload)) {
-            return;
+            return null;
         }
 
         $title = $payload['title'] ?? config('app.name', 'Fira Link LMS');
         $body  = $payload['body'] ?? $payload['message'] ?? '';
         $data  = $payload['data'] ?? [];
 
-        $this->fcmService->sendToUser($notifiable, $title, $body, $data);
+        return $this->fcmService->sendToUser($notifiable, $title, $body, $data);
     }
 }
 

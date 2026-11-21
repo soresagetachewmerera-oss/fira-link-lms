@@ -74,6 +74,21 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Messaging slice 1: every catalogue message and channel ends up in notification_deliveries.
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Notifications\Events\NotificationSent::class, function ($e) {
+            if ($e->notification instanceof \App\Notifications\FiraNotification) {
+                app(\App\Services\Notifications\DeliveryLog::class)->sent($e->notification, \App\Notifications\Catalog\Channel::fromDriver($e->channel) ?? $e->channel, $e->response);
+            }
+        });
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Notifications\Events\NotificationFailed::class, function ($e) {
+            if ($e->notification instanceof \App\Notifications\FiraNotification) {
+                $ex = is_array($e->data) ? ($e->data['exception'] ?? null) : null;
+                $code = $ex instanceof \App\Channels\SmsDeliveryFailed ? $ex->errorCode
+                    : (is_array($e->data) && isset($e->data['code']) ? (string) $e->data['code'] : ($ex ? class_basename($ex) : 'CHANNEL_FAILED'));
+                app(\App\Services\Notifications\DeliveryLog::class)->failed($e->notification, \App\Notifications\Catalog\Channel::fromDriver($e->channel) ?? $e->channel, $code);
+            }
+        });
+
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(160)->by($request->user()?->id ?: $request->ip());
         });

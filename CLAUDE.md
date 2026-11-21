@@ -246,6 +246,15 @@ Run on the production server **in this order**. Always run the dry run first and
       `php artisan market:ai-eval --live` against the real model. Blocked answers are logged as `market.ai_blocked`.
     - `/api/home` no longer sends the old "Market pulse" rows, and the old generated chart, tick and ticker
       endpoints answer 410. `coffee_market_benchmarks` rows are no longer shown anywhere.
+15. Messaging slice 1 (catalogue). `php artisan migrate` adds `notification_deliveries` (delivery log, no
+    bodies or codes), `notification_preferences` and `users.locale`, `quiet_hours_from`, `quiet_hours_until`.
+    Nothing is sent differently yet: existing messages keep their old code until their group is converted.
+    - Before the first group is converted, run a queue worker (`php artisan queue:work --tries=3`, supervised),
+      with `QUEUE_CONNECTION=database` or redis. Catalogue messages are queued; without a worker they wait.
+      Codes and reset links are sent immediately and do not need the worker.
+    - New code sends messages only through `App\Services\Notifications\Notifier` (catalogue
+      `App\Notifications\Catalog\NotificationType`); `tests/Feature/Messaging/CatalogueTest` fails on new direct
+      `Mail::to()` or SMS gateway calls.
 
 ## 4. Workflow per slice
 
