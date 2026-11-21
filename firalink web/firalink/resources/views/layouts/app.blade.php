@@ -67,15 +67,12 @@
         @include('partials.mobile-nav')
     @else
         @include('partials.mobile-nav')
-        @if(!request()->routeIs('home'))
-            @include('partials.header-top')
-        @endif
         @include('partials.header')
     @endif
 
     @yield('breadcrumb')
 
-    <main>
+    <main id="main-content" tabindex="-1">
         @yield('content')
     </main>
 
