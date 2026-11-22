@@ -137,10 +137,10 @@ def main():
         f"cd {REMOTE_PATH} && php artisan route:cache",
         f"cd {REMOTE_PATH} && php artisan view:cache",
         f"rm -f {remote_tar}",
-        "curl -s -IL https://lms.fira-link.com | head -n 15",
-        "curl -s -IL https://lms.fira-link.com/tours | head -n 15",
-        "curl -s -IL https://lms.fira-link.com/events | head -n 15",
-        "curl -s -IL https://lms.fira-link.com/marketplace | head -n 15",
+        "curl -s -IL https://fira-link.com | head -n 15",
+        "curl -s -IL https://fira-link.com/tours | head -n 15",
+        "curl -s -IL https://fira-link.com/events | head -n 15",
+        "curl -s -IL https://fira-link.com/marketplace | head -n 15",
     ]
 
     for c in commands:
@@ -149,7 +149,7 @@ def main():
             print(f"Warning: command returned code {code}")
 
     ssh.close()
-    print("\nLMS & WEB DEPLOYMENT FINISHED SUCCESSFULLY!")
+    print("\nFIRA-LINK.COM MAIN DOMAIN DEPLOYMENT FINISHED SUCCESSFULLY!")
 
 if __name__ == "__main__":
     main()
