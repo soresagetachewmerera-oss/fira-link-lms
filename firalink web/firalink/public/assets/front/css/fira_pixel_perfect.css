@@ -2201,6 +2201,15 @@ body.fira-modal-open {
     text-transform: capitalize !important;
 }
 
+.breadcrumb-wrapper .page-heading .breadcrumb-lead-text {
+    max-width: 660px !important;
+    margin: 0 auto 18px !important;
+    color: rgba(255, 255, 255, 0.90) !important;
+    font-size: clamp(0.95rem, 1.8vw, 1.125rem) !important;
+    line-height: 1.6 !important;
+    font-weight: 400 !important;
+}
+
 .breadcrumb-wrapper .page-heading .breadcrumb-items {
     display: inline-flex !important;
     align-items: center !important;

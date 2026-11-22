@@ -1,11 +1,17 @@
+@php
+    $bannerImage = $bg_image ?? asset('assets/front/img/inner/breadcrumb.jpg');
+@endphp
 <div class="breadcrumb-wrapper bg-cover"
-    style="background-image: url('{{ asset('assets/front/img/inner/breadcrumb.jpg') }}');">
+    style="background-image: url('{{ $bannerImage }}');">
     <div class="container">
         <div class="page-heading">
             <div class="breadcrumb-sub-title">
-                <h1 class="wow fadeInUp" data-wow-delay=".3s">{{ $page_title ?? 'Page Title' }}</h1>
+                <h1>{{ $page_title ?? 'Page Title' }}</h1>
             </div>
-            <ul class="breadcrumb-items wow fadeInUp" data-wow-delay=".5s">
+            @if(!empty($page_subtitle))
+                <p class="breadcrumb-lead-text">{{ $page_subtitle }}</p>
+            @endif
+            <ul class="breadcrumb-items">
                 <li>
                     <a href="{{ $base_url ?? '/' }}">
                         Home

@@ -1,7 +1,8 @@
 @extends('layouts.app')
 @section('breadcrumb')
     @include('partials.breadcrumb', [
-        'page_title' => 'Courses',
+        'page_title' => 'Practical Trade Courses',
+        'page_subtitle' => 'Master Ethiopian coffee export, cupping standards, quality grading, and international logistics.',
         'base_url' => route('home'),
     ])
 @endsection

@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     _entranceController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 800),
     );
 
     _fadeAnimation = CurvedAnimation(
@@ -29,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.08),
+      begin: const Offset(0, 0.06),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
@@ -56,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen>
       backgroundColor: isDark ? const Color(0xFF0F0B1E) : const Color(0xFFFAF7FC),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: Column(
             children: [
               const Spacer(flex: 3),
@@ -69,72 +69,74 @@ class _SplashScreenState extends State<SplashScreen>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Center Emblem Container
+                      // Official Center Emblem Jewel
                       Container(
-                        width: 96,
-                        height: 96,
+                        width: 92,
+                        height: 92,
                         decoration: BoxDecoration(
                           color: const Color(0xFF1E0533),
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                            color: fira.brandPrimary.withValues(alpha: 0.40),
+                            color: fira.brandPrimary.withValues(alpha: 0.35),
                             width: 1.5,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: fira.brandPrimary.withValues(alpha: 0.22),
+                              color: fira.brandPrimary.withValues(alpha: isDark ? 0.22 : 0.14),
                               blurRadius: 24,
                               offset: const Offset(0, 8),
                             ),
                           ],
                         ),
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(18),
                         child: Image.asset(
                           'assets/img/fira_emblem_white.png',
                           fit: BoxFit.contain,
                         ),
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 22),
 
                       // Brand Wordmark
-                      const Text(
+                      Text(
                         'FIRA LINK',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 26,
                           fontWeight: FontWeight.w800,
-                          letterSpacing: 3.5,
-                          color: Colors.white,
+                          letterSpacing: 4.0,
+                          color: isDark ? Colors.white : fira.onSurface,
                           fontFamily: 'Montserrat',
                         ),
                       ),
 
                       const SizedBox(height: 8),
 
-                      // Tagline
+                      // Brand Tagline
                       Text(
                         'The Gateway of African Trade & Excellence',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white.withValues(alpha: 0.70),
-                          letterSpacing: 0.4,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white.withValues(alpha: 0.70) : fira.mutedText,
+                          letterSpacing: 0.2,
                           fontFamily: 'Montserrat',
                         ),
                       ),
 
                       const SizedBox(height: 32),
 
-                      // Elegant Indeterminate Progress Bar
+                      // Quiet Indeterminate Progress Bar
                       SizedBox(
-                        width: 140,
+                        width: 120,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: LinearProgressIndicator(
                             minHeight: 3.5,
-                            backgroundColor: Colors.white.withValues(alpha: 0.10),
+                            backgroundColor: isDark
+                                ? Colors.white.withValues(alpha: 0.10)
+                                : fira.brandTint,
                             valueColor: AlwaysStoppedAnimation<Color>(
                               fira.brandPrimary,
                             ),
@@ -148,47 +150,83 @@ class _SplashScreenState extends State<SplashScreen>
 
               const Spacer(flex: 3),
 
-              // Bottom 4-Pillar Ecosystem Footer
+              // Bottom 4-Pillar Ecosystem Capsule (Quiet Chrome, Proper Contrast)
               FadeTransition(
                 opacity: _fadeAnimation,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.04),
-                    borderRadius: BorderRadius.circular(22),
+                    color: isDark ? Colors.white.withValues(alpha: 0.04) : fira.surface,
+                    borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.08),
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.08)
+                          : fira.brandPrimary.withValues(alpha: 0.12),
                     ),
+                    boxShadow: isDark
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _PillarItem(
-                        icon: Icons.public_rounded,
+                        icon: Icons.storefront_outlined,
                         label: 'B2B Trade',
                         color: fira.brandPrimary,
+                        isDark: isDark,
+                        onSurfaceColor: fira.onSurface,
                       ),
                       _PillarItem(
-                        icon: Icons.auto_awesome_rounded,
+                        icon: Icons.psychology_outlined,
                         label: 'Fira AI',
                         color: fira.brandPrimary,
+                        isDark: isDark,
+                        onSurfaceColor: fira.onSurface,
                       ),
                       _PillarItem(
-                        icon: Icons.explore_rounded,
+                        icon: Icons.terrain_outlined,
                         label: 'Safaris',
                         color: fira.brandPrimary,
+                        isDark: isDark,
+                        onSurfaceColor: fira.onSurface,
                       ),
                       _PillarItem(
-                        icon: Icons.workspace_premium_rounded,
+                        icon: Icons.event_seat_outlined,
                         label: 'Summits',
                         color: fira.brandPrimary,
+                        isDark: isDark,
+                        onSurfaceColor: fira.onSurface,
                       ),
                     ],
                   ),
                 ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
+
+              // Subtle Origin Note
+              Text(
+                'Addis Ababa, Ethiopia · Direct Origin Export',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.35)
+                      : fira.mutedText.withValues(alpha: 0.65),
+                  fontFamily: 'Montserrat',
+                  letterSpacing: 0.2,
+                ),
+              ),
+
+              const SizedBox(height: 8),
             ],
           ),
         ),
@@ -202,11 +240,15 @@ class _PillarItem extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.color,
+    required this.isDark,
+    required this.onSurfaceColor,
   });
 
   final IconData icon;
   final String label;
   final Color color;
+  final bool isDark;
+  final Color onSurfaceColor;
 
   @override
   Widget build(BuildContext context) {
@@ -214,30 +256,30 @@ class _PillarItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 38,
-          height: 38,
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.20),
+            color: color.withValues(alpha: isDark ? 0.18 : 0.08),
             shape: BoxShape.circle,
             border: Border.all(
-              color: color.withValues(alpha: 0.40),
-              width: 1.2,
+              color: color.withValues(alpha: isDark ? 0.32 : 0.20),
+              width: 1.0,
             ),
           ),
           child: Icon(
             icon,
-            color: const Color(0xFFE9D5FF),
-            size: 19,
+            color: isDark ? const Color(0xFFE9D5FF) : color,
+            size: 18,
           ),
         ),
         const SizedBox(height: 6),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
-            letterSpacing: 0.3,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white.withValues(alpha: 0.85) : onSurfaceColor,
+            letterSpacing: 0.1,
             fontFamily: 'Montserrat',
           ),
         ),

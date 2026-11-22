@@ -3,6 +3,8 @@
 @section('breadcrumb')
     @include('partials.breadcrumb', [
         'page_title' => 'Tours & Field Expeditions',
+        'page_subtitle' => "Experience Ethiopia's legendary coffee origins, washing stations, and farm highlands firsthand.",
+        'bg_image' => asset('assets/front/img/banners/fira_tours_destination.jpg'),
         'base_url' => route('home'),
     ])
 @endsection

@@ -3,6 +3,8 @@
 @section('breadcrumb')
     @include('partials.breadcrumb', [
         'page_title' => 'Events & Masterclasses',
+        'page_subtitle' => 'Connect with coffee leaders, export authorities, and global buyers at premier industry summits.',
+        'bg_image' => asset('assets/front/img/banners/fira_events_live_gathering.jpg'),
         'base_url' => route('home'),
     ])
 @endsection

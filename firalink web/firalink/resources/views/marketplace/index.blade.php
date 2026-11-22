@@ -39,7 +39,20 @@
         overflow: hidden;
         padding: 66px 0 74px;
         color: #fff;
-        background: var(--mkt-brand-dark);
+        background: linear-gradient(135deg, rgba(30, 5, 51, 0.94) 0%, rgba(59, 7, 100, 0.88) 55%, rgba(79, 12, 126, 0.72) 100%),
+                    url('{{ asset('assets/front/img/banners/fira_b2b_trade_meeting.jpg') }}');
+        background-size: cover;
+        background-position: center right;
+        background-repeat: no-repeat;
+    }
+    @media (max-width: 768px) {
+        .mkt-hero {
+            padding: 44px 0 52px;
+            background: linear-gradient(180deg, rgba(25, 4, 43, 0.96) 0%, rgba(45, 6, 75, 0.92) 100%),
+                        url('{{ asset('assets/front/img/banners/fira_b2b_trade_meeting.jpg') }}');
+            background-size: cover;
+            background-position: center;
+        }
     }
     .mkt-hero::before {
         content: '';
