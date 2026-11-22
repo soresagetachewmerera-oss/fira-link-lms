@@ -57,10 +57,9 @@ return [
     ],
 
     'gemini' => [
-        // Off by default: the old GEMINI_API_KEY was committed to GitHub. Turn on only after rotating it.
         'enabled' => (bool) env('GEMINI_ENABLED', false),
         'api_key' => env('GEMINI_API_KEY'),
-        'model'   => env('GEMINI_MODEL', 'gemini-3-flash-preview'),
+        'model'   => env('GEMINI_MODEL', 'gemini-2.5-flash'),
     ],
 
 ];

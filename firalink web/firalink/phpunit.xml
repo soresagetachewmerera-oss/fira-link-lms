@@ -34,5 +34,6 @@
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <!-- Chapa flows are exercised with faked HTTP; the switched-off state has its own tests. -->
         <env name="CHAPA_ENABLED" value="true"/>
+        <env name="GEMINI_ENABLED" value="false"/>
     </php>
 </phpunit>
