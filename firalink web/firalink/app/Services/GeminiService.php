@@ -22,7 +22,7 @@ class GeminiService
         // database is no longer used. With GEMINI_ENABLED off, every caller sees "not configured".
         $this->apiKey = config('services.gemini.enabled') ? trim((string) config('services.gemini.api_key')) : '';
 
-        $this->model = config('services.gemini.model') ?: ($config['gemini_model'] ?? 'gemini-2.5-flash');
+        $this->model = config('services.gemini.model') ?: ($config['gemini_model'] ?? 'gemini-3-flash-preview');
     }
 
     /**
@@ -144,10 +144,11 @@ Safety & Security Boundaries:
         // Models to try (current model first, then ultra-fast and reliable active fallbacks)
         $modelsToTry = array_filter(array_unique([
             $this->model,
-            'gemini-2.5-flash',
-            'gemini-2.0-flash',
-            'gemini-1.5-flash',
+            'gemini-3-flash-preview',
             'gemini-flash-latest',
+            'gemini-3.5-flash',
+            'gemini-3.8-flash',
+            'gemini-3.1-flash-lite-preview',
         ]));
 
         $lastError = null;
