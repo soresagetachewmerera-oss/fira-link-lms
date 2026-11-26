@@ -17,7 +17,7 @@ class HomePageTest extends TestCase
     {
         $html = $this->get('/')->assertOk()->getContent();
 
-        $order = ['Learn to import and export through Ethiopia', 'Practical trade courses', 'Core pillars of Fira Link Platform', 'Explore Fira Link Platform'];
+        $order = ['The trade platform built for Ethiopian coffee', 'Practical trade courses', 'Core pillars of Fira Link Platform', 'Explore Fira Link Platform'];
         $positions = array_map(fn ($t) => strpos($html, $t), $order);
         foreach ($positions as $i => $pos) {
             $this->assertNotFalse($pos, "Missing: {$order[$i]}");
@@ -30,7 +30,7 @@ class HomePageTest extends TestCase
     {
         $page = $this->get('/')->assertOk()->getContent();
         // The page's own content, from the hero to the end of the site links (not the shared header and footer).
-        $start = strpos($page, '<section class="lms-hero"');
+        $start = strpos($page, '<section class="fira-hero"');
         $end = strpos($page, '</section>', strpos($page, 'Explore Fira Link Platform'));
         $html = substr($page, $start, $end - $start);
 

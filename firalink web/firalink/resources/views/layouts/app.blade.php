@@ -13,7 +13,8 @@
     <!--<< Fonts >>-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!--<< CSS Styles >>-->
     @if(active_theme() && request()->routeIs('home'))
@@ -50,6 +51,9 @@
         {!! $headerScript !!}
     @endif
     <link rel="stylesheet" href="{{ asset('assets/front/css/fira-design-system.css') }}?v={{ file_exists(public_path('assets/front/css/fira-design-system.css')) ? filemtime(public_path('assets/front/css/fira-design-system.css')) : '1.0.0' }}">
+    @if(request()->routeIs('home'))
+        <link rel="stylesheet" href="{{ asset('assets/front/css/hero.css') }}?v={{ file_exists(public_path('assets/front/css/hero.css')) ? filemtime(public_path('assets/front/css/hero.css')) : '1.0.0' }}">
+    @endif
 </head>
 
 <body class="{{ request()->routeIs('home') ? 'home-page' : '' }}">

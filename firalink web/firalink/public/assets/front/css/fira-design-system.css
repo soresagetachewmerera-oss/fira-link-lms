@@ -10,7 +10,7 @@
     --fira-neutral-300: #e9e4f0;
     --fira-neutral-100: #f9f7fa;
     --fira-white: #ffffff;
-    --fira-font: 'Inter', sans-serif;
+    --fira-font: 'Inter', 'Noto Sans Ethiopic', sans-serif;
     --fira-container: 1200px;
     --fira-radius: 6px;
     --fira-space-1: 8px;
@@ -20,6 +20,29 @@
     --fira-space-5: 40px;
     --fira-space-6: 48px;
     --fira-space-8: 64px;
+    /* Hero tokens (derived strictly from approved brand stops) */
+    --fira-hero-bg-stop-1: #fbf6fd;
+    --fira-hero-bg-stop-2: #f1dffa;
+    --fira-hero-bg-stop-3: #a66bc9;
+    --fira-hero-sub: #3f3b5c;
+    --fira-hero-cta-top: #a04bc7;
+    --fira-hero-cta-bottom: #4f0170;
+    --fira-hero-tray-bg: #f2eef6;
+    --fira-hero-label-muted: #8e8ab0;
+    --fira-hero-bean-light: #c28ae0;
+    --fira-hero-bean-dark: #2a0549;
+    --fira-hero-halo: rgba(166, 107, 201, 0.25);
+    --fira-hero-tray-dot: rgba(109, 26, 149, 0.12);
+    --fira-hero-blob-soft: rgba(166, 107, 201, 0.20);
+    --fira-hero-blob-deep: rgba(109, 26, 149, 0.12);
+    --fira-hero-cta-highlight: rgba(255, 255, 255, 0.28);
+    --fira-hero-tray-ring: rgba(255, 255, 255, 0.55);
+    --fira-hero-float-bg: rgba(255, 255, 255, 0.92);
+    --fira-hero-band-sub: rgba(255, 255, 255, 0.86);
+    --fira-hero-diamond-strip: rgba(255, 255, 255, 0.22);
+    --fira-hero-shadow-cta: 0 12px 24px -6px rgba(59, 7, 100, 0.34), 0 4px 10px -2px rgba(109, 26, 149, 0.22);
+    --fira-hero-shadow-tray: 0 24px 60px -12px rgba(59, 7, 100, 0.14), 0 8px 24px -6px rgba(109, 26, 149, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    --fira-hero-shadow-card: 0 10px 28px -6px rgba(59, 7, 100, 0.09), 0 2px 8px -2px rgba(59, 7, 100, 0.04);
     /* Legacy aliases mapped back to the approved palette. */
     --theme: var(--fira-primary);
     --theme-2: var(--fira-primary-dark);

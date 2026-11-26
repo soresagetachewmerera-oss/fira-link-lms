@@ -689,69 +689,9 @@
 
 @section('content')
 
-<!-- 1. Hero Section: Clean, direct, specific to Ethiopian trade -->
-<section class="lms-hero" aria-labelledby="homepage-hero-title">
-    <div class="container lms-hero__container">
-        <div class="lms-hero__grid">
-            <div>
-                <h1 id="homepage-hero-title" class="lms-hero__title">Learn to import and export through Ethiopia</h1>
-                <p class="lms-hero__copy">
-                    Practical training in customs clearance, corridor logistics, and Ethiopian green coffee export — backed by our physical trade operations.
-                </p>
-                <div class="lms-hero__actions">
-                    <a href="{{ route('courses') }}" class="lms-hero__primary">Explore trade courses <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-                </div>
-            </div>
-            <div class="lms-hero__visual">
-                <div class="lms-hero__frame">
-                    <img src="{{ asset('storage/hero/fira_hero_drying_beds.jpg') }}" alt="Authentic Ethiopian raised drying beds in Yirgacheffe" class="lms-hero__image" width="791" height="485" loading="eager" fetchpriority="high">
-                    <div class="lms-hero__caption">
-                        <strong>Yirgacheffe Washing Station</strong> · Raised African drying beds
-                        <span>Grade 1 Specialty</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+@include('home.hero')
 
-<!-- 2. Live Coffee Market Reference Strip (Tabular Numbers) -->
-<div class="fira-market-strip" aria-label="Ethiopian Coffee Reference Prices">
-    <div class="container lms-hero__container">
-        <div class="fira-ticker-flex">
-            <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                <span class="fira-badge fira-badge-pending" style="background: rgba(243, 232, 255, 0.2); border-color: rgba(255, 255, 255, 0.3); color: #FFFFFF; font-size: 11px;">
-                    ECX / FOB Djibouti
-                </span>
-            </div>
-            <div class="fira-ticker-item">
-                <span class="fira-ticker-name">Yirgacheffe G1 Natural:</span>
-                <span class="fira-ticker-price">$5.20 / lb</span>
-                <span class="fira-ticker-pos">+2.4%</span>
-            </div>
-            <div class="fira-ticker-item">
-                <span class="fira-ticker-name">Sidama G1 Washed:</span>
-                <span class="fira-ticker-price">$4.85 / lb</span>
-                <span class="fira-ticker-pos">+1.1%</span>
-            </div>
-            <div class="fira-ticker-item">
-                <span class="fira-ticker-name">Guji G1 Anaerobic:</span>
-                <span class="fira-ticker-price">$5.60 / lb</span>
-                <span class="fira-ticker-pos">+3.2%</span>
-            </div>
-            <div class="fira-ticker-item">
-                <span class="fira-ticker-name">Limu G2 Washed:</span>
-                <span class="fira-ticker-price">$3.95 / lb</span>
-                <span class="fira-ticker-pos">+0.5%</span>
-            </div>
-            <a href="{{ route('market-prices.index') }}" style="color: #DDD6FE; font-size: 12px; font-weight: 600; text-decoration: underline; flex-shrink: 0;">
-                Full terminal →
-            </a>
-        </div>
-    </div>
-</div>
-
-<!-- 3. Institutional Trust Signals Bar -->
+<!-- Trust Signals Bar -->
 <section class="fira-trust-bar">
     <div class="container lms-hero__container">
         <div class="fira-trust-grid">
