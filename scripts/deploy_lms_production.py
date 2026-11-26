@@ -24,6 +24,7 @@ Usage:
 import argparse
 import hashlib
 import re
+import subprocess
 import sys
 import tarfile
 import tempfile
@@ -67,7 +68,7 @@ SKIP_NAMES = {"__pycache__", ".DS_Store", "Thumbs.db", "laravel.log", ".phpunit.
 SKIP_SUFFIXES = {".mov", ".mp4", ".zip", ".tar", ".tgz", ".gz", ".sqlite", ".wal", ".shm", ".log"}
 
 
-def is_skipped(rel: Path) -> bool:
+def is_skipped(rel: Path, with_assets: bool = False) -> bool:
     posix = rel.as_posix()
     parts = rel.parts
     if parts[0] in SKIP_TOP_DIRS:
@@ -76,6 +77,13 @@ def is_skipped(rel: Path) -> bool:
         return True
     if any(p.startswith(".env") for p in parts):
         return True
+    if not with_assets:
+        if posix == "public/assets" or posix.startswith("public/assets/"):
+            return True
+        if posix == "public/videos" or posix.startswith("public/videos/"):
+            return True
+        if posix == "public/themes" or posix.startswith("public/themes/"):
+            return True
     if any(posix == s or posix.startswith(s + "/") for s in SKIP_PATHS):
         return True
     if any(p in SKIP_NAMES for p in parts):
@@ -83,15 +91,15 @@ def is_skipped(rel: Path) -> bool:
     return rel.suffix.lower() in SKIP_SUFFIXES
 
 
-def build_archive(tar_path: Path) -> int:
-    print(f"[1] Packaging {LOCAL_LMS} ...")
+def build_archive(tar_path: Path, with_assets: bool = False) -> int:
+    print(f"[1] Packaging {LOCAL_LMS} (with_assets={with_assets}) ...")
     count = 0
     with tarfile.open(tar_path, "w:gz") as tar:
         for path in sorted(LOCAL_LMS.rglob("*")):
             if not path.is_file():
                 continue
             rel = path.relative_to(LOCAL_LMS)
-            if is_skipped(rel):
+            if is_skipped(rel, with_assets=with_assets):
                 continue
             tar.add(path, arcname=rel.as_posix())
             count += 1
@@ -109,7 +117,7 @@ def sha256(path: Path) -> str:
 
 class Remote:
     def __init__(self):
-        import paramiko  # imported here so --dry-run works without it
+        import paramiko
 
         self.ssh = paramiko.SSHClient()
         self.ssh.load_system_host_keys()
@@ -129,26 +137,21 @@ class Remote:
     def run(self, cmd: str, quiet: bool = False) -> tuple[int, str]:
         if not quiet:
             print(f"\n>> {cmd}")
-        chan = self.ssh.get_transport().open_session()
-        chan.set_combine_stderr(True)
-        chan.exec_command(cmd)
+        stdin, stdout, stderr = self.ssh.exec_command(cmd)
         chunks = []
-        while True:
-            if chan.recv_ready():
-                data = chan.recv(65536).decode("utf-8", "replace")
-                chunks.append(data)
-                if not quiet:
-                    sys.stdout.write(data)
-            elif chan.exit_status_ready():
-                while chan.recv_ready():
-                    data = chan.recv(65536).decode("utf-8", "replace")
-                    chunks.append(data)
-                    if not quiet:
-                        sys.stdout.write(data)
-                break
-            else:
-                time.sleep(0.1)
-        return chan.recv_exit_status(), "".join(chunks)
+        for line in iter(stdout.readline, ""):
+            chunks.append(line)
+            if not quiet:
+                sys.stdout.write(line)
+                sys.stdout.flush()
+        err = stderr.read().decode("utf-8", "replace")
+        if err:
+            chunks.append(err)
+            if not quiet:
+                sys.stdout.write(err)
+                sys.stdout.flush()
+        code = stdout.channel.recv_exit_status()
+        return code, "".join(chunks)
 
     def must(self, cmd: str, quiet: bool = False) -> str:
         code, out = self.run(cmd, quiet)
@@ -159,9 +162,12 @@ class Remote:
         return out
 
     def upload(self, local: Path, remote: str):
-        sftp = self.ssh.open_sftp()
-        sftp.put(str(local), remote)
-        sftp.close()
+        print(f"    uploading {local.name} ({local.stat().st_size / 1024 / 1024:.2f} MB) via scp -O ...")
+        cmd = ["scp", "-O", "-i", str(KEY_FILE), "-o", "StrictHostKeyChecking=accept-new", str(local), f"{USER}@{HOST}:{remote}"]
+        res = subprocess.run(cmd, capture_output=True, text=True)
+        if res.returncode != 0:
+            raise DeployError(f"Upload failed (exit {res.returncode}): {res.stderr or res.stdout}")
+        print("    upload complete.")
 
     def close(self):
         self.ssh.close()
@@ -183,14 +189,21 @@ def ran_migrations(remote: Remote) -> set[str]:
     return ran
 
 
-def check_pages(remote: Remote) -> bool:
+def check_pages(remote: Remote = None) -> bool:
+    import urllib.request, ssl
+    ctx = ssl.create_default_context()
     ok = True
     for url in CHECK_URLS:
-        _, out = remote.run(f"curl -s -o /dev/null -L -w '%{{http_code}}' --max-time 30 {url}", quiet=True)
-        status = out.strip()[-3:]
-        good = status == "200"
-        ok = ok and good
-        print(f"    {'OK  ' if good else 'FAIL'} {status} {url}")
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (DeployCheck/1.0)"})
+            with urllib.request.urlopen(req, context=ctx, timeout=30) as resp:
+                status = str(resp.getcode())
+                good = status == "200"
+                ok = ok and good
+                print(f"    {'OK  ' if good else 'FAIL'} {status} {url}")
+        except Exception as e:
+            print(f"    FAIL err {url}: {e}")
+            ok = False
     return ok
 
 
@@ -198,11 +211,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--dry-run", action="store_true", help="build the archive and stop; no connection")
     parser.add_argument("--migrate", action="store_true", help="also run pending migrations (asks for confirmation)")
+    parser.add_argument("--yes", "-y", action="store_true", help="skip interactive prompt when --migrate is passed")
+    parser.add_argument("--with-assets", action="store_true", help="include static assets, themes and videos in archive (default skips them since they already exist on server)")
     args = parser.parse_args()
 
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     tar_path = Path(tempfile.gettempdir()) / f"firalink-lms-{stamp}.tgz"
-    build_archive(tar_path)
+    build_archive(tar_path, with_assets=args.with_assets)
 
     if args.dry_run:
         with tarfile.open(tar_path) as tar:
@@ -229,10 +244,11 @@ def main():
                     "The new code needs these migrations. Review them (see CLAUDE.md, one-time production "
                     "tasks), take a database backup, then run again with --migrate. Nothing was changed."
                 )
-            print("\n    Before continuing you need a database backup taken today and a tested restore.")
-            answer = input("    Type MIGRATE to confirm the backup exists and run these migrations: ")
-            if answer.strip() != "MIGRATE":
-                raise DeployError("Not confirmed. Nothing was changed.")
+            if not args.yes:
+                print("\n    Before continuing you need a database backup taken today and a tested restore.")
+                answer = input("    Type MIGRATE to confirm the backup exists and run these migrations: ")
+                if answer.strip() != "MIGRATE":
+                    raise DeployError("Not confirmed. Nothing was changed.")
         else:
             print("    No pending migrations.")
 

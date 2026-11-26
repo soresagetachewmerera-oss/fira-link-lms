@@ -3,6 +3,7 @@
 Deploy Fira Link Flutter Web App to cPanel at app.fira-link.com
 """
 import os
+import subprocess
 import sys
 import tarfile
 import tempfile
@@ -46,6 +47,8 @@ def prepare_app_archive(tar_path: Path):
         for path in BUILD_WEB_DIR.rglob("*"):
             if not path.is_file():
                 continue
+            if path.name.endswith(".symbols"):
+                continue
             rel = path.relative_to(BUILD_WEB_DIR).as_posix()
             tar.add(path, arcname=rel)
             count += 1
@@ -73,45 +76,32 @@ def main():
     ssh.connect(HOST, port=22, username=USER, pkey=key, timeout=30)
 
     remote_tar = "/home/firalijh/firalink-app-deploy.tgz"
-    print(f"\n[3/4] Uploading {tar_path.name} -> {remote_tar} via SFTP...")
-    sftp = ssh.open_sftp()
-    file_size = tar_path.stat().st_size
-    chunk_size = 512 * 1024
-    sent = 0
-    with open(tar_path, "rb") as fl:
-        with sftp.open(remote_tar, "wb") as fr:
-            fr.set_pipelined(True)
-            while True:
-                chunk = fl.read(chunk_size)
-                if not chunk:
-                    break
-                fr.write(chunk)
-                sent += len(chunk)
-                if sent % (3 * 1024 * 1024) < chunk_size or sent == file_size:
-                    print(f"  uploaded {sent/1024/1024:.1f}/{file_size/1024/1024:.1f} MB ({sent/file_size*100:.0f}%)")
-    sftp.close()
+    print(f"\n[3/4] Uploading {tar_path.name} ({tar_path.stat().st_size / 1024 / 1024:.2f} MB) via scp -O...")
+    scp_cmd = ["scp", "-O", "-i", str(KEY_FILE), "-o", "StrictHostKeyChecking=accept-new", str(tar_path), f"{USER}@{HOST}:{remote_tar}"]
+    res = subprocess.run(scp_cmd, capture_output=True, text=True)
+    if res.returncode != 0:
+        print(f"DEPLOY STOPPED: Upload failed: {res.stderr or res.stdout}")
+        ssh.close()
+        sys.exit(1)
     print("  Upload completed successfully.")
 
     def run_cmd(cmd):
         print("\n" + "=" * 60)
         print(">>", cmd)
-        chan = ssh.get_transport().open_session()
-        chan.get_pty()
-        chan.exec_command(cmd)
-        while True:
-            if chan.recv_ready():
-                sys.stdout.write(chan.recv(65536).decode("utf-8", "replace"))
-                sys.stdout.flush()
-            if chan.recv_stderr_ready():
-                sys.stdout.write(chan.recv_stderr(65536).decode("utf-8", "replace"))
-                sys.stdout.flush()
-            if chan.exit_status_ready():
-                while chan.recv_ready():
-                    sys.stdout.write(chan.recv(65536).decode("utf-8", "replace"))
-                code = chan.recv_exit_status()
-                print(f"\n[Exit code: {code}]")
-                return code
-            time.sleep(0.1)
+        stdin, stdout, stderr = ssh.exec_command(cmd)
+        chunks = []
+        for line in iter(stdout.readline, ""):
+            chunks.append(line)
+            sys.stdout.write(line)
+            sys.stdout.flush()
+        err = stderr.read().decode("utf-8", "replace")
+        if err:
+            chunks.append(err)
+            sys.stdout.write(err)
+            sys.stdout.flush()
+        code = stdout.channel.recv_exit_status()
+        print(f"[Exit code: {code}]")
+        return code
 
     print(f"\n[4/4] Extracting Flutter Web files onto {REMOTE_PATH}...")
     commands = [
