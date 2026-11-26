@@ -150,9 +150,23 @@ class HeroOverviewService
             $query = CoffeeListing::query()->where('status', 'active')->visibleToBuyers();
             $count = $marketplaceLaunched ? (int) $query->count() : 0;
             $latestAt = $count > 0 ? $query->max('updated_at') : null;
+            $regionBars = $count > 0
+                ? CoffeeListing::query()
+                    ->where('status', 'active')
+                    ->visibleToBuyers()
+                    ->selectRaw('origin_region, COUNT(*) as c')
+                    ->groupBy('origin_region')
+                    ->orderByDesc('c')
+                    ->limit(5)
+                    ->pluck('c')
+                    ->map(fn ($v) => (int) $v)
+                    ->values()
+                    ->all()
+                : [];
         } catch (\Throwable) {
             $count = 0;
             $latestAt = null;
+            $regionBars = [];
         }
 
         if ($count === 0) {
@@ -163,10 +177,14 @@ class HeroOverviewService
                 'display_value' => 'Coffee B2B',
                 'subtitle' => 'Browse verified lots',
                 'status_text' => 'Verified exporter directory',
+                'bars' => [],
                 'source' => 'Fira Link Marketplace',
                 'as_of' => now()->toIso8601String(),
             ];
         }
+
+        $maxBar = max(1, ...$regionBars);
+        $barsNormalized = array_map(fn (int $c) => round($c / $maxBar, 3), $regionBars);
 
         return [
             'status' => 'available',
@@ -175,6 +193,7 @@ class HeroOverviewService
             'display_value' => number_format($count),
             'subtitle' => 'Published & verified exporters',
             'status_text' => 'Verified tier · Active lots',
+            'bars' => $barsNormalized,
             'source' => 'Fira Link Marketplace',
             'as_of' => $latestAt ? \Illuminate\Support\Carbon::parse($latestAt)->toIso8601String() : now()->toIso8601String(),
         ];
@@ -184,9 +203,16 @@ class HeroOverviewService
     {
         $calc = $this->exportCalculator->calculateProfit([]);
         $netKg = max(1.0, (float) ($calc['net_weight_kg'] ?? 1));
-        $totalCostEtb = (float) ($calc['cost_breakdown_etb']['total_cost'] ?? 0);
+        $breakdown = $calc['cost_breakdown_etb'] ?? [];
+        $totalCostEtb = max(1.0, (float) ($breakdown['total_cost'] ?? 0));
         $etbPerKg = round($totalCostEtb / $netKg, 2);
         $incoterm = (string) ($calc['incoterm'] ?? 'FOB');
+
+        $shares = [
+            round(((float) ($breakdown['purchase_cost'] ?? 0) / $totalCostEtb) * 100, 1),
+            round((((float) ($breakdown['processing_cost'] ?? 0) + (float) ($breakdown['packaging_cost'] ?? 0)) / $totalCostEtb) * 100, 1),
+            round((((float) ($breakdown['transport_corridor'] ?? 0) + (float) ($breakdown['handling_customs'] ?? 0)) / $totalCostEtb) * 100, 1),
+        ];
 
         return [
             'status' => 'available',
@@ -195,6 +221,7 @@ class HeroOverviewService
             'unit' => 'ETB/kg',
             'incoterm' => $incoterm,
             'status_text' => "Example shipment · {$incoterm}",
+            'cost_shares' => $shares,
             'source' => 'Fira Link Export Profit Calculator',
             'as_of' => now()->toIso8601String(),
         ];
