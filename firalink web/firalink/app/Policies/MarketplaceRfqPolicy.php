@@ -6,7 +6,6 @@ use App\Models\MarketplaceRfq;
 use App\Models\Organization;
 use App\Models\OrganizationMembership;
 use App\Models\User;
-use App\Support\BusinessRole;
 use Illuminate\Auth\Access\Response;
 
 /**
@@ -42,7 +41,7 @@ class MarketplaceRfqPolicy
     /** Tier 1 seller business: may see open requests and quote. */
     public static function isVerifiedSeller(?Organization $org): bool
     {
-        return $org !== null && self::tier1($org) && in_array($org->roleKey(), BusinessRole::SELLER_ROLES, true);
+        return \App\Services\Trade\CapabilityService::isActive($org, \App\Support\Capability::SellExport->value);
     }
 
     public function create(User $user, ?Organization $org = null): Response
@@ -54,7 +53,8 @@ class MarketplaceRfqPolicy
         if (!self::manages($user, $org->id)) {
             return Response::deny(__('trade.errors.not_allowed'), 'NOT_ALLOWED');
         }
-        if (!in_array($org->roleKey(), self::BUYER_ROLES, true)) {
+        // Requests are export purchases (incoterm, destination port) until local trade exists.
+        if (!\App\Services\Trade\CapabilityService::declares($org, \App\Support\Capability::BuyExport->value)) {
             return Response::deny(__('trade.errors.buyer_role'), 'BUYER_ROLE_REQUIRED');
         }
         if (!self::tier1($org)) {

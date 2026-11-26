@@ -13,6 +13,7 @@ class Organization extends Model
     use HasFactory, SoftDeletes;
 
     /**
+     * business_category_id is written only by CapabilityService.
      * is_verified, verified_roles, status, needs_manual_review, verification_tier,
      * verification_valid_until, verification_reviewed_at, tier1_first_granted_at and fira_id are
      * NOT fillable: they change only through the verification services (with an audit-log entry).
@@ -42,6 +43,11 @@ class Organization extends Model
         'verification_reviewed_at' => 'datetime',
         'tier1_first_granted_at' => 'datetime',
     ];
+
+    public function businessCategory(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(BusinessCategory::class);
+    }
 
     public function verifications(): HasMany
     {

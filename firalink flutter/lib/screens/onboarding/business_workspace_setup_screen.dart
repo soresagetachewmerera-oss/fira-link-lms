@@ -35,6 +35,8 @@ class _BusinessWorkspaceSetupScreenState extends State<BusinessWorkspaceSetupScr
 
   late Future<WorkspaceOptions> _optionsFuture;
   late String _role;
+  String? _category; // release 2a: a category code; its role is used
+  List<BusinessCategoryOption> _categories = const [];
   String? _entityType;
   String _country = 'Ethiopia';
   bool _isCreating = false;
@@ -50,8 +52,15 @@ class _BusinessWorkspaceSetupScreenState extends State<BusinessWorkspaceSetupScr
 
   Future<WorkspaceOptions> _loadOptions() async {
     final options = await context.read<WorkspaceProvider>().loadOptions();
-    if (mounted && !options.countries.contains(_country)) {
-      setState(() => _country = options.defaultCountry);
+    if (mounted) {
+      setState(() {
+        if (!options.countries.contains(_country)) _country = options.defaultCountry;
+        _categories = options.businessCategories;
+        // Buying in onboarding: start with the international buyer category when it is offered.
+        if (_category == null && widget.intent == 'buy' && _categories.any((c) => c.code == 'international_buyer')) {
+          _category = 'international_buyer';
+        }
+      });
     }
     return options;
   }
@@ -86,7 +95,8 @@ class _BusinessWorkspaceSetupScreenState extends State<BusinessWorkspaceSetupScr
     try {
       await context.read<WorkspaceProvider>().createWorkspace(
             name: _nameController.text.trim(),
-            businessRole: _role,
+            businessRole: _categories.where((c) => c.code == _category).firstOrNull?.businessRole ?? _role,
+            businessCategory: _categories.isEmpty ? null : _category,
             entityType: _entityType!,
             country: _country,
             tinNumber: _tinController.text.replaceAll(RegExp(r'\s+'), ''),
@@ -257,6 +267,8 @@ class _BusinessWorkspaceSetupScreenState extends State<BusinessWorkspaceSetupScr
             }
             final options = snapshot.data!;
             final selectedEntity = options.entityTypes.where((e) => e.value == _entityType).firstOrNull;
+            final lang = Localizations.localeOf(context).languageCode;
+            final selectedCategory = _categories.where((c) => c.code == _category).firstOrNull;
             final roles = options.businessRoles.isEmpty
                 ? const ['exporter', 'supplier', 'broker', 'buyer']
                 : options.businessRoles;
@@ -299,29 +311,52 @@ class _BusinessWorkspaceSetupScreenState extends State<BusinessWorkspaceSetupScr
                     ),
                     const SizedBox(height: 18),
 
-                    _label(context, l10n.businessRoleLabel),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final role in roles)
-                          ChoiceChip(
-                            label: Text(WorkspaceLabels.businessRole(l10n, role)),
-                            selected: _role == role,
-                            showCheckmark: false,
-                            selectedColor: fira.chipSelectedBg,
-                            backgroundColor: fira.chipUnselectedBg,
-                            labelStyle: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: _role == role ? fira.brandPrimary : fira.onSurface,
-                            ),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            onSelected: (_) => setState(() => _role = role),
-                          ),
+                    if (_categories.isNotEmpty) ...[
+                      _label(context, l10n.businessCategoryLabel),
+                      DropdownButtonFormField<String>(
+                        key: const Key('business-category'),
+                        initialValue: _category,
+                        isExpanded: true,
+                        hint: Text(l10n.businessCategoryHint),
+                        decoration: _decoration(context),
+                        items: [
+                          for (final c in _categories)
+                            DropdownMenuItem(value: c.code, child: Text(c.label(lang), overflow: TextOverflow.ellipsis)),
+                        ],
+                        validator: (v) => v == null
+                            ? l10n.businessCategoryRequired
+                            : (_serverInvalid.contains('business_category') ? l10n.businessFixFields : null),
+                        onChanged: (v) => setState(() => _category = v),
+                      ),
+                      if (selectedCategory != null && selectedCategory.description(lang).isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(selectedCategory.description(lang), style: TextStyle(fontSize: 12.5, height: 1.4, color: fira.mutedText)),
                       ],
-                    ),
-                    const SizedBox(height: 18),
-
+                      const SizedBox(height: 18),
+                    ] else ...[
+                      _label(context, l10n.businessRoleLabel),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final role in roles)
+                            ChoiceChip(
+                              label: Text(WorkspaceLabels.businessRole(l10n, role)),
+                              selected: _role == role,
+                              showCheckmark: false,
+                              selectedColor: fira.chipSelectedBg,
+                              backgroundColor: fira.chipUnselectedBg,
+                              labelStyle: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: _role == role ? fira.brandPrimary : fira.onSurface,
+                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              onSelected: (_) => setState(() => _role = role),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                    ],
                     _label(context, l10n.entityTypeLabel),
                     DropdownButtonFormField<String>(
                       initialValue: _entityType,

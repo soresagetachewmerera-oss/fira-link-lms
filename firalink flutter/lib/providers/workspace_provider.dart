@@ -61,6 +61,7 @@ class WorkspaceProvider with ChangeNotifier {
   Future<OrganizationModel> createWorkspace({
     required String name,
     required String businessRole,
+    String? businessCategory,
     required String entityType,
     required String country,
     String? tinNumber,
@@ -69,6 +70,7 @@ class WorkspaceProvider with ChangeNotifier {
     final org = await _service.createOrganization(
       name: name,
       businessRole: businessRole,
+      businessCategory: businessCategory,
       entityType: entityType,
       country: country,
       tinNumber: tinNumber,

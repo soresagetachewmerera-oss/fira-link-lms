@@ -52,6 +52,9 @@
                     <li class="{{ request()->routeIs('admin.trade.deals.*') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('admin.trade.deals.index') }}">{{ __('deals.title') }}</a>
                     </li>
+                    <li class="{{ request()->routeIs('admin.trade.categories.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.trade.categories.index') }}">{{ __('categories.title') }}</a>
+                    </li>
                     @endif
                     @can('review-verifications')
                     <li class="{{ request()->routeIs('admin.market-data.*') ? 'active' : '' }}">

@@ -272,6 +272,12 @@ Run on the production server **in this order**. Always run the dry run first and
       Before deploying, count the Tier 1 seller businesses without one: their lots will be hidden.
     - Deal rooms open only from an accepted quote (`quotation_id`); `listing_id` alone answers `QUOTE_REQUIRED`.
     - Admins confirm payment steps, decide disputes and cancel deals at Admin → Coffee Marketplace → Deal rooms.
+17. Coffee B2B release 2a (categories and activities). `php artisan migrate` adds `business_categories` (11 starting
+    categories, none marked legally confirmed), `organization_capabilities` and `organizations.business_category_id`.
+    No existing row changes: businesses without a category keep the rights of their role. Rights now come from
+    activities (`App\Support\Capability`); `export_offer_documents` became `capability_documents.sell_export` in
+    `config/verification.php`. Admins edit categories at Admin → Coffee Marketplace → Business categories.
+
 ## 4. Workflow per slice
 
 The user names one slice at a time. Do not start the next slice without their OK.

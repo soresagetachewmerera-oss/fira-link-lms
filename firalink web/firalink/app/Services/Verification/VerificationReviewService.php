@@ -7,7 +7,6 @@ use App\Models\MarketplaceSellerProfile;
 use App\Models\Organization;
 use App\Models\OrganizationVerification;
 use App\Models\User;
-use App\Support\BusinessRole;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -169,50 +168,27 @@ class VerificationReviewService
      * Hidden until Tier 1: query constraint on an Organization query (Tier 1+, still valid, not
      * suspended, seller role). Used by the listing and supplier scopes so API and web share one rule.
      */
+    /** Sellers buyers may see: the "sell for export" activity is active (Tier 1, not suspended, ECTA certificate). */
     public static function approvedSellerConstraint(): \Closure
     {
-        $tier1 = TierService::tier1Constraint();
-
-        $licences = self::exportLicenceTypes();
-
-        return function ($org) use ($tier1, $licences) {
-            $tier1($org);
-            // Same rule as Organization::roleKey(): legacy records without business_role count as sellers unless typed buyer.
-            $org->where(fn ($q) => $q->whereIn('business_role', BusinessRole::SELLER_ROLES)
-                ->orWhere(fn ($l) => $l->whereNull('business_role')->where(fn ($t) => $t->whereNull('business_type')->orWhere('business_type', '!=', 'buyer'))));
-            if ($licences !== []) {
-                $org->whereHas('verificationDocuments', fn ($d) => $d->whereIn('document_type', $licences)->countsForTier());
-            }
-        };
+        return \App\Services\Trade\CapabilityService::activeConstraint(\App\Support\Capability::SellExport->value);
     }
 
-    /**
-     * Document types that allow a business to offer coffee to foreign buyers (an ECTA exporter
-     * certificate). Empty list = Tier 1 alone is enough. docs/product/07_coffee_b2b_decisions.md, Q2a.
-     *
-     * @return list<string>
-     */
+    /** Document types that allow a business to offer coffee to foreign buyers (Q2a). @return list<string> */
     public static function exportLicenceTypes(): array
     {
-        return array_values((array) config('verification.export_offer_documents', []));
+        return \App\Services\Trade\CapabilityService::requiredDocuments(\App\Support\Capability::SellExport->value);
     }
 
-    /** The business holds an approved, unexpired export licence document (or none is configured). */
+    /** The business holds the approved, unexpired export licence documents (or none are configured). */
     public static function hasExportLicence(?Organization $org): bool
     {
-        $licences = self::exportLicenceTypes();
-
-        return $org !== null && ($licences === []
-            || $org->verificationDocuments()->whereIn('document_type', $licences)->countsForTier()->exists());
+        return $org !== null && \App\Services\Trade\CapabilityService::missingDocuments($org, \App\Support\Capability::SellExport->value) === [];
     }
 
-    /**
-     * Visible to buyers: Tier 1 or higher, still valid, not suspended, a seller role, and an approved
-     * export licence (all lots are export offers until the local trade channel exists).
-     */
+    /** Visible to buyers: the "sell for export" activity is active. All lots are export offers until local trade exists. */
     public static function isApprovedSeller(?Organization $org): bool
     {
-        return TierService::isVisibleToBuyers($org) && in_array($org->roleKey(), BusinessRole::SELLER_ROLES, true)
-            && self::hasExportLicence($org);
+        return \App\Services\Trade\CapabilityService::isActive($org, \App\Support\Capability::SellExport->value);
     }
 }

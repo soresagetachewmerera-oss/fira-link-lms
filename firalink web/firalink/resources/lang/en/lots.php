@@ -44,7 +44,7 @@ return [
         'lab_name' => 'Enter the lab name.',
         'image_processing' => 'Photos cannot be processed right now. Try again later.',
         'not_allowed' => 'Only the owner or a manager of this business can change its lots.',
-        'seller_role' => 'Only exporter and supplier businesses can add lots.',
+        'seller_role' => 'Only businesses that sell coffee for export can add lots. Check your business activities.',
         'tier_required' => 'Your lots stay hidden until Tier 1 verification is approved.',
         'business_required' => 'Create or switch to a business workspace first.',
         'not_editable' => 'This lot was removed by Fira Link and cannot be changed.',

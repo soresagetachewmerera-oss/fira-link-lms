@@ -176,6 +176,10 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/user/organizations', [\App\Http\Controllers\Api\OrganizationController::class, 'store']);
     Route::post('/user/organizations/switch', [\App\Http\Controllers\Api\OrganizationController::class, 'switchWorkspace']);
     Route::get('/organizations/{id}/members', [\App\Http\Controllers\Api\OrganizationController::class, 'members']);
+    // Release 2a: category and activities (owner changes them; members read them).
+    Route::get('/organizations/{id}/capabilities', [\App\Http\Controllers\Api\OrganizationController::class, 'capabilities'])->whereNumber('id');
+    Route::put('/organizations/{id}/capabilities', [\App\Http\Controllers\Api\OrganizationController::class, 'updateCapabilities'])->whereNumber('id');
+    Route::put('/organizations/{id}/category', [\App\Http\Controllers\Api\OrganizationController::class, 'updateCategory'])->whereNumber('id');
     Route::post('/organizations/{id}/members', [\App\Http\Controllers\Api\OrganizationController::class, 'addMember']);
     Route::delete('/organizations/{id}/members/{userId}', [\App\Http\Controllers\Api\OrganizationController::class, 'removeMember']);
     Route::post('/user/onboarding-intent', [\App\Http\Controllers\Api\OrganizationController::class, 'saveIntent']);

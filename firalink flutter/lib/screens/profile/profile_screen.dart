@@ -11,6 +11,7 @@ import '../common/webview_screen.dart';
 import '../../router/app_router.dart';
 import '../home/widgets/home_design_constants.dart';
 import 'business_verification_tile.dart';
+import 'business_activities_screen.dart';
 import '../chat/trade_chat_screen.dart';
 import '../deal_room/deal_rooms_screen.dart';
 import '../marketplace/samples_screen.dart';
@@ -486,6 +487,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   subtitle: context.l10n.profileMyBusinessLotsSub,
                                   onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SellerHomeScreen())),
                                 ),
+                              _MenuItemWithCustomIcon(
+                                key: const Key('profile-activities'),
+                                icon: Icons.tune_outlined,
+                                title: context.l10n.activitiesTitle,
+                                subtitle: context.l10n.activitiesProfileSub,
+                                onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (_) => BusinessActivitiesScreen(organizationId: org.id))),
+                              ),
                               _MenuItemWithCustomIcon(
                                 key: const Key('profile-workspaces'),
                                 icon: Icons.groups_outlined,

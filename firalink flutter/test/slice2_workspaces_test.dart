@@ -57,12 +57,13 @@ class _FakeOrgService extends OrganizationService {
   Future<OrganizationModel> createOrganization({
     required String name,
     required String businessRole,
+    String? businessCategory,
     required String entityType,
     required String country,
     String? tinNumber,
     String? billingEmail,
   }) async {
-    calls.add('create:$name:$businessRole:$entityType:$country:${tinNumber ?? ''}');
+    calls.add('create:$name:$businessRole:$entityType:$country:${tinNumber ?? ''}${businessCategory == null ? '' : ':$businessCategory'}');
     if (createError != null) throw createError!;
     return OrganizationModel(id: 9, name: name, slug: 'x', businessType: businessRole);
   }

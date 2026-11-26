@@ -11,7 +11,6 @@ use App\Models\MarketplaceRfq;
 use App\Models\MarketplaceSample;
 use App\Policies\MarketplaceRfqPolicy;
 use App\Services\Verification\VerificationReviewService;
-use App\Support\BusinessRole;
 use App\Support\BusinessSummary;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,7 +30,7 @@ class SellerHomeController extends Controller
         if (!$org || MarketplaceRfqPolicy::role($user, $org->id) === null) {
             return response()->json(['success' => false, 'code' => 'ORGANIZATION_REQUIRED', 'message' => __('trade.errors.business_required')], 404);
         }
-        if (!in_array($org->roleKey(), BusinessRole::SELLER_ROLES, true)) {
+        if (!\App\Services\Trade\CapabilityService::declares($org, \App\Support\Capability::SELLING)) {
             return response()->json(['success' => false, 'code' => 'SELLERS_ONLY', 'message' => __('trade.errors.sellers_only')], 403);
         }
 

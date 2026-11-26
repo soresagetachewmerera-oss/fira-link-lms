@@ -115,6 +115,15 @@ Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('a
         Route::post('/{deal}/cancel', 'cancel')->whereNumber('deal')->middleware('sensitive')->name('cancel');
     });
 
+    // Release 2a: business categories (labels in both languages and the activities each allows).
+    Route::prefix('trade/categories')->name('trade.categories.')->controller(\App\Http\Controllers\Admin\BusinessCategoryAdminController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{category}/edit', 'edit')->whereNumber('category')->name('edit');
+        Route::put('/{category}', 'update')->whereNumber('category')->name('update');
+    });
+
     // Coffee B2B Marketplace Management
     Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::get('/sellers', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'sellers'])->name('sellers');

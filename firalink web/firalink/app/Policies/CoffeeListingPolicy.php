@@ -7,7 +7,6 @@ use App\Models\Organization;
 use App\Models\OrganizationMembership;
 use App\Models\User;
 use App\Services\Verification\VerificationReviewService;
-use App\Support\BusinessRole;
 use Illuminate\Auth\Access\Response;
 
 /**
@@ -43,7 +42,8 @@ class CoffeeListingPolicy
         if (!$this->manages($user, $org->id)) {
             return Response::deny(__('lots.errors.not_allowed'), 'NOT_ALLOWED');
         }
-        if (!in_array($org->roleKey(), BusinessRole::SELLER_ROLES, true)) {
+        // Lots are export offers until local trade exists: the business must sell for export.
+        if (!\App\Services\Trade\CapabilityService::declares($org, \App\Support\Capability::SellExport->value)) {
             return Response::deny(__('lots.errors.seller_role'), 'SELLER_ROLE_REQUIRED');
         }
         if ($org->status === 'suspended') {

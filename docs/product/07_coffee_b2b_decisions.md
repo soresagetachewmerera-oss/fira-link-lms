@@ -14,7 +14,7 @@ Each one is configurable or easy to reverse. Change this file when a stakeholder
 
 | # | Question | Decision | Status | Basis |
 |---|---|---|---|---|
-| Q1 | Business categories | Category is a label; rights come from capabilities. Alami Laki maps to the ECTA "coffee grower exporter" certificate, Akrabi Laki to "coffee supplier exporter". One business holds one exporter certificate type | Planned (release 2) | [1], [2], [3] |
+| Q1 | Business categories | Category is a label; rights come from capabilities. Alami Laki maps to the ECTA "coffee grower exporter" certificate, Akrabi Laki to "coffee supplier exporter". One business holds one exporter certificate type | **Built** (release 2a) | [1], [2], [3] |
 | Q2a | Who may offer coffee to foreign buyers | Only a business with an **approved, unexpired ECTA exporter certificate** (`ecta_exporter_certificate`), on top of Tier 1. Set in `config/verification.php` → `export_offer_documents` | **Built** | Exporters need a certificate of competence and a trade licence [1][2]; suppliers are licensed by regions to supply, not to export [1] |
 | Q2b | Lab and taster documents | Not required for grower exporters (Tier 2 rule per category) | Planned (release 2) | Directive 1106/2025 exempts farmer-exporters from the lab requirement [3][4] |
 | Q2c | Smallholder farmers | No competence certificate; Tier 1 identity only | Planned (release 3) | Proclamation 1051/2017 exempts smallholders [1] |

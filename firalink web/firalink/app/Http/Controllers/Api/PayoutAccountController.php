@@ -28,7 +28,7 @@ class PayoutAccountController extends Controller
         if (!PayoutAccountPolicy::canSee($user, $org)) {
             return response()->json(['success' => false, 'code' => 'NOT_ALLOWED', 'message' => __('trade.errors.not_allowed')], 403);
         }
-        if (!in_array($org?->roleKey(), \App\Support\BusinessRole::SELLER_ROLES, true)) {
+        if (!\App\Services\Trade\CapabilityService::declares($org, \App\Support\Capability::SELLING)) {
             return response()->json(['success' => false, 'code' => 'SELLERS_ONLY', 'message' => __('trade.errors.sellers_only')], 403);
         }
 
@@ -47,7 +47,7 @@ class PayoutAccountController extends Controller
         if (!PayoutAccountPolicy::isOwner($user, $org)) {
             return response()->json(['success' => false, 'code' => 'OWNER_ONLY', 'message' => __('trade.errors.payout_owner_only')], 403);
         }
-        if (!in_array($org->roleKey(), \App\Support\BusinessRole::SELLER_ROLES, true)) {
+        if (!\App\Services\Trade\CapabilityService::declares($org, \App\Support\Capability::SELLING)) {
             return response()->json(['success' => false, 'code' => 'SELLERS_ONLY', 'message' => __('trade.errors.sellers_only')], 403);
         }
         $v = Validator::make($request->all(), [

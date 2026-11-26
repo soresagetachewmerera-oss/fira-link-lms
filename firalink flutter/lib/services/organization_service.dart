@@ -48,6 +48,7 @@ class OrganizationService extends BaseService {
   Future<OrganizationModel> createOrganization({
     required String name,
     required String businessRole,
+    String? businessCategory,
     required String entityType,
     required String country,
     String? tinNumber,
@@ -62,6 +63,7 @@ class OrganizationService extends BaseService {
             body: jsonEncode({
               'name': name,
               'business_role': businessRole,
+              'business_category': ?businessCategory,
               'entity_type': entityType,
               'country': country,
               if (tinNumber != null && tinNumber.isNotEmpty) 'tin_number': tinNumber,
@@ -124,6 +126,41 @@ class OrganizationService extends BaseService {
           .timeout(_timeout);
     });
     return _data(res)['needs_business_setup'] == true;
+  }
+
+  /// GET /organizations/{id}/capabilities — category and activities (release 2a).
+  Future<BusinessActivities> getActivities(int organizationId) async {
+    final res = await guardedRequest(() async {
+      final headers = await getHeaders();
+      return http
+          .get(Uri.parse('${BaseService.baseUrl}/organizations/$organizationId/capabilities'), headers: headers)
+          .timeout(_timeout);
+    });
+    return BusinessActivities.fromJson(_data(res));
+  }
+
+  /// PUT /organizations/{id}/capabilities — owner only; the server checks the category allows each one.
+  Future<BusinessActivities> updateActivities(int organizationId, List<String> capabilities) async {
+    final res = await guardedRequest(() async {
+      final headers = await getHeaders();
+      return http
+          .put(Uri.parse('${BaseService.baseUrl}/organizations/$organizationId/capabilities'),
+              headers: headers, body: jsonEncode({'capabilities': capabilities}))
+          .timeout(_timeout);
+    });
+    return BusinessActivities.fromJson(_data(res));
+  }
+
+  /// PUT /organizations/{id}/category — owner only; a verified business keeps its role.
+  Future<BusinessActivities> updateCategory(int organizationId, String categoryCode) async {
+    final res = await guardedRequest(() async {
+      final headers = await getHeaders();
+      return http
+          .put(Uri.parse('${BaseService.baseUrl}/organizations/$organizationId/category'),
+              headers: headers, body: jsonEncode({'business_category': categoryCode}))
+          .timeout(_timeout);
+    });
+    return BusinessActivities.fromJson(_data(res));
   }
 }
 

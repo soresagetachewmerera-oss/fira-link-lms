@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\BusinessCategory;
 use App\Models\Organization;
 use App\Models\OrganizationMembership;
 use App\Models\SmsLog;
 use App\Models\User;
+use App\Services\Trade\CapabilityService;
+use App\Services\Verification\VerificationException;
 use App\Services\Verification\VerificationReviewService;
 use App\Support\BusinessEntityType;
 use App\Support\BusinessRole;
+use App\Support\Capability;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -34,6 +38,9 @@ class OrganizationController extends Controller
             'name' => $org->name,
             'slug' => $org->slug,
             'business_role' => $org->business_role ?? $org->business_type,
+            // Release 2a: the category (a label) and the activities that count right now.
+            'business_category' => $org->businessCategory?->only(['code', 'label_en', 'label_am']),
+            'active_capabilities' => array_values(array_filter(CapabilityService::declared($org), fn ($c) => CapabilityService::isActive($org, $c))),
             'entity_type' => $org->entity_type,
             'country' => $org->country,
             'has_tin' => !empty($org->tin_number),
@@ -69,6 +76,9 @@ class OrganizationController extends Controller
             'data' => [
                 'entity_types' => BusinessEntityType::options(),
                 'business_roles' => BusinessRole::values(),
+                // Release 2a: admin-managed categories (labels in both languages) and the activities each allows.
+                'business_categories' => BusinessCategory::active()->orderBy('sort_order')->orderBy('id')->get()->map->toOption()->values(),
+                'capabilities' => array_map(fn ($c) => ['code' => $c, 'required_documents' => CapabilityService::requiredDocuments($c)], Capability::values()),
                 'countries' => config('workspaces.countries'),
                 'default_country' => 'Ethiopia',
                 'max_owned_businesses' => (int) config('workspaces.max_owned_businesses'),
@@ -123,7 +133,9 @@ class OrganizationController extends Controller
         $isEthiopia = $request->input('country', 'Ethiopia') === 'Ethiopia';
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'min:2', 'max:160', 'regex:/\S/'],
-            'business_role' => ['required', Rule::in(BusinessRole::values())],
+            // Newer apps send a category; its role is used. Older apps send the role only.
+            'business_category' => ['nullable', 'string', Rule::exists('business_categories', 'code')->where('is_active', true)],
+            'business_role' => ['required_without:business_category', 'nullable', Rule::in(BusinessRole::values())],
             'entity_type' => ['required', Rule::in(BusinessEntityType::values())],
             'country' => ['nullable', Rule::in(config('workspaces.countries'))],
             // Ethiopian TIN: 10 digits. Elsewhere: the local tax/VAT number, letters, digits and dashes.
@@ -157,7 +169,8 @@ class OrganizationController extends Controller
             $slug .= '-' . Str::lower(Str::random(6));
         }
 
-        $role = $request->input('business_role');
+        $category = $request->filled('business_category') ? BusinessCategory::where('code', $request->input('business_category'))->first() : null;
+        $role = $category?->business_role ?? $request->input('business_role');
         $entity = BusinessEntityType::from($request->input('entity_type'));
         $tin = $request->filled('tin_number') ? preg_replace('/\s+/', '', (string) $request->input('tin_number')) : null;
 
@@ -187,6 +200,11 @@ class OrganizationController extends Controller
         ]);
 
         $user->switchOrganization($org->id);
+
+        // The category and all the activities it allows (the owner can switch some off on Activities).
+        if ($category) {
+            app(CapabilityService::class)->setCategory($org, $category, $user);
+        }
 
         AuditLog::create([
             'user_id' => $user->id,
@@ -529,5 +547,79 @@ class OrganizationController extends Controller
                 'needs_business_setup' => (bool) array_intersect($intents, ['export', 'buy']),
             ],
         ]);
+    }
+    /** Active member of this business, or the 403 to return. */
+    private function memberOr403(Request $request, int $id): Organization|JsonResponse
+    {
+        $org = Organization::with('businessCategory')->findOrFail($id);
+        if (!$request->user()->isActiveMemberOf($org->id)) {
+            return response()->json(['success' => false, 'code' => 'NOT_A_MEMBER', 'message' => __('trade.errors.not_allowed')], 403);
+        }
+
+        return $org;
+    }
+
+    /** GET /api/organizations/{id}/capabilities — the business's category and activities (members). */
+    public function capabilities(Request $request, int $id): JsonResponse
+    {
+        $org = $this->memberOr403($request, $id);
+        if ($org instanceof JsonResponse) {
+            return $org;
+        }
+
+        return response()->json(['success' => true, 'data' => CapabilityService::summary($org) + [
+            'can_edit' => $org->isOwner($request->user()),
+        ]]);
+    }
+
+    /** PUT /api/organizations/{id}/capabilities {capabilities: [...]} — owner only. */
+    public function updateCapabilities(Request $request, int $id, CapabilityService $service): JsonResponse
+    {
+        $org = $this->memberOr403($request, $id);
+        if ($org instanceof JsonResponse) {
+            return $org;
+        }
+        if (!$org->isOwner($request->user())) {
+            return response()->json(['success' => false, 'code' => 'OWNER_ONLY', 'message' => __('trade.errors.capabilities_owner_only')], 403);
+        }
+        $v = Validator::make($request->all(), [
+            'capabilities' => 'present|array',
+            'capabilities.*' => ['string', Rule::in(Capability::values())],
+        ]);
+        if ($v->fails()) {
+            return response()->json(['success' => false, 'message' => 'Validation error', 'errors' => $v->errors()], 422);
+        }
+        try {
+            $service->setDeclared($org, $request->input('capabilities', []), $request->user());
+        } catch (VerificationException $e) {
+            return $e->toResponse();
+        }
+
+        return response()->json(['success' => true, 'data' => CapabilityService::summary($org->fresh('businessCategory')) + ['can_edit' => true]]);
+    }
+
+    /** PUT /api/organizations/{id}/category {business_category} — owner only; role locked once verified. */
+    public function updateCategory(Request $request, int $id, CapabilityService $service): JsonResponse
+    {
+        $org = $this->memberOr403($request, $id);
+        if ($org instanceof JsonResponse) {
+            return $org;
+        }
+        if (!$org->isOwner($request->user())) {
+            return response()->json(['success' => false, 'code' => 'OWNER_ONLY', 'message' => __('trade.errors.capabilities_owner_only')], 403);
+        }
+        $v = Validator::make($request->all(), [
+            'business_category' => ['required', 'string', Rule::exists('business_categories', 'code')->where('is_active', true)],
+        ]);
+        if ($v->fails()) {
+            return response()->json(['success' => false, 'message' => 'Validation error', 'errors' => $v->errors()], 422);
+        }
+        try {
+            $org = $service->setCategory($org, BusinessCategory::where('code', $request->input('business_category'))->firstOrFail(), $request->user());
+        } catch (VerificationException $e) {
+            return $e->toResponse();
+        }
+
+        return response()->json(['success' => true, 'data' => CapabilityService::summary($org->load('businessCategory')) + ['can_edit' => true]]);
     }
 }
