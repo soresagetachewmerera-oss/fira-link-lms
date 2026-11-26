@@ -113,4 +113,20 @@ return [
         'api_url' => env('WAITLIST_API_URL', null),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Free Trade Tools Registry
+    |--------------------------------------------------------------------------
+    | Canonical list of enabled public trade tools shown in /free-tools and
+    | counted server-side for the home proof band.
+    */
+    'free_tools' => [
+        ['key' => 'market', 'enabled' => true],
+        ['key' => 'calculator', 'enabled' => true],
+        ['key' => 'quotation', 'enabled' => true],
+        ['key' => 'compliance', 'enabled' => true],
+        ['key' => 'quality', 'enabled' => true],
+        ['key' => 'advisor', 'enabled' => true],
+    ],
+
 ];

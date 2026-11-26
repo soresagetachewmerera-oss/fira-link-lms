@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\MarketSeries;
 use App\Models\MarketSource;
+use App\Services\Market\HeroOverviewService;
 use App\Services\Market\MarketReadService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,14 +13,21 @@ use Illuminate\Support\Facades\Gate;
 
 class MarketDataController extends Controller
 {
-    public function __construct(private readonly MarketReadService $market) {}
+    public function __construct(
+        private readonly MarketReadService $market,
+        private readonly HeroOverviewService $heroOverview,
+    ) {}
 
     public function overview(Request $request): JsonResponse
     {
         Gate::authorize('viewAny', MarketSeries::class);
         $this->setLocale($request);
-        return response()->json(['success' => true, 'data' => $this->market->overview()])
-            ->header('Cache-Control', 'public, max-age=60, stale-if-error=300');
+        $payload = $this->market->overview() + [
+            'site_hero' => $this->heroOverview->build(),
+        ];
+
+        return response()->json(['success' => true, 'data' => $payload])
+            ->header('Cache-Control', 'public, max-age=300, stale-if-error=600');
     }
 
     public function series(Request $request): JsonResponse

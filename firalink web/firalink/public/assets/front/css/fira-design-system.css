@@ -28,7 +28,7 @@
     --fira-hero-cta-top: #a04bc7;
     --fira-hero-cta-bottom: #4f0170;
     --fira-hero-tray-bg: #f2eef6;
-    --fira-hero-label-muted: #8e8ab0;
+    --fira-hero-label-muted: var(--fira-neutral-500);
     --fira-hero-bean-light: #c28ae0;
     --fira-hero-bean-dark: #2a0549;
     --fira-hero-halo: rgba(166, 107, 201, 0.25);

@@ -10,6 +10,7 @@ use App\Models\Enrollment;
 use App\Models\Event;
 use App\Models\Review;
 use App\Models\User;
+use App\Services\Market\HeroOverviewService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -226,11 +227,13 @@ class HomeController extends Controller
         }
 
         $themeService = app(\App\Services\ThemeService::class);
+        $heroOverview = app(HeroOverviewService::class)->build();
 
         return view($themeService->resolveHomeView(), [
             'pageTitle' => $meta['title'] ?? site_name(),
             'metaDescription' => $meta['description'] ?? site_name() . ' - ' . site_tagline(),
             'hero' => $hero,
+            'heroOverview' => $heroOverview,
             'waitlistCountFormatted' => $waitlistCountFormatted,
             'stats' => $stats,
             'topCategories' => $topCategories,

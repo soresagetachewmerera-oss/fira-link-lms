@@ -160,3 +160,216 @@
         transform: none;
     }
 }
+
+/* ==========================================================================
+   SLICE 2: Frosted Dotted Tray & Market Snapshot Card
+   ========================================================================== */
+
+.fira-hero__tray-wrap {
+    position: relative;
+    width: min(100%, 85%);
+    margin: 40px auto 0;
+}
+
+@media (max-width: 1024px) {
+    .fira-hero__tray-wrap {
+        width: 100%;
+    }
+}
+
+.fira-hero__tray {
+    position: relative;
+    border-radius: 28px;
+    padding: 22px;
+    background-color: var(--fira-hero-tray-bg);
+    background-image: radial-gradient(var(--fira-hero-tray-dot) 1.25px, transparent 1.25px);
+    background-size: 6px 6px;
+    border: 1px solid var(--fira-white);
+    box-shadow:
+        0 0 0 5px var(--fira-hero-tray-ring),
+        var(--fira-hero-shadow-tray);
+}
+
+@media (max-width: 640px) {
+    .fira-hero__tray {
+        border-radius: 22px;
+        padding: 14px;
+    }
+}
+
+.fira-hero__tray-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+@media (max-width: 1024px) {
+    .fira-hero__tray-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .fira-hero__tray-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.fira-hero-tile {
+    background-color: var(--fira-white);
+    border-radius: 18px;
+    min-height: 212px;
+    border: 1px solid var(--fira-hero-card-border);
+    box-shadow: var(--fira-hero-shadow-card);
+    display: flex;
+    transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.fira-hero-tile:hover {
+    transform: translateY(-2px);
+    border-color: var(--fira-primary-tint);
+}
+
+@media (max-width: 640px) {
+    .fira-hero-tile {
+        min-height: 168px;
+    }
+}
+
+.fira-hero-tile__link,
+.fira-hero-tile__inner {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 20px;
+    color: inherit;
+    text-decoration: none !important;
+}
+
+.fira-hero-tile__link:focus-visible {
+    outline: 2px solid var(--fira-primary);
+    outline-offset: 2px;
+    border-radius: 18px;
+}
+
+.fira-hero-tile__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.fira-hero-tile__label {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.fira-hero-tile__label-1 {
+    color: var(--fira-hero-label-muted);
+}
+
+.fira-hero-tile__label-2 {
+    color: var(--fira-neutral-900);
+}
+
+.fira-hero-tile__metric {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.fira-hero-tile__value {
+    color: var(--fira-neutral-900);
+    font-size: clamp(1.6875rem, 1.55rem + 0.45vw, 2rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    font-variant-numeric: tabular-nums;
+}
+
+.fira-hero-tile.is-unavailable .fira-hero-tile__value {
+    font-size: 1.375rem;
+    color: var(--fira-neutral-500);
+}
+
+.fira-hero-tile.is-stale .fira-hero-tile__value,
+.fira-hero-tile.is-stale .fira-hero-tile__status,
+.fira-hero-tile.is-unavailable .fira-hero-tile__status {
+    color: var(--fira-neutral-500);
+}
+
+.fira-hero-tile__unit {
+    color: var(--fira-neutral-500);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.fira-hero-tile__status {
+    margin-top: 6px;
+    color: var(--fira-primary);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.fira-hero-tile__graph {
+    margin-top: auto;
+    padding-top: 12px;
+    height: 60px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.fira-hero__sparkline {
+    width: 100%;
+    height: 48px;
+    display: block;
+    overflow: visible;
+}
+
+.fira-hero__sparkline-area {
+    fill: var(--fira-primary-tint);
+    opacity: 0.75;
+}
+
+.fira-hero__sparkline-line {
+    fill: none;
+    stroke: var(--fira-primary);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+
+.fira-hero-tile.is-stale .fira-hero__sparkline-line {
+    stroke: var(--fira-hero-label-muted);
+}
+
+.fira-hero-tile.is-stale .fira-hero__sparkline-area {
+    fill: var(--fira-hero-tray-bg);
+}
+
+.fira-hero-tile__no-series {
+    color: var(--fira-neutral-500);
+    font-size: 12px;
+}
+
+.fira-hero-tile__source {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid var(--fira-neutral-300);
+    color: var(--fira-neutral-500);
+    font-size: 11.5px;
+    line-height: 1.3;
+}
+

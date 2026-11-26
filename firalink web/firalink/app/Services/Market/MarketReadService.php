@@ -18,6 +18,7 @@ class MarketReadService
         foreach (self::LOCALES as $locale) {
             Cache::forget('market:overview:v1:' . $locale);
         }
+        HeroOverviewService::forgetCache();
     }
 
     public function overview(): array
