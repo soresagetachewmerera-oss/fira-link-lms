@@ -3,30 +3,31 @@
 
     $coffeeMarket = $cards['coffee_market'] ?? [
         'status' => 'unavailable',
-        'display_value' => 'Unavailable',
+        'display_value' => __('hero.cards.unavailable'),
         'unit_short' => null,
-        'status_text' => 'No current daily close',
-        'source' => 'International Coffee Organization (ICO)',
+        'status_text' => __('hero.cards.no_daily_close'),
+        'source' => __('hero.sources.ico'),
         'as_of' => null,
         'as_of_date' => null,
         'sparkline' => null,
         'trend' => null,
     ];
-    $coffeeValue = $coffeeMarket['status'] === 'unavailable' ? 'Unavailable' : $coffeeMarket['display_value'];
+    $coffeeValue = $coffeeMarket['status'] === 'unavailable' ? __('hero.cards.unavailable') : $coffeeMarket['display_value'];
     $coffeeUnit = $coffeeMarket['status'] === 'unavailable' ? null : ($coffeeMarket['unit_short'] ?? null);
-    $coffeeStatus = match ($coffeeMarket['status']) {
-        'unavailable' => 'No current daily close',
-        'stale' => trim(($coffeeMarket['trend'] ? $coffeeMarket['trend'] . ' · ' : '') . 'Stale · ' . ($coffeeMarket['as_of_date'] ?? '')),
-        default => trim(($coffeeMarket['trend'] ? $coffeeMarket['trend'] . ' · ' : '') . 'Daily close · ' . ($coffeeMarket['as_of_date'] ?? '')),
+    $coffeeStatus = $coffeeMarket['status_text'] ?? match ($coffeeMarket['status']) {
+        'unavailable' => __('hero.cards.no_daily_close'),
+        'stale' => trim(($coffeeMarket['trend'] ? $coffeeMarket['trend'] . ' · ' : '') . __('hero.cards.stale') . ' · ' . ($coffeeMarket['as_of_date'] ?? '')),
+        default => trim(($coffeeMarket['trend'] ? $coffeeMarket['trend'] . ' · ' : '') . __('hero.cards.daily_close') . ' · ' . ($coffeeMarket['as_of_date'] ?? '')),
     };
 
     $verifiedLots = $cards['verified_lots'] ?? [
         'status' => 'pre_launch',
         'mode' => 'browse_fallback',
-        'display_value' => 'Coffee B2B',
-        'subtitle' => 'Browse verified lots',
+        'display_value' => __('hero.cards.lots_fallback_value'),
+        'subtitle' => __('hero.cards.lots_fallback_value'),
+        'status_text' => __('hero.cards.lots_fallback_status'),
         'bars' => [],
-        'source' => 'Fira Link Marketplace',
+        'source' => __('hero.sources.marketplace'),
         'as_of' => null,
     ];
     $lotsFallback = ($verifiedLots['mode'] ?? 'browse_fallback') !== 'count';
@@ -34,20 +35,20 @@
 
     $landedCost = $cards['landed_cost'] ?? [
         'status' => 'unavailable',
-        'display_value' => 'Unavailable',
+        'display_value' => __('hero.cards.unavailable'),
         'unit' => null,
-        'status_text' => 'Example shipment',
+        'status_text' => __('hero.cards.cost_status', ['incoterm' => 'FOB']),
         'cost_shares' => [],
-        'source' => 'Fira Link Export Profit Calculator',
+        'source' => __('hero.sources.calculator'),
         'as_of' => null,
     ];
     $costShares = $landedCost['cost_shares'] ?? [];
 
     $firaAi = $cards['fira_ai'] ?? [
         'status' => 'available',
-        'feature_line' => 'Ask about prices and export steps',
-        'chip' => 'Sources named',
-        'source' => 'Fira AI Market Snapshot',
+        'feature_line' => __('hero.cards.ai_value'),
+        'chip' => __('hero.cards.ai_chip'),
+        'source' => __('hero.sources.ai'),
         'as_of' => null,
     ];
 
@@ -64,28 +65,29 @@
 
     <div class="fira-hero__container">
         <div class="fira-hero__head">
-            <h1 id="homepage-hero-title" class="fira-hero__title">The trade platform built for Ethiopian coffee</h1>
-            <p class="fira-hero__subtitle">
-                Official ECTA minimum prices, daily market benchmarks, landed-cost modeling, and practical export training in one workspace.
-            </p>
+            <h1 id="homepage-hero-title" class="fira-hero__title">{{ __('hero.headline') }}</h1>
+            <p class="fira-hero__subtitle">{{ __('hero.subtitle') }}</p>
             <div class="fira-hero__actions">
-                <a href="{{ route('market-prices.index') }}" class="fira-hero__cta">Explore market prices</a>
+                <a href="{{ route('market-prices.index') }}" class="fira-hero__cta">{{ __('hero.cta') }}</a>
             </div>
         </div>
 
         <div class="fira-hero__tray-wrap">
-            <div class="fira-hero__tray" data-hero-tray data-overview-url="{{ url('/api/market/overview') }}">
-                <ul class="fira-hero__tray-grid" aria-label="Market snapshot">
+            <div class="fira-hero__tray"
+                 data-hero-tray
+                 data-overview-url="{{ url('/api/market/overview') }}"
+                 data-unavailable-label="{{ __('hero.cards.unavailable') }}">
+                <ul class="fira-hero__tray-grid" aria-label="{{ __('hero.tray_aria') }}">
                     {{-- 1. Coffee Market --}}
                     <x-market-card
                         cardKey="coffee_market"
-                        label1="Coffee"
-                        label2="market"
+                        :label1="__('hero.cards.coffee_label1')"
+                        :label2="__('hero.cards.coffee_label2')"
                         :value="$coffeeValue"
                         :unit="$coffeeUnit"
                         :status="$coffeeStatus"
                         :state="$coffeeMarket['status']"
-                        :source="$coffeeMarket['source'] ?? 'International Coffee Organization (ICO)'"
+                        :source="$coffeeMarket['source'] ?? __('hero.sources.ico')"
                         :asOf="$coffeeMarket['as_of_date'] ?? $coffeeMarket['as_of']"
                         :href="route('market-prices.index')"
                     >
@@ -96,7 +98,7 @@
                                     <path class="fira-hero__sparkline-line" pathLength="100" d="{{ $coffeeMarket['sparkline']['line'] }}"></path>
                                 </svg>
                             @else
-                                <span class="fira-hero-tile__no-series">Daily close series pending</span>
+                                <span class="fira-hero-tile__no-series">{{ __('hero.cards.series_pending') }}</span>
                             @endif
                         </x-slot:graph>
                     </x-market-card>
@@ -105,13 +107,13 @@
                     @if($lotsFallback)
                         <x-market-card
                             cardKey="verified_lots"
-                            label1="Coffee"
-                            label2="B2B"
-                            value="Browse verified lots"
-                            status="Verified exporter directory"
+                            :label1="__('hero.cards.lots_fallback_label1')"
+                            :label2="__('hero.cards.lots_fallback_label2')"
+                            :value="__('hero.cards.lots_fallback_value')"
+                            :status="__('hero.cards.lots_fallback_status')"
                             state="pre_launch"
                             :textValue="true"
-                            :source="$verifiedLots['source'] ?? 'Fira Link Marketplace'"
+                            :source="$verifiedLots['source'] ?? __('hero.sources.marketplace')"
                             :asOf="$verifiedLots['as_of'] ?? null"
                             :href="route('marketplace.index')"
                         >
@@ -128,12 +130,12 @@
                     @else
                         <x-market-card
                             cardKey="verified_lots"
-                            label1="Verified"
-                            label2="lots"
+                            :label1="__('hero.cards.lots_label1')"
+                            :label2="__('hero.cards.lots_label2')"
                             :value="$verifiedLots['display_value']"
                             :status="$verifiedLots['status_text']"
                             :state="$verifiedLots['status']"
-                            :source="$verifiedLots['source'] ?? 'Fira Link Marketplace'"
+                            :source="$verifiedLots['source'] ?? __('hero.sources.marketplace')"
                             :asOf="$verifiedLots['as_of'] ?? null"
                             :href="route('marketplace.index')"
                         >
@@ -155,13 +157,13 @@
                     {{-- 3. Landed Cost (from CoffeeExportService::calculateProfit) --}}
                     <x-market-card
                         cardKey="landed_cost"
-                        label1="Landed"
-                        label2="cost"
+                        :label1="__('hero.cards.cost_label1')"
+                        :label2="__('hero.cards.cost_label2')"
                         :value="$landedCost['display_value']"
                         :unit="$landedCost['unit'] ?? null"
                         :status="$landedCost['status_text']"
                         :state="$landedCost['status']"
-                        :source="$landedCost['source'] ?? 'Fira Link Export Profit Calculator'"
+                        :source="$landedCost['source'] ?? __('hero.sources.calculator')"
                         :asOf="$landedCost['as_of'] ?? null"
                         :href="route('free-tools.index') . '#calculator'"
                     >
@@ -173,7 +175,7 @@
                                     <path class="fira-hero__arc fira-hero__arc--primary" d="M6 38 Q {{ 60 + min(80, (int) round($costShares[0] ?? 50)) }} 24 194 38"></path>
                                 </svg>
                             @else
-                                <span class="fira-hero-tile__no-series">Calculator scenario ready</span>
+                                <span class="fira-hero-tile__no-series">{{ __('hero.cards.cost_pending') }}</span>
                             @endif
                         </x-slot:graph>
                     </x-market-card>
@@ -181,14 +183,14 @@
                     {{-- 4. Fira AI --}}
                     <x-market-card
                         cardKey="fira_ai"
-                        label1="Fira"
-                        label2="AI"
-                        :value="$firaAi['feature_line'] ?? 'Ask about prices and export steps'"
-                        :chip="$firaAi['chip'] ?? 'Sources named'"
+                        :label1="__('hero.cards.ai_label1')"
+                        :label2="__('hero.cards.ai_label2')"
+                        :value="$firaAi['feature_line'] ?? __('hero.cards.ai_value')"
+                        :chip="$firaAi['chip'] ?? __('hero.cards.ai_chip')"
                         :textValue="true"
-                        status="Trade & market guidance"
+                        :status="__('hero.cards.ai_status')"
                         :state="$firaAi['status'] ?? 'available'"
-                        :source="$firaAi['source'] ?? 'Fira AI Market Snapshot'"
+                        :source="$firaAi['source'] ?? __('hero.sources.ai')"
                         :asOf="$firaAi['as_of'] ?? null"
                         :href="route('ai-chat.public')"
                     >
@@ -214,7 +216,7 @@
                     <div class="fira-hero__float-copy">
                         <strong class="fira-hero__float-title">{{ $floatingEcta['title'] }}</strong>
                         <span class="fira-hero__float-meta">
-                            Effective {{ $floatingEcta['effective_date'] }} · {{ number_format((int) $floatingEcta['spec_count']) }} specs
+                            {{ __('hero.float.meta', ['date' => $floatingEcta['effective_date'], 'count' => number_format((int) $floatingEcta['spec_count'])]) }}
                         </span>
                     </div>
                 </aside>
@@ -222,7 +224,7 @@
         </div>
 
         @if($proofCount > 0)
-            <div class="fira-hero__proof" aria-label="Platform and market proof points">
+            <div class="fira-hero__proof" aria-label="{{ __('hero.proof_aria') }}">
                 <div class="fira-hero__diamonds" aria-hidden="true">
                     <svg width="100%" height="12" preserveAspectRatio="none" focusable="false">
                         <defs>

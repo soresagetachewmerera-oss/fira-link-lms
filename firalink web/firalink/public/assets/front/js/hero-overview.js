@@ -28,6 +28,7 @@
     const url = tray && tray.dataset.overviewUrl;
     if (!url) return;
     const lang = document.documentElement.lang || 'en';
+    const unavailableLabel = tray.dataset.unavailableLabel || 'Unavailable';
     let timer = null;
     const patch = (key, p) => {
         const el = tray.querySelector(`[data-hero-card="${key}"]`);
@@ -50,7 +51,7 @@
             if (!c) return;
             if (c.coffee_market) {
                 const cm = c.coffee_market, off = cm.status === 'unavailable';
-                patch('coffee_market', { value: off ? 'Unavailable' : cm.display_value, unit: off ? '' : (cm.unit_short || ''), status: cm.status_text, source: cm.source, asOf: cm.as_of_date || cm.as_of });
+                patch('coffee_market', { value: off ? unavailableLabel : cm.display_value, unit: off ? '' : (cm.unit_short || ''), status: cm.status_text, source: cm.source, asOf: cm.as_of_date || cm.as_of });
             }
             if (c.verified_lots?.mode === 'count') {
                 patch('verified_lots', { value: c.verified_lots.display_value, status: c.verified_lots.status_text, source: c.verified_lots.source, asOf: c.verified_lots.as_of });

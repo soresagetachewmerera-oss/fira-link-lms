@@ -815,5 +815,48 @@
     }
 }
 
+/* ==========================================================================
+   SLICE 5: Amharic Typography & Responsive Refinements
+   ========================================================================== */
+
+html[lang="am"] .fira-hero .fira-hero__title {
+    font-family: 'Noto Sans Ethiopic', var(--fira-font) !important;
+    font-size: clamp(32px, 4.1vw, 52px) !important;
+    line-height: 1.24 !important;
+    letter-spacing: -0.01em !important;
+}
+
+html[lang="am"] .fira-hero__subtitle {
+    line-height: 1.72;
+}
+
+html[lang="am"] .fira-hero-tile__value,
+html[lang="am"] .fira-hero-tile__status,
+html[lang="am"] .fira-hero-stat__label {
+    line-height: 1.38;
+}
+
+@media (max-width: 1280px) {
+    .fira-hero__float {
+        right: 8px;
+        bottom: -20px;
+    }
+}
+
+@media (max-width: 640px) {
+    .fira-hero {
+        padding-top: 36px;
+        padding-bottom: 44px;
+    }
+    .fira-hero__tray-wrap {
+        margin-top: 28px;
+    }
+    .fira-hero__cta {
+        min-height: 44px;
+        padding-inline: 24px;
+    }
+}
+
+
 
 

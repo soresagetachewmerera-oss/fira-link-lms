@@ -187,4 +187,22 @@ class HeroOverviewTest extends TestCase
             ->assertJsonPath('data.site_hero.floating_ecta.effective_date', '2026-11-21')
             ->assertJsonPath('data.site_hero.floating_ecta.spec_count', 2);
     }
+
+    public function test_home_and_overview_render_cleanly_in_amharic(): void
+    {
+        $this->seedIcoSeries(0, 249.09, 'bullish');
+        $this->seedEctaDataset('2026-11-21');
+        HeroOverviewService::forgetCache();
+
+        $html = $this->get('/?lang=am')->assertOk()->getContent();
+        $this->assertStringContainsString('<html lang="am">', $html);
+        $this->assertStringContainsString(__('hero.headline', [], 'am'), $html);
+        $this->assertStringContainsString(__('hero.cta', [], 'am'), $html);
+        $this->assertStringContainsString(__('hero.cards.ai_chip', [], 'am'), $html);
+        $this->assertStringContainsString(__('hero.float.title', [], 'am'), $html);
+
+        $this->getJson('/api/market/overview', ['Accept-Language' => 'am'])
+            ->assertOk()
+            ->assertJsonPath('data.site_hero.cards.coffee_market.trend', __('hero.cards.trend_up', [], 'am'));
+    }
 }

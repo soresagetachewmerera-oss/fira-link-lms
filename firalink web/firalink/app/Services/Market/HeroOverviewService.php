@@ -67,21 +67,10 @@ class HeroOverviewService
             $series = null;
         }
 
+        $defaultSource = __('hero.sources.ico');
+
         if (!$series || !$series->source) {
-            return [
-                'status' => 'unavailable',
-                'value' => null,
-                'display_value' => 'Unavailable',
-                'unit' => 'US cents/lb',
-                'unit_short' => 'US¢/lb',
-                'trend' => null,
-                'cadence' => 'Daily close',
-                'status_text' => 'Unavailable',
-                'source' => 'International Coffee Organization (ICO)',
-                'as_of' => null,
-                'as_of_date' => null,
-                'sparkline' => null,
-            ];
+            return $this->unavailableMarketCard($defaultSource);
         }
 
         $price = $series->prices()
@@ -90,7 +79,9 @@ class HeroOverviewService
             ->first();
 
         $fresh = $this->freshness->for($series, $price);
-        $sourceName = $series->source->attribution ?: $series->source->name;
+        $sourceName = app()->getLocale() === 'am'
+            ? $defaultSource
+            : ($series->source->attribution ?: $series->source->name);
         $status = match ($fresh['status']) {
             'unavailable' => 'unavailable',
             'stale' => 'stale',
@@ -98,33 +89,28 @@ class HeroOverviewService
         };
 
         if ($status === 'unavailable' || !$price) {
-            return [
-                'status' => 'unavailable',
-                'value' => null,
-                'display_value' => 'Unavailable',
-                'unit' => 'US cents/lb',
-                'unit_short' => 'US¢/lb',
-                'trend' => null,
-                'cadence' => 'Daily close',
-                'status_text' => 'Unavailable',
-                'source' => $sourceName,
-                'as_of' => null,
-                'as_of_date' => null,
-                'sparkline' => null,
-            ];
+            return $this->unavailableMarketCard($sourceName);
         }
 
         $dailyCloses = array_slice($this->trends->dailyCloses($series), -30);
         $sparkline = HeroSparklineBuilder::buildPath($dailyCloses);
-        $trendWord = HeroSparklineBuilder::trendWordFromLabel($series->trend?->trend)
+        $rawTrend = HeroSparklineBuilder::trendWordFromLabel($series->trend?->trend)
             ?? HeroSparklineBuilder::trendWordFromSeries($dailyCloses);
 
+        $trendWord = match ($rawTrend) {
+            'Up' => __('hero.cards.trend_up'),
+            'Down' => __('hero.cards.trend_down'),
+            'Sideways' => __('hero.cards.trend_sideways'),
+            default => null,
+        };
+
         $date = $price->source_time->utc()->format('Y-m-d');
-        $cadenceDate = 'Daily close · ' . $date;
+        $cadence = __('hero.cards.daily_close');
         if ($status === 'stale') {
-            $statusText = 'Stale · ' . $date;
+            $staleLabel = __('hero.cards.stale');
+            $statusText = $trendWord ? "{$trendWord} · {$staleLabel} · {$date}" : "{$staleLabel} · {$date}";
         } else {
-            $statusText = $trendWord ? "{$trendWord} · Daily close · {$date}" : $cadenceDate;
+            $statusText = $trendWord ? "{$trendWord} · {$cadence} · {$date}" : "{$cadence} · {$date}";
         }
 
         return [
@@ -132,14 +118,32 @@ class HeroOverviewService
             'value' => round((float) $price->value, 2),
             'display_value' => number_format((float) $price->value, 2),
             'unit' => 'US cents/lb',
-            'unit_short' => 'US¢/lb',
+            'unit_short' => __('hero.units.usx_lb'),
             'trend' => $trendWord,
-            'cadence' => 'Daily close',
+            'cadence' => $cadence,
             'status_text' => $statusText,
             'source' => $sourceName,
             'as_of' => $price->source_time->toIso8601String(),
             'as_of_date' => $date,
             'sparkline' => $sparkline,
+        ];
+    }
+
+    private function unavailableMarketCard(string $sourceName): array
+    {
+        return [
+            'status' => 'unavailable',
+            'value' => null,
+            'display_value' => __('hero.cards.unavailable'),
+            'unit' => 'US cents/lb',
+            'unit_short' => __('hero.units.usx_lb'),
+            'trend' => null,
+            'cadence' => __('hero.cards.daily_close'),
+            'status_text' => __('hero.cards.no_daily_close'),
+            'source' => $sourceName,
+            'as_of' => null,
+            'as_of_date' => null,
+            'sparkline' => null,
         ];
     }
 
@@ -174,11 +178,11 @@ class HeroOverviewService
                 'status' => 'pre_launch',
                 'mode' => 'browse_fallback',
                 'value' => null,
-                'display_value' => 'Coffee B2B',
-                'subtitle' => 'Browse verified lots',
-                'status_text' => 'Verified exporter directory',
+                'display_value' => __('hero.cards.lots_fallback_value'),
+                'subtitle' => __('hero.cards.lots_fallback_value'),
+                'status_text' => __('hero.cards.lots_fallback_status'),
                 'bars' => [],
-                'source' => 'Fira Link Marketplace',
+                'source' => __('hero.sources.marketplace'),
                 'as_of' => now()->toIso8601String(),
             ];
         }
@@ -191,10 +195,10 @@ class HeroOverviewService
             'mode' => 'count',
             'value' => $count,
             'display_value' => number_format($count),
-            'subtitle' => 'Published & verified exporters',
-            'status_text' => 'Verified tier · Active lots',
+            'subtitle' => __('hero.cards.lots_label1') . ' ' . __('hero.cards.lots_label2'),
+            'status_text' => __('hero.cards.lots_status'),
             'bars' => $barsNormalized,
-            'source' => 'Fira Link Marketplace',
+            'source' => __('hero.sources.marketplace'),
             'as_of' => $latestAt ? \Illuminate\Support\Carbon::parse($latestAt)->toIso8601String() : now()->toIso8601String(),
         ];
     }
@@ -218,11 +222,11 @@ class HeroOverviewService
             'status' => 'available',
             'value' => $etbPerKg,
             'display_value' => number_format($etbPerKg, 0),
-            'unit' => 'ETB/kg',
+            'unit' => __('hero.units.etb_kg'),
             'incoterm' => $incoterm,
-            'status_text' => "Example shipment · {$incoterm}",
+            'status_text' => __('hero.cards.cost_status', ['incoterm' => $incoterm]),
             'cost_shares' => $shares,
-            'source' => 'Fira Link Export Profit Calculator',
+            'source' => __('hero.sources.calculator'),
             'as_of' => now()->toIso8601String(),
         ];
     }
@@ -231,10 +235,10 @@ class HeroOverviewService
     {
         return [
             'status' => 'available',
-            'feature_line' => 'Ask about prices and export steps',
-            'chip' => 'Sources named',
+            'feature_line' => __('hero.cards.ai_value'),
+            'chip' => __('hero.cards.ai_chip'),
             'eval_score' => null,
-            'source' => 'Fira AI Market Snapshot',
+            'source' => __('hero.sources.ai'),
             'as_of' => now()->toIso8601String(),
         ];
     }
@@ -261,13 +265,15 @@ class HeroOverviewService
 
         return [
             'status' => 'available',
-            'title' => 'ECTA schedule updated',
+            'title' => __('hero.float.title'),
             'effective_date' => $snap['effective_date'],
             'spec_count' => (int) $snap['records_count'],
             'lowest_price' => $snap['lowest_price'],
             'highest_price' => $snap['highest_price'],
             'unit' => $snap['unit'] ?? 'USD/lb',
-            'source' => $dataset->source ?: 'Ethiopian Coffee and Tea Authority (ECTA)',
+            'source' => app()->getLocale() === 'am'
+                ? __('hero.sources.ecta')
+                : ($dataset->source ?: __('hero.sources.ecta')),
             'as_of' => $dataset->updated_at?->toIso8601String(),
         ];
     }
@@ -293,11 +299,11 @@ class HeroOverviewService
             $stats[] = [
                 'key' => 'ico',
                 'value' => number_format((float) $coffeeMarket['value'], 1),
-                'unit' => 'US¢/lb',
-                'label' => 'ICO composite',
+                'unit' => __('hero.units.usx_lb'),
+                'label' => __('hero.proof.ico_label'),
                 'sublabel' => $coffeeMarket['status'] === 'stale'
-                    ? "ICO · Stale ({$coffeeMarket['as_of_date']})"
-                    : "ICO · {$coffeeMarket['cadence']} ({$coffeeMarket['as_of_date']})",
+                    ? __('hero.proof.ico_sub_stale', ['date' => $coffeeMarket['as_of_date']])
+                    : __('hero.proof.ico_sub', ['date' => $coffeeMarket['as_of_date']]),
                 'source' => $coffeeMarket['source'],
                 'as_of' => $coffeeMarket['as_of'],
             ];
@@ -308,9 +314,9 @@ class HeroOverviewService
                 $stats[] = [
                     'key' => 'ecta_low',
                     'value' => '$' . number_format((float) $ecta['lowest_price'], 2),
-                    'unit' => 'USD/lb',
-                    'label' => 'ECTA lowest floor',
-                    'sublabel' => "ECTA · {$ecta['effective_date']}",
+                    'unit' => __('hero.units.usd_lb'),
+                    'label' => __('hero.proof.ecta_low_label'),
+                    'sublabel' => __('hero.proof.ecta_sub', ['date' => $ecta['effective_date']]),
                     'source' => $ecta['source'],
                     'as_of' => $ecta['as_of'],
                 ];
@@ -319,9 +325,9 @@ class HeroOverviewService
                 $stats[] = [
                     'key' => 'ecta_high',
                     'value' => '$' . number_format((float) $ecta['highest_price'], 2),
-                    'unit' => 'USD/lb',
-                    'label' => 'ECTA highest ceiling',
-                    'sublabel' => "ECTA · {$ecta['effective_date']}",
+                    'unit' => __('hero.units.usd_lb'),
+                    'label' => __('hero.proof.ecta_high_label'),
+                    'sublabel' => __('hero.proof.ecta_sub', ['date' => $ecta['effective_date']]),
                     'source' => $ecta['source'],
                     'as_of' => $ecta['as_of'],
                 ];
@@ -330,9 +336,9 @@ class HeroOverviewService
                 $stats[] = [
                     'key' => 'ecta_specs',
                     'value' => number_format($ecta['spec_count']),
-                    'unit' => 'specs',
-                    'label' => 'ECTA price specs',
-                    'sublabel' => "ECTA · {$ecta['effective_date']}",
+                    'unit' => __('hero.units.specs'),
+                    'label' => __('hero.proof.ecta_specs_label'),
+                    'sublabel' => __('hero.proof.ecta_sub', ['date' => $ecta['effective_date']]),
                     'source' => $ecta['source'],
                     'as_of' => $ecta['as_of'],
                 ];
@@ -343,10 +349,10 @@ class HeroOverviewService
             $stats[] = [
                 'key' => 'free_tools',
                 'value' => (string) $freeToolsCount,
-                'unit' => 'tools',
-                'label' => 'Free trade tools',
-                'sublabel' => 'Calculator, market & readiness',
-                'source' => 'Fira Link Free Tools',
+                'unit' => __('hero.units.tools'),
+                'label' => __('hero.proof.tools_label'),
+                'sublabel' => __('hero.proof.tools_sub'),
+                'source' => __('hero.sources.free_tools'),
                 'as_of' => now()->toIso8601String(),
             ];
         }
