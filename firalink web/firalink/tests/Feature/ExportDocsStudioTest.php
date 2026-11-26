@@ -19,6 +19,13 @@ class ExportDocsStudioTest extends TestCase
 {
     use DatabaseTransactions, BuildsTradeFixtures;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Generated PDFs and spreadsheets go to a fake disk, never to storage/app/private.
+        Storage::fake('export_docs');
+    }
+
     /** A user with their own business (the export docs API works per business). */
     private function exporterUser(): User
     {

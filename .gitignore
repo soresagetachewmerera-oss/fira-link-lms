@@ -73,6 +73,11 @@ fira-link-web/.pnpm-store/
 # Local scripts (contain server credentials)
 scratch/
 
+# One-off server and API test scripts: several hold API keys. Only the deploy scripts are tracked.
+scripts/*
+!scripts/deploy_app_production.py
+!scripts/deploy_lms_production.py
+
 # Laravel uploads and private storage (user documents, never commit)
 firalink web/firalink/public/storage/
 firalink web/firalink/storage/app/*

@@ -64,7 +64,12 @@ def main():
     print(f"\n[2/4] Connecting SSH to {USER}@{HOST}...")
     key = paramiko.RSAKey.from_private_key_file(str(KEY_FILE))
     ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    # The host key must already be in ~/.ssh/known_hosts; unknown keys are refused.
+    ssh.load_system_host_keys()
+    known = Path.home() / ".ssh" / "known_hosts"
+    if known.exists():
+        ssh.load_host_keys(str(known))
+    ssh.set_missing_host_key_policy(paramiko.RejectPolicy())
     ssh.connect(HOST, port=22, username=USER, pkey=key, timeout=30)
 
     remote_tar = "/home/firalijh/firalink-app-deploy.tgz"
@@ -113,16 +118,18 @@ def main():
         f"mkdir -p {REMOTE_PATH}",
         f"tar -xzf {remote_tar} -C {REMOTE_PATH}",
         f"rm -f {remote_tar}",
-        "curl -s -IL https://app.fira-link.com | head -n 15",
+        "test \"$(curl -s -o /dev/null -L -w '%{http_code}' --max-time 30 https://app.fira-link.com)\" = 200",
     ]
 
     for c in commands:
         code = run_cmd(c)
         if code != 0:
-            print(f"Warning: command returned code {code}")
+            ssh.close()
+            print(f"\nDEPLOY STOPPED: command failed with exit code {code}: {c}")
+            sys.exit(1)
 
     ssh.close()
-    print("\nAPP DEPLOYMENT FINISHED SUCCESSFULLY!")
+    print("\nApp deploy finished: every command succeeded and https://app.fira-link.com answered 200.")
 
 if __name__ == "__main__":
     main()

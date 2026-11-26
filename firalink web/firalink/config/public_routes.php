@@ -141,6 +141,7 @@ return [
     'GET privacy-policy' => 'read',
     'GET programs' => 'read',
     'GET sitemap.xml' => 'read',
+    'GET styleguide' => 'read', // design system reference page, static, no data
     'GET storage/{path}' => 'read', // public disk only (path-checked)
     'GET student/subscription' => 'read', // redirect
     'GET subscriptions' => 'read', // redirect

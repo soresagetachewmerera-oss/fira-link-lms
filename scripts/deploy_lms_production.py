@@ -1,155 +1,284 @@
 #!/usr/bin/env python3
 """
-Deploy Fira Link LMS & Web to cPanel at lms.fira-link.com / fira-link.com
+Deploy the Fira Link Laravel app (fira-link.com / lms.fira-link.com) to the cPanel server.
+
+Safe by default:
+  * Code only. Database migrations run only with --migrate, after a typed confirmation that a
+    database backup exists. Without --migrate the deploy stops if the server is missing a migration.
+  * The server's SSH host key must already be in ~/.ssh/known_hosts (connect once with `ssh` and
+    check the fingerprint with the host). Unknown keys are refused.
+  * Local-only files never leave this computer: .env, storage/ (uploads, private documents, logs),
+    the local SQLite database, tests, bootstrap/cache and the one-off root scripts.
+  * The current server code (without storage/ and vendor/) is archived on the server first, so the
+    previous version can be restored.
+  * vendor/ is not uploaded. If composer.lock differs from the server's copy the deploy stops:
+    run `composer install --no-dev --optimize-autoloader` on the server first.
+  * Every server command must succeed; the first failure stops the deploy and is reported.
+    Success is printed only when every step and every page check passed.
+
+Usage:
+  python scripts/deploy_lms_production.py --dry-run     build the archive and list what would be sent
+  python scripts/deploy_lms_production.py               deploy code (no migrations)
+  python scripts/deploy_lms_production.py --migrate     deploy code and run reviewed migrations
 """
-import os
+import argparse
+import hashlib
+import re
 import sys
 import tarfile
 import tempfile
 import time
+from datetime import datetime
 from pathlib import Path
-import paramiko
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
 
-LOCAL_LMS = Path(r"D:\.gradle\fira-link-lms\firalink web\firalink")
-KEY_FILE = Path(r"C:\Users\sora\.ssh\id_rsa_firalink")
+LOCAL_LMS = Path(__file__).resolve().parent.parent / "firalink web" / "firalink"
+KEY_FILE = Path.home() / ".ssh" / "id_rsa_firalink"
 
 HOST = "37.26.105.27"
 USER = "firalijh"
-REMOTE_PATH = "/home/firalijh/lms.fira-link.com"
+REMOTE_HOME = "/home/firalijh"
+REMOTE_PATH = f"{REMOTE_HOME}/lms.fira-link.com"
+BACKUP_DIR = f"{REMOTE_HOME}/deploy-backups"
 
-SKIP_DIRS = {
-    "vendor",
-    ".git",
-    "node_modules",
-    "__pycache__",
-    ".idea",
-    ".vscode",
+CHECK_URLS = [
+    "https://fira-link.com",
+    "https://fira-link.com/marketplace",
+    "https://fira-link.com/events",
+    "https://fira-link.com/tours",
+]
+
+# Top-level directories that are never uploaded.
+SKIP_TOP_DIRS = {
+    "vendor", "node_modules", "storage", "tests", ".git", ".idea", ".vscode", "eduex_full",
 }
-
-SKIP_FILES = {
-    ".env",
-    ".env.local",
-    ".env.example",
-    "database.sqlite",
-    "database.sqlite-wal",
-    "database.sqlite-shm",
-    "laravel.log",
+# Paths (relative, posix) that are never uploaded.
+SKIP_PATHS = {
+    "bootstrap/cache", "public/storage", "public/hot", "database/database.sqlite",
 }
+# One-off scripts in the project root that write to the database when run.
+SKIP_ROOT_FILES = {
+    "audit_assets.php", "audit_repo.php", "fix_local_urls.php", "test_booking_payment.php",
+    "update_company_branding.php", "update_ethiopian_content.php", "scratch_capture_all_tabs.py",
+    "readme!.html", "php.ini",
+}
+SKIP_NAMES = {"__pycache__", ".DS_Store", "Thumbs.db", "laravel.log", ".phpunit.result.cache"}
+SKIP_SUFFIXES = {".mov", ".mp4", ".zip", ".tar", ".tgz", ".gz", ".sqlite", ".wal", ".shm", ".log"}
 
-SKIP_PREFIXES = (
-    "storage/logs/",
-    "storage/framework/cache/",
-    "storage/framework/sessions/",
-    "storage/framework/views/",
-)
 
-def build_lms_tar(tar_path: Path):
-    print(f"[1/4] Packaging LMS codebase into {tar_path}...")
+def is_skipped(rel: Path) -> bool:
+    posix = rel.as_posix()
+    parts = rel.parts
+    if parts[0] in SKIP_TOP_DIRS:
+        return True
+    if len(parts) == 1 and parts[0] in SKIP_ROOT_FILES:
+        return True
+    if any(p.startswith(".env") for p in parts):
+        return True
+    if any(posix == s or posix.startswith(s + "/") for s in SKIP_PATHS):
+        return True
+    if any(p in SKIP_NAMES for p in parts):
+        return True
+    return rel.suffix.lower() in SKIP_SUFFIXES
+
+
+def build_archive(tar_path: Path) -> int:
+    print(f"[1] Packaging {LOCAL_LMS} ...")
     count = 0
     with tarfile.open(tar_path, "w:gz") as tar:
-        for path in LOCAL_LMS.rglob("*"):
+        for path in sorted(LOCAL_LMS.rglob("*")):
             if not path.is_file():
                 continue
-            rel = path.relative_to(LOCAL_LMS).as_posix()
-            parts = set(path.relative_to(LOCAL_LMS).parts)
-
-            if parts & SKIP_DIRS:
+            rel = path.relative_to(LOCAL_LMS)
+            if is_skipped(rel):
                 continue
-            if path.name in SKIP_FILES:
-                continue
-            if path.suffix.lower() in ('.mov', '.mp4', '.zip', '.tar', '.tgz', '.wal', '.shm'):
-                continue
-            if any(rel.startswith(p) for p in SKIP_PREFIXES):
-                continue
-
-            tar.add(path, arcname=rel)
+            tar.add(path, arcname=rel.as_posix())
             count += 1
-            if count % 200 == 0:
-                print(f"  archived {count} files...")
+    print(f"    {count} files, {tar_path.stat().st_size / 1024 / 1024:.2f} MB")
+    return count
 
-    size_mb = tar_path.stat().st_size / 1024 / 1024
-    print(f"  Tarball completed: {count} files, {size_mb:.2f} MB")
 
-def main():
-    temp_dir = Path(tempfile.gettempdir())
-    tar_path = temp_dir / "firalink-lms-deploy.tgz"
-    if tar_path.exists():
-        tar_path.unlink()
+def local_migrations() -> list[str]:
+    return sorted(p.stem for p in (LOCAL_LMS / "database" / "migrations").glob("*.php"))
 
-    build_lms_tar(tar_path)
 
-    print(f"\n[2/4] Connecting SSH to {USER}@{HOST}...")
-    key = paramiko.RSAKey.from_private_key_file(str(KEY_FILE))
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(HOST, port=22, username=USER, pkey=key, timeout=30)
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
-    remote_tar = "/home/firalijh/firalink-lms-deploy.tgz"
-    print(f"\n[3/4] Uploading {tar_path.name} -> {remote_tar} via SFTP...")
-    sftp = ssh.open_sftp()
-    file_size = tar_path.stat().st_size
-    chunk_size = 512 * 1024
-    sent = 0
-    with open(tar_path, "rb") as fl:
-        with sftp.open(remote_tar, "wb") as fr:
-            fr.set_pipelined(True)
-            while True:
-                chunk = fl.read(chunk_size)
-                if not chunk:
-                    break
-                fr.write(chunk)
-                sent += len(chunk)
-                if sent % (3 * 1024 * 1024) < chunk_size or sent == file_size:
-                    print(f"  uploaded {sent/1024/1024:.1f}/{file_size/1024/1024:.1f} MB ({sent/file_size*100:.0f}%)")
-    sftp.close()
-    print("  Upload completed successfully.")
 
-    def run_cmd(cmd):
-        print("\n" + "=" * 60)
-        print(">>", cmd)
-        chan = ssh.get_transport().open_session()
-        chan.get_pty()
+class Remote:
+    def __init__(self):
+        import paramiko  # imported here so --dry-run works without it
+
+        self.ssh = paramiko.SSHClient()
+        self.ssh.load_system_host_keys()
+        known = Path.home() / ".ssh" / "known_hosts"
+        if known.exists():
+            self.ssh.load_host_keys(str(known))
+        self.ssh.set_missing_host_key_policy(paramiko.RejectPolicy())
+        key = paramiko.RSAKey.from_private_key_file(str(KEY_FILE))
+        try:
+            self.ssh.connect(HOST, port=22, username=USER, pkey=key, timeout=30)
+        except paramiko.SSHException as e:
+            raise SystemExit(
+                f"SSH refused: {e}\nIf the host key is unknown, connect once with `ssh {USER}@{HOST}`, "
+                "compare the fingerprint with the hosting provider, then run this again."
+            )
+
+    def run(self, cmd: str, quiet: bool = False) -> tuple[int, str]:
+        if not quiet:
+            print(f"\n>> {cmd}")
+        chan = self.ssh.get_transport().open_session()
+        chan.set_combine_stderr(True)
         chan.exec_command(cmd)
+        chunks = []
         while True:
             if chan.recv_ready():
-                sys.stdout.write(chan.recv(65536).decode("utf-8", "replace"))
-                sys.stdout.flush()
-            if chan.recv_stderr_ready():
-                sys.stdout.write(chan.recv_stderr(65536).decode("utf-8", "replace"))
-                sys.stdout.flush()
-            if chan.exit_status_ready():
+                data = chan.recv(65536).decode("utf-8", "replace")
+                chunks.append(data)
+                if not quiet:
+                    sys.stdout.write(data)
+            elif chan.exit_status_ready():
                 while chan.recv_ready():
-                    sys.stdout.write(chan.recv(65536).decode("utf-8", "replace"))
-                code = chan.recv_exit_status()
-                print(f"\n[Exit code: {code}]")
-                return code
-            time.sleep(0.1)
+                    data = chan.recv(65536).decode("utf-8", "replace")
+                    chunks.append(data)
+                    if not quiet:
+                        sys.stdout.write(data)
+                break
+            else:
+                time.sleep(0.1)
+        return chan.recv_exit_status(), "".join(chunks)
 
-    print(f"\n[4/4] Extracting and running Laravel deployment tasks on {REMOTE_PATH}...")
-    commands = [
-        f"tar -xzf {remote_tar} -C {REMOTE_PATH}",
-        f"cd {REMOTE_PATH} && php artisan storage:link",
-        f"cd {REMOTE_PATH} && php artisan migrate --force",
-        f"cd {REMOTE_PATH} && php artisan optimize:clear",
-        f"cd {REMOTE_PATH} && php artisan config:cache",
-        f"cd {REMOTE_PATH} && php artisan route:cache",
-        f"cd {REMOTE_PATH} && php artisan view:cache",
-        f"rm -f {remote_tar}",
-        "curl -s -IL https://fira-link.com | head -n 15",
-        "curl -s -IL https://fira-link.com/tours | head -n 15",
-        "curl -s -IL https://fira-link.com/events | head -n 15",
-        "curl -s -IL https://fira-link.com/marketplace | head -n 15",
-    ]
+    def must(self, cmd: str, quiet: bool = False) -> str:
+        code, out = self.run(cmd, quiet)
+        if code != 0:
+            if quiet:
+                print(out)
+            raise DeployError(f"Command failed with exit code {code}: {cmd}")
+        return out
 
-    for c in commands:
-        code = run_cmd(c)
-        if code != 0 and "storage:link" not in c:
-            print(f"Warning: command returned code {code}")
+    def upload(self, local: Path, remote: str):
+        sftp = self.ssh.open_sftp()
+        sftp.put(str(local), remote)
+        sftp.close()
 
-    ssh.close()
-    print("\nFIRA-LINK.COM MAIN DOMAIN DEPLOYMENT FINISHED SUCCESSFULLY!")
+    def close(self):
+        self.ssh.close()
+
+
+class DeployError(Exception):
+    pass
+
+
+def ran_migrations(remote: Remote) -> set[str]:
+    out = remote.must(f"cd {REMOTE_PATH} && php artisan migrate:status --no-ansi", quiet=True)
+    ran = set()
+    for line in out.splitlines():
+        m = re.match(r"\s*(\d{4}_\d{2}_\d{2}_\d{6}_\S+)\s.*\bRan\b", line)
+        if m:
+            ran.add(m.group(1))
+    if not ran:
+        raise DeployError("Could not read the server's migration status; nothing was changed.")
+    return ran
+
+
+def check_pages(remote: Remote) -> bool:
+    ok = True
+    for url in CHECK_URLS:
+        _, out = remote.run(f"curl -s -o /dev/null -L -w '%{{http_code}}' --max-time 30 {url}", quiet=True)
+        status = out.strip()[-3:]
+        good = status == "200"
+        ok = ok and good
+        print(f"    {'OK  ' if good else 'FAIL'} {status} {url}")
+    return ok
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--dry-run", action="store_true", help="build the archive and stop; no connection")
+    parser.add_argument("--migrate", action="store_true", help="also run pending migrations (asks for confirmation)")
+    args = parser.parse_args()
+
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    tar_path = Path(tempfile.gettempdir()) / f"firalink-lms-{stamp}.tgz"
+    build_archive(tar_path)
+
+    if args.dry_run:
+        with tarfile.open(tar_path) as tar:
+            names = tar.getnames()
+        tops = sorted({n.split("/")[0] for n in names})
+        print("    top-level entries:", ", ".join(tops))
+        leaked = [n for n in names if n.startswith(("storage/", "tests/", "vendor/")) or ".env" in n.split("/")[-1]]
+        print(f"    storage/, tests/, vendor/ or .env files in archive: {len(leaked)}")
+        print(f"    local migrations: {len(local_migrations())}")
+        print(f"\nDry run only. Archive left at {tar_path} for inspection. Nothing was sent.")
+        return
+
+    remote = Remote()
+    in_maintenance = False
+    try:
+        print("\n[2] Checking the server before changing anything ...")
+        pending = [m for m in local_migrations() if m not in ran_migrations(remote)]
+        if pending:
+            print(f"    {len(pending)} migration(s) not yet run on the server:")
+            for m in pending:
+                print(f"      - {m}")
+            if not args.migrate:
+                raise DeployError(
+                    "The new code needs these migrations. Review them (see CLAUDE.md, one-time production "
+                    "tasks), take a database backup, then run again with --migrate. Nothing was changed."
+                )
+            print("\n    Before continuing you need a database backup taken today and a tested restore.")
+            answer = input("    Type MIGRATE to confirm the backup exists and run these migrations: ")
+            if answer.strip() != "MIGRATE":
+                raise DeployError("Not confirmed. Nothing was changed.")
+        else:
+            print("    No pending migrations.")
+
+        _, out = remote.run(f"sha256sum {REMOTE_PATH}/composer.lock", quiet=True)
+        if out.split()[:1] != [sha256(LOCAL_LMS / "composer.lock")]:
+            raise DeployError(
+                "composer.lock differs from the server's copy. Install the same dependencies on the server "
+                "(composer install --no-dev --optimize-autoloader) before deploying. Nothing was changed."
+            )
+
+        print("\n[3] Archiving the current server code for rollback ...")
+        backup = f"{BACKUP_DIR}/lms-{stamp}.tgz"
+        remote.must(f"mkdir -p {BACKUP_DIR} && tar -czf {backup} --exclude=./storage --exclude=./vendor -C {REMOTE_PATH} .")
+        print(f"    {backup}")
+
+        print("\n[4] Uploading ...")
+        remote_tar = f"{REMOTE_HOME}/firalink-lms-deploy-{stamp}.tgz"
+        remote.upload(tar_path, remote_tar)
+
+        print("\n[5] Installing ...")
+        remote.must(f"cd {REMOTE_PATH} && php artisan down --retry=60")
+        in_maintenance = True
+        remote.must(f"tar -xzf {remote_tar} -C {REMOTE_PATH} && rm -f {remote_tar}")
+        if pending:
+            remote.must(f"cd {REMOTE_PATH} && php artisan migrate --force")
+        remote.must(f"cd {REMOTE_PATH} && php artisan optimize:clear")
+        remote.must(f"cd {REMOTE_PATH} && php artisan config:cache && php artisan route:cache && php artisan view:cache")
+        remote.must(f"cd {REMOTE_PATH} && php artisan queue:restart")
+        remote.must(f"cd {REMOTE_PATH} && php artisan up")
+        in_maintenance = False
+
+        print("\n[6] Checking pages ...")
+        if not check_pages(remote):
+            raise DeployError("The code is installed but at least one page did not answer 200. Check the site now.")
+        print("\nDeploy finished: every step succeeded and every page answered 200.")
+        print(f"Rollback archive: {backup}")
+    except DeployError as e:
+        print(f"\nDEPLOY STOPPED: {e}")
+        if in_maintenance:
+            print("The site is still in maintenance mode. Fix the problem, or restore the code with\n"
+                  f"  tar -xzf <rollback archive> -C {REMOTE_PATH}\n"
+                  f"then run `php artisan optimize:clear && php artisan up` in {REMOTE_PATH}.")
+        sys.exit(1)
+    finally:
+        remote.close()
+
 
 if __name__ == "__main__":
     main()

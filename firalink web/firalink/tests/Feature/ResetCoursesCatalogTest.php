@@ -3,27 +3,22 @@
 namespace Tests\Feature;
 
 use App\Models\Course;
-use Database\Seeders\CourseCategorySeeder;
-use Database\Seeders\CourseLanguageSeeder;
-use Database\Seeders\RoleSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class ResetCoursesCatalogTest extends TestCase
 {
-    use RefreshDatabase;
+    // Not RefreshDatabase: the suite shares one migrated, seeded in-memory database (tests/TestCase.php).
+    // Roles, course categories and languages come from TestingSeeder; the transaction rolls back.
+    use DatabaseTransactions;
 
     public function test_reset_command_seeds_eleven_official_free_courses(): void
     {
-        $this->seed(RoleSeeder::class);
-        $this->seed(CourseCategorySeeder::class);
-        $this->seed(CourseLanguageSeeder::class);
-
-        // Create a dummy legacy course
-        $category = \App\Models\CourseCategory::first();
-        $language = \App\Models\CourseLanguage::first();
+        $category = \App\Models\CourseCategory::firstOrFail();
+        $language = \App\Models\CourseLanguage::firstOrFail();
         $dummyInstructor = \App\Models\User::factory()->create(['role' => 'instructor']);
 
+        $before = Course::count();
         Course::create([
             'instructor_id' => $dummyInstructor->id,
             'title' => 'Legacy Paid Test Course That Should Be Removed',
@@ -36,7 +31,7 @@ class ResetCoursesCatalogTest extends TestCase
             'visibility' => 'public',
         ]);
 
-        $this->assertEquals(1, Course::count());
+        $this->assertEquals($before + 1, Course::count());
 
         $this->artisan('courses:reset-to-free-catalog', ['--force' => true])
             ->assertSuccessful();
