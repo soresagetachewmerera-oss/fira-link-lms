@@ -42,7 +42,7 @@
         </div>
 
         <div class="fira-hero-tile__metric">
-            <span class="fira-hero-tile__value" data-hero-value>{{ $value }}</span>
+            <span class="fira-hero-tile__value" data-hero-value @if(!$textValue) data-hero-countup @endif>{{ $value }}</span>
             @if($unit)
                 <span class="fira-hero-tile__unit" data-hero-unit>{{ $unit }}</span>
             @endif

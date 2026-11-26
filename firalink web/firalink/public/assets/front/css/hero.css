@@ -626,4 +626,194 @@
     line-height: 1.35;
 }
 
+/* ==========================================================================
+   SLICE 4: Grain, Purple Duotone Beans & Motion
+   ========================================================================== */
+
+.fira-hero__grain {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: url('/assets/front/img/hero-grain.png');
+    background-repeat: repeat;
+    opacity: 0.06;
+}
+
+.fira-hero__beans {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.fira-hero-bean {
+    position: absolute;
+    width: 58px;
+    height: 76px;
+}
+
+.fira-hero-bean__highlight {
+    fill: var(--fira-hero-cta-highlight);
+}
+
+.fira-hero-bean__crease {
+    stroke: var(--fira-hero-bean-dark);
+}
+
+.fira-hero-bean--1 {
+    top: 72px;
+    left: 24px;
+    transform: rotate(-24deg);
+    opacity: 0.85;
+}
+
+.fira-hero-bean--2 {
+    top: 290px;
+    left: -14px;
+    width: 68px;
+    height: 88px;
+    transform: rotate(18deg);
+    filter: blur(2.5px);
+    opacity: 0.48;
+}
+
+.fira-hero-bean--3 {
+    top: 86px;
+    right: 28px;
+    width: 52px;
+    height: 68px;
+    transform: rotate(28deg);
+    opacity: 0.82;
+}
+
+.fira-hero-bean--4 {
+    top: 340px;
+    right: -12px;
+    width: 64px;
+    height: 84px;
+    transform: rotate(-16deg);
+    filter: blur(2.5px);
+    opacity: 0.45;
+}
+
+.fira-hero-bean--5 {
+    bottom: 130px;
+    left: 42px;
+    width: 44px;
+    height: 58px;
+    transform: rotate(35deg);
+    filter: blur(1.5px);
+    opacity: 0.52;
+}
+
+@media (max-width: 1180px) {
+    .fira-hero-bean--1,
+    .fira-hero-bean--3 {
+        opacity: 0.45;
+    }
+    .fira-hero-bean--5 {
+        display: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .fira-hero__beans {
+        display: none;
+    }
+}
+
+@keyframes firaHeroRise {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes firaSparkDraw {
+    from {
+        stroke-dashoffset: 100;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes firaBeanFloatA {
+    0%, 100% {
+        transform: translateY(0) rotate(-24deg);
+    }
+    50% {
+        transform: translateY(-6px) rotate(-21deg);
+    }
+}
+
+@keyframes firaBeanFloatB {
+    0%, 100% {
+        transform: translateY(0) rotate(28deg);
+    }
+    50% {
+        transform: translateY(6px) rotate(31deg);
+    }
+}
+
+.fira-hero__head {
+    animation: firaHeroRise 0.3s ease-out both;
+}
+
+.fira-hero-tile {
+    animation: firaHeroRise 0.32s ease-out both;
+}
+
+.fira-hero-tile:nth-child(1) { animation-delay: 0ms; }
+.fira-hero-tile:nth-child(2) { animation-delay: 60ms; }
+.fira-hero-tile:nth-child(3) { animation-delay: 120ms; }
+.fira-hero-tile:nth-child(4) { animation-delay: 180ms; }
+
+.fira-hero__sparkline-line,
+.fira-hero__wave-line {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: firaSparkDraw 0.6s ease-out 0.18s forwards;
+}
+
+@media (min-width: 1024px) {
+    .fira-hero-bean--1 {
+        animation: firaBeanFloatA 8s ease-in-out infinite;
+    }
+    .fira-hero-bean--3 {
+        animation: firaBeanFloatB 9s ease-in-out 1.2s infinite;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fira-hero__head,
+    .fira-hero-tile,
+    .fira-hero-bean--1,
+    .fira-hero-bean--3 {
+        animation: none !important;
+        transform: none;
+    }
+    .fira-hero-bean--1 { transform: rotate(-24deg); }
+    .fira-hero-bean--3 { transform: rotate(28deg); }
+    .fira-hero__sparkline-line,
+    .fira-hero__wave-line {
+        animation: none !important;
+        stroke-dasharray: none;
+        stroke-dashoffset: 0;
+    }
+    .fira-hero-tile {
+        transition: none;
+    }
+    .fira-hero-tile:hover {
+        transform: none;
+    }
+}
+
+
 

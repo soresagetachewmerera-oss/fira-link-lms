@@ -57,8 +57,10 @@
     $centerStatIndex = $proofCount >= 3 ? intdiv($proofCount, 2) : -1;
 @endphp
 <section class="fira-hero" aria-labelledby="homepage-hero-title">
+    <div class="fira-hero__grain" aria-hidden="true"></div>
     <div class="fira-hero__aura fira-hero__aura--left" aria-hidden="true"></div>
     <div class="fira-hero__aura fira-hero__aura--right" aria-hidden="true"></div>
+    <x-hero-beans />
 
     <div class="fira-hero__container">
         <div class="fira-hero__head">
@@ -91,7 +93,7 @@
                             @if(!empty($coffeeMarket['sparkline']['line']))
                                 <svg class="fira-hero__sparkline" viewBox="0 0 200 52" preserveAspectRatio="none" focusable="false">
                                     <path class="fira-hero__sparkline-area" d="{{ $coffeeMarket['sparkline']['area'] }}"></path>
-                                    <path class="fira-hero__sparkline-line" d="{{ $coffeeMarket['sparkline']['line'] }}"></path>
+                                    <path class="fira-hero__sparkline-line" pathLength="100" d="{{ $coffeeMarket['sparkline']['line'] }}"></path>
                                 </svg>
                             @else
                                 <span class="fira-hero-tile__no-series">Daily close series pending</span>
@@ -193,7 +195,7 @@
                         <x-slot:graph>
                             <svg class="fira-hero__wave" viewBox="0 0 200 48" preserveAspectRatio="none" focusable="false">
                                 <path class="fira-hero__wave-aura" d="M0 28 C 36 10, 68 44, 104 26 C 140 8, 170 36, 200 20"></path>
-                                <path class="fira-hero__wave-line" d="M0 28 C 36 10, 68 44, 104 26 C 140 8, 170 36, 200 20"></path>
+                                <path class="fira-hero__wave-line" pathLength="100" d="M0 28 C 36 10, 68 44, 104 26 C 140 8, 170 36, 200 20"></path>
                             </svg>
                         </x-slot:graph>
                     </x-market-card>

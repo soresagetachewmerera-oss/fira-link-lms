@@ -19,7 +19,7 @@
 
     <div class="fira-hero-stat__body">
         <div class="fira-hero-stat__figure">
-            <span class="fira-hero-stat__value">{{ $value }}</span>
+            <span class="fira-hero-stat__value" data-hero-countup>{{ $value }}</span>
             @if($unit)
                 <span class="fira-hero-stat__unit">{{ $unit }}</span>
             @endif
