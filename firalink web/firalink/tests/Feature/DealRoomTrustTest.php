@@ -83,7 +83,8 @@ class DealRoomTrustTest extends TestCase
         [$buyerOrg, $buyer] = $this->business('buyer');
         $lot = $this->lot($sellerOrg, $seller);
         Sanctum::actingAs($buyer);
-        $id = $this->postJson('/api/deal-rooms', ['listing_id' => $lot->id, 'title' => 'Guji deal', 'target_value_usd' => 100000, 'incoterm' => 'FOB'])
+        $quote = $this->acceptedQuote($lot, $buyer, $buyerOrg, 100000);
+        $id = $this->postJson('/api/deal-rooms', ['quotation_id' => $quote->id, 'title' => 'Guji deal'])
             ->assertStatus(201)->json('data.id');
 
         return [$id, $buyer, $seller, $buyerOrg, $sellerOrg];
@@ -437,7 +438,8 @@ class DealRoomTrustTest extends TestCase
             'listing_id' => $lot->id, 'quantity_grams' => 250, 'delivery_company' => 'Roasters', 'delivery_address' => 'Street 1',
             'delivery_country' => 'Germany', 'delivery_phone' => '+49 40 1234567', 'courier_carrier' => 'dhl', 'courier_account' => '963123456',
         ])->assertStatus(403)->assertJsonPath('code', 'BLOCKED');
-        $this->postJson('/api/deal-rooms', ['listing_id' => $lot->id, 'title' => 'Deal', 'target_value_usd' => 1000])->assertStatus(403)->assertJsonPath('code', 'BLOCKED');
+        $quote = $this->acceptedQuote($lot, $buyer, $buyerOrg, 1000);
+        $this->postJson('/api/deal-rooms', ['quotation_id' => $quote->id, 'title' => 'Deal'])->assertStatus(403)->assertJsonPath('code', 'BLOCKED');
 
         $rfq = MarketplaceRfq::create(['buyer_id' => $buyer->id, 'rfq_number' => 'RFQ-B' . Str::upper(Str::random(6)), 'title' => 'Guji', 'volume_bags' => 10, 'destination_country' => 'Germany', 'destination_port' => 'Hamburg']);
         $rfq->forceFill(['organization_id' => $buyerOrg->id, 'status' => 'open'])->save();

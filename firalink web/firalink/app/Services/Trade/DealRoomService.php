@@ -92,11 +92,34 @@ class DealRoomService
         return self::ordered($deal)->first(fn ($m) => !self::done($m));
     }
 
+    /** Paused (suspension) or disputed: no signature, proof, confirmation or completion until it is lifted. */
     public function assertOpen(DealRoom $deal): void
     {
         if ($deal->paused_at) {
             throw new VerificationException('DEAL_PAUSED', __('trade.errors.deal_paused'), 423);
         }
+        if ($deal->status === DealRoom::STATUS_DISPUTED) {
+            throw new VerificationException('DEAL_DISPUTED', __('trade.errors.deal_disputed'), 423);
+        }
+        if (!$deal->isOpen()) {
+            throw new VerificationException('DEAL_NOT_OPEN', __('trade.errors.deal_not_open'), 409);
+        }
+    }
+
+    /** buyer or seller side, as an owner or manager (or the buyer person on deal rooms before slice 7). */
+    public static function canSign(User $user, DealRoom $deal): bool
+    {
+        $side = self::sideOf($user, $deal);
+        if ($side === null) {
+            return false;
+        }
+        $orgId = $side === 'buyer' ? $deal->buyer_organization_id : $deal->organization_id;
+        if ($side === 'buyer' && !$orgId) {
+            return (int) $deal->buyer_id === (int) $user->id;
+        }
+
+        return OrganizationMembership::where('organization_id', $orgId)->where('user_id', $user->id)->where('is_active', true)
+            ->whereIn('role', [OrganizationMembership::ROLE_OWNER, OrganizationMembership::ROLE_MANAGER])->exists();
     }
 
     /** Proof or confirmation is allowed only on the current step. */
@@ -123,6 +146,91 @@ class DealRoomService
                 throw new VerificationException('PAYOUT_NOT_READY', __('trade.errors.payout_' . $payTo['state']), 422, ['pay_to' => $payTo]);
             }
         }
+    }
+
+    // ── Confirm, cancel, decide a dispute (Fira Link staff) ─────────────────
+
+    private function log(?User $actor, DealRoom $deal, string $action, string $type, int $id, array $before, array $after): void
+    {
+        AuditLog::create([
+            'user_id' => $actor?->id,
+            'organization_id' => $deal->organization_id,
+            'action' => $action,
+            'auditable_type' => $type,
+            'auditable_id' => $id,
+            'before_state' => $before,
+            'after_state' => $after,
+            'ip_address' => request()?->ip(),
+            'user_agent' => request()?->userAgent() ?? 'system',
+        ]);
+    }
+
+    /**
+     * Staff confirm the current step after checking with the bank (or inspector). The only path to
+     * "achieved" for money and shipping steps; used by the API and the admin deal screen.
+     */
+    public function confirmStep(DealRoom $deal, DealMilestone $m, User $staff, string $decision, string $bankReference, ?string $notes = null): DealMilestone
+    {
+        if ($m->milestone_key === 'contract_signed') {
+            throw new VerificationException('USE_SIGN_CONTRACT', 'The contract milestone completes when both parties sign.', 422);
+        }
+        if (in_array($m->status, DealMilestone::CONFIRMED_STATUSES, true)) {
+            throw new VerificationException('MILESTONE_CLOSED', 'This milestone is already confirmed.', 422);
+        }
+        if (!in_array($decision, DealMilestone::CONFIRMED_STATUSES, true)) {
+            throw new VerificationException('DECISION_INVALID', 'Choose achieved or waived.', 422);
+        }
+        $this->assertOpen($deal);
+        $this->assertCurrent($deal->load('milestones'), $m);
+
+        $before = $m->toArray();
+        $m->status = $decision;
+        $m->bank_reference = $bankReference;
+        $m->completed_at = now();
+        $m->verified_by = $staff->id;
+        $m->verified_at = now();
+        if ($notes !== null && $notes !== '') {
+            $m->notes = $notes;
+        }
+        $m->save();
+        $this->log($staff, $deal, 'deal_milestone_confirmed', DealMilestone::class, $m->id, $before, $m->toArray());
+
+        return $m;
+    }
+
+    /** Cancel an open or disputed deal; its held or sold bags go back to the lot. */
+    public function cancel(DealRoom $deal, ?User $staff, string $reason): DealRoom
+    {
+        if (in_array($deal->status, [DealRoom::STATUS_COMPLETED, DealRoom::STATUS_CANCELLED], true)) {
+            throw new VerificationException('DEAL_NOT_OPEN', __('trade.errors.deal_not_open'), 409);
+        }
+        $before = ['status' => $deal->status, 'dispute_status' => $deal->dispute_status];
+        $deal->forceFill([
+            'status' => DealRoom::STATUS_CANCELLED,
+            'dispute_status' => $deal->dispute_status === 'open' ? 'closed' : $deal->dispute_status,
+        ])->save();
+        app(StockService::class)->releaseForDeal($deal, 'deal_cancelled', $staff);
+        $this->log($staff, $deal, 'deal_room_cancelled', DealRoom::class, $deal->id, $before, ['status' => DealRoom::STATUS_CANCELLED, 'reason' => $reason]);
+
+        return $deal;
+    }
+
+    /** Decide an open dispute: resume the deal where it was, or cancel it. */
+    public function resolveDispute(DealRoom $deal, User $staff, string $outcome, string $note): DealRoom
+    {
+        if ($deal->status !== DealRoom::STATUS_DISPUTED) {
+            throw new VerificationException('NO_OPEN_DISPUTE', __('trade.errors.no_open_dispute'), 409);
+        }
+        if ($outcome === 'cancel') {
+            $this->cancel($deal, $staff, 'dispute: ' . $note);
+
+            return $deal;
+        }
+        $status = $deal->isFullySigned() ? DealRoom::STATUS_UNDER_CONTRACT : DealRoom::STATUS_ACTIVE;
+        $deal->forceFill(['status' => $status, 'dispute_status' => 'resolved'])->save();
+        $this->log($staff, $deal, 'deal_room_dispute_resolved', DealRoom::class, $deal->id, ['status' => DealRoom::STATUS_DISPUTED], ['status' => $status, 'note' => $note]);
+
+        return $deal;
     }
 
     // ── Pause (admin suspension) ────────────────────────────────────────────
@@ -162,6 +270,7 @@ class DealRoomService
     private const ACTIVITY = [
         'deal_room_opened', 'deal_contract_signed', 'deal_milestone_updated', 'deal_milestone_confirmed',
         'deal_room_dispute_raised', 'deal_room_completed', 'deal_room_paused', 'deal_room_resumed',
+        'deal_room_cancelled', 'deal_room_dispute_resolved',
     ];
 
     public function json(DealRoom $deal, ?User $viewer, bool $full = true): array

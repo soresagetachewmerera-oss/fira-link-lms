@@ -1155,6 +1155,7 @@ class AppLocalizations {
   String get blockerLotRequired => _t('blockerLotRequired');
   String get blockerSellerNotVerified => _t('blockerSellerNotVerified');
   String get blockerBuyerNotVerified => _t('blockerBuyerNotVerified');
+  String get blockerStockUnavailable => _t('blockerStockUnavailable');
   String get exportersSearch => _t('exportersSearch');
   String get exportersEmpty => _t('exportersEmpty');
   String get exporterActiveLots => _t('exporterActiveLots');

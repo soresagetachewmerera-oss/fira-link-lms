@@ -77,9 +77,32 @@ class MarketplaceAdminController extends Controller
      */
     public function toggleListingStatus(Request $request, int $id)
     {
-        $listing = CoffeeListing::findOrFail($id);
-        $newStatus = $listing->status === 'active' ? 'archived' : 'active';
-        $listing->update(['status' => $newStatus]);
+        $listing = CoffeeListing::with('organization')->findOrFail($id);
+        $oldStatus = $listing->status;
+        $newStatus = $oldStatus === 'active' ? 'archived' : 'active';
+
+        // Making a lot active follows the same rules as the seller's Publish: a verified seller business
+        // and a complete lot. Admins remove lots; they do not publish them past those rules.
+        if ($newStatus === 'active') {
+            $required = ['title', 'origin_region', 'crop_year', 'processing_method', 'grade', 'total_quantity_bags', 'minimum_order_bags', 'indicative_price_usd_per_lb'];
+            $complete = collect($required)->every(fn ($f) => filled($listing->{$f}));
+            if (!$complete || !VerificationReviewService::isApprovedSeller($listing->organization)) {
+                return redirect()->back()->with('error', __('lots.errors.admin_activate_blocked'));
+            }
+        }
+
+        $listing->forceFill(['status' => $newStatus, 'published_at' => $newStatus === 'active' ? ($listing->published_at ?? now()) : $listing->published_at])->save();
+        AuditLog::create([
+            'user_id' => $request->user()->id,
+            'organization_id' => $listing->organization_id,
+            'action' => $newStatus === 'active' ? 'lot_reactivated_by_admin' : 'lot_archived_by_admin',
+            'auditable_type' => CoffeeListing::class,
+            'auditable_id' => $listing->id,
+            'before_state' => ['status' => $oldStatus],
+            'after_state' => ['status' => $newStatus],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
 
         return redirect()->back()->with('success', "Listing status updated to {$newStatus}.");
     }

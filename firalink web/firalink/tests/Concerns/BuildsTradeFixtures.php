@@ -80,6 +80,43 @@ trait BuildsTradeFixtures
         return [$deal, $buyer, $seller];
     }
 
+    /**
+     * An accepted quote on this lot for the buyer business: the only way a deal room opens.
+     * Written directly (no API), so it does not depend on tiers, plans or price lists.
+     */
+    protected function acceptedQuote(\App\Models\CoffeeListing $lot, User $buyer, ?Organization $buyerOrg, float $totalUsd = 10000, string $incoterm = 'FOB'): \App\Models\MarketplaceQuotation
+    {
+        $rfq = \App\Models\MarketplaceRfq::create([
+            'buyer_id' => $buyer->id,
+            'rfq_number' => 'RFQ-F' . Str::upper(Str::random(8)),
+            'title' => 'Fixture request',
+            'volume_bags' => 10,
+            'destination_country' => 'Germany',
+            'destination_port' => 'Hamburg',
+            'preferred_incoterm' => $incoterm,
+        ]);
+        $rfq->forceFill(['organization_id' => $buyerOrg?->id, 'status' => 'fulfilled'])->save();
+
+        $quote = new \App\Models\MarketplaceQuotation([
+            'rfq_id' => $rfq->id,
+            'listing_id' => $lot->id,
+            'quote_number' => 'Q-F' . Str::upper(Str::random(8)),
+            'offered_price_usd_per_lb' => 4.5,
+            'total_price_usd' => $totalUsd,
+            'quantity_bags' => 10,
+            'incoterm' => $incoterm,
+            'validity_date' => now()->addDays(14),
+        ]);
+        $quote->forceFill([
+            'seller_id' => $lot->seller_id,
+            'organization_id' => $lot->organization_id,
+            'status' => \App\Models\MarketplaceQuotation::STATUS_ACCEPTED,
+            'accepted_at' => now(),
+        ])->save();
+
+        return $quote;
+    }
+
     /** A payout account a reviewer already confirmed, outside any change pause. */
     protected function confirmedPayoutAccount(Organization $org, string $number = '1000123456789'): PayoutAccount
     {

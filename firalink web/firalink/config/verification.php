@@ -65,6 +65,11 @@ return [
         ],
     ],
 
+    // Offering coffee to foreign buyers needs an approved, unexpired ECTA exporter certificate on top of
+    // Tier 1 (Proclamation 1051/2017: exporters need a certificate of competence; suppliers are licensed to
+    // supply, not to export). See docs/product/07_coffee_b2b_decisions.md, Q2a. [] turns the check off.
+    'export_offer_documents' => ['ecta_exporter_certificate'],
+
     'upload' => [
         'max_pages' => 10,
     ],

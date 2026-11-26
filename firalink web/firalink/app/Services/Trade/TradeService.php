@@ -26,7 +26,7 @@ class TradeService
 {
     public const LB_PER_KG = 2.20462262;
 
-    public function __construct(private PriceReferenceService $prices, private EntitlementService $entitlements)
+    public function __construct(private PriceReferenceService $prices, private EntitlementService $entitlements, private StockService $stock)
     {
     }
 
@@ -127,6 +127,11 @@ class TradeService
         if ((int) $d['volume_bags'] > (int) $lot->available_quantity_bags) {
             throw new VerificationException('VOLUME_TOO_HIGH', __('trade.errors.volume_too_high', ['bags' => (int) $lot->available_quantity_bags]), 422, ['errors' => ['volume_bags' => ['max']]]);
         }
+        // The lot's minimum order; the last bags of a lot may be quoted when fewer than that are left.
+        $minimum = min(max(1, (int) $lot->minimum_order_bags), max(1, (int) $lot->available_quantity_bags));
+        if ((int) $d['volume_bags'] < $minimum) {
+            throw new VerificationException('BELOW_MINIMUM_ORDER', __('trade.errors.below_minimum_order', ['bags' => $minimum]), 422, ['errors' => ['volume_bags' => ['min']]]);
+        }
 
         if ($kinds = ContactDetector::find($d['note'] ?? null)) {
             throw new VerificationException('CONTACT_DETAILS', __('trade.errors.contact_details'), 422, ['found' => $kinds, 'errors' => ['note' => ['contact_details']]]);
@@ -194,6 +199,9 @@ class TradeService
         if ($this->prices->isBelowMinimum($quote->listing, (float) $quote->offered_price_usd_per_lb)) {
             return 'BELOW_MINIMUM';
         }
+        if ((int) $quote->quantity_bags > (int) $quote->listing->available_quantity_bags) {
+            return 'STOCK_UNAVAILABLE';
+        }
 
         return null;
     }
@@ -206,6 +214,8 @@ class TradeService
         $rfq = $quote->rfq;
 
         DB::transaction(function () use ($quote, $rfq, $by) {
+            // Hold the bags first (row lock): two buyers cannot both take the last bags of a lot.
+            $this->stock->holdForQuote($quote, $by);
             $quote->forceFill([
                 'status' => MarketplaceQuotation::STATUS_ACCEPTED,
                 'accepted_at' => now(),

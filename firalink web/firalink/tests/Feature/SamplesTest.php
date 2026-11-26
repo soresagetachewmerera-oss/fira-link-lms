@@ -272,7 +272,8 @@ class SamplesTest extends TestCase
         Notification::assertSentTo(User::find($seller->id), TradeUpdate::class, fn ($n) => $n->event === 'sample_approved');
 
         // A deal room for this lot carries the approved seal ID.
-        $dealId = $this->postJson('/api/deal-rooms', ['listing_id' => $sample->listing_id, 'title' => 'Guji deal', 'target_value_usd' => 50000])
+        $quote = $this->acceptedQuote(CoffeeListing::findOrFail($sample->listing_id), $buyer, Organization::findOrFail($sample->buyer_organization_id), 50000);
+        $dealId = $this->postJson('/api/deal-rooms', ['quotation_id' => $quote->id, 'title' => 'Guji deal'])
             ->assertStatus(201)->json('data.id');
         $this->assertSame($seal, DealRoom::findOrFail($dealId)->sample_seal_id);
     }

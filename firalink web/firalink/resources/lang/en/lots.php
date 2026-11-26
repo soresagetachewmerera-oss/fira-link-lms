@@ -48,6 +48,10 @@ return [
         'tier_required' => 'Your lots stay hidden until Tier 1 verification is approved.',
         'business_required' => 'Create or switch to a business workspace first.',
         'not_editable' => 'This lot was removed by Fira Link and cannot be changed.',
+        'admin_activate_blocked' => 'This lot cannot be made active: the business is not a verified seller, or the lot is missing required details.',
+        'total_below_taken' => ':bags bags of this lot are held for accepted quotes or already sold. The total cannot be lower.',
+        'lot_reserved' => 'Bags of this lot are held for an accepted quote. Wait until that deal is signed or cancelled.',
+        'export_licence_required' => 'Your lots stay hidden from buyers until Fira Link approves your ECTA exporter certificate.',
     ],
 
     'notifications' => [

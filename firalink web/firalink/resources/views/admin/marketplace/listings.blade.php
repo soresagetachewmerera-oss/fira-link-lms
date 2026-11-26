@@ -13,6 +13,14 @@
 @section('main-content')
     <div class="row">
         <div class="col-12">
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible show fade">
+                    <div class="alert-body">
+                        <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                        {{ session('error') }}
+                    </div>
+                </div>
+            @endif
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible show fade">
                     <div class="alert-body">

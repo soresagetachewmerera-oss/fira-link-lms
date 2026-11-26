@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
-use App\Models\CoffeeListing;
 use App\Models\DealMilestone;
 use App\Models\DealRoom;
 use App\Models\MarketplaceQuotation;
@@ -77,21 +76,22 @@ class DealRoomController extends Controller
     {
         $user = $request->user();
 
+        // A deal room starts from an accepted quote only. The value and incoterm are the quote's:
+        // listing_id, target_value_usd and incoterm from older app versions are accepted but ignored.
+        if (!$request->filled('quotation_id')) {
+            return response()->json(['success' => false, 'code' => 'QUOTE_REQUIRED', 'message' => __('trade.errors.quote_required')], 422);
+        }
+
         $validator = Validator::make($request->all(), [
-            'listing_id' => 'nullable|required_without:quotation_id|exists:coffee_listings,id',
-            'quotation_id' => 'nullable|required_without:listing_id|exists:marketplace_quotations,id',
+            'quotation_id' => 'required|integer|exists:marketplace_quotations,id',
             'title' => 'required|string|max:255',
-            'target_value_usd' => 'required|numeric|min:0',
-            'incoterm' => 'nullable|string|max:50',
         ]);
 
         if ($validator->fails()) {
             return $this->validationError($validator);
         }
 
-        $quotation = $request->input('quotation_id')
-            ? MarketplaceQuotation::with(['rfq', 'listing'])->find($request->input('quotation_id'))
-            : null;
+        $quotation = MarketplaceQuotation::with(['rfq', 'listing'])->find($request->input('quotation_id'));
 
         if ($quotation) {
             $rfq = $quotation->rfq;
@@ -115,8 +115,7 @@ class DealRoomController extends Controller
             }
         }
 
-        $listing = $quotation?->listing
-            ?? ($request->input('listing_id') ? CoffeeListing::find($request->input('listing_id')) : null);
+        $listing = $quotation->listing;
 
         $orgId = $listing?->organization_id
             ?? $quotation?->seller?->primaryOrganization()?->id
@@ -174,20 +173,32 @@ class DealRoomController extends Controller
             }
         }
 
+        // The accepted quote's hold on the lot. Quotes accepted before holds existed get one now,
+        // or the deal cannot open because the bags are gone. An expired hold cannot open a deal.
+        try {
+            $hold = app(\App\Services\Trade\StockService::class)->holdForQuote($quotation, $user);
+        } catch (VerificationException $e) {
+            return $e->toResponse();
+        }
+
         $dealRoom = DealRoom::create([
             'deal_reference' => 'DR-' . strtoupper(Str::random(8)),
             'organization_id' => $orgId,
             'buyer_id' => $user->id,
-            'deposit_percent' => (int) config('deals.deposit_percent', 30),
             'listing_id' => $listing?->id,
-            'rfq_id' => $quotation?->rfq_id,
+            'rfq_id' => $quotation->rfq_id,
             'title' => $request->input('title'),
-            'target_value_usd' => $request->input('target_value_usd'),
-            'incoterm' => $request->input('incoterm', 'FOB Djibouti'),
+            // The accepted quote's terms, never values from the request.
+            'target_value_usd' => $quotation->total_price_usd,
+            'incoterm' => $quotation->incoterm ?: 'FOB Djibouti',
             'status' => DealRoom::STATUS_ACTIVE,
         ]);
 
-        $dealRoom->forceFill(['buyer_organization_id' => $buyerOrgId])->save();
+        // deposit_percent is not mass-assignable; DEAL_DEPOSIT_PERCENT sets the share of new deal rooms.
+        $dealRoom->forceFill([
+            'buyer_organization_id' => $buyerOrgId,
+            'deposit_percent' => max(1, min(100, (int) config('deals.deposit_percent', 30))),
+        ])->save();
 
         if ($sellerOrg) {
             $entitlements->invalidate($sellerOrg);
@@ -204,6 +215,7 @@ class DealRoomController extends Controller
 
         // Slice 7: six steps; the deposit and the balance carry their amounts.
         $this->deals->provisionMilestones($dealRoom);
+        app(\App\Services\Trade\StockService::class)->attachDeal($hold, $dealRoom);
 
         AuditLog::create([
             'user_id' => $user->id,
@@ -274,8 +286,14 @@ class DealRoomController extends Controller
         if ($user->cannot('participate', $dealRoom)) {
             return $this->forbidden('Only the buyer or the seller can sign this contract.');
         }
-        if ($dealRoom->paused_at) {
-            return (new VerificationException('DEAL_PAUSED', __('trade.errors.deal_paused'), 423))->toResponse();
+        // Signing binds the business: owner or manager only, never staff.
+        if ($user->cannot('sign', $dealRoom)) {
+            return $this->forbidden(__('trade.errors.sign_not_allowed'), 'SIGN_NOT_ALLOWED');
+        }
+        try {
+            $this->deals->assertOpen($dealRoom);
+        } catch (VerificationException $e) {
+            return $e->toResponse();
         }
 
         $validator = Validator::make($request->all(), [
@@ -287,6 +305,10 @@ class DealRoomController extends Controller
         }
 
         if ($request->hasFile('contract_document')) {
+            // Once either side has signed, the file is what they signed: it can no longer be replaced.
+            if ($dealRoom->buyer_signed_at || $dealRoom->seller_signed_at) {
+                return response()->json(['success' => false, 'code' => 'CONTRACT_LOCKED', 'message' => __('trade.errors.contract_locked')], 409);
+            }
             $reason = $this->documents->rejectionReason($request->file('contract_document'), ['application/pdf']);
             if ($reason) {
                 return response()->json($this->documents->errorResponse('contract_document', $reason), 422);
@@ -308,8 +330,9 @@ class DealRoomController extends Controller
             $dealRoom->seller_signature = $signatureText;
         }
 
-        // Both signatures are the confirmation for the contract milestone.
+        // Both signatures are the confirmation for the contract milestone, and the held bags are sold.
         if ($dealRoom->isFullySigned()) {
+            app(\App\Services\Trade\StockService::class)->commitForDeal($dealRoom, $user);
             $dealRoom->status = DealRoom::STATUS_UNDER_CONTRACT;
             $contractMilestone = $dealRoom->milestones()->where('milestone_key', 'contract_signed')->first();
             if ($contractMilestone) {
@@ -471,52 +494,19 @@ class DealRoomController extends Controller
             return $this->validationError($validator);
         }
 
-        if ($milestone->milestone_key === 'contract_signed') {
-            return response()->json([
-                'success' => false,
-                'code' => 'USE_SIGN_CONTRACT',
-                'message' => 'The contract milestone completes when both parties sign.',
-            ], 422);
-        }
-
-        if (in_array($milestone->status, DealMilestone::CONFIRMED_STATUSES, true)) {
-            return response()->json([
-                'success' => false,
-                'code' => 'MILESTONE_CLOSED',
-                'message' => 'This milestone is already confirmed.',
-            ], 422);
-        }
-
+        // Same rules as the admin deal screen (DealRoomService::confirmStep).
         try {
-            $this->deals->assertOpen($dealRoom);
-            $this->deals->assertCurrent($dealRoom->load('milestones'), $milestone);
+            $milestone = $this->deals->confirmStep(
+                $dealRoom,
+                $milestone,
+                $user,
+                (string) $request->input('decision', DealMilestone::STATUS_ACHIEVED),
+                (string) $request->input('bank_reference'),
+                $request->input('notes'),
+            );
         } catch (VerificationException $e) {
             return $e->toResponse();
         }
-
-        $before = $milestone->toArray();
-
-        $milestone->status = $request->input('decision', DealMilestone::STATUS_ACHIEVED);
-        $milestone->bank_reference = $request->input('bank_reference');
-        $milestone->completed_at = now();
-        $milestone->verified_by = $user->id;
-        $milestone->verified_at = now();
-        if ($request->filled('notes')) {
-            $milestone->notes = $request->input('notes');
-        }
-        $milestone->save();
-
-        AuditLog::create([
-            'user_id' => $user->id,
-            'organization_id' => $dealRoom->organization_id,
-            'action' => 'deal_milestone_confirmed',
-            'auditable_type' => DealMilestone::class,
-            'auditable_id' => $milestone->id,
-            'before_state' => $before,
-            'after_state' => $milestone->toArray(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
 
         return response()->json([
             'success' => true,
@@ -535,6 +525,12 @@ class DealRoomController extends Controller
 
         if ($user->cannot('participate', $dealRoom)) {
             return $this->forbidden('Only the buyer or the seller can raise a dispute on this deal.');
+        }
+        if (!$dealRoom->isOpen()) {
+            // One open dispute at a time; a completed or cancelled deal cannot be reopened by a dispute.
+            $code = $dealRoom->status === DealRoom::STATUS_DISPUTED ? 'DEAL_DISPUTED' : 'DEAL_NOT_OPEN';
+
+            return response()->json(['success' => false, 'code' => $code, 'message' => __('trade.errors.' . strtolower($code))], 409);
         }
 
         $validator = Validator::make($request->all(), [
@@ -594,8 +590,10 @@ class DealRoomController extends Controller
         if ($user->cannot('participate', $dealRoom)) {
             return $this->forbidden('Only the buyer or the seller can complete this deal.');
         }
-        if ($dealRoom->paused_at) {
-            return (new VerificationException('DEAL_PAUSED', __('trade.errors.deal_paused'), 423))->toResponse();
+        try {
+            $this->deals->assertOpen($dealRoom);
+        } catch (VerificationException $e) {
+            return $e->toResponse();
         }
 
         $settled = $dealRoom->milestones()

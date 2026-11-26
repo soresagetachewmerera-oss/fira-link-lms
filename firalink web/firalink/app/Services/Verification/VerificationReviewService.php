@@ -173,17 +173,46 @@ class VerificationReviewService
     {
         $tier1 = TierService::tier1Constraint();
 
-        return function ($org) use ($tier1) {
+        $licences = self::exportLicenceTypes();
+
+        return function ($org) use ($tier1, $licences) {
             $tier1($org);
             // Same rule as Organization::roleKey(): legacy records without business_role count as sellers unless typed buyer.
             $org->where(fn ($q) => $q->whereIn('business_role', BusinessRole::SELLER_ROLES)
                 ->orWhere(fn ($l) => $l->whereNull('business_role')->where(fn ($t) => $t->whereNull('business_type')->orWhere('business_type', '!=', 'buyer'))));
+            if ($licences !== []) {
+                $org->whereHas('verificationDocuments', fn ($d) => $d->whereIn('document_type', $licences)->countsForTier());
+            }
         };
     }
 
-    /** Visible to buyers: Tier 1 or higher, still valid, not suspended, a seller role. */
+    /**
+     * Document types that allow a business to offer coffee to foreign buyers (an ECTA exporter
+     * certificate). Empty list = Tier 1 alone is enough. docs/product/07_coffee_b2b_decisions.md, Q2a.
+     *
+     * @return list<string>
+     */
+    public static function exportLicenceTypes(): array
+    {
+        return array_values((array) config('verification.export_offer_documents', []));
+    }
+
+    /** The business holds an approved, unexpired export licence document (or none is configured). */
+    public static function hasExportLicence(?Organization $org): bool
+    {
+        $licences = self::exportLicenceTypes();
+
+        return $org !== null && ($licences === []
+            || $org->verificationDocuments()->whereIn('document_type', $licences)->countsForTier()->exists());
+    }
+
+    /**
+     * Visible to buyers: Tier 1 or higher, still valid, not suspended, a seller role, and an approved
+     * export licence (all lots are export offers until the local trade channel exists).
+     */
     public static function isApprovedSeller(?Organization $org): bool
     {
-        return TierService::isVisibleToBuyers($org) && in_array($org->roleKey(), BusinessRole::SELLER_ROLES, true);
+        return TierService::isVisibleToBuyers($org) && in_array($org->roleKey(), BusinessRole::SELLER_ROLES, true)
+            && self::hasExportLicence($org);
     }
 }

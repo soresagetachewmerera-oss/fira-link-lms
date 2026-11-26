@@ -87,7 +87,8 @@ class LocalDemoSellerSeeder extends Seeder
             'organization_id' => $org->id,
             'target_role' => 'exporter',
         ]);
-        foreach (TierService::requiredDocuments($org, 1) as $type) {
+        $types = array_values(array_unique(array_merge(TierService::requiredDocuments($org, 1), \App\Services\Verification\VerificationReviewService::exportLicenceTypes())));
+        foreach ($types as $type) {
             $doc = VerificationDocument::firstOrCreate(
                 ['organization_id' => $org->id, 'document_type' => $type, 'original_filename' => 'demo-' . $type . '.pdf'],
                 [

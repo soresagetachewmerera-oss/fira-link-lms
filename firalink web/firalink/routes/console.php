@@ -23,3 +23,5 @@ Schedule::command('verification:expire-and-remind')->dailyAt('06:00');
 Schedule::command('bookings:release-unpaid')->everyFifteenMinutes();
 // Coffee market: every 5 minutes; each enabled source is fetched only when its own refresh interval is due.
 Schedule::command('market:fetch')->everyFiveMinutes()->withoutOverlapping(10);
+// Release 1 (D1): stock held by accepted quotes whose contract was not signed in time.
+Schedule::command('marketplace:release-expired-holds')->hourly()->withoutOverlapping(30);

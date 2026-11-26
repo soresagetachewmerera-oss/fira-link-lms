@@ -89,6 +89,11 @@ class CoffeeListingPolicy
             return $edit;
         }
         if (!VerificationReviewService::isApprovedSeller($lot->organization)) {
+            // Tier 1 is in place but the ECTA exporter certificate is not (Q2a): say which one is missing.
+            if (\App\Services\Verification\TierService::isVisibleToBuyers($lot->organization) && !VerificationReviewService::hasExportLicence($lot->organization)) {
+                return Response::deny(__('lots.errors.export_licence_required'), 'EXPORT_LICENCE_REQUIRED');
+            }
+
             return Response::deny(__('lots.errors.tier_required'), 'VERIFICATION_REQUIRED');
         }
 

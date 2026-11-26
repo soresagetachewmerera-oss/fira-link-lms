@@ -38,7 +38,7 @@
                 </ul>
             </li>
 
-            <li class="dropdown {{ request()->routeIs('admin.marketplace.*', 'admin.verification-review.*') ? 'active' : '' }}">
+            <li class="dropdown {{ request()->routeIs('admin.marketplace.*', 'admin.verification-review.*', 'admin.trade.*') ? 'active' : '' }}">
                 <a href="javascript:void(0)" class="nav-link has-dropdown">
                     <i class="fas fa-store" style="color: #6D1A95;"></i>
                     <span>Coffee Marketplace</span>
@@ -48,6 +48,11 @@
                     <li class="{{ request()->routeIs('admin.verification-review.*') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('admin.verification-review.index') }}">{{ __('verification.admin.queue_title') }}</a>
                     </li>
+                    @if(auth()->user()?->isAdmin())
+                    <li class="{{ request()->routeIs('admin.trade.deals.*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('admin.trade.deals.index') }}">{{ __('deals.title') }}</a>
+                    </li>
+                    @endif
                     @can('review-verifications')
                     <li class="{{ request()->routeIs('admin.market-data.*') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('admin.market-data.index') }}">{{ __('market.admin.title') }}</a>

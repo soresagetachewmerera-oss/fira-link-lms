@@ -8,6 +8,8 @@ use App\Models\CoffeeListing;
 use App\Models\LotEvidence;
 use App\Services\EntitlementService;
 use App\Services\Lots\LotEvidenceService;
+use App\Services\Trade\StockService;
+use App\Services\Trade\TradeService;
 use App\Services\Verification\VerificationException;
 use App\Services\Verification\VerificationReviewService;
 use Illuminate\Auth\Access\Response as AccessResponse;
@@ -143,9 +145,23 @@ class SellerLotController extends Controller
         if (isset($fields['indicative_price_usd_per_lb'])) {
             $fields['indicative_price_usd_per_mt'] = round((float) $fields['indicative_price_usd_per_lb'] * 2204.62262, 2);
         }
-        if (isset($fields['total_quantity_bags'])) {
-            $fields['available_quantity_bags'] = (int) $fields['total_quantity_bags'];
+
+        return $fields;
+    }
+
+    /**
+     * Available bags after a change of the total. A new lot starts with all bags available; on an
+     * edit only the difference is applied, so bags already taken stay taken (never below zero).
+     */
+    private function withAvailable(array $fields, ?CoffeeListing $lot = null): array
+    {
+        if (!isset($fields['total_quantity_bags'])) {
+            return $fields;
         }
+        $total = (int) $fields['total_quantity_bags'];
+        $fields['available_quantity_bags'] = $lot
+            ? max(0, (int) $lot->available_quantity_bags + $total - (int) $lot->total_quantity_bags)
+            : $total;
 
         return $fields;
     }
@@ -200,7 +216,7 @@ class SellerLotController extends Controller
             return response()->json(['success' => false, 'message' => 'Validation error', 'errors' => $validator->errors()], 422);
         }
 
-        $lot = new CoffeeListing($this->fields($request));
+        $lot = new CoffeeListing($this->withAvailable($this->fields($request)));
         $lot->forceFill([
             'seller_id' => $user->id,
             'organization_id' => $org->id,
@@ -257,8 +273,17 @@ class SellerLotController extends Controller
             return response()->json(['success' => false, 'message' => 'CSV file is empty.'], 422);
         }
 
-        // Normalize header
-        $header = array_map(fn($h) => strtolower(trim(str_replace([' ', '-'], '_', (string) $h))), $header);
+        // Normalize header (and drop a UTF-8 byte order mark written by spreadsheet apps)
+        $header[0] = preg_replace('/^\xEF\xBB\xBF/', '', (string) $header[0]);
+        $header = array_map(fn ($h) => strtolower(trim(str_replace([' ', '-'], '_', (string) $h))), $header);
+
+        // Older templates used other column names; they map to the same lot fields.
+        $aliases = [
+            'origin' => 'origin_region', 'processing' => 'processing_method', 'bags' => 'total_quantity_bags',
+            'quantity_bags' => 'total_quantity_bags', 'min_order_bags' => 'minimum_order_bags',
+            'price_usd_lb' => 'indicative_price_usd_per_lb',
+        ];
+        $fieldNames = array_keys($this->rules(false));
 
         $imported = [];
         $errors = [];
@@ -266,53 +291,41 @@ class SellerLotController extends Controller
 
         while (($row = fgetcsv($handle)) !== false) {
             $rowNum++;
-            if (empty(array_filter($row))) {
-                continue; // skip blank line
+            if (empty(array_filter($row, fn ($v) => trim((string) $v) !== ''))) {
+                continue; // blank line
             }
-
             if (count($row) !== count($header)) {
                 $errors[] = "Row #{$rowNum}: column count mismatch.";
                 continue;
             }
 
-            $data = array_combine($header, $row);
-            $origin = trim($data['origin_region'] ?? $data['origin'] ?? '');
-            if (empty($origin)) {
-                $errors[] = "Row #{$rowNum}: origin_region is required.";
+            $data = [];
+            foreach (array_combine($header, $row) as $column => $value) {
+                $value = trim((string) $value);
+                if ($value === '') {
+                    continue;
+                }
+                if ($column === 'price_per_kg_usd' || $column === 'price') {
+                    // USD per kg in the old template ("price" meant the same); lots are priced per lb.
+                    $data['indicative_price_usd_per_lb'] = is_numeric($value) ? (string) round((float) $value / TradeService::LB_PER_KG, 2) : $value;
+                    continue;
+                }
+                $field = $aliases[$column] ?? $column;
+                if (in_array($field, $fieldNames, true)) {
+                    $data[$field] = in_array($field, ['processing_method', 'grade'], true) ? strtolower($value) : $value;
+                }
+            }
+            $data['title'] ??= isset($data['origin_region']) ? $data['origin_region'] . ' green coffee lot' : null;
+
+            // Same rules as a draft made in the app. A wrong value is reported, never replaced by a guess.
+            $validator = Validator::make($data, $this->rules(false));
+            if ($validator->fails()) {
+                $errors[] = "Row #{$rowNum}: " . implode(' ', $validator->errors()->all());
                 continue;
             }
 
-            $title = trim($data['title'] ?? '') ?: ($origin . ' Green Coffee Lot');
-            $processing = strtolower(trim($data['processing_method'] ?? $data['processing'] ?? 'washed'));
-            if (!in_array($processing, ['washed', 'natural', 'honey', 'anaerobic', 'experimental'], true)) {
-                $processing = 'washed';
-            }
-
-            $grade = strtolower(trim($data['grade'] ?? 'grade_1'));
-            if (!in_array($grade, ['grade_1', 'grade_2', 'grade_3', 'grade_4', 'grade_5', 'undergrade'], true)) {
-                $grade = 'grade_1';
-            }
-
-            $bags = max(1, (int) ($data['quantity_bags'] ?? $data['bags'] ?? 50));
-            $bagWeight = max(1.0, (float) ($data['bag_weight_kg'] ?? 60.0));
-            $price = max(0.5, (float) ($data['price_per_kg_usd'] ?? $data['price'] ?? 5.0));
-            $cropYear = trim($data['crop_year'] ?? '') ?: date('Y');
-
-            $lot = new CoffeeListing([
-                'title' => $title,
-                'origin_region' => $origin,
-                'processing_method' => $processing,
-                'grade' => $grade,
-                'variety' => trim($data['variety'] ?? 'Heirloom'),
-                'altitude_meters' => (int) ($data['altitude_meters'] ?? 1900),
-                'quantity_bags' => $bags,
-                'bag_weight_kg' => $bagWeight,
-                'total_quantity_kg' => $bags * $bagWeight,
-                'price_per_kg_usd' => $price,
-                'crop_year' => $cropYear,
-                'description' => trim($data['description'] ?? 'Imported via Bulk CSV'),
-            ]);
-
+            $fields = $this->fields(new Request($validator->validated()));
+            $lot = new CoffeeListing($this->withAvailable($fields));
             $lot->forceFill([
                 'seller_id' => $user->id,
                 'organization_id' => $org->id,
@@ -330,10 +343,11 @@ class SellerLotController extends Controller
                 'user_id' => $user->id,
                 'organization_id' => $org->id,
                 'action' => 'lots_bulk_imported',
-                'metadata' => ['count' => count($imported), 'lot_ids' => array_slice($imported, 0, 20)],
+                'auditable_type' => CoffeeListing::class,
+                'auditable_id' => $imported[0],
+                'after_state' => ['count' => count($imported), 'lot_ids' => array_slice($imported, 0, 20), 'rows_rejected' => count($errors)],
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
-                'created_at' => now(),
             ]);
         }
 
@@ -359,7 +373,18 @@ class SellerLotController extends Controller
             return response()->json(['success' => false, 'message' => 'Validation error', 'errors' => $validator->errors()], 422);
         }
 
-        $lot->fill($this->fields($request))->save();
+        // Bags held for accepted quotes or sold in signed deals cannot be edited away.
+        $taken = StockService::takenBags($lot);
+        if ($request->filled('total_quantity_bags') && (int) $request->input('total_quantity_bags') < $taken) {
+            return response()->json([
+                'success' => false,
+                'code' => 'TOTAL_BELOW_TAKEN',
+                'message' => __('lots.errors.total_below_taken', ['bags' => $taken]),
+                'errors' => ['total_quantity_bags' => [__('lots.errors.total_below_taken', ['bags' => $taken])]],
+            ], 422);
+        }
+
+        $lot->fill($this->withAvailable($this->fields($request), $lot))->save();
 
         return response()->json(['success' => true, 'data' => $this->lotJson($lot->refresh(), true)]);
     }
@@ -406,6 +431,10 @@ class SellerLotController extends Controller
         $can = Gate::inspect('delete', $lot);
         if ($can->denied()) {
             return $this->denied($can);
+        }
+        // A lot with bags held for an accepted quote waits until that deal is signed or cancelled.
+        if (\App\Models\StockReservation::where('listing_id', $lot->id)->where('status', \App\Models\StockReservation::STATUS_HELD)->exists()) {
+            return response()->json(['success' => false, 'code' => 'LOT_RESERVED', 'message' => __('lots.errors.lot_reserved')], 409);
         }
         $this->audit($request, $lot, 'lot_deleted', ['status' => $lot->status], []);
         $lot->delete();

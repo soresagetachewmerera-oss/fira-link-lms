@@ -277,10 +277,11 @@ class DealRoomMilestoneSecurityTest extends TestCase
         $otherOrg = $this->makeOrganization($this->makeUser());
 
         Sanctum::actingAs($buyer);
+        $quote = $this->acceptedQuote($listing, $buyer, $buyerOrg, 1000);
         $res = $this->postJson('/api/deal-rooms', [
-            'listing_id' => $listing->id,
+            'quotation_id' => $quote->id,
             'title' => 'Deal',
-            'target_value_usd' => 1000,
+            'target_value_usd' => 999999,
             'buyer_id' => $victim->id,
             'organization_id' => $otherOrg->id,
         ])->assertStatus(201);
@@ -289,10 +290,13 @@ class DealRoomMilestoneSecurityTest extends TestCase
         $this->assertSame($buyer->id, $deal->buyer_id);
         $this->assertSame($org->id, $deal->organization_id);
         $this->assertSame($buyerOrg->id, (int) $deal->buyer_organization_id);
+        // The value is the accepted quote's, not the request's.
+        $this->assertEquals(1000, (float) $deal->target_value_usd);
 
         // A seller cannot open a deal room with their own business.
         Sanctum::actingAs($seller);
-        $this->postJson('/api/deal-rooms', ['listing_id' => $listing->id, 'title' => 'Self', 'target_value_usd' => 1])
+        $own = $this->acceptedQuote($listing, $seller, $org, 1);
+        $this->postJson('/api/deal-rooms', ['quotation_id' => $own->id, 'title' => 'Self'])
             ->assertStatus(422)
             ->assertJsonPath('code', 'SELF_DEAL');
     }
@@ -300,10 +304,15 @@ class DealRoomMilestoneSecurityTest extends TestCase
     public function test_store_from_quote_requires_the_rfq_buyer(): void
     {
         $seller = $this->makeUser();
-        $this->makeOrganization($seller);
+        $sellerOrg = $this->makeOrganization($seller);
         $rfqOwner = $this->makeUser();
         $rfqOrg = $this->makeOrganization($rfqOwner);
         $rfqOwner->forceFill(['active_organization_id' => $rfqOrg->id])->save();
+        $lot = CoffeeListing::create([
+            'seller_id' => $seller->id, 'organization_id' => $sellerOrg->id, 'title' => 'Sidama G2', 'origin_region' => 'Sidama',
+            'processing_method' => 'washed', 'grade' => 'grade_2', 'total_quantity_bags' => 100, 'available_quantity_bags' => 100,
+            'indicative_price_usd_per_lb' => 4.2, 'status' => 'active',
+        ]);
 
         $rfq = MarketplaceRfq::create([
             'buyer_id' => $rfqOwner->id,
@@ -315,6 +324,7 @@ class DealRoomMilestoneSecurityTest extends TestCase
         ]);
         $quote = MarketplaceQuotation::create([
             'rfq_id' => $rfq->id,
+            'listing_id' => $lot->id,
             'seller_id' => $seller->id,
             'quote_number' => 'Q-T' . Str::upper(Str::random(8)),
             'offered_price_usd_per_lb' => 4.2,
@@ -333,6 +343,11 @@ class DealRoomMilestoneSecurityTest extends TestCase
             ->assertStatus(422)
             ->assertJsonPath('code', 'QUOTE_NOT_ACCEPTED');
         $quote->forceFill(['status' => MarketplaceQuotation::STATUS_ACCEPTED])->save();
+        // A quote without a lot has nothing to hold, so it cannot open a deal room.
+        $lotless = $quote->replicate(['listing_id'])->fill(['quote_number' => 'Q-L' . Str::upper(Str::random(8))]);
+        $lotless->forceFill(['status' => MarketplaceQuotation::STATUS_ACCEPTED, 'seller_id' => $seller->id])->save();
+        $this->postJson('/api/deal-rooms', ['quotation_id' => $lotless->id, 'title' => 'Deal'])->assertStatus(422)->assertJsonPath('code', 'LOT_REQUIRED');
+
         $this->postJson('/api/deal-rooms', ['quotation_id' => $quote->id, 'title' => 'Deal', 'target_value_usd' => 10000])
             ->assertStatus(201)
             ->assertJsonPath('data.my_side', 'buyer')

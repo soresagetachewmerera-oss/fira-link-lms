@@ -203,36 +203,30 @@ class MarketplaceService
     }
 
     /**
-     * Compare listing against official daily Ethiopian minimum export prices.
+     * Compare a lot with the official minimum export price. Same rule as quotes (PriceReferenceService):
+     * a published, sourced price list only, exact origin, grade and process; no match means no benchmark.
      */
     public function getOfficialBenchmarkPrice(CoffeeListing $listing): ?array
     {
-        $record = CoffeeMinimumPriceRecord::query()
-            ->where('origin', 'LIKE', "%{$listing->origin_region}%")
-            ->where(function ($q) use ($listing) {
-                $q->where('processing_method', 'LIKE', "%{$listing->processing_method}%")
-                  ->orWhere('coffee_type', 'LIKE', "%{$listing->origin_region}%");
-            })
-            ->latest('effective_date')
-            ->first();
-
-        if (!$record) {
+        $reference = app(\App\Services\Trade\PriceReferenceService::class)->minimumFor($listing);
+        if (!$reference) {
             return null;
         }
 
-        $benchmarkPrice = (float) $record->minimum_price;
+        $benchmarkPrice = (float) $reference['minimum_usd_per_lb'];
         $offeredPrice = (float) $listing->indicative_price_usd_per_lb;
         $variance = $offeredPrice > 0 ? round($offeredPrice - $benchmarkPrice, 2) : 0;
         $variancePercentage = $benchmarkPrice > 0 ? round(($variance / $benchmarkPrice) * 100, 1) : 0;
 
         return [
             'benchmark_price_usd_lb' => $benchmarkPrice,
-            'effective_date' => $record->effective_date,
+            'effective_date' => $reference['effective_date'],
+            'source' => $reference['source'],
             'variance_usd' => $variance,
             'variance_percentage' => $variancePercentage,
             'status' => $variance >= 0 ? 'compliant_above_minimum' : 'below_regulatory_minimum',
-            'regulatory_note' => $variance >= 0 
-                ? 'Price is compliant with Ethiopian Coffee & Tea Authority regulatory export minimums.' 
+            'regulatory_note' => $variance >= 0
+                ? 'Price is compliant with Ethiopian Coffee & Tea Authority regulatory export minimums.'
                 : 'Note: ECTA regulations require final export contracts to meet or exceed daily minimum prices.',
         ];
     }

@@ -260,6 +260,18 @@ Run on the production server **in this order**. Always run the dry run first and
       longer used and are read-only. Set `MAIL_FROM_SECURITY`, `MAIL_FROM_NO_REPLY`, `MAIL_SUPPORT_ADDRESS` and the
       DNS records in `docs/messaging/email-delivery.md` before go-live; the site must serve `/assets/email/`.
 
+16. Coffee B2B release 0 and 1 (`docs/audits/coffee-b2b-audit-2026-11-25.md`, decisions in
+    `docs/product/07_coffee_b2b_decisions.md`). Deploy with `python scripts/deploy_lms_production.py --migrate`
+    (it stops when migrations are pending; take a database backup first). `php artisan migrate` adds
+    `stock_reservations`.
+    - Accepting a quote now holds its bags; an unsigned deal releases them after `DEAL_RESERVATION_HOLD_DAYS`
+      (default 7) through the hourly `marketplace:release-expired-holds`, which also cancels that deal room.
+      Accepted quotes from before this release get their hold when their deal room opens, or fail if the bags are gone.
+    - After this deploy, lots are visible to buyers only when the seller business also has an approved, unexpired
+      `ecta_exporter_certificate` (`config/verification.php` → `export_offer_documents`; `[]` turns it off).
+      Before deploying, count the Tier 1 seller businesses without one: their lots will be hidden.
+    - Deal rooms open only from an accepted quote (`quotation_id`); `listing_id` alone answers `QUOTE_REQUIRED`.
+    - Admins confirm payment steps, decide disputes and cancel deals at Admin → Coffee Marketplace → Deal rooms.
 ## 4. Workflow per slice
 
 The user names one slice at a time. Do not start the next slice without their OK.

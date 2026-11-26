@@ -30,6 +30,12 @@ class DealRoomPolicy
         return $this->isParticipant($user, $dealRoom);
     }
 
+    /** Sign the contract: owner or manager of the buyer or seller business, never staff. */
+    public function sign(User $user, DealRoom $dealRoom): bool
+    {
+        return DealRoomService::canSign($user, $dealRoom);
+    }
+
     /**
      * Mark a milestone achieved after the bank (or inspector) confirms it.
      * Never a party to the deal: platform admin or finance only.

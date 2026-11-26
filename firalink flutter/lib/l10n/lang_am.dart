@@ -1138,6 +1138,7 @@ const Map<String, String> kLangAm = {
   'blockerLotRequired': "ምርት አልተያያዘም፣ ስለዚህ መቀበል አይቻልም።",
   'blockerSellerNotVerified': "ሻጩ በአሁኑ ጊዜ የተረጋገጠ አይደለም፣ ስለዚህ መቀበል አይቻልም።",
   'blockerBuyerNotVerified': "የዋጋ ማቅረቢያዎችን ለመቀበል ንግድዎ የሚሰራ የደረጃ 1 ማረጋገጫ ያስፈልገዋል።",
+  'blockerStockUnavailable': "ምርቱ ለዚህ የዋጋ ማቅረቢያ በቂ ከረጢት ስለሌለው መቀበል አይቻልም።",
   'exportersSearch': "በንግድ ስም ይፈልጉ",
   'exportersEmpty': "የተረጋገጡ ላኪዎች አልተገኙም።",
   'exporterActiveLots': "ንቁ ምርቶች",

@@ -1138,6 +1138,7 @@ const Map<String, String> kLangEn = {
   'blockerLotRequired': "No lot attached, so it cannot be accepted.",
   'blockerSellerNotVerified': "The seller is not verified at the moment, so it cannot be accepted.",
   'blockerBuyerNotVerified': "Your business needs an active Tier 1 verification to accept quotes.",
+  'blockerStockUnavailable': "The lot no longer has enough bags for this quote, so it cannot be accepted.",
   'exportersSearch': "Search by business name",
   'exportersEmpty': "No verified exporters found.",
   'exporterActiveLots': "Active lots",

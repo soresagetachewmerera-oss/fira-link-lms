@@ -105,6 +105,16 @@ Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('a
         ->whereNumber('id')
         ->name('private-files.show');
 
+    // Release 1 (D5): deal rooms. Staff confirm payment steps, decide disputes and cancel deals.
+    // Money and cancellation need a fresh confirmation ("sensitive").
+    Route::prefix('trade/deals')->name('trade.deals.')->controller(\App\Http\Controllers\Admin\DealAdminController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{deal}', 'show')->whereNumber('deal')->name('show');
+        Route::post('/{deal}/steps/{milestone}/confirm', 'confirmStep')->whereNumber('deal')->whereNumber('milestone')->middleware('sensitive')->name('confirm');
+        Route::post('/{deal}/dispute', 'resolveDispute')->whereNumber('deal')->middleware('sensitive')->name('dispute');
+        Route::post('/{deal}/cancel', 'cancel')->whereNumber('deal')->middleware('sensitive')->name('cancel');
+    });
+
     // Coffee B2B Marketplace Management
     Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::get('/sellers', [\App\Http\Controllers\Admin\MarketplaceAdminController::class, 'sellers'])->name('sellers');

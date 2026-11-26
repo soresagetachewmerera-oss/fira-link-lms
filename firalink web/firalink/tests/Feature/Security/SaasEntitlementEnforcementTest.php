@@ -150,9 +150,8 @@ class SaasEntitlementEnforcementTest extends TestCase
         $buyer->update(['active_organization_id' => $buyerOrg->id]);
 
         $res1 = $this->postJson('/api/deal-rooms', [
-            'listing_id' => $lot->id,
+            'quotation_id' => $this->acceptedQuote($lot, $buyer, $buyerOrg, 15000)->id,
             'title' => 'Deal 1',
-            'target_value_usd' => 15000,
         ]);
         $res1->assertStatus(201);
 
@@ -175,9 +174,8 @@ class SaasEntitlementEnforcementTest extends TestCase
         ]);
 
         $res2 = $this->postJson('/api/deal-rooms', [
-            'listing_id' => $lot2->id,
+            'quotation_id' => $this->acceptedQuote($lot2, $buyer, $buyerOrg, 20000)->id,
             'title' => 'Deal 2',
-            'target_value_usd' => 20000,
         ]);
 
         $res2->assertStatus(403)

@@ -30,6 +30,14 @@ return [
         'own_business_report' => 'You cannot report your own business.',
         'report_target' => 'Choose what you are reporting.',
         'message_invalid' => 'Write a message of up to 2,000 characters.',
+        'quote_required' => 'Open a deal room from a quote you accepted.',
+        'deal_disputed' => 'This deal has an open dispute. Steps and payments are on hold until Fira Link decides it.',
+        'deal_not_open' => 'This deal is closed or cancelled, so nothing more can be done here. Contact support if something is wrong.',
+        'contract_locked' => 'A party has already signed this contract, so the file can no longer be replaced.',
+        'sign_not_allowed' => 'Only the owner or a manager of this business can sign the contract.',
+        'reservation_expired' => 'The bags held for this quote were released because the contract was not signed in time. Ask the seller for a new quote.',
+        'no_open_dispute' => 'This deal has no open dispute.',
+        'below_minimum_order' => 'The minimum order for this lot is :bags bags.',
         'deal_paused' => 'This deal is paused while Fira Link checks a report. Payments and steps are on hold.',
         'step_locked' => 'This step opens after Fira Link confirms the step before it with the bank.',
         'other_side_step' => 'The other business completes this step.',
@@ -50,6 +58,7 @@ return [
         'SELLER_NOT_VERIFIED' => 'The seller is not verified at the moment, so this quote cannot be accepted.',
         'BUYER_NOT_VERIFIED' => 'Your business needs an active Tier 1 verification to accept quotes.',
         'BELOW_MINIMUM' => 'This price is below the ECTA minimum export price, so it cannot be accepted.',
+        'STOCK_UNAVAILABLE' => 'The lot no longer has enough bags for this quote, so it cannot be accepted.',
     ],
 
     'notifications' => [

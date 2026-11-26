@@ -16,6 +16,16 @@ use Laravel\Fortify\Fortify;
  */
 trait ApprovesBusinesses
 {
+    protected bool $withExportLicence = true;
+
+    /** The next approveBusiness() calls give sellers Tier 1 only, without the ECTA exporter certificate. */
+    protected function withoutExportLicence(): static
+    {
+        $this->withExportLicence = false;
+
+        return $this;
+    }
+
     protected function approveBusiness(Organization $org, string $role = 'exporter', ?\DateTimeInterface $expires = null, int $tier = 1): Organization
     {
         if ($org->business_role !== $role) {
@@ -26,6 +36,11 @@ trait ApprovesBusinesses
         $types = TierService::requiredDocuments($org, 1);
         if ($tier >= 2) {
             $types = array_merge($types, TierService::requiredDocuments($org, 2));
+        }
+        // Seller businesses that offer coffee to buyers also hold the export licence (Q2a). Tests that
+        // need a seller without one use withoutExportLicence().
+        if ($this->withExportLicence && in_array($role, \App\Support\BusinessRole::SELLER_ROLES, true)) {
+            $types = array_values(array_unique(array_merge($types, \App\Services\Verification\VerificationReviewService::exportLicenceTypes())));
         }
         foreach ($types as $type) {
             $config = TierService::documentTypeConfig($type);

@@ -57,6 +57,7 @@ class TradeLabels {
         'LOT_REQUIRED' => l10n.blockerLotRequired,
         'SELLER_NOT_VERIFIED' => l10n.blockerSellerNotVerified,
         'BUYER_NOT_VERIFIED' => l10n.blockerBuyerNotVerified,
+        'STOCK_UNAVAILABLE' => l10n.blockerStockUnavailable,
         _ => null,
       };
 
