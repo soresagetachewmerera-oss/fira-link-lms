@@ -131,18 +131,25 @@ class HeroOverviewTest extends TestCase
         $expectedCostPerKg = number_format(round($calc['cost_breakdown_etb']['total_cost'] / $calc['net_weight_kg'], 2), 0);
 
         $html = $this->get('/')->assertOk()->getContent();
-        $this->assertStringContainsString('251.40', $html);
-        $this->assertStringContainsString('Up · Daily close', $html);
-        $this->assertStringContainsString('International Coffee Organization (ICO)', $html);
-        $this->assertStringContainsString($expectedCostPerKg, $html);
-        $this->assertStringContainsString('Example shipment · FOB', $html);
-        $this->assertStringContainsString('Ask about prices and export steps', $html);
-        $this->assertStringContainsString('Sources named', $html);
-        $this->assertStringContainsString('ECTA schedule updated', $html);
-        $this->assertStringContainsString('Effective 2026-11-21 · 2 specs', $html);
-        $this->assertStringContainsString('$2.37', $html);
-        $this->assertStringContainsString('$9.87', $html);
-        $this->assertStringNotContainsString('100% sourced', $html);
+        $heroStart = strpos($html, '<section class="fira-hero"');
+        $heroEnd = strpos($html, '</section>', $heroStart);
+        $heroHtml = substr($html, $heroStart, $heroEnd - $heroStart + 10);
+
+        $this->assertStringContainsString('251.40', $heroHtml);
+        $this->assertStringContainsString('Up · Daily close', $heroHtml);
+        $this->assertStringContainsString('International Coffee Organization (ICO)', $heroHtml);
+        $this->assertStringContainsString($expectedCostPerKg, $heroHtml);
+        $this->assertStringContainsString('Example shipment · FOB', $heroHtml);
+        $this->assertStringContainsString('Ask about prices and export steps', $heroHtml);
+        $this->assertStringContainsString('Sources named', $heroHtml);
+        $this->assertStringContainsString('ECTA schedule updated', $heroHtml);
+        $this->assertStringContainsString('Effective 2026-11-21 · 2 specs', $heroHtml);
+        $this->assertStringContainsString('$2.37', $heroHtml);
+        $this->assertStringContainsString('$9.87', $heroHtml);
+        $this->assertStringNotContainsString('100% sourced', $heroHtml);
+        $this->assertDoesNotMatchRegularExpression('/\bLive\b/i', strip_tags($heroHtml));
+        $this->assertStringNotContainsString('$5.20', $heroHtml);
+        $this->assertStringNotContainsString('$4.85', $heroHtml);
 
         // Also works for authenticated user
         $user = User::factory()->create();
@@ -171,8 +178,12 @@ class HeroOverviewTest extends TestCase
         HeroOverviewService::forgetCache();
 
         $htmlOff = $this->get('/')->assertOk()->getContent();
-        $this->assertStringContainsString('Unavailable', $htmlOff);
-        $this->assertStringNotContainsString('247.26', $htmlOff);
+        $heroStart = strpos($htmlOff, '<section class="fira-hero"');
+        $heroEnd = strpos($htmlOff, '</section>', $heroStart);
+        $heroHtmlOff = substr($htmlOff, $heroStart, $heroEnd - $heroStart + 10);
+        $this->assertStringContainsString('Unavailable', $heroHtmlOff);
+        $this->assertStringNotContainsString('247.26', $heroHtmlOff);
+        $this->assertDoesNotMatchRegularExpression('/\bLive\b/i', strip_tags($heroHtmlOff));
     }
 
     public function test_api_market_overview_includes_site_hero_payload(): void
