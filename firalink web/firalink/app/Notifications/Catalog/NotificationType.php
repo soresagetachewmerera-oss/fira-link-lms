@@ -140,6 +140,7 @@ enum NotificationType: string
     case StaffVerificationSummary = 'staff.verification_summary';
     case StaffNewInstructor = 'staff.new_instructor';
     case StaffContactForm = 'staff.contact_form';
+    case StaffMarketSourceDown = 'staff.market_source_down';
 
     // ── K. Marketing ────────────────────────────────────────────────────────
     case Newsletter = 'marketing.newsletter';
@@ -326,6 +327,7 @@ enum NotificationType: string
             self::StaffVerificationSummary->value => $staff(),
             self::StaffNewInstructor->value => $staff(),
             self::StaffContactForm->value => $staff(),
+            self::StaffMarketSourceDown->value => $staff(),
 
             // K
             self::Newsletter->value => $mkt(),

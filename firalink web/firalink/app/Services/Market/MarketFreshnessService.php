@@ -22,7 +22,11 @@ class MarketFreshnessService
         if ($age > $maxAge) {
             return ['status' => 'stale', 'delay_minutes' => $age, 'label' => __('market.freshness.stale', ['minutes' => $age])];
         }
-        if (in_array($series->price_type, ['daily_close', 'weekly_regulatory_floor'], true)) {
+        if ($series->price_type === 'weekly_regulatory_floor') {
+            // An official price list in force from a date, not a market close.
+            return ['status' => 'schedule', 'delay_minutes' => $age, 'label' => __('market.freshness.schedule', ['date' => $price->source_time->toDateString()])];
+        }
+        if ($series->price_type === 'daily_close') {
             return ['status' => 'daily_close', 'delay_minutes' => $age, 'label' => __('market.freshness.daily_close', ['date' => $price->source_time->toDateString()])];
         }
         if (($series->source->configuration['real_time'] ?? false) === true) {

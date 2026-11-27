@@ -121,4 +121,18 @@ return [
             'push_body' => 'Your account is ready. Explore courses and trade tools.',
         ],
     ],
+
+    // Staff mailboxes (config market.admin_email). English and Amharic; staff read English by default.
+    'staff' => [
+        'market_source_down' => [
+            'subject' => 'Market source down: :source',
+            'preheader' => 'No successful fetch since :since.',
+            'eyebrow' => 'Coffee market data',
+            'heading' => ':source has stopped updating',
+            'body' => "The last successful fetch from :source was at :since. The last attempt failed with: :error
+
+Its prices turn Stale and then Unavailable on the website and in the app until a fetch succeeds. Check the source in Admin, Coffee market sources.",
+            'cta' => 'Open market sources',
+        ],
+    ],
 ];

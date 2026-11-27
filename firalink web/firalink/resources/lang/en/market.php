@@ -3,7 +3,7 @@
 return [
     'disclaimer' => 'Prices are indicative and are not trading advice.',
     'freshness' => [
-        'live' => 'Live', 'delayed' => 'Delayed :minutes min', 'daily_close' => 'Daily close · :date',
+        'live' => 'Live', 'delayed' => 'Delayed :minutes min', 'daily_close' => 'Daily close · :date', 'schedule' => 'Official schedule · effective :date',
         'stale' => 'Stale · :minutes min old', 'unavailable' => 'Unavailable',
     ],
     'summary' => [
@@ -61,5 +61,40 @@ return [
         'title' => 'Coffee market sources', 'source_updated' => 'Source status updated.',
         'fetch_complete' => 'Source fetch completed.', 'fetch_failed' => 'Source fetch failed. Review the source error.',
         'price_approved' => 'Price approved and published.', 'price_rejected' => 'Price rejected.', 'already_reviewed' => 'This row was already reviewed.',
+    ],
+    // Market watch rows (MarketWatchService). Numbers stay in Latin digits in every language.
+    'watch' => [
+        'range_unavailable' => 'This range needs intraday prices, which this source does not provide.',
+        'disclaimer' => 'Market information only, not trading advice.',
+        'names' => [
+            'ICO_COMPOSITE' => 'ICO Composite Indicator Price',
+            'KC_ACTIVE' => 'ICE Coffee C futures, active contract',
+            'ETB_USD' => 'Birr per US dollar (NBE)',
+            'ICO_COLOMBIAN_MILDS' => 'ICO Colombian Milds',
+            'ICO_OTHER_MILDS' => 'ICO Other Milds',
+            'ICO_BRAZILIAN_NATURALS' => 'ICO Brazilian Naturals',
+            'ICO_ROBUSTAS' => 'ICO Robustas',
+            'ECX_COFFEE_CLOSE' => 'ECX coffee close',
+        ],
+        'short' => [
+            'ICO_COMPOSITE' => 'ICO composite', 'KC_ACTIVE' => 'Coffee C', 'ETB_USD' => 'ETB/USD',
+            'ICO_COLOMBIAN_MILDS' => 'Colombian milds', 'ICO_OTHER_MILDS' => 'Other milds',
+            'ICO_BRAZILIAN_NATURALS' => 'Brazilian naturals', 'ICO_ROBUSTAS' => 'Robustas', 'ECX_COFFEE_CLOSE' => 'ECX coffee',
+        ],
+        'units' => [
+            'USX_lb' => 'US¢/lb', 'USD_lb' => 'USD/lb', 'ETB_USD' => 'ETB per USD', 'ETB_feresula_17kg' => 'ETB/feresula (17 kg)',
+        ],
+        'units_spoken' => [
+            'USX_lb' => 'US cents per pound', 'USD_lb' => 'US dollars per pound', 'ETB_USD' => 'birr per US dollar',
+            'ETB_feresula_17kg' => 'birr per feresula of 17 kilograms',
+        ],
+        'a11y' => [
+            'available' => ':name, :price :unit, :change, :status.',
+            'up' => 'up :change, :pct percent',
+            'down' => 'down :change, :pct percent',
+            'flat' => 'unchanged',
+            'no_previous' => 'no previous close yet',
+            'unavailable' => ':name, unavailable.',
+        ],
     ],
 ];

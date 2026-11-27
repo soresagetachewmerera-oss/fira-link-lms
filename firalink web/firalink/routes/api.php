@@ -139,6 +139,7 @@ Route::middleware('throttle:public')->group(function () {
 
     // Coffee market data: stored, validated prices with source and source time (public, per-IP limit, MarketSeriesPolicy).
     Route::prefix('market')->middleware('throttle:market-public')->controller(\App\Http\Controllers\Api\MarketDataController::class)->group(function () {
+        Route::get('/watch', 'watch');
         Route::get('/overview', 'overview');
         Route::get('/series', 'series');
         Route::get('/sources', 'sources');

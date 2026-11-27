@@ -93,7 +93,7 @@
     $isDaily = fn (array $row) => in_array($row['price_type'], ['daily_close', 'weekly_regulatory_floor'], true);
     $hasValue = fn (array $row) => $row['value'] !== null && $row['freshness']['status'] !== 'unavailable';
     $icon = fn (string $status) => match ($status) {
-        'live' => 'fa-circle', 'delayed' => 'fa-clock', 'daily_close' => 'fa-calendar-day', 'stale' => 'fa-history', default => 'fa-ban',
+        'live' => 'fa-circle', 'delayed' => 'fa-clock', 'daily_close' => 'fa-calendar-day', 'schedule' => 'fa-file-contract', 'stale' => 'fa-history', default => 'fa-ban',
     };
     $trendIcon = fn (string $trend) => match ($trend) {
         'bullish' => 'fa-arrow-trend-up', 'bearish' => 'fa-arrow-trend-down', 'sideways' => 'fa-arrows-left-right', default => 'fa-hourglass-half',

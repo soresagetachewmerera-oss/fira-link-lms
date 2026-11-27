@@ -5,9 +5,11 @@ namespace App\Services\Market;
 use App\Models\MarketPrice;
 use App\Models\MarketSeries;
 use App\Models\MarketSource;
+use App\Notifications\Catalog\NotificationType;
 use App\Services\Market\Adapters\ApiNinjasCoffeeAdapter;
 use App\Services\Market\Adapters\IcoDailyAdapter;
 use App\Services\Market\Adapters\MarketSourceAdapter;
+use App\Services\Notifications\Notifier;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -38,10 +40,64 @@ class MarketIngestionService
             return [$this->fetchSource(MarketSource::query()->where('slug', $slug)->firstOrFail(), $dryRun)];
         }
 
-        return MarketSource::query()->where('enabled', true)->orderBy('id')->get()
+        $results = MarketSource::query()->where('enabled', true)->orderBy('id')->get()
             ->filter(fn (MarketSource $source) => $this->isDue($source))
             ->map(fn (MarketSource $source) => $this->fetchSource($source, $dryRun))
             ->values()->all();
+        if (!$dryRun) {
+            $this->alertOutages();
+        }
+
+        return $results;
+    }
+
+    /**
+     * Tells the staff mailbox (config market.admin_email) once per outage when an automatic source has had no
+     * successful fetch for market.outage_cycles refresh intervals and its last attempt failed.
+     * Sources without a fetch cycle (typed in by an admin, ECTA lists, no feed) are not checked.
+     *
+     * @return array<int, string> slugs alerted now
+     */
+    public function alertOutages(?CarbonImmutable $now = null): array
+    {
+        $now ??= CarbonImmutable::now('UTC');
+        $cycles = max(2, (int) config('market.outage_cycles', 2));
+        $alerted = [];
+
+        foreach (MarketSource::query()->where('enabled', true)->orderBy('id')->get() as $source) {
+            if (!isset(self::ADAPTERS[$source->adapter]) || $source->last_attempt_at === null || $source->last_error === null) {
+                continue;
+            }
+            if (($source->configuration['skip_weekends'] ?? false) && $now->isWeekend()) {
+                continue;
+            }
+            $threshold = $now->subMinutes($cycles * max(1, (int) $source->refresh_minutes));
+            if ($source->last_success_at !== null && $source->last_success_at->gte($threshold)) {
+                continue;
+            }
+            // Already told about this outage (no success since the last alert).
+            if ($source->alerted_at !== null && ($source->last_success_at === null || $source->alerted_at->gt($source->last_success_at))) {
+                continue;
+            }
+
+            $since = $source->last_success_at ? $source->last_success_at->copy()->utc()->format('Y-m-d H:i') . ' UTC' : '—';
+            Log::error('market.source_down', ['source' => $source->slug, 'last_success_at' => $since, 'error' => $source->last_error]);
+            $email = config('market.admin_email');
+            if ($email) {
+                app(Notifier::class)->sendToAddress('mail', $email, NotificationType::StaffMarketSourceDown, [
+                    'source' => $source->name,
+                    'since' => $since,
+                    'error' => Str::limit((string) $source->last_error, 200),
+                    'action_url' => route('admin.market-data.index'),
+                ], 'market_source_down:' . $source->slug . ':' . $now->format('YmdHi'));
+            } else {
+                Log::warning('market.admin_email is not set; source outage alert not sent.', ['source' => $source->slug]);
+            }
+            $source->forceFill(['alerted_at' => now()])->save();
+            $alerted[] = $source->slug;
+        }
+
+        return $alerted;
     }
 
     public function isDue(MarketSource $source, ?CarbonImmutable $now = null): bool
@@ -61,6 +117,18 @@ class MarketIngestionService
 
         if (!$dryRun && !$source->enabled) {
             return ['status' => 'disabled'] + $result;
+        }
+        if ($source->adapter === EctaScheduleSync::SOURCE) {
+            // ECTA minimum prices come from the price lists admins publish, not from a remote feed.
+            $result['rows'] = app(EctaScheduleSync::class)->syncAll($dryRun);
+            if (!$dryRun) {
+                $source->forceFill(['last_attempt_at' => now(), 'last_success_at' => now(), 'last_error' => null])->save();
+            }
+
+            return $result;
+        }
+        if ($source->adapter === 'manual') {
+            return ['status' => 'manual', 'error' => 'Prices for this source are typed in by an admin and reviewed (market:enter-price).'] + $result;
         }
         $adapter = $this->adapter($source);
         if (!$adapter) {

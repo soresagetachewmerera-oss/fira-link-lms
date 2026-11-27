@@ -52,6 +52,7 @@ return [
     'GET api/marketplace/filters' => 'read',
     'GET api/marketplace/plans' => 'read',
     'GET api/workspaces/options' => 'read',
+    'GET api/market/watch' => 'read',
     'GET api/market/overview' => 'read',
     'GET api/market/series' => 'read',
     'GET api/market/sources' => 'read',

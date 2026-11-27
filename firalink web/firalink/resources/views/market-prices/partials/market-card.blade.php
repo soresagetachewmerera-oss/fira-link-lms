@@ -10,7 +10,7 @@
     $mcUnitKey = $mcRow ? $mcRow['currency'] . '/' . $mcRow['unit'] : null;
     $mcUnit = $mcUnitKey ? (__('market.web.units.' . $mcUnitKey) === 'market.web.units.' . $mcUnitKey ? $mcUnitKey : __('market.web.units.' . $mcUnitKey)) : null;
     $mcTrendIcon = $mcRow ? match ($mcRow['trend']['label']) { 'bullish' => 'fa-arrow-trend-up', 'bearish' => 'fa-arrow-trend-down', 'sideways' => 'fa-arrows-left-right', default => 'fa-hourglass-half' } : null;
-    $mcFreshIcon = $mcRow ? match ($mcRow['freshness']['status']) { 'live' => 'fa-circle', 'delayed' => 'fa-clock', 'daily_close' => 'fa-calendar-day', 'stale' => 'fa-history', default => 'fa-ban' } : 'fa-ban';
+    $mcFreshIcon = $mcRow ? match ($mcRow['freshness']['status']) { 'live' => 'fa-circle', 'delayed' => 'fa-clock', 'daily_close' => 'fa-calendar-day', 'schedule' => 'fa-file-contract', 'stale' => 'fa-history', default => 'fa-ban' } : 'fa-ban';
 @endphp
 <a href="{{ route('market-prices.index') }}" class="fira-market-card" style="display:block;padding:20px;border-radius:var(--fira-radius);background:var(--fira-primary-dark);color:#fff;text-decoration:none;max-width:420px">
     <div style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px"><i class="fas fa-chart-line" aria-hidden="true"></i>{{ __('market.web.card_title') }}</div>

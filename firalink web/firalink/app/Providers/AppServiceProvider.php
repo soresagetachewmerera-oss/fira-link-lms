@@ -74,6 +74,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Market watch: a published, unpublished or deleted ECTA price list updates the tracked ECTA rows.
+        \App\Models\CoffeeMinimumPriceDataset::saved(fn ($dataset) => \App\Services\Market\EctaScheduleSync::onListChanged($dataset));
+        \App\Models\CoffeeMinimumPriceDataset::deleted(fn ($dataset) => \App\Services\Market\EctaScheduleSync::onListChanged($dataset, deleted: true));
+
         // Messaging slice 1: every catalogue message and channel ends up in notification_deliveries.
         \Illuminate\Support\Facades\Event::listen(\Illuminate\Notifications\Events\NotificationSent::class, function ($e) {
             if ($e->notification instanceof \App\Notifications\FiraNotification) {

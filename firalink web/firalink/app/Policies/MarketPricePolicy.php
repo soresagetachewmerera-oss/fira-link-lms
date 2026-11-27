@@ -7,8 +7,13 @@ use App\Models\User;
 
 class MarketPricePolicy
 {
+    /** Market reviewers approve or reject held prices; a typed-in price never by the person who typed it. */
     public function review(User $user, MarketPrice $price): bool
     {
+        if ((int) ($price->raw_ref['entered_by'] ?? 0) === (int) $user->id) {
+            return false;
+        }
+
         return $user->can('review-verifications');
     }
 }

@@ -11,6 +11,16 @@ return [
         'mean_threshold_percent' => 1.5,
         'slope_threshold_percent' => 0.25,
     ],
+    // Market watch rows (/api/market/watch, website and app).
+    'watch' => [
+        'cache_seconds' => 60,
+        'http_max_age_seconds' => 300,
+        'sparkline_points' => 30,
+        'home_rows' => 4,
+    ],
+    // Staff mailbox told when an automatic source misses this many fetch cycles in a row.
+    'admin_email' => env('MARKET_ADMIN_EMAIL', env('VERIFICATION_ADMIN_EMAIL')),
+    'outage_cycles' => 2,
     'ai_enabled' => (bool) env('MARKET_AI_ENABLED', false),
     'live_smoke_tests' => (bool) env('MARKET_LIVE_SMOKE_TESTS', false),
 ];

@@ -40,7 +40,8 @@ class EmailLayoutTest extends TestCase
     public function test_the_three_first_messages_have_email_texts_in_both_languages(): void
     {
         $text = app(MessageText::class);
-        $required = array_merge(self::CODE_TYPES, [NotificationType::PasswordResetLink, NotificationType::Welcome]);
+        // Slice 2 messages, plus the market watch staff alert (2026-11-27).
+        $required = array_merge(self::CODE_TYPES, [NotificationType::PasswordResetLink, NotificationType::Welcome, NotificationType::StaffMarketSourceDown]);
         foreach ($required as $type) {
             foreach (['en', 'am'] as $locale) {
                 foreach (['subject', 'preheader', 'heading', 'body'] as $part) {

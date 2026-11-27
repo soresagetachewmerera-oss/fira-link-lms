@@ -3,7 +3,7 @@
 return [
     'disclaimer' => 'ዋጋዎቹ ለማመላከቻ ብቻ ናቸው፤ የንግድ ምክር አይደሉም።',
     'freshness' => [
-        'live' => 'ቀጥታ', 'delayed' => ':minutes ደቂቃ የዘገየ', 'daily_close' => 'የቀን መዝጊያ · :date',
+        'live' => 'ቀጥታ', 'delayed' => ':minutes ደቂቃ የዘገየ', 'daily_close' => 'የቀን መዝጊያ · :date', 'schedule' => 'ይፋዊ የዋጋ ተመን · ከ:date ጀምሮ',
         'stale' => 'የቆየ · :minutes ደቂቃ', 'unavailable' => 'አይገኝም',
     ],
     'summary' => [
@@ -61,5 +61,40 @@ return [
         'title' => 'የቡና ገበያ ምንጮች', 'source_updated' => 'የምንጩ ሁኔታ ተሻሽሏል።',
         'fetch_complete' => 'የምንጩ መረጃ ተጠናቋል።', 'fetch_failed' => 'የምንጩ መረጃ አልተሳካም። ስህተቱን ይመልከቱ።',
         'price_approved' => 'ዋጋው ጸድቆ ታትሟል።', 'price_rejected' => 'ዋጋው ውድቅ ተደርጓል።', 'already_reviewed' => 'ይህ መዝገብ አስቀድሞ ተገምግሟል።',
+    ],
+    // የገበያ ክትትል (MarketWatchService)። ቁጥሮች በላቲን አሃዞች ይቆያሉ። ረቂቅ ትርጉም፦ ከመለቀቁ በፊት በአማርኛ ተናጋሪ ይታይ።
+    'watch' => [
+        'range_unavailable' => 'ይህ ክልል የቀን ውስጥ ዋጋዎችን ይፈልጋል፤ ይህ ምንጭ አያቀርባቸውም።',
+        'disclaimer' => 'የገበያ መረጃ ብቻ ነው፤ የንግድ ምክር አይደለም።',
+        'names' => [
+            'ICO_COMPOSITE' => 'የICO አጠቃላይ አመላካች ዋጋ',
+            'KC_ACTIVE' => 'ICE Coffee C ፊውቸርስ፣ ንቁ ውል',
+            'ETB_USD' => 'ብር በአንድ የአሜሪካ ዶላር (ብሔራዊ ባንክ)',
+            'ICO_COLOMBIAN_MILDS' => 'ICO የኮሎምቢያ ማይልድስ',
+            'ICO_OTHER_MILDS' => 'ICO ሌሎች ማይልድስ',
+            'ICO_BRAZILIAN_NATURALS' => 'ICO የብራዚል ናቹራልስ',
+            'ICO_ROBUSTAS' => 'ICO ሮቡስታ',
+            'ECX_COFFEE_CLOSE' => 'የECX ቡና መዝጊያ',
+        ],
+        'short' => [
+            'ICO_COMPOSITE' => 'ICO አጠቃላይ', 'KC_ACTIVE' => 'Coffee C', 'ETB_USD' => 'ብር/ዶላር',
+            'ICO_COLOMBIAN_MILDS' => 'ኮሎምቢያ ማይልድስ', 'ICO_OTHER_MILDS' => 'ሌሎች ማይልድስ',
+            'ICO_BRAZILIAN_NATURALS' => 'ብራዚል ናቹራልስ', 'ICO_ROBUSTAS' => 'ሮቡስታ', 'ECX_COFFEE_CLOSE' => 'ECX ቡና',
+        ],
+        'units' => [
+            'USX_lb' => 'US¢/ፓውንድ', 'USD_lb' => 'ዶላር/ፓውንድ', 'ETB_USD' => 'ብር በዶላር', 'ETB_feresula_17kg' => 'ብር/ፈረሱላ (17 ኪ.ግ)',
+        ],
+        'units_spoken' => [
+            'USX_lb' => 'የአሜሪካ ሳንቲም በፓውንድ', 'USD_lb' => 'የአሜሪካ ዶላር በፓውንድ', 'ETB_USD' => 'ብር በአንድ የአሜሪካ ዶላር',
+            'ETB_feresula_17kg' => 'ብር በ17 ኪሎ ግራም ፈረሱላ',
+        ],
+        'a11y' => [
+            'available' => ':name፣ :price :unit፣ :change፣ :status።',
+            'up' => ':change ጨምሯል፣ :pct በመቶ',
+            'down' => ':change ቀንሷል፣ :pct በመቶ',
+            'flat' => 'ለውጥ የለም',
+            'no_previous' => 'ያለፈው መዝጊያ ገና የለም',
+            'unavailable' => ':name፣ አይገኝም።',
+        ],
     ],
 ];
