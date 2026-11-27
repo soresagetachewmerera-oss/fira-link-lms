@@ -116,35 +116,70 @@ def sha256(path: Path) -> str:
 
 class Remote:
     def __init__(self):
-        import paramiko  # imported here so --dry-run works without it
+        import shutil
+        self.use_cli = bool(shutil.which("ssh") and shutil.which("scp"))
+        self.ssh = None
 
-        self.ssh = paramiko.SSHClient()
-        self.ssh.load_system_host_keys()
-        known = Path.home() / ".ssh" / "known_hosts"
-        if known.exists():
-            self.ssh.load_host_keys(str(known))
-        self.ssh.set_missing_host_key_policy(paramiko.RejectPolicy())
-        key = paramiko.RSAKey.from_private_key_file(str(KEY_FILE))
-        try:
-            self.ssh.connect(HOST, port=22, username=USER, pkey=key, timeout=30)
-            if self.ssh.get_transport():
-                self.ssh.get_transport().set_keepalive(15)
-        except paramiko.SSHException as e:
-            raise SystemExit(
-                f"SSH refused: {e}\nIf the host key is unknown, connect once with `ssh {USER}@{HOST}`, "
-                "compare the fingerprint with the hosting provider, then run this again."
-            )
+        if not self.use_cli:
+            import paramiko
+            self.ssh = paramiko.SSHClient()
+            self.ssh.load_system_host_keys()
+            known = Path.home() / ".ssh" / "known_hosts"
+            if known.exists():
+                self.ssh.load_host_keys(str(known))
+            self.ssh.set_missing_host_key_policy(paramiko.RejectPolicy())
+            key = paramiko.RSAKey.from_private_key_file(str(KEY_FILE))
+            try:
+                self.ssh.connect(HOST, port=22, username=USER, pkey=key, timeout=30)
+                if self.ssh.get_transport():
+                    self.ssh.get_transport().set_keepalive(15)
+            except paramiko.SSHException as e:
+                raise SystemExit(
+                    f"SSH refused: {e}\nIf the host key is unknown, connect once with `ssh {USER}@{HOST}`, "
+                    "compare the fingerprint with the hosting provider, then run this again."
+                )
 
     def ensure_connected(self):
+        if self.use_cli:
+            return
         transport = self.ssh.get_transport()
         if transport is None or not transport.is_active():
             print("    reconnecting SSH session ...")
+            import paramiko
             key = paramiko.RSAKey.from_private_key_file(str(KEY_FILE))
             self.ssh.connect(HOST, port=22, username=USER, pkey=key, timeout=30)
             if self.ssh.get_transport():
                 self.ssh.get_transport().set_keepalive(15)
 
     def run(self, cmd: str, quiet: bool = False) -> tuple[int, str]:
+        import shutil
+        import subprocess
+        if self.use_cli or shutil.which("ssh"):
+            if not quiet:
+                print(f"\n>> {cmd}")
+            ssh_cmd = [
+                "ssh",
+                "-i", str(KEY_FILE),
+                "-o", "StrictHostKeyChecking=accept-new",
+                "-o", "BatchMode=yes",
+                "-o", "ConnectTimeout=30",
+                f"{USER}@{HOST}",
+                cmd,
+            ]
+            res = subprocess.run(
+                ssh_cmd,
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace"
+            )
+            output = res.stdout + res.stderr
+            if not quiet and output:
+                sys.stdout.write(output)
+                sys.stdout.flush()
+            return res.returncode, output
+
         self.ensure_connected()
         if not quiet:
             print(f"\n>> {cmd}")
@@ -173,7 +208,6 @@ class Remote:
         return out
 
     def upload(self, local: Path, remote: str):
-        self.ensure_connected()
         mb = local.stat().st_size / 1024 / 1024
         print(f"    uploading {local.name} ({mb:.2f} MB) ...")
         import shutil
@@ -183,14 +217,16 @@ class Remote:
                 "scp", "-O",
                 "-i", str(KEY_FILE),
                 "-o", "StrictHostKeyChecking=accept-new",
+                "-o", "BatchMode=yes",
                 str(local),
                 f"{USER}@{HOST}:{remote}",
             ]
-            res = subprocess.run(cmd, capture_output=True, text=True)
+            res = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True)
             if res.returncode == 0:
                 print("    upload complete (via scp).")
                 return
             print(f"    scp failed ({res.stderr.strip()}), falling back to SFTP ...")
+        self.ensure_connected()
         sftp = self.ssh.open_sftp()
         try:
             sftp.put(str(local), remote)
@@ -199,7 +235,8 @@ class Remote:
             sftp.close()
 
     def close(self):
-        self.ssh.close()
+        if self.ssh:
+            self.ssh.close()
 
 
 class DeployError(Exception):
@@ -255,7 +292,8 @@ def main():
     in_maintenance = False
     try:
         print("\n[2] Checking the server before changing anything ...")
-        pending = [m for m in local_migrations() if m not in ran_migrations(remote)]
+        server_ran = ran_migrations(remote)
+        pending = [m for m in local_migrations() if m not in server_ran]
         if pending:
             print(f"    {len(pending)} migration(s) not yet run on the server:")
             for m in pending:
@@ -273,7 +311,7 @@ def main():
         else:
             print("    No pending migrations.")
 
-        _, out = remote.run(f"sha256sum {REMOTE_PATH}/composer.lock", quiet=True)
+        _, out = remote.run(f"tr -d '\\r' < {REMOTE_PATH}/composer.lock | sha256sum", quiet=True)
         if out.split()[:1] != [sha256(LOCAL_LMS / "composer.lock")]:
             raise DeployError(
                 "composer.lock differs from the server's copy. Install the same dependencies on the server "
