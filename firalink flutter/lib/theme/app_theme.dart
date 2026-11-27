@@ -103,7 +103,9 @@ class AppTheme {
       visualDensity: VisualDensity.standard,
       extensions: [dark ? FiraColors.dark : FiraColors.light],
     );
-    final typography = base.textTheme.copyWith(
+    // merge, not copyWith: copyWith replaced these styles and dropped Montserrat and the Ethiopic fallback,
+    // so body text fell back to the platform font. merge keeps the base family and applies the overrides.
+    final typography = base.textTheme.merge(TextTheme(
       displaySmall: TextStyle(
         color: foreground,
         fontWeight: FontWeight.w700,
@@ -134,7 +136,7 @@ class AppTheme {
         color: foreground.withValues(alpha: .88),
         height: 1.42,
       ),
-    );
+    ));
     final radius = BorderRadius.circular(16);
     return base.copyWith(
       textTheme: typography,
