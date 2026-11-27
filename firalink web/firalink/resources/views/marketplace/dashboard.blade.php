@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.student')
 
 @section('title', 'Marketplace Dashboard | Trade Desk | Fira Link')
 
@@ -32,36 +32,37 @@
 @endpush
 
 @section('content')
-<div class="trade-desk-page min-h-screen bg-[#f8f7f9] text-[#161219] pb-24">
-    <!-- Top Desk Header (Quiet Ink Surface) -->
-    <header class="bg-[#141017] text-white border-b border-white/10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                <div>
-                    <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/[0.08] text-xs font-medium text-purple-200/90 mb-3 border border-white/10">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                        Trade desk
-                    </div>
-                    <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight text-white">
-                        Marketplace dashboard
-                    </h1>
-                    <p class="text-sm text-neutral-300/80 mt-1.5 max-w-2xl leading-relaxed">
-                        Manage your coffee lots, buyer inquiries, procurement tenders, and commercial quotations in one place.
-                    </p>
-                </div>
-                <div class="flex items-center gap-3 shrink-0">
-                    <a href="{{ route('marketplace.verification.center') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-medium border border-white/15 transition-colors">
-                        <svg class="w-4 h-4 text-purple-200" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
-                        </svg>
-                        Verification center
-                    </a>
-                </div>
-            </div>
-        </div>
-    </header>
+<section class="section-padding section-bg fix" style="padding: 30px 0;">
+    <div class="container-fluid" style="max-width: 1540px; padding: 0 20px;">
+        <div class="dashboard-layout">
+            @include('student.partials.sidebar')
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+            <div class="dashboard-main trade-desk-page text-[#161219]">
+                <!-- Top Desk Header (Quiet Ink Surface) -->
+                <div class="bg-[#141017] text-white rounded-2xl p-6 sm:p-8 mb-6 border border-white/10 shadow-sm">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
+                            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/[0.08] text-xs font-medium text-purple-200/90 mb-2 border border-white/10">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                Trade desk
+                            </div>
+                            <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight text-white mb-1">
+                                Marketplace Dashboard
+                            </h1>
+                            <p class="text-xs sm:text-sm text-neutral-300/80 max-w-2xl leading-relaxed mb-0">
+                                Manage your coffee lots, buyer inquiries, procurement tenders, and commercial quotations in one place.
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 shrink-0">
+                            <a href="{{ route('marketplace.verification.center') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-medium border border-white/15 transition-colors">
+                                <svg class="w-4 h-4 text-purple-200" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                                </svg>
+                                Verification center
+                            </a>
+                        </div>
+                    </div>
+                </div>
         <!-- Flash Alert -->
         @if(session('success'))
             <div class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-900 text-sm flex items-center justify-between">
@@ -617,6 +618,8 @@
                 </div>
             </div>
         </div>
-    </main>
-</div>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection

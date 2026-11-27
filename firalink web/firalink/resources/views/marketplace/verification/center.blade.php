@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.student')
 
 @section('title', 'Organization Verification & Compliance Vault | Fira Link')
 
@@ -13,31 +13,33 @@
 @endpush
 
 @section('content')
-<div class="min-h-screen bg-gray-50/50 pb-20">
-    <!-- Header -->
-    <div class="bg-gradient-to-r from-[#1E072A] via-[#3D0E54] to-[#6D1A95] text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold uppercase tracking-wider text-purple-200 mb-2 border border-white/10">
-                    <i class="fas fa-shield-alt mr-1"></i> Trust &amp; Legal Compliance Vault
-                </div>
-                <h1 class="text-3xl font-extrabold tracking-tight">
-                    Organization Verification
-                </h1>
-                <p class="text-sm text-purple-100 mt-1">
-                    Authenticate your business identity, sector licenses, and export rights. Trust is never for sale.
-                </p>
-            </div>
-            <div class="flex items-center gap-3">
-                <a href="{{ route('marketplace.dashboard') }}" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-medium border border-white/20 transition">
-                    <i class="fas fa-arrow-left mr-1"></i> Return to Trade Desk
-                </a>
-            </div>
-        </div>
-    </div>
+<section class="section-padding section-bg fix" style="padding: 30px 0;">
+    <div class="container-fluid" style="max-width: 1540px; padding: 0 20px;">
+        <div class="dashboard-layout">
+            @include('student.partials.sidebar')
 
-    <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
+            <div class="dashboard-main">
+                <!-- Header Card -->
+                <div class="bg-gradient-to-r from-[#1E072A] via-[#3D0E54] to-[#6D1A95] text-white rounded-2xl p-6 sm:p-8 mb-6 shadow-sm">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold uppercase tracking-wider text-purple-200 mb-2 border border-white/10">
+                                <i class="fas fa-shield-alt mr-1"></i> Trust &amp; Legal Compliance Vault
+                            </div>
+                            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-1">
+                                Organization Verification
+                            </h1>
+                            <p class="text-xs sm:text-sm text-purple-100 mb-0">
+                                Authenticate your business identity, sector licenses, and export rights. Trust is never for sale.
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 shrink-0">
+                            <a href="{{ route('marketplace.dashboard') }}" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium border border-white/20 transition">
+                                <i class="fas fa-arrow-left mr-1"></i> Return to Trade Desk
+                            </a>
+                        </div>
+                    </div>
+                </div>
         <!-- Trust Banner -->
         <div class="bg-white rounded-xl shadow-sm border border-purple-100 p-5 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
@@ -298,7 +300,9 @@
                 </div>
             @endforeach
         </div>
+            </div>
+        </div>
     </div>
-</div>
+</section>
 @endsection
 

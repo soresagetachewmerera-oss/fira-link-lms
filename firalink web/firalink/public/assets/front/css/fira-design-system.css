@@ -257,3 +257,220 @@ label, .form-label { color: var(--fira-neutral-700); font-size: .8125rem; font-w
     :root { --fira-space-8: 48px; }
     :is(.theme-btn, .btn-primary, .btn-secondary, .btn-outline-primary, .fira-btn-primary, .fira-btn-secondary) { white-space: normal !important; }
 }
+
+/* ==========================================================================
+   Unified Dashboard & Sidebar Navigation (Fira B2B & Academy)
+   ========================================================================== */
+.dashboard-sidebar {
+    width: 300px !important;
+    min-width: 300px !important;
+    flex-shrink: 0 !important;
+    background: var(--fira-white) !important;
+    border-radius: 20px !important;
+    padding: 24px 0 !important;
+    box-shadow: 0 4px 24px rgba(59, 7, 100, 0.05) !important;
+    border: 1px solid rgba(109, 26, 149, 0.08) !important;
+    height: fit-content !important;
+    position: sticky !important;
+    top: 90px !important;
+    max-height: calc(100vh - 110px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+.dashboard-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+.dashboard-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.dashboard-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(109, 26, 149, 0.15);
+    border-radius: 4px;
+}
+.dashboard-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(109, 26, 149, 0.35);
+}
+
+.dashboard-profile {
+    text-align: center;
+    padding: 0 20px 20px !important;
+    border-bottom: 1px solid #F0ECF4 !important;
+    margin-bottom: 18px !important;
+}
+
+.dashboard-profile-image {
+    width: 90px !important;
+    height: 90px !important;
+    border-radius: 50% !important;
+    margin: 0 auto 14px !important;
+    border: 3px solid var(--fira-primary) !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 12px rgba(109, 26, 149, 0.15) !important;
+}
+
+.dashboard-profile h4 {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: var(--fira-neutral-900) !important;
+    margin-bottom: 4px !important;
+    line-height: 1.3 !important;
+}
+
+.dashboard-profile p.user-role-label {
+    color: var(--fira-primary) !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    margin-bottom: 10px !important;
+    letter-spacing: 0.2px !important;
+}
+
+.dashboard-profile .status-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+}
+
+.dashboard-nav-section {
+    margin-bottom: 16px;
+}
+
+.dashboard-nav-section:last-child {
+    margin-bottom: 0;
+}
+
+.dashboard-nav-section-title {
+    padding: 6px 24px 6px !important;
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.9px !important;
+    color: #8A8194 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+.dashboard-nav {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.dashboard-nav li {
+    margin-bottom: 2px !important;
+}
+
+.dashboard-nav a {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 10px 24px !important;
+    color: var(--fira-neutral-700) !important;
+    font-size: 13.5px !important;
+    font-weight: 550 !important;
+    text-decoration: none !important;
+    border-left: 3px solid transparent !important;
+    transition: all 0.2s ease !important;
+    border-radius: 0 8px 8px 0 !important;
+    margin-right: 8px !important;
+    min-height: 44px !important;
+}
+
+.dashboard-nav a i {
+    font-size: 15px !important;
+    width: 20px !important;
+    text-align: center !important;
+    color: #8C8499 !important;
+    transition: all 0.2s ease !important;
+}
+
+.dashboard-nav a:hover {
+    background: rgba(109, 26, 149, 0.04) !important;
+    color: var(--fira-primary) !important;
+    border-left-color: rgba(109, 26, 149, 0.4) !important;
+}
+
+.dashboard-nav a:hover i {
+    color: var(--fira-primary) !important;
+}
+
+.dashboard-nav a.active {
+    background: rgba(109, 26, 149, 0.08) !important;
+    border-left-color: var(--fira-primary) !important;
+    color: var(--fira-primary) !important;
+    font-weight: 650 !important;
+}
+
+.dashboard-nav a.active i {
+    color: var(--fira-primary) !important;
+}
+
+.dashboard-nav a .badge {
+    font-size: 10px !important;
+    padding: 3px 7px !important;
+    font-weight: 600 !important;
+}
+
+/* Mobile & Tablet Responsiveness */
+@media (max-width: 1199px) {
+    .dashboard-layout {
+        flex-direction: column !important;
+        gap: 20px !important;
+    }
+    .dashboard-sidebar {
+        width: 100% !important;
+        min-width: 100% !important;
+        position: relative !important;
+        top: 0 !important;
+        max-height: none !important;
+        overflow-y: visible !important;
+        padding: 20px 0 !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-menu-toggle {
+        display: flex !important;
+        width: calc(100% - 32px) !important;
+        margin: 0 16px 16px !important;
+        padding: 12px 18px !important;
+        background: var(--fira-primary) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        min-height: 44px !important;
+    }
+    .dashboard-menu-toggle:hover {
+        background: var(--fira-primary-dark) !important;
+    }
+    .dashboard-nav-wrapper {
+        display: none;
+    }
+    .dashboard-nav-wrapper.menu-open {
+        display: block !important;
+        animation: firaSidebarSlide 0.25s ease forwards;
+    }
+    @keyframes firaSidebarSlide {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .dashboard-nav-section-title {
+        padding: 8px 18px 4px !important;
+    }
+    .dashboard-nav a {
+        padding: 11px 18px !important;
+        margin-right: 0 !important;
+    }
+}
+

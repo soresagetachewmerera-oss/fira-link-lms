@@ -11,7 +11,7 @@
     <meta name="description" content="{{ $metaDescription ?? site_name() . ' - ' . site_tagline() }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- ======== Page title ============ -->
-    <title>{{ (!empty($pageTitle) && $pageTitle !== site_name()) ? $pageTitle . ' | ' . site_name() : site_name() . ' - ' . site_tagline() }}</title>
+    <title>@hasSection('title')@yield('title')@else{{ (!empty($pageTitle) && $pageTitle !== site_name()) ? $pageTitle . ' | ' . site_name() : site_name() . ' - ' . site_tagline() }}@endif</title>
 
     @stack('meta')
 
@@ -34,11 +34,16 @@
     <link rel="stylesheet" href="{{ asset('assets/front/css/instructor/style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/front/css/student/style.css') }}">
 
+    @if(request()->routeIs('marketplace.*'))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endif
+
     {!! ToastMagic::styles() !!}
 
     @stack('styles')
     @include('partials.dynamic-styles')
     <link rel="stylesheet" href="{{ asset('assets/front/css/fira-design-system.css') }}?v={{ filemtime(public_path('assets/front/css/fira-design-system.css')) }}">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
 </head>
 
 <body>

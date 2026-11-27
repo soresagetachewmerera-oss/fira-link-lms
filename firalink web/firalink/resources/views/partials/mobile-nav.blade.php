@@ -52,7 +52,7 @@
                                 <li><a href="{{ route('marketplace.index') }}">Browse Coffee Lots</a></li>
                                 <li><a href="{{ route('marketplace.suppliers') }}">Exporters &amp; Suppliers</a></li>
                                 <li><a href="{{ route('marketplace.pricing') }}">Pricing &amp; Plans</a></li>
-                                <li><a href="{{ route('marketplace.dashboard') }}">My Marketplace</a></li>
+                                <li><a href="{{ route('marketplace.dashboard') }}">Trade Desk (Lots &amp; Quotes)</a></li>
                             </ul>
                         </li>
                         <li><a href="{{ route('market-prices.index') }}" @if(request()->routeIs('market-prices*')) aria-current="page" @endif>Market Prices</a></li>

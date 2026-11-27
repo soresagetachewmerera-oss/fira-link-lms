@@ -10,10 +10,66 @@
                 <!-- Main Content Start -->
                 <div class="dashboard-main">
                     <!-- Welcome Section -->
-                    <div class="section-title wow fadeInUp">
-                        <h6>{{ __('student.student_dashboard') }}</h6>
+                    <div class="section-title wow fadeInUp" style="margin-bottom: 24px;">
+                        <h6>Fira Link Platform Dashboard</h6>
                         <h2>{{ __('student.welcome_back', ['name' => $firstName]) }}</h2>
-                        <p>{{ __('student.continue_journey') }}</p>
+                        <p>Welcome to your integrated coffee trade desk and export training workspace.</p>
+                    </div>
+
+                    <!-- Hub Quick Action Cards -->
+                    <div class="row g-3 mb-4 wow fadeInUp">
+                        <div class="col-md-6 col-xl-3">
+                            <a href="{{ route('marketplace.dashboard') }}" class="text-decoration-none d-block p-3 rounded-3 h-100" style="background: #ffffff; border: 1px solid #e7e3eb; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px; background: #F3E8FF; color: #6D1A95;">
+                                        <i class="fa-solid fa-shop fs-5"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <div class="text-dark fw-bold small text-truncate">Trade Desk</div>
+                                        <div class="text-muted" style="font-size: 11.5px;">Lots, RFQs &amp; Quotes &rarr;</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <a href="{{ route('market-prices.index') }}" class="text-decoration-none d-block p-3 rounded-3 h-100" style="background: #ffffff; border: 1px solid #e7e3eb; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px; background: rgba(16, 185, 129, 0.1); color: #059669;">
+                                        <i class="fa-solid fa-chart-line fs-5"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <div class="text-dark fw-bold small text-truncate">Live Market Prices</div>
+                                        <div class="text-muted" style="font-size: 11.5px;">Arabica &amp; ECTA prices &rarr;</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <a href="{{ route('student.coffee-toolkit.index') }}" class="text-decoration-none d-block p-3 rounded-3 h-100" style="background: #ffffff; border: 1px solid #e7e3eb; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px; background: rgba(109, 26, 149, 0.1); color: #6D1A95;">
+                                        <i class="fa-solid fa-mug-hot fs-5"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <div class="text-dark fw-bold small text-truncate">Coffee Toolkit</div>
+                                        <div class="text-muted" style="font-size: 11.5px;">FOB calculator &amp; offers &rarr;</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <a href="{{ route('student.ai-chat.index') }}" class="text-decoration-none d-block p-3 rounded-3 h-100" style="background: #ffffff; border: 1px solid #e7e3eb; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px; background: #3B0764; color: #F3E8FF;">
+                                        <i class="fa-solid fa-robot fs-5"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <div class="text-dark fw-bold small text-truncate">Fira AI Advisor</div>
+                                        <div class="text-muted" style="font-size: 11.5px;">Trade assistant &amp; OCR &rarr;</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
                     </div>
 
                     <!-- Quick Action Banner -->
