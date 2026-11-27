@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\MarketPrice;
+use App\Models\MarketSeries;
 use App\Models\MarketSource;
+use App\Models\User;
+use App\Services\Market\ManualPriceService;
 use App\Services\Market\MarketIngestionService;
 use App\Services\Market\MarketTrendService;
 use Illuminate\Http\RedirectResponse;
@@ -21,8 +24,27 @@ class MarketDataAdminController extends Controller
         Gate::authorize('viewAny', MarketSource::class);
         return view('admin.market-data.index', [
             'sources' => MarketSource::query()->with('series')->orderBy('name')->get(),
-            'reviews' => MarketPrice::query()->where('status', 'needs_review')->with('series.source')->latest('source_time')->paginate(30),
+            'reviews' => $reviews = MarketPrice::query()->where('status', 'needs_review')->with('series.source')->latest('source_time')->paginate(30),
+            'manualSeries' => MarketSeries::query()->where('enabled', true)
+                ->whereHas('source', fn ($q) => $q->where('adapter', 'manual'))->orderBy('sort_order')->get(),
+            'enteredBy' => User::query()->whereIn('id', collect($reviews->items())
+                ->map(fn (MarketPrice $p) => (int) ($p->raw_ref['entered_by'] ?? 0))->filter()->unique()->all())->pluck('name', 'id'),
         ]);
+    }
+
+    /** Type in a published price for a source without a feed (the NBE rate). It waits for another reviewer. */
+    public function enter(Request $request, ManualPriceService $manual): RedirectResponse
+    {
+        Gate::authorize('create', MarketPrice::class);
+        $validated = $request->validate([
+            'series_id' => ['required', 'integer', 'exists:market_series,id'],
+            'value' => ['required', 'numeric', 'gt:0'],
+            'date' => ['required', 'date_format:Y-m-d'],
+            'source_url' => ['required', 'url', 'starts_with:https://', 'max:500'],
+        ]);
+        $manual->submit(MarketSeries::query()->findOrFail($validated['series_id']), (string) $validated['value'], $validated['date'], $validated['source_url'], $request->user());
+
+        return back()->with('success', __('market.admin.entered'));
     }
 
     public function toggle(MarketSource $source): RedirectResponse

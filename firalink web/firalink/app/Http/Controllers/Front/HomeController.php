@@ -228,12 +228,15 @@ class HomeController extends Controller
 
         $themeService = app(\App\Services\ThemeService::class);
         $heroOverview = app(HeroOverviewService::class)->build();
+        // Market watch band below the hero: shown only once a Home row has a stored price.
+        $marketWatch = app(\App\Services\Market\MarketWatchService::class)->build();
 
         return view($themeService->resolveHomeView(), [
             'pageTitle' => $meta['title'] ?? site_name(),
             'metaDescription' => $meta['description'] ?? site_name() . ' - ' . site_tagline(),
             'hero' => $hero,
             'heroOverview' => $heroOverview,
+            'marketWatch' => $marketWatch,
             'waitlistCountFormatted' => $waitlistCountFormatted,
             'stats' => $stats,
             'topCategories' => $topCategories,

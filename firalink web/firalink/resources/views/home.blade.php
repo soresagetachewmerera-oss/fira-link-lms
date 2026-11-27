@@ -4,6 +4,10 @@
 @extends('layouts.app')
 
 @push('styles')
+<link rel="stylesheet" href="{{ asset('assets/front/css/market-watch.css') }}?v={{ file_exists(public_path('assets/front/css/market-watch.css')) ? filemtime(public_path('assets/front/css/market-watch.css')) : '1' }}">
+@endpush
+
+@push('styles')
 <style>
 /* ==========================================================================
    FIRA LINK HOMEPAGE (DESIGN SYSTEM v2.0)
@@ -690,6 +694,10 @@
 @section('content')
 
 @include('home.hero')
+
+@if(!empty($marketWatch['home']['visible']))
+    @include('home.market-watch')
+@endif
 
 <!-- Trust Signals Bar -->
 <section class="fira-trust-bar">

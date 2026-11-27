@@ -32,6 +32,10 @@ class MarketPricesController extends Controller
 
         return view('market-prices.index', [
             'overview' => $overview,
+            'watch' => app(\App\Services\Market\MarketWatchService::class)->build(),
+            // 1D only when an intraday instrument's source is on (the API refuses 1D otherwise).
+            'intradayAvailable' => MarketSeries::query()->where('enabled', true)->where('supports_intraday', true)
+                ->whereHas('source', fn ($q) => $q->where('enabled', true))->exists(),
             'latestPriceDataset' => $latestPriceDataset,
             'priceRecords' => $priceRecords,
             'pageTitle' => __('market.web.title') . ' | Fira Link',

@@ -60,6 +60,44 @@
             </div>
         </div>
 
+        @if($manualSeries->isNotEmpty())
+            <div class="card mb-4">
+                <div class="card-header"><h4 class="mb-0">{{ __('market.admin.enter_title') }}</h4></div>
+                <div class="card-body">
+                    <p class="text-muted small">{{ __('market.admin.enter_hint') }}</p>
+                    <form method="POST" action="{{ route('admin.market-data.enter') }}" class="row g-3">
+                        @csrf
+                        <div class="col-md-3">
+                            <label class="form-label" for="enter-series">{{ __('market.admin.enter_series') }}</label>
+                            <select id="enter-series" name="series_id" class="form-select" required>
+                                @foreach($manualSeries as $series)
+                                    <option value="{{ $series->id }}" @selected(old('series_id') == $series->id)>{{ $series->name }} ({{ $series->currency }}/{{ $series->unit }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label" for="enter-value">{{ __('market.admin.enter_value') }}</label>
+                            <input id="enter-value" name="value" class="form-control" inputmode="decimal" required value="{{ old('value') }}">
+                            @error('value')<div class="text-danger small">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label" for="enter-date">{{ __('market.admin.enter_date') }}</label>
+                            <input id="enter-date" name="date" type="date" class="form-control" required max="{{ now()->toDateString() }}" value="{{ old('date', now()->toDateString()) }}">
+                            @error('date')<div class="text-danger small">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label" for="enter-url">{{ __('market.admin.enter_url') }}</label>
+                            <input id="enter-url" name="source_url" type="url" class="form-control" required placeholder="https://" value="{{ old('source_url') }}">
+                            @error('source_url')<div class="text-danger small">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-primary">{{ __('market.admin.enter_submit') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
+
         <div class="card">
             <div class="card-header"><h4 class="mb-0">{{ __('market.admin.review_title') }}</h4></div>
             <div class="card-body p-0">
@@ -83,7 +121,15 @@
                                         <td>{{ $price->series->name }}<div class="text-muted small">{{ $price->series->source->name }}</div></td>
                                         <td>{{ $price->value }} {{ $price->currency }}/{{ $price->unit }}</td>
                                         <td class="small">{{ $price->source_time->toDayDateTimeString() }} UTC</td>
-                                        <td class="small">{{ $price->review_reason }}</td>
+                                        <td class="small">
+                                            {{ $price->review_reason }}
+                                            @if(!empty($price->raw_ref['entered_by']))
+                                                <div class="text-muted">{{ __('market.admin.entered_by', ['name' => $enteredBy[$price->raw_ref['entered_by']] ?? '#' . $price->raw_ref['entered_by']]) }}</div>
+                                            @endif
+                                            @if(!empty($price->raw_ref['source_url']) && str_starts_with($price->raw_ref['source_url'], 'https://'))
+                                                <a href="{{ $price->raw_ref['source_url'] }}" target="_blank" rel="noopener noreferrer">{{ __('market.admin.source_link') }}</a>
+                                            @endif
+                                        </td>
                                         <td style="min-width: 260px">
                                             <form method="POST" class="mb-2">
                                                 @csrf

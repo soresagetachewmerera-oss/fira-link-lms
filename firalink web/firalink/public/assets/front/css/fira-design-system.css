@@ -43,6 +43,21 @@
     --fira-hero-shadow-cta: 0 12px 24px -6px rgba(59, 7, 100, 0.34), 0 4px 10px -2px rgba(109, 26, 149, 0.22);
     --fira-hero-shadow-tray: 0 24px 60px -12px rgba(59, 7, 100, 0.14), 0 8px 24px -6px rgba(109, 26, 149, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.85);
     --fira-hero-shadow-card: 0 10px 28px -6px rgba(59, 7, 100, 0.09), 0 2px 8px -2px rgba(59, 7, 100, 0.04);
+    /* Market watch (dark card). Direction option A: brand colours only; arrow shape and sign carry the meaning.
+       Option B would change only --fira-market-up / --fira-market-down. */
+    --fira-market-surface-top: var(--fira-primary-dark);
+    --fira-market-surface-bottom: #2a0549;
+    --fira-market-text: #ffffff;
+    --fira-market-muted: rgba(255, 255, 255, 0.74);
+    --fira-market-label: #d9bdea;
+    --fira-market-hairline: rgba(255, 255, 255, 0.12);
+    --fira-market-chip-bg: rgba(255, 255, 255, 0.10);
+    --fira-market-selected: rgba(255, 255, 255, 0.08);
+    --fira-market-focus: #d9bdea;
+    --fira-market-up: #d9bdea;
+    --fira-market-down: #ffffff;
+    --fira-market-flat: rgba(255, 255, 255, 0.62);
+    --fira-market-radius: 22px;
     /* Legacy aliases mapped back to the approved palette. */
     --theme: var(--fira-primary);
     --theme-2: var(--fira-primary-dark);

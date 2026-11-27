@@ -11,6 +11,7 @@
 @endpush
 
 @push('styles')
+<link rel="stylesheet" href="{{ asset('assets/front/css/market-watch.css') }}?v={{ file_exists(public_path('assets/front/css/market-watch.css')) ? filemtime(public_path('assets/front/css/market-watch.css')) : '1' }}">
 <style>
     .prices-page { --prices-brand: #6D1A95; --prices-brand-dark: #3B0764; --prices-brand-tint: #F3E8FF;
         --prices-ink: #1E1B4B; --prices-body: #4A4658; --prices-muted: #6B7280;
@@ -151,7 +152,7 @@
                     <div><h2 id="chart-heading" style="font-size:18px">{{ $t('chart_heading') }}</h2><p>{{ $t('chart_hint') }}</p></div>
                 </div>
                 <div class="prices-ranges" role="group" aria-label="{{ $t('chart_heading') }}">
-                    @foreach(['1D', '1W', '1M', '3M', '1Y'] as $r)
+                    @foreach(array_values(array_filter(['1D', '1W', '1M', '3M', '1Y'], fn ($r) => $r !== '1D' || $intradayAvailable)) as $r)
                         <button type="button" class="prices-range" data-range="{{ $r }}" aria-pressed="{{ $r === '1M' ? 'true' : 'false' }}">{{ $t('ranges.' . $r) }}</button>
                     @endforeach
                 </div>
@@ -162,25 +163,7 @@
 
         <section class="prices-section" aria-labelledby="benchmarks-heading">
             <div class="prices-section-head"><div><h2 id="benchmarks-heading">{{ $t('benchmarks') }}</h2></div></div>
-            <div class="prices-table-wrap">
-                <table class="prices-table">
-                    <thead><tr><th>{{ $t('col_benchmark') }}</th><th class="text-end">{{ $t('col_price') }}</th><th>{{ $t('col_status') }}</th><th>{{ $t('col_source') }}</th></tr></thead>
-                    <tbody id="market-rows">
-                        @foreach($overview['benchmarks'] as $row)
-                            <tr data-symbol="{{ $row['symbol'] }}" data-selectable="{{ $hasValue($row) ? 1 : 0 }}" @if($hasValue($row)) tabindex="0" @endif aria-selected="{{ $featured && $featured['symbol'] === $row['symbol'] ? 'true' : 'false' }}">
-                                <td><span class="prices-name">{{ $row['name'] }}</span></td>
-                                <td class="text-end">
-                                    @if($hasValue($row))<span class="prices-number">{{ $fmt($row['value']) }}</span><span class="prices-detail">{{ $unit($row) }}</span>
-                                    @else<span class="prices-detail">{{ $t('unavailable') }}</span>@endif
-                                </td>
-                                <td><span class="prices-status" style="margin:0"><i class="fas {{ $icon($row['freshness']['status']) }}" aria-hidden="true"></i>{{ $row['freshness']['label'] }}</span></td>
-                                <td><span class="prices-detail" style="margin:0">{{ $row['source']['attribution'] }}</span>
-                                    @if($hasValue($row) && $row['source_time'])<span class="prices-detail">{{ $time($row['source_time'], $isDaily($row)) }}</span>@endif</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+            <x-market.watch :watch="$watch" :selectable="true" :selected="$featured['symbol'] ?? null" list-id="market-rows" />
             <div class="prices-card" style="margin-top:16px">
                 <h3 style="margin:0 0 8px;font-size:16px;color:var(--prices-ink)">{{ $t('summary') }}</h3>
                 <p style="margin:0" id="market-summary">{{ $overview['summary']['text'] }}</p>
@@ -293,8 +276,8 @@
         document.querySelectorAll('.prices-range').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
         drawSeries();
     }));
-    document.querySelectorAll('#market-rows tr[data-selectable="1"]').forEach(row => {
-        const pick = () => { symbol = row.dataset.symbol; document.querySelectorAll('#market-rows tr').forEach(r => r.setAttribute('aria-selected', r === row ? 'true' : 'false')); drawSeries(); };
+    document.querySelectorAll('#market-rows [data-selectable="1"]').forEach(row => {
+        const pick = () => { symbol = row.dataset.symbol; document.querySelectorAll('#market-rows [role="option"]').forEach(r => r.setAttribute('aria-selected', r === row ? 'true' : 'false')); drawSeries(); };
         row.addEventListener('click', pick);
         row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
     });

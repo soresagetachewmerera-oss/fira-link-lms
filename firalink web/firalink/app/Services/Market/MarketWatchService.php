@@ -113,7 +113,10 @@ class MarketWatchService
             'direction' => $direction,
             'trend' => $available && $series->trend ? (self::TREND[$series->trend->trend] ?? null) : null,
             'status' => $freshness['status'],
-            'status_label' => $freshness['label'],
+            // A stale price is shown muted with its own date, not with an age in minutes.
+            'status_label' => $freshness['status'] === 'stale' && $available
+                ? __('market.watch.stale', ['date' => $latest->source_time->toDateString()])
+                : $freshness['label'],
             'as_of' => $available ? $latest->source_time->toIso8601String() : null,
             'source' => [
                 'name' => $series->source->name,

@@ -1,0 +1,322 @@
+/* Market watch card (components/market/*). Tokens: --fira-market-* in fira-design-system.css; no colour values here.
+   Headings need !important because dynamic-styles.blade.php forces h1-h6 colour and size site-wide. */
+
+.fira-mw {
+    overflow: hidden;
+    border-radius: var(--fira-market-radius);
+    color: var(--fira-market-text);
+    background: linear-gradient(180deg, var(--fira-market-surface-top) 0%, var(--fira-market-surface-bottom) 100%);
+    font-variant-numeric: tabular-nums;
+}
+
+.fira-mw__sr {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Header: title and the status chip ("Daily close · 2026-11-26") */
+.fira-mw__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    padding: 20px 20px 12px;
+}
+
+.fira-mw .fira-mw__title {
+    margin: 0;
+    color: var(--fira-market-text) !important;
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+    letter-spacing: -.01em !important;
+    text-transform: none;
+}
+
+.fira-mw__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 4px 12px;
+    border-radius: 999px;
+    color: var(--fira-market-text);
+    background: var(--fira-market-chip-bg);
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.fira-mw__chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--fira-market-label);
+}
+
+.fira-mw__chip.is-unavailable .fira-mw__chip-dot,
+.fira-mw__chip.is-stale .fira-mw__chip-dot {
+    background: var(--fira-market-flat);
+}
+
+/* Rows: name and detail | sparkline | price and change */
+.fira-mw__rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fira-mw__row {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 96px minmax(104px, auto);
+    align-items: center;
+    gap: 16px;
+    min-height: 70px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--fira-market-hairline);
+}
+
+.fira-mw__row[data-selectable="1"] {
+    cursor: pointer;
+}
+
+.fira-mw__row[aria-selected="true"] {
+    background: var(--fira-market-selected);
+}
+
+.fira-mw__row:focus-visible {
+    outline: 2px solid var(--fira-market-focus);
+    outline-offset: -3px;
+}
+
+.fira-mw__id,
+.fira-mw__quote {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.fira-mw__name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fira-mw__glyph {
+    display: inline-flex;
+    flex: 0 0 12px;
+}
+
+.fira-mw__short {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.fira-mw__detail {
+    margin-top: 2px;
+    color: var(--fira-market-muted);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.fira-mw__nowrap {
+    white-space: nowrap;
+}
+
+.fira-mw__spark {
+    display: block;
+    width: 96px;
+    height: 34px;
+}
+
+.fira-mw__spark svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.fira-mw__spark-ref {
+    stroke: var(--fira-market-flat);
+    stroke-width: 1;
+    stroke-dasharray: 2 3;
+}
+
+.fira-mw__quote {
+    align-items: flex-end;
+    text-align: right;
+}
+
+.fira-mw__price {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.fira-mw__price--none {
+    color: var(--fira-market-muted);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.fira-mw__unit,
+.fira-mw__change {
+    font-size: 12.5px;
+    line-height: 1.4;
+}
+
+.fira-mw__unit {
+    color: var(--fira-market-muted);
+}
+
+.fira-mw__change {
+    margin-top: 2px;
+    font-weight: 600;
+}
+
+/* Direction: shape and sign carry the meaning; colour only repeats it. */
+.fira-mw__row.is-up :is(.fira-mw__glyph, .fira-mw__spark, .fira-mw__change) {
+    color: var(--fira-market-up);
+}
+
+.fira-mw__row.is-down :is(.fira-mw__glyph, .fira-mw__spark, .fira-mw__change) {
+    color: var(--fira-market-down);
+}
+
+.fira-mw__row:is(.is-flat, .is-none) :is(.fira-mw__glyph, .fira-mw__spark, .fira-mw__change) {
+    color: var(--fira-market-flat);
+}
+
+/* A stale price is muted with its date; an unavailable row has no number at all. */
+.fira-mw__row.is-stale :is(.fira-mw__short, .fira-mw__price, .fira-mw__glyph, .fira-mw__spark, .fira-mw__change) {
+    color: var(--fira-market-muted);
+}
+
+/* Footer: sources, disclaimer, link */
+.fira-mw__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 16px;
+    padding: 14px 20px 18px;
+    border-top: 1px solid var(--fira-market-hairline);
+    color: var(--fira-market-muted);
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.fira-mw__foot p {
+    margin: 0;
+}
+
+.fira-mw__more {
+    margin-left: auto;
+    color: var(--fira-market-text);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.fira-mw__more:hover {
+    color: var(--fira-market-label);
+}
+
+.fira-mw__more:focus-visible {
+    outline: 2px solid var(--fira-market-focus);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+/* Home band: intro beside the card on wide screens */
+.fira-mw-band__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 32px 48px;
+    align-items: center;
+}
+
+.fira-mw-band__eyebrow {
+    margin: 0 0 8px;
+    color: var(--fira-primary);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.fira-mw-band .fira-mw-band__heading {
+    margin: 0;
+    font-size: clamp(24px, 1.2rem + 1vw, 32px) !important;
+    line-height: 1.2 !important;
+    text-transform: none; /* main.css capitalizes every h2 */
+}
+
+.fira-mw-band__lead {
+    max-width: 46ch;
+    margin: 12px 0 0;
+    color: var(--fira-neutral-700);
+    font-size: 15px;
+    line-height: 1.65;
+}
+
+@media (max-width: 1024px) {
+    .fira-mw-band__grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .fira-mw__head,
+    .fira-mw__foot {
+        padding-inline: 16px;
+    }
+
+    .fira-mw__row {
+        grid-template-columns: minmax(0, 1fr) 64px minmax(92px, auto);
+        gap: 10px;
+        padding: 12px 16px;
+    }
+
+    .fira-mw__spark {
+        width: 64px;
+        height: 30px;
+    }
+
+    .fira-mw__short {
+        font-size: 15px;
+    }
+
+    .fira-mw__price {
+        font-size: 16px;
+    }
+
+    .fira-mw__more {
+        margin-left: 0;
+    }
+}
+
+/* Amharic needs more line height and no tracking. */
+.fira-mw:lang(am),
+.fira-mw-band:lang(am) {
+    line-height: 1.75;
+}
+
+.fira-mw-band__eyebrow:lang(am) {
+    letter-spacing: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fira-mw * {
+        transition: none !important;
+    }
+}

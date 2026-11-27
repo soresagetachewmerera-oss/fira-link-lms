@@ -51,6 +51,9 @@ return [
         'footer' => 'Market data from: :sources. Prices are indicative, not trading advice.',
     ],
     'admin' => [
+        'enter_title' => 'Enter a published price', 'enter_hint' => 'For sources without a feed, such as the NBE birr/US dollar rate. Another reviewer must approve it before it is shown.',
+        'enter_series' => 'Series', 'enter_value' => 'Value as published', 'enter_date' => 'Date published', 'enter_url' => 'Link where it was published (https)',
+        'enter_submit' => 'Save for review', 'entered' => 'Saved. Another reviewer must approve it before it is shown.', 'entered_by' => 'Typed in by :name', 'source_link' => 'Source link',
         'sources' => 'Sources', 'source' => 'Source', 'enabled' => 'On', 'disabled' => 'Off', 'terms' => 'Terms',
         'last_success' => 'Last success', 'last_error' => 'Last error', 'never' => 'Never', 'series' => 'Series',
         'turn_on' => 'Turn on', 'turn_off' => 'Turn off', 'fetch_now' => 'Fetch now',
@@ -64,6 +67,16 @@ return [
     ],
     // Market watch rows (MarketWatchService). Numbers stay in Latin digits in every language.
     'watch' => [
+        'title' => 'Coffee market',
+        'sources' => 'Sources: :names',
+        'see_all' => 'See all markets',
+        'unavailable' => 'Unavailable',
+        'stale' => 'Stale · last :date',
+        'home' => [
+            'eyebrow' => 'Market watch',
+            'heading' => 'Coffee prices from named sources',
+            'lead' => 'Each row shows the latest stored price, its change since the previous close, its source and the date it was published.',
+        ],
         'range_unavailable' => 'This range needs intraday prices, which this source does not provide.',
         'disclaimer' => 'Market information only, not trading advice.',
         'names' => [

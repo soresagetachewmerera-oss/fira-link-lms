@@ -92,6 +92,7 @@ Route::middleware(['auth', 'staff.2fa', 'can:review-verifications'])->prefix('ad
     Route::get('/', 'index')->name('index');
     Route::post('/sources/{source}/toggle', 'toggle')->whereNumber('source')->name('toggle');
     Route::post('/sources/{source}/fetch', 'fetch')->whereNumber('source')->middleware('throttle:6,1')->name('fetch');
+    Route::post('/prices', 'enter')->middleware('throttle:20,1')->name('enter');
     Route::post('/prices/{price}/approve', 'approve')->whereNumber('price')->name('approve');
     Route::post('/prices/{price}/reject', 'reject')->whereNumber('price')->name('reject');
 });
