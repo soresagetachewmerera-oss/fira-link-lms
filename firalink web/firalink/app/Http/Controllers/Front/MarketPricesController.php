@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\CoffeeMinimumPriceDataset;
 use App\Models\MarketSeries;
 use App\Services\Market\MarketReadService;
+use App\Services\Market\MarketSeriesService;
+use App\Services\Market\MarketWatchService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
@@ -18,9 +21,11 @@ class MarketPricesController extends Controller
 {
     public function __construct(private readonly MarketReadService $market) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
         Gate::authorize('viewAny', MarketSeries::class);
+        $watch = app(MarketWatchService::class)->build();
+        $detail = $this->detailFor($request, $watch);
 
         $overview = $this->market->overview();
 
@@ -32,15 +37,37 @@ class MarketPricesController extends Controller
 
         return view('market-prices.index', [
             'overview' => $overview,
-            'watch' => app(\App\Services\Market\MarketWatchService::class)->build(),
-            // 1D only when an intraday instrument's source is on (the API refuses 1D otherwise).
-            'intradayAvailable' => MarketSeries::query()->where('enabled', true)->where('supports_intraday', true)
-                ->whereHas('source', fn ($q) => $q->where('enabled', true))->exists(),
+            'watch' => $watch,
+            'detail' => $detail,
             'latestPriceDataset' => $latestPriceDataset,
             'priceRecords' => $priceRecords,
             'pageTitle' => __('market.web.title') . ' | Fira Link',
             'metaDescription' => __('market.web.meta'),
         ]);
+    }
+
+    /** The detail panel alone (HTML), for market-watch.js to swap in without a page load. */
+    public function panel(Request $request): View
+    {
+        Gate::authorize('viewAny', MarketSeries::class);
+
+        return view('market-prices.panel', ['detail' => $this->detailFor($request, app(MarketWatchService::class)->build())]);
+    }
+
+    /** Selected row (?market=, else the first row with a price), with ?range= and ?unit= when they are offered. */
+    private function detailFor(Request $request, array $watch): ?array
+    {
+        $priced = collect($watch['rows'])->filter(fn (array $r) => $r['price'] !== null);
+        $key = $priced->firstWhere('key', (string) $request->query('market'))['key'] ?? $priced->first()['key'] ?? null;
+        if ($key === null) {
+            return null;
+        }
+        $row = $priced->firstWhere('key', $key);
+        $range = in_array($request->query('range'), $row['ranges'], true) ? $request->query('range') : '1M';
+        $unit = in_array($request->query('unit'), $row['units'], true) ? $request->query('unit') : null;
+        $series = MarketSeries::query()->where('symbol', $key)->with('source')->firstOrFail();
+
+        return app(MarketSeriesService::class)->build($series, $range, $unit);
     }
 
     /** The old web chart and tick endpoints generated prices at random. They now answer "unavailable". */

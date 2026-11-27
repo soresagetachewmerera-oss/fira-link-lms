@@ -28,7 +28,7 @@ return [
         'refresh_failed' => 'Could not refresh. Showing prices from :time; they may be out of date.',
         'updated' => 'Page data from :time',
         'trend' => ['bullish' => 'Bullish', 'bearish' => 'Bearish', 'sideways' => 'Sideways', 'not_enough_data' => 'Not enough data'],
-        'ranges' => ['1D' => '1D', '1W' => '1W', '1M' => '1M', '3M' => '3M', '1Y' => '1Y'],
+        'ranges' => ['1D' => '1D', '1W' => '1W', '1M' => '1M', '3M' => '3M', '1Y' => '1Y', '5Y' => '5Y'],
         'units' => ['USX/lb' => 'US¢/lb', 'USD/lb' => 'USD/lb', 'ETB/feresula_17kg' => 'ETB per feresula (17 kg)'],
         'floor_heading' => 'Ethiopian export minimum prices', 'floor_hint' => 'From the price schedule file imported by Fira Link staff. Source and effective date are shown.',
         'floor_effective' => 'Effective date', 'floor_source' => 'Source', 'floor_none' => 'No published price schedule is currently available.',
@@ -67,6 +67,14 @@ return [
     ],
     // Market watch rows (MarketWatchService). Numbers stay in Latin digits in every language.
     'watch' => [
+        'unit_keys' => ['usc_lb' => 'US¢/lb', 'usd_lb' => 'USD/lb', 'usd_kg' => 'USD/kg', 'etb_kg' => 'ETB/kg'],
+        'detail' => [
+            'stats' => 'Statistics', 'prev_close' => 'Previous close', 'high_52w' => '52-week high', 'low_52w' => '52-week low', 'avg_20d' => '20-day average',
+            'ranges' => 'Range', 'unit' => 'Unit', 'fx' => 'Converted at :rate birr per US dollar (:source, :date).',
+            'chart' => 'Price chart for :name, :range: from :from to :to, lowest :low, highest :high.', 'no_points' => 'No stored prices for this range yet.',
+            'table' => 'Prices as a table', 'date' => 'Date', 'value' => 'Value', 'loading' => 'Loading…', 'failed' => 'Could not load this range. Try again.',
+            'refresh' => 'Refresh market prices', 'updated' => 'Updated :time', 'close' => 'Close', 'select_hint' => 'Choose a row to see its chart.',
+        ],
         'title' => 'Coffee market',
         'sources' => 'Sources: :names',
         'see_all' => 'See all markets',

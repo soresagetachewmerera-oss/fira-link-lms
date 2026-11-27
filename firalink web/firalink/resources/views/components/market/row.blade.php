@@ -1,4 +1,4 @@
-@props(['row', 'selectable' => false, 'selected' => false])
+@props(['row', 'href' => null, 'current' => false])
 
 @php
     $hasPrice = $row['price'] !== null;
@@ -12,15 +12,15 @@
     $detail = preg_replace('/\d{4}-\d{2}-\d{2}/', '<span class="fira-mw__nowrap">$0</span>', e($row['status_label'] . ' · ' . $source));
 @endphp
 
-<li {{ $attributes->merge(['class' => $classes]) }}
-    data-symbol="{{ $row['key'] }}"
-    @if($selectable)
-        data-selectable="{{ $hasPrice ? 1 : 0 }}"
-        role="option"
-        aria-selected="{{ $selected ? 'true' : 'false' }}"
-        @if($hasPrice) tabindex="0" @endif
-    @endif>
-    <span class="fira-mw__sr">{{ $row['a11y_label'] }}</span>
+<li {{ $attributes->merge(['class' => $classes . ($current ? ' is-current' : '')]) }} data-symbol="{{ $row['key'] }}">
+    {{-- The whole row is one link (stretched); its name is the spoken sentence. Unavailable rows are not links. --}}
+    @if($href && $hasPrice)
+        <a class="fira-mw__hit" href="{{ $href }}" data-market="{{ $row['key'] }}" @if($current) aria-current="true" @endif>
+            <span class="fira-mw__sr">{{ $row['a11y_label'] }}</span>
+        </a>
+    @else
+        <span class="fira-mw__sr">{{ $row['a11y_label'] }}</span>
+    @endif
 
     <span class="fira-mw__id" aria-hidden="true">
         <span class="fira-mw__name">

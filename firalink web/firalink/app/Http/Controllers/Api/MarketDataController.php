@@ -36,6 +36,29 @@ class MarketDataController extends Controller
         return $response;
     }
 
+    /** Detail for one instrument: points for a range, stats and an optional unit (schema 1). Public. */
+    public function instrumentSeries(Request $request, string $key, \App\Services\Market\MarketSeriesService $detail): JsonResponse
+    {
+        $series = MarketSeries::query()->where('symbol', $key)->where('enabled', true)->with('source')->firstOrFail();
+        Gate::authorize('view', $series);
+        $this->setLocale($request);
+        $validated = $request->validate([
+            'range' => ['nullable', 'in:' . implode(',', \App\Services\Market\MarketSeriesService::RANGES)],
+            'unit' => ['nullable', 'in:' . implode(',', \App\Services\Market\UnitConverter::UNITS)],
+        ]);
+        $range = $validated['range'] ?? '1M';
+        if (!in_array($range, $detail->rangesFor($series), true)) {
+            return response()->json(['success' => false, 'code' => 'RANGE_UNAVAILABLE', 'message' => __('market.watch.range_unavailable')], 422);
+        }
+        $response = response()->json(['success' => true, 'data' => $detail->build($series, $range, $validated['unit'] ?? null)], 200, [], JSON_PRESERVE_ZERO_FRACTION);
+        $response->setEtag(sha1($response->getContent()))
+            ->header('Cache-Control', 'public, max-age=' . (int) config('market.watch.http_max_age_seconds', 300) . ', stale-if-error=600')
+            ->header('Vary', 'Accept-Language');
+        $response->isNotModified($request);
+
+        return $response;
+    }
+
     public function overview(Request $request): JsonResponse
     {
         Gate::authorize('viewAny', MarketSeries::class);

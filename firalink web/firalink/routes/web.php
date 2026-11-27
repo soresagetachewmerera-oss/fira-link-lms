@@ -63,6 +63,7 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
 
 // Real-Time Coffee Trading Terminal & Market Prices
 Route::get('/market-prices', [\App\Http\Controllers\Front\MarketPricesController::class, 'index'])->name('market-prices.index');
+Route::get('/market-prices/panel', [\App\Http\Controllers\Front\MarketPricesController::class, 'panel'])->middleware('throttle:market-public')->name('market-prices.panel');
 Route::get('/market-prices/chart-data', [\App\Http\Controllers\Front\MarketPricesController::class, 'chartData'])->name('market-prices.chart-data');
 Route::get('/market-prices/live-tick', [\App\Http\Controllers\Front\MarketPricesController::class, 'liveTick'])->name('market-prices.live-tick');
 

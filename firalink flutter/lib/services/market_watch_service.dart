@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/market_series_detail.dart';
 import '../models/market_watch.dart';
 import 'base_service.dart';
 import 'market_data_service.dart' show MarketUnavailableException;
@@ -30,14 +31,12 @@ class MarketWatchService extends BaseService {
     final lang = await _language();
     final cached = await _readCache(lang);
     try {
-      final response = await _client.get(
-        Uri.parse('${BaseService.baseUrl}/market/watch'),
-        headers: {
-          'Accept': 'application/json',
-          'Accept-Language': lang,
-          if (cached?.etag != null) 'If-None-Match': cached!.etag!,
-        },
-      ).timeout(_timeout);
+      final response = await _client
+          .get(
+            Uri.parse('${BaseService.baseUrl}/market/watch'),
+            headers: {'Accept': 'application/json', 'Accept-Language': lang, if (cached?.etag != null) 'If-None-Match': cached!.etag!},
+          )
+          .timeout(_timeout);
 
       final now = DateTime.now();
       if (response.statusCode == 304 && cached != null) {
@@ -58,6 +57,19 @@ class MarketWatchService extends BaseService {
       }
       throw MarketUnavailableException(error.toString());
     }
+  }
+
+  /// Detail for one row. No cache: when it fails the sheet says so and keeps what it already shows.
+  Future<MarketSeriesDetail> fetchSeries(String key, {String range = '1M', String? unit}) async {
+    final lang = await _language();
+    final uri = Uri.parse(
+      '${BaseService.baseUrl}/market/instruments/${Uri.encodeComponent(key)}/series',
+    ).replace(queryParameters: {'range': range, 'unit': ?unit});
+    final response = await _client.get(uri, headers: {'Accept': 'application/json', 'Accept-Language': lang}).timeout(_timeout);
+    if (response.statusCode != 200) {
+      throw MarketUnavailableException('HTTP ${response.statusCode}');
+    }
+    return MarketSeriesDetail.fromJson(jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>);
   }
 
   Future<void> _saveCache(String lang, String body, String? etag, DateTime at) async {

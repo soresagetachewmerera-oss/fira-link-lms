@@ -34,7 +34,7 @@ class MarketWatchTest extends TestCase
     private const ROW_KEYS = [
         'key', 'name', 'short_name', 'kind', 'currency', 'unit', 'unit_label', 'decimals', 'price', 'prev_close',
         'change', 'change_pct', 'direction', 'trend', 'status', 'status_label', 'as_of', 'source', 'sparkline',
-        'spark_ref', 'on_home', 'a11y_label',
+        'spark_ref', 'on_home', 'ranges', 'units', 'a11y_label',
     ];
 
     protected function setUp(): void

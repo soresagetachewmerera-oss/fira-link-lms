@@ -10,18 +10,23 @@ import '../../theme/fira_colors.dart';
 import '../home_skeletons.dart';
 import 'market_ui.dart' show MarketRefresher, formatMarketTime;
 import 'market_watch_row.dart';
+import 'market_detail_sheet.dart';
+import '../../models/market_series_detail.dart';
 
 /// Coffee market watch card (Home). Works for guests. States: loading skeleton, rows (each may be
 /// stale or unavailable on its own), offline with the time of the last answer, error with Try again.
 /// On Home it stays hidden until one of the Home rows has a stored price (server: home.visible).
 /// Refreshes on open and every 15 minutes while visible; the data is a daily close or slower.
 class MarketWatchCard extends StatefulWidget {
-  const MarketWatchCard({super.key, this.provider, this.homeOnly = true, this.refreshInterval = const Duration(minutes: 15)});
+  const MarketWatchCard({super.key, this.provider, this.homeOnly = true, this.refreshInterval = const Duration(minutes: 15), this.detailActions});
 
   /// For tests; otherwise the app-wide [MarketWatchProvider] is used (or a private one if none is provided).
   final MarketWatchProvider? provider;
   final bool homeOnly;
   final Duration refreshInterval;
+
+  /// Signed-in actions shown in the detail sheet (watchlist, alert, Fira AI, CSV).
+  final List<Widget> Function(BuildContext context, MarketSeriesDetail detail)? detailActions;
 
   @override
   State<MarketWatchCard> createState() => _MarketWatchCardState();
@@ -55,6 +60,9 @@ class _MarketWatchCardState extends State<MarketWatchCard> {
     final route = ModalRoute.of(context);
     return TickerMode.valuesOf(context).enabled && (route?.isCurrent ?? true);
   }
+
+  void _open(BuildContext context, MarketWatchRow row) =>
+      showMarketDetailSheet(context, row, service: _provider!.service, actions: widget.detailActions);
 
   Future<void> _refresh() async => _refresher?.reportResult(await _provider!.load());
 
@@ -236,7 +244,7 @@ class _MarketWatchCardState extends State<MarketWatchCard> {
                 ],
               ),
             ),
-          for (final row in rows) ...[Divider(height: 1, thickness: 1, color: hairline), MarketWatchRowTile(row: row, offlineSince: offlineSince)],
+          for (final row in rows) ...[Divider(height: 1, thickness: 1, color: hairline), MarketWatchRowTile(row: row, offlineSince: offlineSince, onTap: row.hasPrice ? () => _open(context, row) : null)],
           Divider(height: 1, thickness: 1, color: hairline),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 8, 6),

@@ -320,3 +320,313 @@
         transition: none !important;
     }
 }
+
+/* ---------- Slice 4: row links, refresh, list + detail layout ---------- */
+.fira-mw__hit {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: 0;
+}
+
+.fira-mw__hit:focus-visible {
+    outline: 2px solid var(--fira-market-focus);
+    outline-offset: -3px;
+}
+
+.fira-mw__row:has(.fira-mw__hit):hover,
+.fira-mw__row.is-current {
+    background: var(--fira-market-selected);
+}
+
+.fira-mw__refresh {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: -10px -10px -10px auto;
+    border-radius: 12px;
+    color: var(--fira-market-text);
+}
+
+.fira-mw__refresh:focus-visible {
+    outline: 2px solid var(--fira-market-focus);
+}
+
+.fira-mw-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.fira-mw-layout__detail {
+    position: sticky;
+    top: 96px;
+}
+
+.fira-mw-layout__detail[aria-busy="true"] {
+    opacity: .7;
+}
+
+@media (max-width: 1024px) {
+    .fira-mw-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .fira-mw-layout__detail {
+        position: static;
+    }
+}
+
+/* ---------- Detail panel ---------- */
+.fira-mwd {
+    padding: 20px;
+    border-radius: var(--fira-market-radius);
+    color: var(--fira-market-text);
+    background: linear-gradient(180deg, var(--fira-market-surface-top) 0%, var(--fira-market-surface-bottom) 100%);
+    font-variant-numeric: tabular-nums;
+}
+
+.fira-mwd__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 16px;
+}
+
+.fira-mwd .fira-mwd__title {
+    margin: 0;
+    color: var(--fira-market-text) !important;
+    font-size: 19px !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+    letter-spacing: -.01em !important;
+    text-transform: none;
+}
+
+.fira-mwd__title:focus {
+    outline: none;
+}
+
+.fira-mwd__sub,
+.fira-mwd__note,
+.fira-mwd__disclaimer,
+.fira-mwd__axis {
+    margin: 6px 0 0;
+    color: var(--fira-market-muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.fira-mwd__none {
+    margin: 12px 0 0;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.fira-mwd__retry {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--fira-market-text);
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.fira-mwd__quote {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    margin: 16px 0 0;
+}
+
+.fira-mwd__price {
+    font-size: clamp(28px, 1.4rem + 1vw, 36px);
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.fira-mwd__unit {
+    color: var(--fira-market-muted);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.fira-mwd__change {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.fira-mwd__quote.is-up .fira-mwd__change,
+.fira-mwd__chart.is-up {
+    color: var(--fira-market-up);
+}
+
+.fira-mwd__quote.is-down .fira-mwd__change,
+.fira-mwd__chart.is-down {
+    color: var(--fira-market-down);
+}
+
+.fira-mwd__quote:is(.is-flat, .is-none) .fira-mwd__change,
+.fira-mwd__chart:is(.is-flat, .is-none) {
+    color: var(--fira-market-flat);
+}
+
+.fira-mwd__controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin-top: 16px;
+}
+
+.fira-mwd__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.fira-mwd__chipbtn {
+    display: inline-grid;
+    place-items: center;
+    min-width: 44px;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--fira-market-hairline);
+    border-radius: 999px;
+    color: var(--fira-market-text);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.fira-mwd__chipbtn:hover {
+    background: var(--fira-market-selected);
+    color: var(--fira-market-text);
+}
+
+.fira-mwd__chipbtn[aria-current="true"] {
+    border-color: var(--fira-market-text);
+    color: var(--fira-market-surface-top);
+    background: var(--fira-market-text);
+}
+
+.fira-mwd__chipbtn:focus-visible,
+.fira-mwd__chart:focus-visible {
+    outline: 2px solid var(--fira-market-focus);
+    outline-offset: 2px;
+}
+
+.fira-mwd__chart {
+    position: relative;
+    height: 220px;
+    margin: 16px 0 0;
+    border-radius: 12px;
+    cursor: crosshair;
+    touch-action: pan-y;
+}
+
+.fira-mwd__chart svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.fira-mwd__cross-line {
+    stroke: var(--fira-market-muted);
+    stroke-width: 1;
+}
+
+.fira-mwd__dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    margin: -5px 0 0 -5px;
+    border: 2px solid var(--fira-market-surface-top);
+    border-radius: 50%;
+    background: currentColor;
+    pointer-events: none;
+}
+
+.fira-mwd__tip {
+    position: absolute;
+    top: 0;
+    padding: 4px 10px;
+    border-radius: 8px;
+    color: var(--fira-market-surface-top);
+    background: var(--fira-market-text);
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.fira-mwd__axis {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.fira-mwd__stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin: 16px 0 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--fira-market-hairline);
+}
+
+.fira-mwd__stats div {
+    padding: 10px 12px;
+    background: var(--fira-market-surface-bottom);
+}
+
+.fira-mwd__stats dt {
+    color: var(--fira-market-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.fira-mwd__stats dd {
+    margin: 2px 0 0;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.fira-mwd__table {
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+.fira-mwd__table summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.fira-mwd__table summary:focus-visible {
+    outline: 2px solid var(--fira-market-focus);
+}
+
+.fira-mwd__table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.fira-mwd__table :is(th, td) {
+    padding: 6px 0;
+    border-bottom: 1px solid var(--fira-market-hairline);
+    color: var(--fira-market-text);
+    text-align: left;
+}
+
+.fira-mwd__table td + td,
+.fira-mwd__table th + th {
+    text-align: right;
+}

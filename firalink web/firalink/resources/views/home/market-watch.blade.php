@@ -6,6 +6,6 @@
             <h2 class="fira-mw-band__heading" id="fira-mw-home-heading">{{ __('market.watch.home.heading') }}</h2>
             <p class="fira-mw-band__lead">{{ __('market.watch.home.lead') }}</p>
         </div>
-        <x-market.watch :watch="$marketWatch" :keys="$marketWatch['home']['keys']" :see-all="true" list-id="home" />
+        <x-market.watch :watch="$marketWatch" :keys="$marketWatch['home']['keys']" :see-all="true" :linked="true" list-id="home" />
     </div>
 </section>

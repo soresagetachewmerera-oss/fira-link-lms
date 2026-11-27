@@ -15,6 +15,7 @@ class MarketWatchProvider extends ChangeNotifier {
   bool _failed = false;
   bool _started = false;
 
+  MarketWatchService get service => _service;
   MarketWatchSnapshot? get snapshot => _snapshot;
   bool get loading => _loading;
 

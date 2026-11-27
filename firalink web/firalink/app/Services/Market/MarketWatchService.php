@@ -18,7 +18,10 @@ class MarketWatchService
 
     private const TREND = ['bullish' => 'up', 'bearish' => 'down', 'sideways' => 'sideways'];
 
-    public function __construct(private readonly MarketFreshnessService $freshness) {}
+    public function __construct(
+        private readonly MarketFreshnessService $freshness,
+        private readonly UnitConverter $units,
+    ) {}
 
     public static function cacheKey(string $locale): string
     {
@@ -125,6 +128,9 @@ class MarketWatchService
             'sparkline' => $sparkline,
             'spark_ref' => $prev,
             'on_home' => (bool) $series->on_home,
+            // What the detail view may offer for this row (server-decided).
+            'ranges' => array_values(array_filter(MarketSeriesService::RANGES, fn ($r) => $r !== '1D' || ($series->supports_intraday && $series->source?->enabled))),
+            'units' => $available ? $this->units->unitsFor($series) : [],
         ];
         $row['a11y_label'] = $this->spoken($row, $unitKey);
 

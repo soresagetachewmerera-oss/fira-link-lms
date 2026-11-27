@@ -128,50 +128,17 @@
             <i class="fas fa-cloud" aria-hidden="true"></i><span id="market-notice-text"></span>
         </div>
 
-        <div class="prices-top">
-            <section class="prices-card prices-hero" aria-labelledby="hero-name" id="market-hero">
-                @if($featured)
-                    <p class="prices-hero-name" id="hero-name">{{ $featured['name'] }}</p>
-                    <div><span class="prices-hero-value">{{ $fmt($featured['value']) }}</span><span class="prices-hero-unit muted">{{ $unit($featured) }}</span></div>
-                    <div class="prices-status"><i class="fas {{ $trendIcon($featured['trend']['label']) }}" aria-hidden="true"></i>{{ $t('trend.' . $featured['trend']['label']) }}</div>
-                    <div class="prices-status muted"><i class="fas {{ $icon($featured['freshness']['status']) }}" aria-hidden="true"></i>{{ $featured['freshness']['label'] }}</div>
-                    @if($featured['source_time'])
-                        <div class="prices-small muted">{{ $t('source_time', ['time' => $time($featured['source_time'], $isDaily($featured))]) }}</div>
-                    @endif
-                    <div class="prices-small muted">{{ $t('source', ['name' => $featured['source']['attribution']]) }}</div>
-                @else
-                    <p class="prices-hero-name" id="hero-name">{{ $t('card_title') }}</p>
-                    <div class="prices-status"><i class="fas fa-ban" aria-hidden="true"></i>{{ $t('unavailable') }}</div>
-                    <p class="prices-small muted">{{ $t('unavailable_hint') }}</p>
-                    <button type="button" class="prices-btn" style="margin-top:12px" data-market-retry>{{ $t('try_again') }}</button>
-                @endif
-            </section>
-
-            <section class="prices-card" aria-labelledby="chart-heading">
-                <div class="prices-section-head" style="margin-bottom:8px">
-                    <div><h2 id="chart-heading" style="font-size:18px">{{ $t('chart_heading') }}</h2><p>{{ $t('chart_hint') }}</p></div>
-                </div>
-                <div class="prices-ranges" role="group" aria-label="{{ $t('chart_heading') }}">
-                    @foreach(array_values(array_filter(['1D', '1W', '1M', '3M', '1Y'], fn ($r) => $r !== '1D' || $intradayAvailable)) as $r)
-                        <button type="button" class="prices-range" data-range="{{ $r }}" aria-pressed="{{ $r === '1M' ? 'true' : 'false' }}">{{ $t('ranges.' . $r) }}</button>
-                    @endforeach
-                </div>
-                <div class="prices-chart" id="market-chart"><div class="prices-chart-msg">{{ $featured ? '…' : $t('chart_empty') }}</div></div>
-                <div class="prices-axis" id="market-axis" aria-hidden="true"></div>
-            </section>
-        </div>
-
-        <section class="prices-section" aria-labelledby="benchmarks-heading">
-            <div class="prices-section-head"><div><h2 id="benchmarks-heading">{{ $t('benchmarks') }}</h2></div></div>
-            <x-market.watch :watch="$watch" :selectable="true" :selected="$featured['symbol'] ?? null" list-id="market-rows" />
-            <div class="prices-card" style="margin-top:16px">
-                <h3 style="margin:0 0 8px;font-size:16px;color:var(--prices-ink)">{{ $t('summary') }}</h3>
-                <p style="margin:0" id="market-summary">{{ $overview['summary']['text'] }}</p>
-                <p class="prices-note">{{ $t('summary_note') }}</p>
+        {{-- Market watch: every row (left) and the selected row's detail (right on wide screens). --}}
+        <div class="fira-mw-layout" data-market-page data-panel-url="{{ route('market-prices.panel') }}" data-watch-url="{{ url('/api/market/watch') }}"
+            data-signature='@json(collect($watch['rows'])->map(fn ($r) => [$r['key'], $r['price'], $r['status']])->values())' data-text-failed="{{ __('market.watch.detail.failed') }}"
+            data-text-refresh-failed="{{ $t('refresh_failed', ['time' => '{time}']) }}">
+            <x-market.watch :watch="$watch" :linked="true" :selected="$detail['key'] ?? null" :refresh="true" list-id="market-rows" />
+            <div class="fira-mw-layout__detail" id="market-detail-slot">
+                <x-market.detail :detail="$detail" />
             </div>
-            <p class="prices-note" id="market-attribution">{{ $t('attribution', ['names' => $attributions->implode(', ')]) }}</p>
-            <p class="prices-note" id="market-updated">{{ $t('updated', ['time' => $time($overview['generated_at'], false)]) }}</p>
-        </section>
+        </div>
+        <p class="prices-note" id="market-attribution">{{ $t('attribution', ['names' => $attributions->implode(', ')]) }}</p>
+        <p class="prices-note" id="market-updated">{{ $t('updated', ['time' => $time($overview['generated_at'], false)]) }}</p>
 
         <section class="prices-section" aria-labelledby="floor-prices-heading">
             <div class="prices-section-head">
@@ -209,81 +176,5 @@
 @endsection
 
 @push('scripts')
-<script>
-(() => {
-    // Reads the same API as the app. Never draws or shows a number the server did not send.
-    const api = @js(url('/api/market'));
-    const lang = @js(app()->getLocale());
-    const text = @js(['chart_empty' => $t('chart_empty'), 'chart_failed' => $t('chart_failed'), 'refresh_failed' => $t('refresh_failed', ['time' => '{time}']), 'updated' => $t('updated', ['time' => '{time}'])]);
-    let symbol = @js($featured['symbol'] ?? null);
-    let range = '1M';
-    let lastGood = @js($overview['generated_at']);
-    let failures = 0, timer = null;
-    const initial = JSON.stringify(@js(collect($overview['benchmarks'])->map(fn ($b) => [$b['symbol'], $b['value'], $b['freshness']['status']])->values()));
-    const daily = new Set(@js(collect($overview['benchmarks'])->filter(fn ($r) => $isDaily($r))->pluck('symbol')->values()));
-    const chart = document.getElementById('market-chart');
-    const axis = document.getElementById('market-axis');
-    const notice = document.getElementById('market-notice');
-    const fmtTime = (iso, dateOnly) => { const d = new Date(iso); if (isNaN(d)) return ''; const p = n => String(n).padStart(2, '0');
-        return dateOnly ? `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}` : `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; };
-    const msg = t => { chart.innerHTML = ''; const m = document.createElement('div'); m.className = 'prices-chart-msg'; m.textContent = t; chart.appendChild(m); axis.textContent = ''; };
-    const get = url => fetch(url, { headers: { Accept: 'application/json', 'Accept-Language': lang } }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
-
-    async function drawSeries() {
-        if (!symbol) return msg(text.chart_empty);
-        try {
-            const body = await get(`${api}/series?symbol=${encodeURIComponent(symbol)}&range=${range}`);
-            const pts = (body.data.points || []).map(p => ({ v: parseFloat(p.value), t: new Date(p.source_time) })).filter(p => !isNaN(p.v) && !isNaN(p.t));
-            if (pts.length < 2) return msg(text.chart_empty);
-            const W = 600, H = 220, lo = Math.min(...pts.map(p => p.v)), hi = Math.max(...pts.map(p => p.v));
-            const span = (hi - lo) || 1, t0 = pts[0].t.getTime(), tw = (pts[pts.length - 1].t.getTime() - t0) || 1;
-            const d = pts.map((p, i) => `${i ? 'L' : 'M'}${((p.t.getTime() - t0) / tw * W).toFixed(1)},${(H - (p.v - lo) / span * H).toFixed(1)}`).join(' ');
-            chart.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${lo.toFixed(2)} – ${hi.toFixed(2)}"><path d="${d}" fill="none" stroke="var(--fira-primary)" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>`;
-            const dateOnly = daily.has(symbol);
-            axis.innerHTML = '';
-            [fmtTime(pts[0].t, dateOnly), `${lo.toFixed(2)} – ${hi.toFixed(2)}`, fmtTime(pts[pts.length - 1].t, dateOnly)].forEach(s => { const e = document.createElement('span'); e.textContent = s; axis.appendChild(e); });
-        } catch (e) { msg(text.chart_failed); }
-    }
-
-    async function refresh() {
-        try {
-            const body = await get(`${api}/overview`);
-            lastGood = body.data.generated_at;
-            failures = 0;
-            notice.classList.remove('is-visible');
-            document.getElementById('market-summary').textContent = body.data.summary.text;
-            document.getElementById('market-updated').textContent = text.updated.replace('{time}', fmtTime(lastGood, false));
-            // A value or freshness changed on the server: reload so every row is rendered by the server again.
-            const latest = JSON.stringify((body.data.benchmarks || []).map(b => [b.symbol, b.value, b.freshness.status]));
-            if (latest !== initial) { location.reload(); return; }
-            drawSeries();
-        } catch (e) {
-            failures++;
-            document.getElementById('market-notice-text').textContent = text.refresh_failed.replace('{time}', fmtTime(lastGood, false));
-            notice.classList.add('is-visible');
-        }
-    }
-
-    function schedule() {
-        clearTimeout(timer);
-        const wait = 60000 * Math.min(10, 2 ** Math.min(failures, 4));
-        timer = setTimeout(async () => { if (document.visibilityState === 'visible') await refresh(); schedule(); }, wait);
-    }
-    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') schedule(); else clearTimeout(timer); });
-
-    document.querySelectorAll('.prices-range').forEach(b => b.addEventListener('click', () => {
-        range = b.dataset.range;
-        document.querySelectorAll('.prices-range').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
-        drawSeries();
-    }));
-    document.querySelectorAll('#market-rows [data-selectable="1"]').forEach(row => {
-        const pick = () => { symbol = row.dataset.symbol; document.querySelectorAll('#market-rows [role="option"]').forEach(r => r.setAttribute('aria-selected', r === row ? 'true' : 'false')); drawSeries(); };
-        row.addEventListener('click', pick);
-        row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
-    });
-    document.querySelectorAll('[data-market-retry]').forEach(b => b.addEventListener('click', () => location.reload()));
-    drawSeries();
-    schedule();
-})();
-</script>
+<script src="{{ asset('assets/front/js/market-watch.js') }}?v={{ file_exists(public_path('assets/front/js/market-watch.js')) ? filemtime(public_path('assets/front/js/market-watch.js')) : '1' }}" defer></script>
 @endpush

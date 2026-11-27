@@ -103,30 +103,72 @@ class MarketWatchWebTest extends TestCase
         $this->assertDoesNotMatchRegularExpression('/fira-mw__price">\s*[0-9]/', $unavailable);
     }
 
-    public function test_market_prices_lists_every_row_with_status_source_and_no_one_day_chip_for_daily_data(): void
+    public function test_market_prices_lists_every_row_and_details_the_selected_one(): void
     {
         $this->enable('ico_daily');
-        $this->store('ICO_COMPOSITE', 249.09, '2026-11-16 00:00:00');
+        for ($i = 0; $i < 25; $i++) {
+            $this->store('ICO_COMPOSITE', 230 + $i, CarbonImmutable::parse('2026-11-16')->subDays(24 - $i)->toDateString() . ' 00:00:00');
+        }
         $this->store('ICO_ROBUSTAS', 157.29, '2026-11-09 00:00:00');
 
         $html = $this->get('/market-prices')->assertOk()->getContent();
 
-        $this->assertStringContainsString('<ul class="fira-mw__rows"', $html);
-        $this->assertStringContainsString('id="market-rows"', $html);
-        $this->assertStringContainsString('role="listbox"', $html);
         $this->assertSame(8, substr_count($html, 'class="fira-mw__row '));
-        $this->assertStringNotContainsString('data-range="1D"', $html);
+        $this->assertStringContainsString('id="market-rows"', $html);
+        $ico = $this->rowHtml($html, 'ICO_COMPOSITE');
+        $this->assertStringContainsString('href="' . e(route('market-prices.index', ['market' => 'ICO_COMPOSITE'])) . '"', $ico);
+        $this->assertStringContainsString('aria-current="true"', $ico, 'The first row with a price is selected.');
+        $this->assertStringNotContainsString('fira-mw__hit', $this->rowHtml($html, 'KC_ACTIVE'), 'An unavailable row is not a link.');
         $this->assertStringContainsString('Stale · last <span class="fira-mw__nowrap">2026-11-09</span>', $this->rowHtml($html, 'ICO_ROBUSTAS'));
-        $this->assertStringContainsString('aria-selected="true"', $this->rowHtml($html, 'ICO_COMPOSITE'));
-        $this->assertStringNotContainsString('tabindex="0"', $this->rowHtml($html, 'KC_ACTIVE'), 'An unavailable row cannot be selected.');
+
+        // Detail panel, server-rendered.
+        $this->assertStringContainsString('id="market-detail"', $html);
+        $this->assertStringContainsString('ICO Composite Indicator Price', $html);
+        $this->assertStringContainsString('Source time: 2026-11-16', $html);
+        $this->assertStringNotContainsString('data-range="1D"', $html, 'No 1D for a daily source.');
+        $this->assertStringContainsString('data-range="5Y"', $html);
+        $this->assertStringContainsString('<figcaption class="fira-mw__sr" id="fira-mwd-summary">Price chart for ICO composite, 1M:', $html);
+        $this->assertStringContainsString('<summary>Prices as a table</summary>', $html);
+        $this->assertStringContainsString('<dt>20-day average</dt><dd>244.50</dd>', $html);
+        $this->assertStringContainsString('assets/front/js/market-watch.js', $html);
         $this->assertStringNotContainsString('>Live<', $html);
     }
 
-    public function test_one_day_chip_appears_when_an_intraday_source_is_on(): void
+    public function test_range_and_unit_work_without_javascript_and_as_a_panel_fragment(): void
+    {
+        $this->enable('ico_daily');
+        $this->store('ICO_COMPOSITE', 247.25, '2026-11-15 00:00:00');
+        $this->store('ICO_COMPOSITE', 249.09, '2026-11-16 00:00:00');
+
+        $page = $this->get('/market-prices?market=ICO_COMPOSITE&range=1Y&unit=usd_kg')->assertOk()->getContent();
+        $this->assertStringContainsString('<span class="fira-mwd__price">5.4915</span>', $page);
+        $this->assertMatchesRegularExpression('#aria-current="true"\s*>1Y</a>#', $page);
+
+        $panel = $this->get('/market-prices/panel?market=ICO_COMPOSITE&range=3M')->assertOk()->getContent();
+        $this->assertStringStartsWith('<section class="fira-mwd"', trim($panel));
+        $this->assertStringContainsString('data-range="3M"', $panel);
+        $this->assertStringNotContainsString('<html', $panel);
+
+        // Unknown or unavailable choices fall back instead of failing.
+        $this->get('/market-prices?market=NOPE&range=99Y&unit=eur')->assertOk()->assertSee('249.09');
+    }
+
+    public function test_one_day_chip_appears_for_an_intraday_source_that_is_on(): void
     {
         $this->enable('api_ninjas_coffee');
+        $this->store('KC_ACTIVE', 372.40, '2026-11-16 11:50:00');
 
-        $this->get('/market-prices')->assertOk()->assertSee('data-range="1D"', false);
+        $this->get('/market-prices?market=KC_ACTIVE')->assertOk()->assertSee('data-range="1D"', false);
+    }
+
+    public function test_home_rows_link_to_their_detail(): void
+    {
+        $this->enable('ico_daily');
+        $this->store('ICO_COMPOSITE', 249.09, '2026-11-16 00:00:00');
+
+        $band = $this->get('/')->assertOk()->getContent();
+        $this->assertStringContainsString('href="' . e(route('market-prices.index', ['market' => 'ICO_COMPOSITE'])) . '" data-market="ICO_COMPOSITE"', $band);
+        $this->assertStringNotContainsString('market-watch.js', $band, 'No chart script on Home.');
     }
 
     public function test_market_prices_in_amharic(): void
@@ -148,7 +190,7 @@ class MarketWatchWebTest extends TestCase
         foreach (array_unique($used[1]) as $token) {
             $this->assertStringContainsString($token . ':', $tokens, "Token {$token} is not defined.");
         }
-        foreach (['components/market/watch', 'components/market/row', 'components/market/sparkline', 'home/market-watch'] as $view) {
+        foreach (['components/market/watch', 'components/market/row', 'components/market/sparkline', 'components/market/detail', 'home/market-watch'] as $view) {
             $this->assertStringNotContainsString('style=', file_get_contents(resource_path("views/{$view}.blade.php")), "{$view} has inline styles.");
         }
     }
