@@ -9,7 +9,7 @@
                 <div class="col-lg-8">
                     <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); color: #fff; font-size: 13px; font-weight: 600;">
                         <span style="display: inline-block; width: 8px; height: 8px; background: #ffffff; border-radius: 50%; box-shadow: 0 0 10px rgba(255,255,255,0.8);"></span>
-                        Live Trade &amp; Learning Intelligence • Google Gemini AI
+                        Live Trade &amp; Learning Intelligence • Fira AI
                     </div>
                     <h1 class="text-white fw-bold mb-2" style="font-size: 36px; letter-spacing: -0.5px;">
                         Fira AI <span style="font-weight: 300; opacity: 0.9;">Export &amp; Trade Advisor</span>
@@ -51,6 +51,9 @@
                                 </div>
                             </div>
                             <div class="d-flex align-items-center gap-2">
+                                <button type="button" id="page-voice-toggle-btn" class="btn btn-sm text-white rounded-pill px-3 py-1 text-nowrap d-inline-flex align-items-center gap-1" style="background: linear-gradient(135deg, #6D1A95 0%, #3B0764 100%); font-size: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(109, 26, 149, 0.25);">
+                                    <i class="fa-solid fa-microphone"></i> Voice Mode
+                                </button>
                                 <a href="{{ route('courses') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 text-nowrap" style="font-size: 12px;">
                                     <i class="fa-solid fa-book-open me-1"></i> Browse Courses
                                 </a>
@@ -59,6 +62,85 @@
                                         <i class="fa-solid fa-calculator me-1"></i> Profit Calculator
                                     </a>
                                 @endif
+                            </div>
+                        </div>
+
+                        <!-- Voice Mode Overlay (Inside Main Card) -->
+                        <div id="page-voice-overlay" class="fira-voice-overlay" style="display: none; min-height: 580px;">
+                            <div class="fira-voice-topbar">
+                                <div class="fira-voice-status-pill" id="page-voice-status-pill" data-state="idle">
+                                    <span class="fira-voice-status-dot"></span>
+                                    <span id="page-voice-status-text">Ready</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <select id="page-voice-lang-select" class="fira-voice-lang-select" aria-label="Select voice language">
+                                        <option value="en" selected>English</option>
+                                        <option value="am">አማርኛ (Amharic)</option>
+                                        <option value="om">Afaan Oromoo</option>
+                                    </select>
+                                    <button type="button" id="page-voice-close-btn" class="fira-btn-icon" title="Switch back to text chat" aria-label="Switch back to text chat">
+                                        <i class="fa-solid fa-comments"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Central Voice Orb -->
+                            <div class="fira-voice-orb-wrapper" id="page-voice-orb" data-state="idle" title="Tap to talk or interrupt">
+                                <div class="fira-voice-orb-ring fira-voice-orb-ring-3"></div>
+                                <div class="fira-voice-orb-ring fira-voice-orb-ring-2"></div>
+                                <div class="fira-voice-orb-core">
+                                    <i class="fa-solid fa-microphone" id="page-voice-orb-icon"></i>
+                                </div>
+                            </div>
+
+                            <div class="fira-voice-waves" id="page-voice-waves">
+                                <span class="fira-voice-wave-bar"></span>
+                                <span class="fira-voice-wave-bar"></span>
+                                <span class="fira-voice-wave-bar"></span>
+                                <span class="fira-voice-wave-bar"></span>
+                                <span class="fira-voice-wave-bar"></span>
+                            </div>
+
+                            <!-- Live Captions Subtitles Box -->
+                            <div class="fira-voice-captions" id="page-voice-captions">
+                                <span style="opacity: 0.7;">Tap the Orb to speak with Fira AI in English or Amharic...</span>
+                            </div>
+
+                            <!-- Rendered Tool Cards Container -->
+                            <div class="fira-voice-card-container" id="page-voice-cards"></div>
+
+                            <!-- Afan Oromo Fallback Card Container -->
+                            <div id="page-voice-oromo-fallback" style="display: none; width: 100%;">
+                                <div class="fira-voice-fallback-card">
+                                    <div class="fira-voice-fallback-title">Sagalee Afaan Oromoo (Preview)</div>
+                                    <div class="fira-voice-fallback-text">
+                                        Haasawaan sagalee Afaan Oromoo qorannoo irra jira. Fira AI barreeffamaan deebii guutuu Afaan Oromootiin kenna.
+                                    </div>
+                                    <div class="fira-voice-fallback-actions">
+                                        <button type="button" class="fira-voice-fallback-btn fira-voice-fallback-btn-primary" id="page-oromo-to-chat-btn">
+                                            Barreeffamaan Dubbisi
+                                        </button>
+                                        <button type="button" class="fira-voice-fallback-btn fira-voice-fallback-btn-secondary" id="page-oromo-to-am-btn">
+                                            በአማርኛ ቀጥል
+                                        </button>
+                                        <button type="button" class="fira-voice-fallback-btn fira-voice-fallback-btn-secondary" id="page-oromo-to-en-btn">
+                                            Voice in English
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Voice Controls Bar -->
+                            <div class="fira-voice-controls" id="page-voice-controls-bar">
+                                <button type="button" class="fira-voice-btn fira-voice-btn-mic" id="page-voice-mute-btn" title="Mute/Unmute microphone" aria-label="Mute microphone">
+                                    <i class="fa-solid fa-microphone" id="page-voice-mute-icon"></i>
+                                </button>
+                                <button type="button" class="fira-voice-btn-interrupt" id="page-voice-interrupt-btn" title="Interrupt speaking">
+                                    <i class="fa-solid fa-hand"></i> Interrupt
+                                </button>
+                                <button type="button" class="fira-voice-btn-end" id="page-voice-end-btn" title="End voice call" aria-label="End call">
+                                    <i class="fa-solid fa-phone-slash"></i>
+                                </button>
                             </div>
                         </div>
 
@@ -138,6 +220,11 @@
                                            style="background: #f1f5f9; border-radius: 16px 0 0 16px; font-size: 15px; color: #0f172a;"
                                            placeholder="Ask Fira AI anything about coffee, export regulations, or courses..." 
                                            autocomplete="off" value="{{ $initialPrompt ?? '' }}">
+                                    <button type="button" id="page-input-mic-btn" class="btn py-3 px-3 border-0" 
+                                            style="background: #f1f5f9; color: #6D1A95; font-size: 16px; border-radius: 0;"
+                                            title="Voice Mode" aria-label="Start Voice Conversation">
+                                        <i class="fa-solid fa-microphone"></i>
+                                    </button>
                                     <button type="submit" class="btn px-4 py-3 text-white fw-bold d-flex align-items-center gap-2" id="public-send-btn"
                                             style="background: #6D1A95; border-radius: 0 16px 16px 0; font-size: 15px; transition: all 0.2s ease;">
                                         <span>Send</span>
@@ -147,7 +234,7 @@
                             </form>
                             <div class="d-flex justify-content-between align-items-center mt-2 px-1">
                                 <small class="text-muted" style="font-size: 11px;">
-                                    <i class="fa-solid fa-shield-halved me-1 text-theme"></i> Free &amp; Private • Powered by Google Gemini AI
+                                    <i class="fa-solid fa-shield-halved me-1 text-theme"></i> Free &amp; Private • Fira AI Trade Intelligence
                                 </small>
                                 <small class="text-muted" style="font-size: 11px;">
                                     Press <kbd style="background: #e2e8f0; color: #475569; padding: 2px 5px; border-radius: 4px;">Enter</kbd> to send
@@ -163,6 +250,7 @@
 @endsection
 
 @push('styles')
+<link rel="stylesheet" href="{{ asset('assets/front/css/fira-voice.css') }}">
 <style>
     .prompt-pill:hover {
         background: #6D1A95 !important;
@@ -363,6 +451,196 @@
             escaped = escaped.replace(/\n/g, '<br>');
             return escaped;
         }
+
+        // ==========================================
+        // PAGE VOICE ORB INTEGRATION
+        // ==========================================
+        const pageVoiceToggleBtn = document.getElementById('page-voice-toggle-btn');
+        const pageInputMicBtn = document.getElementById('page-input-mic-btn');
+        const pageVoiceOverlay = document.getElementById('page-voice-overlay');
+        const pageVoiceCloseBtn = document.getElementById('page-voice-close-btn');
+        const pageChatBody = document.getElementById('public-chat-body');
+        const pageChatFooter = document.querySelector('.p-3.px-4.bg-white.border-top');
+        const pageQuickPrompts = document.querySelector('.px-4.py-2.border-top.bg-light');
+
+        const pageVoiceOrb = document.getElementById('page-voice-orb');
+        const pageVoiceStatusPill = document.getElementById('page-voice-status-pill');
+        const pageVoiceStatusText = document.getElementById('page-voice-status-text');
+        const pageVoiceCaptions = document.getElementById('page-voice-captions');
+        const pageVoiceCards = document.getElementById('page-voice-cards');
+        const pageVoiceLangSelect = document.getElementById('page-voice-lang-select');
+        const pageVoiceMuteBtn = document.getElementById('page-voice-mute-btn');
+        const pageVoiceMuteIcon = document.getElementById('page-voice-mute-icon');
+        const pageVoiceInterruptBtn = document.getElementById('page-voice-interrupt-btn');
+        const pageVoiceEndBtn = document.getElementById('page-voice-end-btn');
+        const pageOromoFallback = document.getElementById('page-voice-oromo-fallback');
+        const pageVoiceControlsBar = document.getElementById('page-voice-controls-bar');
+
+        let pageVoiceClient = null;
+
+        function initPageVoiceClient() {
+            if (pageVoiceClient) return pageVoiceClient;
+
+            pageVoiceClient = new window.FiraVoiceClient({
+                language: pageVoiceLangSelect ? pageVoiceLangSelect.value : 'en',
+                onStateChange: (state) => {
+                    if (pageVoiceStatusPill) pageVoiceStatusPill.setAttribute('data-state', state);
+                    if (pageVoiceOrb) pageVoiceOrb.setAttribute('data-state', state);
+
+                    if (state === 'afan_oromo_fallback') {
+                        if (pageOromoFallback) pageOromoFallback.style.display = 'block';
+                        if (pageVoiceControlsBar) pageVoiceControlsBar.style.display = 'none';
+                        if (pageVoiceStatusText) pageVoiceStatusText.textContent = 'Preview';
+                        return;
+                    } else {
+                        if (pageOromoFallback) pageOromoFallback.style.display = 'none';
+                        if (pageVoiceControlsBar) pageVoiceControlsBar.style.display = 'flex';
+                    }
+
+                    if (state === 'unauthenticated') {
+                        if (pageVoiceCaptions) {
+                            pageVoiceCaptions.innerHTML = '<span style="color: #F87171;"><i class="fa-solid fa-lock me-1"></i> Sign in required. <a href="/auth/login" style="color: #F3E8FF; text-decoration: underline;">Sign In</a> to access Fira AI voice.</span>';
+                        }
+                        if (pageVoiceStatusText) pageVoiceStatusText.textContent = 'Signed-out';
+                        return;
+                    }
+
+                    const labels = {
+                        idle: 'Ready',
+                        initializing: 'Initializing...',
+                        connecting: 'Connecting...',
+                        listening: 'Listening...',
+                        thinking: 'Thinking...',
+                        speaking: 'Fira AI Speaking...',
+                        interrupted: 'Interrupted',
+                        disconnected: 'Disconnected',
+                        error: 'Error'
+                    };
+                    if (pageVoiceStatusText) pageVoiceStatusText.textContent = labels[state] || state;
+                },
+                onVolume: (level) => {
+                    const waveBars = document.querySelectorAll('#page-voice-waves .fira-voice-wave-bar');
+                    waveBars.forEach((bar, idx) => {
+                        const h = Math.max(6, Math.min(24, Math.round(level * 24 * (0.8 + idx * 0.1))));
+                        bar.style.height = `${h}px`;
+                    });
+                },
+                onTranscript: (text, isFinal, isUser) => {
+                    if (!pageVoiceCaptions) return;
+                    const clean = escapeHtml(text);
+                    if (isUser) {
+                        pageVoiceCaptions.innerHTML = `<span class="caption-user">You: ${clean}</span>`;
+                    } else {
+                        pageVoiceCaptions.innerHTML = `<span class="caption-ai">${clean}</span>`;
+                    }
+                },
+                onDisplayCard: (card) => {
+                    if (!pageVoiceCards) return;
+                    pageVoiceCards.innerHTML = window.FiraVoiceCardRenderer.render(card);
+                },
+                onError: (msg) => {
+                    if (pageVoiceCaptions) {
+                        pageVoiceCaptions.innerHTML = `<span style="color: #F87171;">${escapeHtml(msg)}</span>`;
+                    }
+                }
+            });
+
+            return pageVoiceClient;
+        }
+
+        function openPageVoiceMode() {
+            if (pageChatBody) pageChatBody.style.display = 'none';
+            if (pageChatFooter) pageChatFooter.style.display = 'none';
+            if (pageQuickPrompts) pageQuickPrompts.style.display = 'none';
+            if (pageVoiceOverlay) pageVoiceOverlay.style.display = 'flex';
+
+            const client = initPageVoiceClient();
+            client.start(pageVoiceLangSelect ? pageVoiceLangSelect.value : 'en');
+        }
+
+        function closePageVoiceMode() {
+            if (pageVoiceClient) {
+                pageVoiceClient.stop();
+            }
+            if (pageVoiceOverlay) pageVoiceOverlay.style.display = 'none';
+            if (pageChatBody) pageChatBody.style.display = 'block';
+            if (pageChatFooter) pageChatFooter.style.display = 'block';
+            if (pageQuickPrompts) pageQuickPrompts.style.display = 'flex';
+        }
+
+        if (pageVoiceToggleBtn) pageVoiceToggleBtn.addEventListener('click', openPageVoiceMode);
+        if (pageInputMicBtn) pageInputMicBtn.addEventListener('click', openPageVoiceMode);
+        if (pageVoiceCloseBtn) pageVoiceCloseBtn.addEventListener('click', closePageVoiceMode);
+
+        if (pageVoiceOrb) {
+            pageVoiceOrb.addEventListener('click', () => {
+                const client = initPageVoiceClient();
+                if (client.state === 'speaking') {
+                    client.interrupt();
+                } else if (client.state === 'idle' || client.state === 'disconnected') {
+                    client.start(pageVoiceLangSelect ? pageVoiceLangSelect.value : 'en');
+                }
+            });
+        }
+
+        if (pageVoiceInterruptBtn) {
+            pageVoiceInterruptBtn.addEventListener('click', () => {
+                if (pageVoiceClient) pageVoiceClient.interrupt();
+            });
+        }
+
+        if (pageVoiceMuteBtn) {
+            pageVoiceMuteBtn.addEventListener('click', () => {
+                if (pageVoiceClient) {
+                    const isMuted = pageVoiceClient.toggleMute();
+                    pageVoiceMuteBtn.classList.toggle('muted', isMuted);
+                    if (pageVoiceMuteIcon) {
+                        pageVoiceMuteIcon.className = isMuted ? 'fa-solid fa-microphone-slash' : 'fa-solid fa-microphone';
+                    }
+                }
+            });
+        }
+
+        if (pageVoiceEndBtn) pageVoiceEndBtn.addEventListener('click', closePageVoiceMode);
+
+        if (pageVoiceLangSelect) {
+            pageVoiceLangSelect.addEventListener('change', () => {
+                if (pageVoiceClient) {
+                    pageVoiceClient.stop();
+                    pageVoiceClient.start(pageVoiceLangSelect.value);
+                }
+            });
+        }
+
+        // Afan Oromo Fallback Actions on Chat Page
+        const pOromoToChatBtn = document.getElementById('page-oromo-to-chat-btn');
+        const pOromoToAmBtn = document.getElementById('page-oromo-to-am-btn');
+        const pOromoToEnBtn = document.getElementById('page-oromo-to-en-btn');
+
+        if (pOromoToChatBtn) {
+            pOromoToChatBtn.addEventListener('click', () => {
+                closePageVoiceMode();
+                if (messageInput) {
+                    messageInput.placeholder = "Afaan Oromootiin Fira AI gaafadhaa...";
+                    messageInput.focus();
+                }
+            });
+        }
+        if (pOromoToAmBtn) {
+            pOromoToAmBtn.addEventListener('click', () => {
+                if (pageVoiceLangSelect) pageVoiceLangSelect.value = 'am';
+                const client = initPageVoiceClient();
+                client.start('am');
+            });
+        }
+        if (pOromoToEnBtn) {
+            pOromoToEnBtn.addEventListener('click', () => {
+                if (pageVoiceLangSelect) pageVoiceLangSelect.value = 'en';
+                const client = initPageVoiceClient();
+                client.start('en');
+            });
+        }
     });
 </script>
+<script src="{{ asset('assets/front/js/fira-voice.js') }}"></script>
 @endpush

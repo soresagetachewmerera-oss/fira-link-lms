@@ -40,6 +40,9 @@
                 </div>
             </div>
             <div class="fira-header-actions d-flex align-items-center gap-1">
+                <button type="button" id="fira-ai-voice-toggle-btn" class="fira-btn-icon" title="Switch to Voice Mode" aria-label="Switch to Voice Mode" style="background: rgba(255,255,255,0.2);">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
                 <button type="button" id="fira-ai-clear-btn" class="fira-btn-icon" title="Clear conversation" aria-label="Clear conversation">
                     <i class="fa-solid fa-rotate-left"></i>
                 </button>
@@ -111,6 +114,14 @@
                        aria-label="Ask Fira AI anything" 
                        maxlength="1000" 
                        required>
+                <button type="button"
+                        id="fira-ai-mic-btn"
+                        class="fira-btn-icon"
+                        style="width: 36px; height: 36px; border-radius: 50%; color: #6D1A95; background: #F3E8FF; border: none; margin-right: 6px; cursor: pointer;"
+                        title="Voice Mode"
+                        aria-label="Voice Mode">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
                 <button type="submit" 
                         id="fira-ai-submit-btn" 
                         class="fira-submit-button" 
@@ -120,13 +131,95 @@
                 </button>
             </form>
             <div class="fira-footer-subtext">
-                <span>Free &bull; Google Gemini AI</span>
+                <span>Free &bull; Fira Trade Intelligence</span>
                 <span>Press Enter to send</span>
+            </div>
+        </div>
+
+        <!-- Voice Mode View (Overlay) -->
+        <div id="fira-voice-panel-view" class="fira-voice-overlay" style="display: none;">
+            <div class="fira-voice-topbar">
+                <div class="fira-voice-status-pill" id="fira-voice-status-pill" data-state="idle">
+                    <span class="fira-voice-status-dot"></span>
+                    <span id="fira-voice-status-text">Ready</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <select id="fira-voice-lang-select" class="fira-voice-lang-select" aria-label="Select voice language">
+                        <option value="en" selected>English</option>
+                        <option value="am">አማርኛ (Amharic)</option>
+                        <option value="om">Afaan Oromoo</option>
+                    </select>
+                    <button type="button" id="fira-voice-close-view-btn" class="fira-btn-icon" title="Return to text chat" aria-label="Return to text chat">
+                        <i class="fa-solid fa-comments"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Central Interactive Voice Orb -->
+            <div class="fira-voice-orb-wrapper" id="fira-voice-orb" data-state="idle" title="Tap to start or interrupt">
+                <div class="fira-voice-orb-ring fira-voice-orb-ring-3"></div>
+                <div class="fira-voice-orb-ring fira-voice-orb-ring-2"></div>
+                <div class="fira-voice-orb-core">
+                    <i class="fa-solid fa-microphone" id="fira-voice-orb-icon"></i>
+                </div>
+            </div>
+
+            <div class="fira-voice-waves" id="fira-voice-waves">
+                <span class="fira-voice-wave-bar"></span>
+                <span class="fira-voice-wave-bar"></span>
+                <span class="fira-voice-wave-bar"></span>
+                <span class="fira-voice-wave-bar"></span>
+                <span class="fira-voice-wave-bar"></span>
+            </div>
+
+            <!-- Subtitles / Live Captions -->
+            <div class="fira-voice-captions" id="fira-voice-captions">
+                <span style="opacity: 0.7;">Tap the Orb to speak with Fira AI in English or Amharic...</span>
+            </div>
+
+            <!-- Tool Cards Container -->
+            <div class="fira-voice-card-container" id="fira-voice-cards"></div>
+
+            <!-- Afan Oromo Fallback Notice Container -->
+            <div id="fira-voice-oromo-fallback" style="display: none; width: 100%;">
+                <div class="fira-voice-fallback-card">
+                    <div class="fira-voice-fallback-title">Sagalee Afaan Oromoo (Preview)</div>
+                    <div class="fira-voice-fallback-text">
+                        Haasawaan sagalee Afaan Oromoo qorannoo irra jira. Fira AI barreeffamaan deebii guutuu Afaan Oromootiin kenna.
+                    </div>
+                    <div class="fira-voice-fallback-actions">
+                        <button type="button" class="fira-voice-fallback-btn fira-voice-fallback-btn-primary" id="fira-oromo-to-chat-btn">
+                            Barreeffamaan Dubbisi
+                        </button>
+                        <button type="button" class="fira-voice-fallback-btn fira-voice-fallback-btn-secondary" id="fira-oromo-to-am-btn">
+                            በአማርኛ ቀጥል
+                        </button>
+                        <button type="button" class="fira-voice-fallback-btn fira-voice-fallback-btn-secondary" id="fira-oromo-to-en-btn">
+                            Voice in English
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voice Bottom Controls -->
+            <div class="fira-voice-controls" id="fira-voice-controls-bar">
+                <button type="button" class="fira-voice-btn fira-voice-btn-mic" id="fira-voice-mute-btn" title="Mute/Unmute microphone" aria-label="Mute microphone">
+                    <i class="fa-solid fa-microphone" id="fira-voice-mute-icon"></i>
+                </button>
+                <button type="button" class="fira-voice-btn-interrupt" id="fira-voice-interrupt-btn" title="Interrupt speaking">
+                    <i class="fa-solid fa-hand"></i> Interrupt
+                </button>
+                <button type="button" class="fira-voice-btn fira-voice-btn-end" id="fira-voice-end-btn" title="End voice call" aria-label="End call">
+                    <i class="fa-solid fa-phone-slash"></i>
+                </button>
             </div>
         </div>
 
     </div>
 </div>
+
+<link rel="stylesheet" href="{{ asset('assets/front/css/fira-voice.css') }}">
+<script src="{{ asset('assets/front/js/fira-voice.js') }}"></script>
 
 <!-- Widget Styles -->
 <style>
@@ -829,6 +922,212 @@
             str = str.replace(/\n\n/g, '<br><br>');
             str = str.replace(/\n/g, '<br>');
             return str;
+        }
+
+        // ==========================================
+        // FIRA AI VOICE ORB INTEGRATION
+        // ==========================================
+        const voiceToggleBtn = document.getElementById('fira-ai-voice-toggle-btn');
+        const voiceMicBtn = document.getElementById('fira-ai-mic-btn');
+        const voicePanelView = document.getElementById('fira-voice-panel-view');
+        const voiceCloseViewBtn = document.getElementById('fira-voice-close-view-btn');
+        const voiceOrb = document.getElementById('fira-voice-orb');
+        const voiceStatusPill = document.getElementById('fira-voice-status-pill');
+        const voiceStatusText = document.getElementById('fira-voice-status-text');
+        const voiceCaptions = document.getElementById('fira-voice-captions');
+        const voiceCards = document.getElementById('fira-voice-cards');
+        const voiceLangSelect = document.getElementById('fira-voice-lang-select');
+        const voiceMuteBtn = document.getElementById('fira-voice-mute-btn');
+        const voiceMuteIcon = document.getElementById('fira-voice-mute-icon');
+        const voiceInterruptBtn = document.getElementById('fira-voice-interrupt-btn');
+        const voiceEndBtn = document.getElementById('fira-voice-end-btn');
+        const oromoFallback = document.getElementById('fira-voice-oromo-fallback');
+        const voiceControlsBar = document.getElementById('fira-voice-controls-bar');
+
+        let voiceClient = null;
+
+        function initVoiceClient() {
+            if (voiceClient) return voiceClient;
+
+            voiceClient = new window.FiraVoiceClient({
+                language: voiceLangSelect ? voiceLangSelect.value : 'en',
+                onStateChange: (state, meta) => {
+                    if (voiceStatusPill) voiceStatusPill.setAttribute('data-state', state);
+                    if (voiceOrb) voiceOrb.setAttribute('data-state', state);
+
+                    if (state === 'afan_oromo_fallback') {
+                        if (oromoFallback) oromoFallback.style.display = 'block';
+                        if (voiceControlsBar) voiceControlsBar.style.display = 'none';
+                        if (voiceStatusText) voiceStatusText.textContent = 'Preview';
+                        return;
+                    } else {
+                        if (oromoFallback) oromoFallback.style.display = 'none';
+                        if (voiceControlsBar) voiceControlsBar.style.display = 'flex';
+                    }
+
+                    if (state === 'unauthenticated') {
+                        if (voiceCaptions) {
+                            voiceCaptions.innerHTML = '<span style="color: #F87171;"><i class="fa-solid fa-lock me-1"></i> Sign in required. <a href="/auth/login" style="color: #F3E8FF; text-decoration: underline;">Sign In</a> to access Fira AI voice.</span>';
+                        }
+                        if (voiceStatusText) voiceStatusText.textContent = 'Signed-out';
+                        return;
+                    }
+
+                    const labels = {
+                        idle: 'Ready',
+                        initializing: 'Initializing...',
+                        connecting: 'Connecting...',
+                        listening: 'Listening...',
+                        thinking: 'Thinking...',
+                        speaking: 'Fira AI Speaking...',
+                        interrupted: 'Interrupted',
+                        disconnected: 'Disconnected',
+                        error: 'Error'
+                    };
+                    if (voiceStatusText) voiceStatusText.textContent = labels[state] || state;
+                },
+                onVolume: (level) => {
+                    const waveBars = document.querySelectorAll('.fira-voice-wave-bar');
+                    waveBars.forEach((bar, idx) => {
+                        const h = Math.max(6, Math.min(24, Math.round(level * 24 * (0.8 + idx * 0.1))));
+                        bar.style.height = `${h}px`;
+                    });
+                },
+                onTranscript: (text, isFinal, isUser) => {
+                    if (!voiceCaptions) return;
+                    const clean = escapeHtml(text);
+                    if (isUser) {
+                        voiceCaptions.innerHTML = `<span class="caption-user">You: ${clean}</span>`;
+                    } else {
+                        voiceCaptions.innerHTML = `<span class="caption-ai">${clean}</span>`;
+                    }
+                },
+                onDisplayCard: (card) => {
+                    if (!voiceCards) return;
+                    const cardHtml = window.FiraVoiceCardRenderer.render(card);
+                    voiceCards.innerHTML = cardHtml;
+                },
+                onError: (msg) => {
+                    if (voiceCaptions) {
+                        voiceCaptions.innerHTML = `<span style="color: #F87171;">${escapeHtml(msg)}</span>`;
+                    }
+                }
+            });
+
+            return voiceClient;
+        }
+
+        function openVoiceMode() {
+            if (messagesBody) messagesBody.style.display = 'none';
+            const panelFooter = panel.querySelector('.fira-panel-footer');
+            if (panelFooter) panelFooter.style.display = 'none';
+            if (voicePanelView) voicePanelView.style.display = 'flex';
+
+            const client = initVoiceClient();
+            client.start(voiceLangSelect ? voiceLangSelect.value : 'en');
+        }
+
+        function closeVoiceMode() {
+            if (voiceClient) {
+                voiceClient.stop();
+            }
+            if (voicePanelView) voicePanelView.style.display = 'none';
+            if (messagesBody) messagesBody.style.display = 'block';
+            const panelFooter = panel.querySelector('.fira-panel-footer');
+            if (panelFooter) panelFooter.style.display = 'block';
+        }
+
+        if (voiceToggleBtn) {
+            voiceToggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (voicePanelView && voicePanelView.style.display === 'flex') {
+                    closeVoiceMode();
+                } else {
+                    openVoiceMode();
+                }
+            });
+        }
+
+        if (voiceMicBtn) {
+            voiceMicBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openVoiceMode();
+            });
+        }
+
+        if (voiceCloseViewBtn) {
+            voiceCloseViewBtn.addEventListener('click', closeVoiceMode);
+        }
+
+        if (voiceOrb) {
+            voiceOrb.addEventListener('click', () => {
+                const client = initVoiceClient();
+                if (client.state === 'speaking') {
+                    client.interrupt();
+                } else if (client.state === 'idle' || client.state === 'disconnected') {
+                    client.start(voiceLangSelect ? voiceLangSelect.value : 'en');
+                }
+            });
+        }
+
+        if (voiceInterruptBtn) {
+            voiceInterruptBtn.addEventListener('click', () => {
+                if (voiceClient) voiceClient.interrupt();
+            });
+        }
+
+        if (voiceMuteBtn) {
+            voiceMuteBtn.addEventListener('click', () => {
+                if (voiceClient) {
+                    const isMuted = voiceClient.toggleMute();
+                    voiceMuteBtn.classList.toggle('muted', isMuted);
+                    if (voiceMuteIcon) {
+                        voiceMuteIcon.className = isMuted ? 'fa-solid fa-microphone-slash' : 'fa-solid fa-microphone';
+                    }
+                }
+            });
+        }
+
+        if (voiceEndBtn) {
+            voiceEndBtn.addEventListener('click', closeVoiceMode);
+        }
+
+        if (voiceLangSelect) {
+            voiceLangSelect.addEventListener('change', () => {
+                if (voiceClient) {
+                    voiceClient.stop();
+                    voiceClient.start(voiceLangSelect.value);
+                }
+            });
+        }
+
+        // Afan Oromo Fallback Actions
+        const oromoToChatBtn = document.getElementById('fira-oromo-to-chat-btn');
+        const oromoToAmBtn = document.getElementById('fira-oromo-to-am-btn');
+        const oromoToEnBtn = document.getElementById('fira-oromo-to-en-btn');
+
+        if (oromoToChatBtn) {
+            oromoToChatBtn.addEventListener('click', () => {
+                closeVoiceMode();
+                if (inputField) {
+                    inputField.placeholder = "Afaan Oromootiin Fira AI gaafadhaa...";
+                    inputField.focus();
+                }
+            });
+        }
+        if (oromoToAmBtn) {
+            oromoToAmBtn.addEventListener('click', () => {
+                if (voiceLangSelect) voiceLangSelect.value = 'am';
+                const client = initVoiceClient();
+                client.start('am');
+            });
+        }
+        if (oromoToEnBtn) {
+            oromoToEnBtn.addEventListener('click', () => {
+                if (voiceLangSelect) voiceLangSelect.value = 'en';
+                const client = initVoiceClient();
+                client.start('en');
+            });
         }
     }
 })();
