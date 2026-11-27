@@ -42,13 +42,13 @@ Route::middleware('throttle:public')->group(function () {
     Route::get('/fira-ai', [AiChatController::class, 'index']);
     Route::post('/fira-ai/send', [AiChatController::class, 'sendMessage'])->middleware('throttle:ai-guest-daily');
     Route::post('/fira-ai/analyze-document', [AiChatController::class, 'analyzeDocument'])
-        ->middleware(['auth:sanctum', 'throttle:10,1']);
+        ->middleware('throttle:ai-guest-daily');
     // Connection test calls Gemini (cost): admins only.
     Route::match(['GET', 'POST'], '/fira-ai/test', [AiChatController::class, 'testConnection'])->middleware(['auth:sanctum', 'role:admin']);
     Route::get('/ai-chat', [AiChatController::class, 'index']);
     Route::post('/ai-chat/send', [AiChatController::class, 'sendMessage'])->middleware('throttle:ai-guest-daily');
     Route::post('/ai-chat/analyze-document', [AiChatController::class, 'analyzeDocument'])
-        ->middleware(['auth:sanctum', 'throttle:10,1']);
+        ->middleware('throttle:ai-guest-daily');
 
     Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
@@ -140,6 +140,7 @@ Route::middleware('throttle:public')->group(function () {
     // Coffee market data: stored, validated prices with source and source time (public, per-IP limit, MarketSeriesPolicy).
     Route::prefix('market')->middleware('throttle:market-public')->controller(\App\Http\Controllers\Api\MarketDataController::class)->group(function () {
         Route::get('/watch', 'watch');
+        Route::get('/instruments/{key}/series', 'instrumentSeries')->where('key', '[A-Z0-9_]{2,40}');
         Route::get('/overview', 'overview');
         Route::get('/series', 'series');
         Route::get('/sources', 'sources');
@@ -563,4 +564,14 @@ Route::prefix('export-docs')->middleware(['auth:sanctum', 'throttle:api'])->grou
     Route::get('/documents/{id}/preview', [\App\Http\Controllers\Api\ExportDocsApiController::class, 'preview'])->name('api.export-docs.preview');
     Route::get('/documents/{id}/download/{format}', [\App\Http\Controllers\Api\ExportDocsApiController::class, 'download'])->name('api.export-docs.download');
 });
+
+// ==========================================
+// FIRA AI VOICE API
+// ==========================================
+Route::prefix('ai/voice')->middleware(['auth:sanctum', 'throttle:api'])->group(function () {
+    Route::post('/session', [\App\Http\Controllers\Api\AiVoiceController::class, 'session']);
+    Route::post('/end', [\App\Http\Controllers\Api\AiVoiceController::class, 'end']);
+    Route::get('/status', [\App\Http\Controllers\Api\AiVoiceController::class, 'status']);
+});
+
 
