@@ -135,4 +135,19 @@ Its prices turn Stale and then Unavailable on the website and in the app until a
             'cta' => 'Open market sources',
         ],
     ],
+
+    'market' => [
+        'price_alert' => [
+            'subject' => ':name is :direction :threshold :unit',
+            'preheader' => 'Latest stored price :value :unit (:date).',
+            'eyebrow' => 'Price alert',
+            'heading' => ':name is :direction :threshold :unit',
+            'body' => "The latest stored price of :name is :value :unit (:date).
+
+Market information only, not trading advice.",
+            'cta' => 'Open the coffee market',
+            'push_title' => 'Price alert: :name',
+            'push_body' => ':name is :direction :threshold :unit: :value (:date).',
+        ],
+    ],
 ];

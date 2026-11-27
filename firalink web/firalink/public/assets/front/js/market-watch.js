@@ -136,4 +136,17 @@
     }
   }
   setInterval(check, 15 * 60 * 1000);
+
+  // Ask Fira AI about the selected instrument: opens the assistant with the question filled in.
+  page.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-fira-ai-prompt]');
+    if (!btn) return;
+    const launcher = document.getElementById('fira-ai-launcher');
+    const input = document.getElementById('fira-ai-input-field');
+    const form = document.getElementById('fira-ai-chat-form');
+    if (!launcher || !input || !form) return;
+    launcher.click();
+    input.value = btn.dataset.firaAiPrompt;
+    if (form.requestSubmit) form.requestSubmit(); else input.focus();
+  });
 })();

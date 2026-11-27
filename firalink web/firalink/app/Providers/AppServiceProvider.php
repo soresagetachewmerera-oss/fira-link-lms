@@ -77,6 +77,16 @@ class AppServiceProvider extends ServiceProvider
         // Market watch: a published, unpublished or deleted ECTA price list updates the tracked ECTA rows.
         \App\Models\CoffeeMinimumPriceDataset::saved(fn ($dataset) => \App\Services\Market\EctaScheduleSync::onListChanged($dataset));
         \App\Models\CoffeeMinimumPriceDataset::deleted(fn ($dataset) => \App\Services\Market\EctaScheduleSync::onListChanged($dataset, deleted: true));
+        // Market watch: a newly published price (fetched, ECTA list, or approved by a reviewer) checks the price alerts.
+        \App\Models\MarketPrice::saved(function (\App\Models\MarketPrice $price) {
+            if ($price->status === 'published' && ($price->wasRecentlyCreated || $price->wasChanged(['status', 'value']))) {
+                try {
+                    app(\App\Services\Market\MarketAlertService::class)->evaluate($price->series);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('market.alert_evaluate_failed', ['price' => $price->id, 'error' => $e->getMessage()]);
+                }
+            }
+        });
 
         // Messaging slice 1: every catalogue message and channel ends up in notification_deliveries.
         \Illuminate\Support\Facades\Event::listen(\Illuminate\Notifications\Events\NotificationSent::class, function ($e) {

@@ -39,6 +39,7 @@ class MarketPricesController extends Controller
             'overview' => $overview,
             'watch' => $watch,
             'detail' => $detail,
+            'account' => $this->accountFor($request, $detail),
             'latestPriceDataset' => $latestPriceDataset,
             'priceRecords' => $priceRecords,
             'pageTitle' => __('market.web.title') . ' | Fira Link',
@@ -51,7 +52,25 @@ class MarketPricesController extends Controller
     {
         Gate::authorize('viewAny', MarketSeries::class);
 
-        return view('market-prices.panel', ['detail' => $this->detailFor($request, app(MarketWatchService::class)->build())]);
+        $detail = $this->detailFor($request, app(MarketWatchService::class)->build());
+
+        return view('market-prices.panel', ['detail' => $detail, 'account' => $this->accountFor($request, $detail)]);
+    }
+
+    /** The signed-in person's watchlist state and alerts for the selected instrument (never cached). */
+    private function accountFor(Request $request, ?array $detail): ?array
+    {
+        $user = $request->user();
+        if (!$user || !$detail) {
+            return null;
+        }
+        $seriesId = MarketSeries::query()->where('symbol', $detail['key'])->value('id');
+
+        return [
+            'watching' => \App\Models\MarketWatchlistItem::query()->where('user_id', $user->id)->where('series_id', $seriesId)->exists(),
+            'alerts' => \App\Models\MarketPriceAlert::query()->where('user_id', $user->id)->where('series_id', $seriesId)->with('series')->latest()->get()
+                ->map(fn ($a) => \App\Http\Controllers\Api\MarketAccountController::present($a))->all(),
+        ];
     }
 
     /** Selected row (?market=, else the first row with a price), with ?range= and ?unit= when they are offered. */

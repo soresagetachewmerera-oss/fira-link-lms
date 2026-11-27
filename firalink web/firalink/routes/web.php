@@ -64,6 +64,14 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
 // Real-Time Coffee Trading Terminal & Market Prices
 Route::get('/market-prices', [\App\Http\Controllers\Front\MarketPricesController::class, 'index'])->name('market-prices.index');
 Route::get('/market-prices/panel', [\App\Http\Controllers\Front\MarketPricesController::class, 'panel'])->middleware('throttle:market-public')->name('market-prices.panel');
+// Market watch, signed-in actions (watchlist, price alerts, CSV). Guests go through login and come back.
+Route::middleware('auth')->prefix('market-prices')->name('market-prices.')->controller(\App\Http\Controllers\Front\MarketAccountWebController::class)->group(function () {
+    Route::get('/sign-in', 'signIn')->name('sign-in');
+    Route::post('/{key}/watchlist', 'toggleWatch')->where('key', '[A-Z0-9_]{1,40}')->name('watchlist');
+    Route::post('/{key}/alerts', 'storeAlert')->where('key', '[A-Z0-9_]{1,40}')->middleware('throttle:20,1')->name('alerts.store');
+    Route::delete('/alerts/{alert}', 'destroyAlert')->whereNumber('alert')->name('alerts.destroy');
+    Route::get('/{key}/export.csv', 'export')->where('key', '[A-Z0-9_]{1,40}')->middleware('throttle:10,1')->name('export');
+});
 Route::get('/market-prices/chart-data', [\App\Http\Controllers\Front\MarketPricesController::class, 'chartData'])->name('market-prices.chart-data');
 Route::get('/market-prices/live-tick', [\App\Http\Controllers\Front\MarketPricesController::class, 'liveTick'])->name('market-prices.live-tick');
 

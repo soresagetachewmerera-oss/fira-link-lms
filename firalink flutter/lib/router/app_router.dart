@@ -37,7 +37,7 @@ import '../screens/coffee_toolkit/coffee_toolkit_hub_screen.dart';
 import '../screens/coffee_toolkit/coffee_profit_calculator_screen.dart';
 import '../screens/coffee_toolkit/coffee_offer_generator_screen.dart';
 import '../screens/coffee_toolkit/coffee_readiness_screen.dart';
-import '../screens/coffee_toolkit/coffee_market_screen.dart';
+import '../screens/market/market_watch_screen.dart';
 import '../screens/marketplace/coffee_listing_detail_screen.dart';
 import '../screens/marketplace/marketplace_rfqs_screen.dart';
 import '../screens/marketplace/create_rfq_screen.dart';
@@ -288,7 +288,8 @@ class AppRouter {
       case coffeeReadiness:
         return const CoffeeReadinessScreen();
       case coffeeMarket:
-        return const CoffeeMarketScreen();
+        // Market watch; a price alert notification passes the instrument key.
+        return MarketWatchScreen(initialKey: arguments is String ? arguments : null);
       case marketplace:
         return const MainShellScreen(initialTab: BottomNavTab.b2b);
       case coffeeListingDetail:

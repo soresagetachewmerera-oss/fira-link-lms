@@ -67,6 +67,16 @@ return [
     ],
     // የገበያ ክትትል (MarketWatchService)። ቁጥሮች በላቲን አሃዞች ይቆያሉ። ረቂቅ ትርጉም፦ ከመለቀቁ በፊት በአማርኛ ተናጋሪ ይታይ።
     'watch' => [
+        'account' => [
+            'above' => 'ከ በላይ', 'below' => 'ከ በታች', 'limit' => 'እስከ :max የዋጋ ማንቂያዎችን መያዝ ይችላሉ። መጀመሪያ አንዱን ይሰርዙ።',
+            'watch_add' => 'ወደ ክትትል ዝርዝር ያክሉ', 'watch_remove' => 'ከክትትል ዝርዝር ያስወግዱ', 'watching' => 'በክትትል ዝርዝርዎ ላይ',
+            'alert_title' => 'የዋጋ ማንቂያ', 'alert_when' => 'ዋጋው ሲሆን ይንገሩኝ', 'alert_threshold' => 'ዋጋ (:unit)',
+            'alert_push' => 'የመተግበሪያ ማሳወቂያ', 'alert_mail' => 'ኢሜይል', 'alert_save' => 'ማንቂያ ያዘጋጁ', 'alert_saved' => 'ማንቂያው ተቀምጧል።',
+            'alert_deleted' => 'ማንቂያው ተሰርዟል።', 'alert_delete' => 'ሰርዝ', 'alerts_none' => 'ለዚህ ዋጋ እስካሁን ማንቂያ የለም።',
+            'alert_row' => ':threshold :unit :direction ሲሆን', 'export' => 'CSV ያውርዱ', 'ask_ai' => 'ስለዚህ Fira AIን ይጠይቁ',
+            'ask_ai_prompt' => 'በFira Link ላይ ያለው የመጨረሻው የ:name ዋጋ ምን ያሳያል?', 'sign_in' => 'የክትትል ዝርዝር ለመያዝ፣ ማንቂያ ለማዘጋጀት ወይም ለማውረድ ይግቡ',
+            'watch_added' => 'ወደ ክትትል ዝርዝርዎ ተጨምሯል።', 'watch_removed' => 'ከክትትል ዝርዝርዎ ተወግዷል።',
+        ],
         'unit_keys' => ['usc_lb' => 'US¢/ፓውንድ', 'usd_lb' => 'ዶላር/ፓውንድ', 'usd_kg' => 'ዶላር/ኪ.ግ', 'etb_kg' => 'ብር/ኪ.ግ'],
         'detail' => [
             'stats' => 'ስታቲስቲክስ', 'prev_close' => 'ያለፈው መዝጊያ', 'high_52w' => 'የ52 ሳምንት ከፍተኛ', 'low_52w' => 'የ52 ሳምንት ዝቅተኛ', 'avg_20d' => 'የ20 ቀን አማካይ',

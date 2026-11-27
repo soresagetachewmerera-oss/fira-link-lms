@@ -576,3 +576,15 @@ Route::prefix('ai/voice')->middleware(['auth:sanctum', 'throttle:api'])->group(f
 });
 
 
+
+// Market watch, signed-in features (watchlist, price alerts, CSV export). Policies: MarketSeriesPolicy, MarketPriceAlertPolicy.
+Route::prefix('market')->middleware(['auth:sanctum', 'throttle:api'])->name('api.market.')
+    ->controller(\App\Http\Controllers\Api\MarketAccountController::class)->group(function () {
+        Route::get('/watchlist', 'watchlist')->name('watchlist');
+        Route::put('/watchlist/{key}', 'watch')->where('key', '[A-Z0-9_]{1,40}')->name('watch');
+        Route::delete('/watchlist/{key}', 'unwatch')->where('key', '[A-Z0-9_]{1,40}')->name('unwatch');
+        Route::get('/alerts', 'alerts')->name('alerts');
+        Route::post('/alerts', 'storeAlert')->middleware('throttle:20,1')->name('alerts.store');
+        Route::delete('/alerts/{alert}', 'destroyAlert')->whereNumber('alert')->name('alerts.destroy');
+        Route::get('/instruments/{key}/export.csv', 'export')->where('key', '[A-Z0-9_]{1,40}')->middleware('throttle:10,1')->name('export');
+    });

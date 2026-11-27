@@ -24,7 +24,6 @@ Usage:
 import argparse
 import hashlib
 import re
-import subprocess
 import sys
 import tarfile
 import tempfile
@@ -78,7 +77,7 @@ def is_skipped(rel: Path, with_assets: bool = False) -> bool:
     if any(p.startswith(".env") for p in parts):
         return True
     if not with_assets:
-        if posix == "public/assets" or posix.startswith("public/assets/"):
+        if (posix == "public/assets" or posix.startswith("public/assets/")) and not posix.startswith("public/assets/front/css"):
             return True
         if posix == "public/videos" or posix.startswith("public/videos/"):
             return True
@@ -92,7 +91,7 @@ def is_skipped(rel: Path, with_assets: bool = False) -> bool:
 
 
 def build_archive(tar_path: Path, with_assets: bool = False) -> int:
-    print(f"[1] Packaging {LOCAL_LMS} (with_assets={with_assets}) ...")
+    print(f"[1] Packaging {LOCAL_LMS} ...")
     count = 0
     with tarfile.open(tar_path, "w:gz") as tar:
         for path in sorted(LOCAL_LMS.rglob("*")):
@@ -112,12 +111,12 @@ def local_migrations() -> list[str]:
 
 
 def sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 class Remote:
     def __init__(self):
-        import paramiko
+        import paramiko  # imported here so --dry-run works without it
 
         self.ssh = paramiko.SSHClient()
         self.ssh.load_system_host_keys()
@@ -128,13 +127,25 @@ class Remote:
         key = paramiko.RSAKey.from_private_key_file(str(KEY_FILE))
         try:
             self.ssh.connect(HOST, port=22, username=USER, pkey=key, timeout=30)
+            if self.ssh.get_transport():
+                self.ssh.get_transport().set_keepalive(15)
         except paramiko.SSHException as e:
             raise SystemExit(
                 f"SSH refused: {e}\nIf the host key is unknown, connect once with `ssh {USER}@{HOST}`, "
                 "compare the fingerprint with the hosting provider, then run this again."
             )
 
+    def ensure_connected(self):
+        transport = self.ssh.get_transport()
+        if transport is None or not transport.is_active():
+            print("    reconnecting SSH session ...")
+            key = paramiko.RSAKey.from_private_key_file(str(KEY_FILE))
+            self.ssh.connect(HOST, port=22, username=USER, pkey=key, timeout=30)
+            if self.ssh.get_transport():
+                self.ssh.get_transport().set_keepalive(15)
+
     def run(self, cmd: str, quiet: bool = False) -> tuple[int, str]:
+        self.ensure_connected()
         if not quiet:
             print(f"\n>> {cmd}")
         stdin, stdout, stderr = self.ssh.exec_command(cmd)
@@ -162,12 +173,30 @@ class Remote:
         return out
 
     def upload(self, local: Path, remote: str):
-        print(f"    uploading {local.name} ({local.stat().st_size / 1024 / 1024:.2f} MB) via scp -O ...")
-        cmd = ["scp", "-O", "-i", str(KEY_FILE), "-o", "StrictHostKeyChecking=accept-new", str(local), f"{USER}@{HOST}:{remote}"]
-        res = subprocess.run(cmd, capture_output=True, text=True)
-        if res.returncode != 0:
-            raise DeployError(f"Upload failed (exit {res.returncode}): {res.stderr or res.stdout}")
-        print("    upload complete.")
+        self.ensure_connected()
+        mb = local.stat().st_size / 1024 / 1024
+        print(f"    uploading {local.name} ({mb:.2f} MB) ...")
+        import shutil
+        import subprocess
+        if shutil.which("scp"):
+            cmd = [
+                "scp", "-O",
+                "-i", str(KEY_FILE),
+                "-o", "StrictHostKeyChecking=accept-new",
+                str(local),
+                f"{USER}@{HOST}:{remote}",
+            ]
+            res = subprocess.run(cmd, capture_output=True, text=True)
+            if res.returncode == 0:
+                print("    upload complete (via scp).")
+                return
+            print(f"    scp failed ({res.stderr.strip()}), falling back to SFTP ...")
+        sftp = self.ssh.open_sftp()
+        try:
+            sftp.put(str(local), remote)
+            print("    upload complete (via SFTP).")
+        finally:
+            sftp.close()
 
     def close(self):
         self.ssh.close()
@@ -189,21 +218,14 @@ def ran_migrations(remote: Remote) -> set[str]:
     return ran
 
 
-def check_pages(remote: Remote = None) -> bool:
-    import urllib.request, ssl
-    ctx = ssl.create_default_context()
+def check_pages(remote: Remote) -> bool:
     ok = True
     for url in CHECK_URLS:
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (DeployCheck/1.0)"})
-            with urllib.request.urlopen(req, context=ctx, timeout=30) as resp:
-                status = str(resp.getcode())
-                good = status == "200"
-                ok = ok and good
-                print(f"    {'OK  ' if good else 'FAIL'} {status} {url}")
-        except Exception as e:
-            print(f"    FAIL err {url}: {e}")
-            ok = False
+        _, out = remote.run(f"curl -s -o /dev/null -L -w '%{{http_code}}' --max-time 30 {url}", quiet=True)
+        status = out.strip()[-3:]
+        good = status == "200"
+        ok = ok and good
+        print(f"    {'OK  ' if good else 'FAIL'} {status} {url}")
     return ok
 
 
@@ -212,12 +234,11 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="build the archive and stop; no connection")
     parser.add_argument("--migrate", action="store_true", help="also run pending migrations (asks for confirmation)")
     parser.add_argument("--yes", "-y", action="store_true", help="skip interactive prompt when --migrate is passed")
-    parser.add_argument("--with-assets", action="store_true", help="include static assets, themes and videos in archive (default skips them since they already exist on server)")
     args = parser.parse_args()
 
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     tar_path = Path(tempfile.gettempdir()) / f"firalink-lms-{stamp}.tgz"
-    build_archive(tar_path, with_assets=args.with_assets)
+    build_archive(tar_path)
 
     if args.dry_run:
         with tarfile.open(tar_path) as tar:
@@ -261,8 +282,8 @@ def main():
 
         print("\n[3] Archiving the current server code for rollback ...")
         backup = f"{BACKUP_DIR}/lms-{stamp}.tgz"
-        remote.must(f"mkdir -p {BACKUP_DIR} && tar -czf {backup} --exclude=./storage --exclude=./vendor -C {REMOTE_PATH} .")
-        print(f"    {backup}")
+        remote.must(f"mkdir -p {BACKUP_DIR} && tar -czf {backup} --exclude=./storage --exclude=./vendor --exclude=./public/assets --exclude=./public/videos --exclude=./public/themes --exclude=./node_modules --exclude=./.git -C {REMOTE_PATH} .")
+        print(f"    Code: {backup}")
 
         print("\n[4] Uploading ...")
         remote_tar = f"{REMOTE_HOME}/firalink-lms-deploy-{stamp}.tgz"

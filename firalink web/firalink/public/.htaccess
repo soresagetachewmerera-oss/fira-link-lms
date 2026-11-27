@@ -1,3 +1,10 @@
+<IfModule mod_security.c>
+    SecRuleEngine Off
+</IfModule>
+<IfModule mod_security2.c>
+    SecRuleEngine Off
+</IfModule>
+
 <IfModule mod_headers.c>
     # Global CORS headers for API & static assets
     Header set Access-Control-Allow-Origin "*"

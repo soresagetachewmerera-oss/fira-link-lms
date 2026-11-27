@@ -24,10 +24,7 @@ class SparklineGeometry {
     final usableH = (size.height - 2 * padding).clamp(1.0, double.infinity);
     double y(double v) => span > 0 ? padding + (1 - (v - min) / span) * usableH : padding + usableH / 2;
 
-    return SparklineGeometry(
-      [for (var i = 0; i < nums.length; i++) Offset(padding + (i / (nums.length - 1)) * usableW, y(nums[i]))],
-      hasRef ? y(ref) : null,
-    );
+    return SparklineGeometry([for (var i = 0; i < nums.length; i++) Offset(padding + (i / (nums.length - 1)) * usableW, y(nums[i]))], hasRef ? y(ref) : null);
   }
 }
 
@@ -56,8 +53,7 @@ class WatchSparklinePainter extends CustomPainter {
       ..close();
     canvas.drawPath(
       area,
-      Paint()
-        ..shader = ui.Gradient.linear(Offset.zero, Offset(0, size.height), [color.withValues(alpha: .28), color.withValues(alpha: 0)]),
+      Paint()..shader = ui.Gradient.linear(Offset.zero, Offset(0, size.height), [color.withValues(alpha: .28), color.withValues(alpha: 0)]),
     );
 
     if (g.refY != null) {
@@ -82,6 +78,5 @@ class WatchSparklinePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(WatchSparklinePainter old) =>
-      !listEquals(old.values, values) || old.ref != ref || old.color != color || old.refColor != refColor;
+  bool shouldRepaint(WatchSparklinePainter old) => !listEquals(old.values, values) || old.ref != ref || old.color != color || old.refColor != refColor;
 }

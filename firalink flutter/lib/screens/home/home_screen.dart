@@ -25,6 +25,7 @@ import 'widgets/continue_learning_card.dart';
 import 'widgets/toolkit_bento.dart';
 import '../../providers/market_watch_provider.dart';
 import '../../widgets/market/market_watch_card.dart';
+import '../../widgets/market/market_detail_actions.dart';
 import 'widgets/topic_chips.dart';
 import 'widgets/featured_course_card.dart';
 import 'widgets/home_primary_action.dart';
@@ -405,7 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
 
           // Market watch (replaces Calculate profit and Market pulse). Hidden until a Home row has a price.
-          const MarketWatchCard(),
+          const MarketWatchCard(detailActions: marketDetailActions),
           const SizedBox(height: 20),
           const ToolkitBento(),
           const SizedBox(height: 28),

@@ -8,7 +8,7 @@ import '../../router/app_router.dart';
 import 'coffee_profit_calculator_screen.dart';
 import 'coffee_offer_generator_screen.dart';
 import 'coffee_readiness_screen.dart';
-import 'coffee_market_screen.dart';
+import '../market/market_watch_screen.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme/fira_colors.dart';
 
@@ -224,7 +224,7 @@ class _CoffeeToolkitHubScreenState extends State<CoffeeToolkitHubScreen> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const CoffeeMarketScreen(),
+                      builder: (context) => const MarketWatchScreen(),
                     ),
                   );
                 },
@@ -403,7 +403,7 @@ class _CoffeeToolkitHubScreenState extends State<CoffeeToolkitHubScreen> {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => const CoffeeMarketScreen(),
+                    builder: (context) => const MarketWatchScreen(),
                   ),
                 );
               },

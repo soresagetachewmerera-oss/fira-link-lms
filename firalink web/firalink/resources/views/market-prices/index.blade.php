@@ -134,7 +134,7 @@
             data-text-refresh-failed="{{ $t('refresh_failed', ['time' => '{time}']) }}">
             <x-market.watch :watch="$watch" :linked="true" :selected="$detail['key'] ?? null" :refresh="true" list-id="market-rows" />
             <div class="fira-mw-layout__detail" id="market-detail-slot">
-                <x-market.detail :detail="$detail" />
+                <x-market.detail :detail="$detail" :account="$account" />
             </div>
         </div>
         <p class="prices-note" id="market-attribution">{{ $t('attribution', ['names' => $attributions->implode(', ')]) }}</p>

@@ -4,12 +4,9 @@ import 'package:eduex_app/l10n/app_localizations.dart';
 import 'package:eduex_app/l10n/lang_am.dart';
 import 'package:eduex_app/l10n/lang_en.dart';
 import 'package:eduex_app/models/market_overview.dart';
-import 'package:eduex_app/screens/coffee_toolkit/coffee_market_screen.dart';
 import 'package:eduex_app/services/market_data_service.dart';
-import 'package:eduex_app/theme/app_theme.dart';
 import 'package:eduex_app/widgets/market/market_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -81,27 +78,6 @@ MockClient _client({required Map<String, dynamic>? overview, Map<String, dynamic
       return http.Response('not found', 404);
     });
 
-Widget _host(Widget child, {Locale locale = const Locale('en')}) => MaterialApp(
-      theme: AppTheme.theme,
-      locale: locale,
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      home: Scaffold(body: child),
-    );
-
-/// Lets real async work (prefs, HTTP mock) finish, then rebuilds. Widget tests run on a fake clock.
-Future<void> _settle(WidgetTester tester) async {
-  for (var i = 0; i < 4; i++) {
-    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 30)));
-    await tester.pump();
-  }
-}
-
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
@@ -166,54 +142,6 @@ void main() {
     });
   });
 
-  group('coffee market screen', () {
-    Future<void> pumpScreen(WidgetTester tester, MarketDataService service) async {
-      tester.view.physicalSize = const Size(1170, 12000);
-      tester.view.devicePixelRatio = 3;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(_host(CoffeeMarketScreen(service: service)));
-      await _settle(tester);
-    }
-
-    testWidgets('every row shows its source and freshness; unavailable rows show no number', (tester) async {
-      final service = MarketDataService(
-        client: _client(overview: _overview([_kcUnavailable, _row()], hero: _kcUnavailable), series: _series([245, 246, 249.09])),
-      );
-      await pumpScreen(tester, service);
-
-      expect(find.text('ICE Coffee C active contract'), findsOneWidget);
-      expect(find.text('Unavailable'), findsWidgets);
-      expect(find.text('ICO Composite Indicator Price'), findsWidgets);
-      expect(find.textContaining('International Coffee Organization (ICO)'), findsWidgets);
-      expect(find.text('Source time: 2026-11-12'), findsOneWidget);
-      expect(find.text('Ask Fira AI about these prices'), findsOneWidget);
-      expect(find.textContaining('not trading advice'), findsWidgets);
-      for (final r in ['1D', '1W', '1M', '3M', '1Y']) {
-        expect(find.text(r), findsOneWidget);
-      }
-    });
-
-    testWidgets('empty range says so instead of drawing anything', (tester) async {
-      final service = MarketDataService(client: _client(overview: _overview([_row()]), series: _series(const [])));
-      await pumpScreen(tester, service);
-      expect(find.text('No stored prices for this range yet.'), findsOneWidget);
-    });
-
-    testWidgets('no data at all: unavailable state with Try again', (tester) async {
-      await pumpScreen(tester, MarketDataService(client: _client(overview: null)));
-      expect(find.text('Price unavailable'), findsOneWidget);
-      expect(find.text('Try again'), findsOneWidget);
-    });
-
-    testWidgets('offline with a cached response: notice with the real time, rows marked Stale', (tester) async {
-      await tester.runAsync(() => MarketDataService(client: _client(overview: _overview([_row()]))).fetchOverview());
-      await pumpScreen(tester, MarketDataService(client: _client(overview: null)));
-      expect(find.textContaining('They may be out of date'), findsOneWidget);
-      expect(find.text('Stale'), findsWidgets);
-      expect(find.text('Daily close · 2026-11-12'), findsNothing);
-    });
-  });
 
   test('every market key exists in English and Amharic', () {
     final keys = kLangEn.keys.where((k) => k.startsWith('market') && (k.contains('Trend') || k.contains('Fresh') || k.contains('Card') || k.contains('Unavailable') || k.contains('Source') || k.contains('Attribution')));

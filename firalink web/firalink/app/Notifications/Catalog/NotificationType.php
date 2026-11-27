@@ -311,7 +311,8 @@ enum NotificationType: string
             self::BookingFollowUp->value => $prod('H', '/bookings'),
 
             // I
-            self::MarketPriceAlert->value => new TypeDefinition('I', K::Product, [C::Database, C::Push, C::Mail], [], true, 'normal', 3600, '/coffee-toolkit/market', self::AUTH_SIGNED_IN, 'updates', false),
+            // Market watch slice 5: opens the instrument named by market_key.
+            self::MarketPriceAlert->value => new TypeDefinition('I', K::Product, [C::Database, C::Push, C::Mail], [], true, 'normal', 3600, '/coffee-toolkit/market', self::AUTH_SIGNED_IN, 'updates', false, 'market_key'),
             self::MarketDigest->value => new TypeDefinition('I', K::Product, [C::Mail, C::Database], [], true, 'low', $day, '/coffee-toolkit/market', self::AUTH_SIGNED_IN, 'updates', false),
             self::MarketSourceUnavailable->value => $staff(),
 

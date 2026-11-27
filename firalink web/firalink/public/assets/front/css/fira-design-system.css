@@ -122,7 +122,7 @@ main > section { scroll-margin-top: 80px; }
 .section-padding, .section-padding-2, .section-padding-3 { padding-block: var(--fira-space-8) !important; }
 
 /* Two button variants only. */
-:is(.theme-btn, .btn-primary, .fira-btn-primary, .fira-hero-btn-primary, .mkt-btn-primary, .fira-header-cta, .fira-mobile-primary, button[type='submit']:not(.btn-secondary):not(.btn-outline-primary):not(.fira-btn-icon)) {
+:is(.theme-btn, .btn-primary, .fira-btn-primary, .fira-hero-btn-primary, .mkt-btn-primary, .fira-header-cta, .fira-mobile-primary, button[type='submit']:not(.btn-secondary):not(.btn-outline-primary):not(.fira-btn-icon):not(.fira-mwd__btn)) {
     min-height: 44px !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -142,7 +142,7 @@ main > section { scroll-margin-top: 80px; }
     transform: none !important;
     transition: color .18s ease, background-color .18s ease, border-color .18s ease !important;
 }
-:is(.theme-btn, .btn-primary, .fira-btn-primary, .fira-hero-btn-primary, .mkt-btn-primary, .fira-header-cta, .fira-mobile-primary, button[type='submit']:not(.btn-secondary):not(.btn-outline-primary):not(.fira-btn-icon)):hover {
+:is(.theme-btn, .btn-primary, .fira-btn-primary, .fira-hero-btn-primary, .mkt-btn-primary, .fira-header-cta, .fira-mobile-primary, button[type='submit']:not(.btn-secondary):not(.btn-outline-primary):not(.fira-btn-icon):not(.fira-mwd__btn)):hover {
     border-color: var(--fira-primary-dark) !important;
     color: var(--fira-white) !important;
     background: var(--fira-primary-dark) !important;

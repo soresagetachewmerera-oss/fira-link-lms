@@ -6,7 +6,9 @@ import 'package:eduex_app/models/market_series_detail.dart';
 import 'package:eduex_app/models/market_watch.dart';
 import 'package:eduex_app/providers/market_watch_provider.dart';
 import 'package:eduex_app/services/market_data_service.dart' show MarketUnavailableException;
+import 'package:eduex_app/services/market_account_service.dart';
 import 'package:eduex_app/services/market_watch_service.dart';
+import 'package:eduex_app/screens/market/market_watch_screen.dart';
 import 'package:eduex_app/theme/app_theme.dart';
 import 'package:eduex_app/widgets/market/market_detail_chart.dart';
 import 'package:eduex_app/widgets/market/market_sparkline.dart';
@@ -403,6 +405,71 @@ void main() {
       await _settle(tester);
       expect(find.text('Could not load this range.'), findsOneWidget);
       expect(find.text('260.10'), findsOneWidget);
+    });
+  });
+
+  group('signed-in features', () {
+    test('account service: watchlist, alerts and CSV; errors are thrown, never turned into success', () async {
+      final requests = <http.Request>[];
+      final client = MockClient((r) async {
+        requests.add(r);
+        if (r.url.path.endsWith('/market/watchlist/ICO_COMPOSITE')) {
+          return http.Response(jsonEncode({'data': {'keys': r.method == 'PUT' ? ['ICO_COMPOSITE'] : []}}), 200);
+        }
+        if (r.url.path.endsWith('/market/alerts') && r.method == 'POST') {
+          final b = jsonDecode(r.body) as Map;
+          return http.Response.bytes(utf8.encode(jsonEncode({'data': {'id': 7, 'key': b['key'], 'direction': b['direction'], 'threshold': b['threshold'], 'unit_label': 'US¢/lb', 'channels': b['channels']}})), 201);
+        }
+        if (r.url.path.endsWith('/market/alerts/7')) return http.Response('', 204);
+        if (r.url.path.endsWith('/export.csv')) return http.Response('date,value\n2026-11-26,249.09\n', 200);
+        return http.Response('{}', 401);
+      });
+      final service = MarketAccountService(client: client);
+
+      expect(await service.setWatched('ICO_COMPOSITE', true), {'ICO_COMPOSITE'});
+      expect(requests.last.method, 'PUT');
+      expect(await service.setWatched('ICO_COMPOSITE', false), isEmpty);
+      expect(requests.last.method, 'DELETE');
+
+      final alert = await service.createAlert(key: 'ICO_COMPOSITE', direction: 'above', threshold: 250, channels: ['push']);
+      expect([alert.id, alert.direction, alert.threshold, alert.unitLabel], [7, 'above', 250.0, 'US¢/lb']);
+      await service.deleteAlert(7);
+      expect(utf8.decode(await service.exportCsv('ICO_COMPOSITE', range: '1M')), startsWith('date,value'));
+      expect(requests.last.url.queryParameters['range'], '1M');
+
+      await expectLater(service.watchlist(), throwsA(isA<MarketUnavailableException>()));
+      await expectLater(service.alerts(), throwsA(isA<MarketUnavailableException>()));
+    });
+
+    testWidgets('a notification key opens that instrument on the market screen', (tester) async {
+      tester.view.physicalSize = const Size(1170, 4800);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final server = _Server(_watch(), series: _seriesBody());
+      final provider = MarketWatchProvider(service: MarketWatchService(client: server.client));
+      await tester.pumpWidget(_host(SizedBox(height: 1500, child: MarketWatchScreen(initialKey: 'ICO_COMPOSITE', provider: provider))));
+      await _settle(tester);
+      await tester.pump(const Duration(milliseconds: 500));
+      await _settle(tester);
+
+      expect(find.text('ICO Composite Indicator Price'), findsOneWidget);
+      expect(find.text('Add to watchlist'), findsOneWidget);
+      expect(find.text('Ask Fira AI about this'), findsOneWidget);
+      expect(find.text('Export CSV'), findsOneWidget);
+    });
+
+    testWidgets('watchlist rows come first on the full list', (tester) async {
+      tester.view.physicalSize = const Size(1170, 4800);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final rows = [_row('ICO_COMPOSITE'), _row('ICO_ROBUSTAS', home: false)];
+      final provider = MarketWatchProvider(service: MarketWatchService(client: _Server(_watch(rows: rows)).client));
+      await tester.pumpWidget(_host(MarketWatchCard(provider: provider, homeOnly: false, pinned: const {'ICO_ROBUSTAS'})));
+      await _settle(tester);
+
+      expect(tester.getTopLeft(find.text('ICO_ROBUSTAS')).dy, lessThan(tester.getTopLeft(find.text('ICO composite')).dy));
     });
   });
 }

@@ -130,4 +130,19 @@ return [
             'cta' => 'የገበያ ምንጮችን ይክፈቱ',
         ],
     ],
+
+    'market' => [
+        'price_alert' => [
+            'subject' => ':name :threshold :unit :direction ሆኗል',
+            'preheader' => 'የመጨረሻው የተቀመጠ ዋጋ :value :unit (:date)።',
+            'eyebrow' => 'የዋጋ ማንቂያ',
+            'heading' => ':name :threshold :unit :direction ሆኗል',
+            'body' => "የ:name የመጨረሻው የተቀመጠ ዋጋ :value :unit (:date) ነው።
+
+የገበያ መረጃ ብቻ ነው፤ የንግድ ምክር አይደለም።",
+            'cta' => 'የቡና ገበያውን ይክፈቱ',
+            'push_title' => 'የዋጋ ማንቂያ፦ :name',
+            'push_body' => ':name :threshold :unit :direction ሆኗል፦ :value (:date)።',
+        ],
+    ],
 ];

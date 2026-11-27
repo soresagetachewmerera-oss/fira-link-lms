@@ -265,12 +265,12 @@ class AiChatController extends Controller
                 'required',
                 'file',
                 'max:20480',
-                'mimetypes:application/pdf,image/jpeg,image/png,image/webp,text/plain',
+                'mimes:pdf,jpg,jpeg,png,webp,txt',
             ],
         ]);
 
         $file = $validated['document_file'];
-        $mimeType = $file->getMimeType() ?: $file->getClientMimeType();
+        $mimeType = $file->getMimeType() ?: $file->getClientMimeType() ?: 'application/octet-stream';
         $contents = file_get_contents($file->getRealPath());
 
         if ($contents === false || $contents === '') {
@@ -281,9 +281,10 @@ class AiChatController extends Controller
         }
 
         try {
+            $isText = $mimeType === 'text/plain' || str_ends_with(strtolower($file->getClientOriginalName()), '.txt');
             $analysis = $this->geminiService->analyzeDocument(
-                $mimeType === 'text/plain' ? $contents : '',
-                $mimeType === 'text/plain' ? null : base64_encode($contents),
+                $isText ? $contents : '',
+                $isText ? null : base64_encode($contents),
                 $mimeType,
             );
             $analysis['file_name'] = $file->getClientOriginalName();

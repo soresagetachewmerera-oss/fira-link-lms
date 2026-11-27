@@ -41,7 +41,7 @@ class EmailLayoutTest extends TestCase
     {
         $text = app(MessageText::class);
         // Slice 2 messages, plus the market watch staff alert (2026-11-27).
-        $required = array_merge(self::CODE_TYPES, [NotificationType::PasswordResetLink, NotificationType::Welcome, NotificationType::StaffMarketSourceDown]);
+        $required = array_merge(self::CODE_TYPES, [NotificationType::PasswordResetLink, NotificationType::Welcome, NotificationType::StaffMarketSourceDown, NotificationType::MarketPriceAlert]);
         foreach ($required as $type) {
             foreach (['en', 'am'] as $locale) {
                 foreach (['subject', 'preheader', 'heading', 'body'] as $part) {

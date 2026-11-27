@@ -95,7 +95,9 @@ return [
 
     // ---- API: stateless tools ----
     'POST api/fira-ai/send' => 'compute',
+    'POST api/fira-ai/analyze-document' => 'compute',
     'POST api/ai-chat/send' => 'compute',
+    'POST api/ai-chat/analyze-document' => 'compute',
     'POST api/verify-certificate' => 'compute',
     'POST api/instructor/verify-certificate' => 'compute',
     'POST api/coffee-toolkit/calculate' => 'compute',
@@ -128,8 +130,8 @@ return [
     'GET free-tools/market-data' => 'read',
     'GET instructors' => 'read',
     'GET instructors/{instructor}' => 'read',
-    'GET market-prices/panel' => 'read',
     'GET market-prices' => 'read',
+    'GET market-prices/panel' => 'read',
     'GET market-prices/chart-data' => 'read',
     'GET market-prices/live-tick' => 'read',
     'GET marketplace' => 'read',

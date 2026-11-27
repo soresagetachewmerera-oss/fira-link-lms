@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -27,7 +27,7 @@ class DocumentScannerService extends BaseService {
   };
 
   Future<DocumentAnalysisResult> analyzeDocument({
-    required File file,
+    required Uint8List bytes,
     required String fileName,
   }) async {
     final extension = fileName.split('.').last.toLowerCase();
@@ -35,6 +35,12 @@ class DocumentScannerService extends BaseService {
     if (mimeType == null) {
       throw const DocumentProcessingException(
         'Unsupported file type. Use PDF, JPG, PNG, WEBP, or TXT.',
+      );
+    }
+
+    if (bytes.isEmpty) {
+      throw const DocumentProcessingException(
+        'The selected document is empty.',
       );
     }
 
@@ -48,9 +54,9 @@ class DocumentScannerService extends BaseService {
       request.headers['Authorization'] = 'Bearer $token';
     }
     request.files.add(
-      await http.MultipartFile.fromPath(
+      http.MultipartFile.fromBytes(
         'document_file',
-        file.path,
+        bytes,
         filename: fileName,
         contentType: MediaType.parse(mimeType),
       ),
@@ -84,20 +90,21 @@ class DocumentScannerService extends BaseService {
       );
     } on DocumentProcessingException {
       rethrow;
-    } on SocketException {
-      throw const DocumentProcessingException(
-        'No network connection. Connect to the internet and try again.',
-      );
-    } on http.ClientException {
-      throw const DocumentProcessingException(
-        'The document service could not be reached. Please try again.',
-      );
     } on TimeoutException {
       throw const DocumentProcessingException(
         'Processing took too long. Try a smaller or clearer document.',
       );
     } catch (error) {
-      throw const DocumentProcessingException(
+      final msg = error.toString();
+      if (msg.contains('SocketException') ||
+          msg.contains('Failed to fetch') ||
+          msg.contains('Connection refused') ||
+          msg.contains('ClientException')) {
+        throw const DocumentProcessingException(
+          'No network connection or server unreachable. Please try again.',
+        );
+      }
+      throw DocumentProcessingException(
         'The document could not be processed. Please try again.',
       );
     }

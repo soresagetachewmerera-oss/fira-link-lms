@@ -630,3 +630,125 @@
 .fira-mwd__table th + th {
     text-align: right;
 }
+
+/* ---------- Slice 5: actions and alerts ---------- */
+.fira-mwd__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.fira-mwd__actions form,
+.fira-mwd__alert form {
+    margin: 0;
+}
+
+.fira-mwd__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--fira-market-hairline);
+    border-radius: 999px;
+    color: var(--fira-market-text);
+    background: var(--fira-market-chip-bg);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.fira-mwd__btn:hover {
+    color: var(--fira-market-text);
+    background: var(--fira-market-selected);
+}
+
+.fira-mwd__btn[aria-pressed="true"] {
+    border-color: var(--fira-market-text);
+}
+
+.fira-mwd__btn--small {
+    min-height: 36px;
+    font-size: 13px;
+}
+
+.fira-mwd__btn:focus-visible,
+.fira-mwd__alert-form input:focus-visible {
+    outline: 2px solid var(--fira-market-focus);
+    outline-offset: 2px;
+}
+
+.fira-mwd__flash {
+    margin: 12px 0 0;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: var(--fira-market-chip-bg);
+    font-size: 13px;
+}
+
+.fira-mwd__alerts {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--fira-market-hairline);
+}
+
+.fira-mwd .fira-mwd__subtitle {
+    margin: 0 0 8px;
+    color: var(--fira-market-text) !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1.4 !important;
+    text-transform: none;
+}
+
+.fira-mwd__alert {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    font-size: 14px;
+}
+
+.fira-mwd__alert-form {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.fira-mwd__alert-form fieldset {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.fira-mwd__alert-form :is(legend, label),
+.fira-mwd__field span {
+    color: var(--fira-market-text);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.fira-mwd__alert-form label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+}
+
+.fira-mwd__field {
+    display: grid;
+    gap: 4px;
+}
+
+.fira-mwd__error {
+    margin: 0;
+    color: var(--fira-market-text);
+    font-size: 13px;
+    font-weight: 700;
+}

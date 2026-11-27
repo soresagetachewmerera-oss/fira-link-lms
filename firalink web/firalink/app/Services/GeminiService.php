@@ -290,9 +290,17 @@ Safety & Security Boundaries:
         string $documentType,
         string $targetAudience
     ): ?array {
-        $systemPrompt = "You are Fira AI, the document assistant for Fira Link. Read only the supplied document. Transcribe its actual readable content, identify its type, summarize it, and analyze its important information. Never add facts, names, numbers, dates, claims, or conclusions that are not supported by the document. Clearly state uncertainty in the analysis when text is ambiguous. If the document has no readable content, return an empty extracted_text. Output only valid JSON.";
+        $systemPrompt = "You are Fira AI, the expert optical character recognition (OCR) and commercial document analysis engine for Fira Link (Ethiopian Coffee Trade Platform).
+Read and transcribe every piece of readable text from the attached document or image.
+Extract and output structured JSON with the following fields:
+1. document_type: A concise classification (e.g. 'Coffee Export Contract', 'Warehouse Receipt', 'Quality & Cupping Certificate', 'Commercial Invoice', 'Phytosanitary Certificate', 'Bill of Lading', 'Bank Swift / Slip', 'Business License / TIN', 'General Commercial Document').
+2. extracted_text: Full, faithful verbatim OCR transcription of all readable text in natural reading order. Preserve names, reference numbers, tables, Ethiopian terms (in English or Amharic), dates, and stamps. If text is illegible, omit or indicate [illegible].
+3. summary: Concise 2-4 sentence executive summary of the document purpose and essential parties/terms.
+4. analysis: Practical commercial assessment: validity, obligations, trade consistency, incoterms, payment conditions, and potential risks or discrepancies.
+5. key_findings: Array of critical facts directly present in the document (e.g. Buyer/Seller names, quantities/weights, coffee grade/origin, unit price, total value, currency, contract reference, issue/expiry dates).
+Never invent facts or numbers not in the document. Output only valid JSON matching the requested schema.";
 
-        $prompt = "Process the attached document. Return: document_type (a short neutral label), extracted_text (faithful readable transcription in reading order), summary (concise and grounded only in the document), analysis (useful interpretation grounded only in the document), and key_findings (important facts, dates, amounts, obligations, risks, or conclusions actually present). Document text, when supplied:\n{$documentText}";
+        $prompt = "Carefully analyze and perform full OCR on the attached document. Transcribe its text verbatim into extracted_text, identify its document_type, summarize its contents, provide an actionable commercial analysis, and extract key_findings. Document text, when supplied:\n{$documentText}";
 
         $parts = [];
         if (!empty($imageBase64)) {
@@ -318,7 +326,7 @@ Safety & Security Boundaries:
                 ]
             ],
             'generationConfig' => [
-                'temperature' => 0.0,
+                'temperature' => 0.1,
                 'maxOutputTokens' => 8192,
                 'responseMimeType' => 'application/json',
                 'responseSchema' => [
@@ -337,6 +345,8 @@ Safety & Security Boundaries:
 
         $modelsToTry = array_filter(array_unique([
             $this->model,
+            'gemini-2.0-flash',
+            'gemini-1.5-flash',
             'gemini-3-flash-preview',
             'gemini-3.1-flash-lite-preview',
             'gemini-3.6-flash',
@@ -346,9 +356,16 @@ Safety & Security Boundaries:
         foreach ($modelsToTry as $candidateModel) {
             $url = $this->baseUrl . $candidateModel . ':generateContent';
             try {
-                $response = \Http::withHeaders(['Content-Type' => 'application/json', 'x-goog-api-key' => $this->apiKey])
-                    ->timeout(14)
-                    ->post($url, $body);
+                $client = \Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'x-goog-api-key' => $this->apiKey,
+                ])->timeout(45);
+
+                if (PHP_OS_FAMILY === 'Windows' && file_exists('C:\\Program Files\\Git\\usr\\ssl\\certs\\ca-bundle.crt')) {
+                    $client = $client->withOptions(['verify' => 'C:\\Program Files\\Git\\usr\\ssl\\certs\\ca-bundle.crt']);
+                }
+
+                $response = $client->post($url, $body);
 
                 if ($response->successful()) {
                     $rawText = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? '';

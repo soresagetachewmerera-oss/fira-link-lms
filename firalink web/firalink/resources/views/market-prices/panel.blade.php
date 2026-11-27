@@ -1,1 +1,1 @@
-<x-market.detail :detail="$detail" />
+<x-market.detail :detail="$detail" :account="$account" />

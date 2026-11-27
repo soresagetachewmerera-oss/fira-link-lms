@@ -16,8 +16,8 @@ void main() {
       expect(content.contains("return const MainShellScreen(initialTab: BottomNavTab.home);"), isTrue);
     });
 
-    test('UI-007: coffee_market_screen.dart has 0 raw 0xFF6D1A95 literals', () {
-      final file = File('lib/screens/coffee_toolkit/coffee_market_screen.dart');
+    test('UI-007: the market watch screens have 0 raw 0xFF6D1A95 literals', () {
+      final file = File('lib/screens/market/market_watch_screen.dart');
       expect(file.existsSync(), isTrue);
       final content = file.readAsStringSync();
       expect(content.contains('0xFF6D1A95'), isFalse, reason: 'All raw hex colors should be replaced with fira.brandPrimary');

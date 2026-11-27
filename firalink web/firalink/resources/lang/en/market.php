@@ -67,6 +67,16 @@ return [
     ],
     // Market watch rows (MarketWatchService). Numbers stay in Latin digits in every language.
     'watch' => [
+        'account' => [
+            'above' => 'above', 'below' => 'below', 'limit' => 'You can keep up to :max price alerts. Delete one first.',
+            'watch_add' => 'Add to watchlist', 'watch_remove' => 'Remove from watchlist', 'watching' => 'On your watchlist',
+            'alert_title' => 'Price alert', 'alert_when' => 'Tell me when the price is', 'alert_threshold' => 'Price (:unit)',
+            'alert_push' => 'App notification', 'alert_mail' => 'Email', 'alert_save' => 'Set alert', 'alert_saved' => 'Alert saved.',
+            'alert_deleted' => 'Alert deleted.', 'alert_delete' => 'Delete', 'alerts_none' => 'No alerts for this price yet.',
+            'alert_row' => 'When :direction :threshold :unit', 'export' => 'Export CSV', 'ask_ai' => 'Ask Fira AI about this',
+            'ask_ai_prompt' => 'What does the latest :name price on Fira Link show?', 'sign_in' => 'Sign in to keep a watchlist, set alerts or export',
+            'watch_added' => 'Added to your watchlist.', 'watch_removed' => 'Removed from your watchlist.',
+        ],
         'unit_keys' => ['usc_lb' => 'US¢/lb', 'usd_lb' => 'USD/lb', 'usd_kg' => 'USD/kg', 'etb_kg' => 'ETB/kg'],
         'detail' => [
             'stats' => 'Statistics', 'prev_close' => 'Previous close', 'high_52w' => '52-week high', 'low_52w' => '52-week low', 'avg_20d' => '20-day average',

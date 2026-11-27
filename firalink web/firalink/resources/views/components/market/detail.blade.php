@@ -1,4 +1,4 @@
-@props(['detail' => null, 'empty' => false])
+@props(['detail' => null, 'empty' => false, 'account' => null])
 
 {{-- Market watch detail panel (schema 1 from MarketSeriesService). Server-rendered; market-watch.js swaps it
      in place (GET /market-prices/panel) and adds the crosshair. Range and unit are plain links without JS. --}}
@@ -108,6 +108,65 @@
                 <div><dt>{{ __('market.watch.detail.' . $stat) }}</dt><dd>{{ $fmt($detail['stats'][$stat], $dec) }}</dd></div>
             @endforeach
         </dl>
+
+        {{-- Actions: watchlist, alerts and CSV for signed-in people; guests sign in and come back here. --}}
+        @php
+            $exportRange = in_array($detail['range'], ['1M', '3M', '1Y', '5Y'], true) ? $detail['range'] : '1Y';
+            $nativeUnit = $detail['units'][0]['label'] ?? $detail['unit']['label'];
+        @endphp
+        @if(session('success'))
+            <p class="fira-mwd__flash" role="status">{{ session('success') }}</p>
+        @endif
+        <div class="fira-mwd__actions">
+            @if($account)
+                <form method="POST" action="{{ route('market-prices.watchlist', $detail['key']) }}">
+                    @csrf
+                    <button type="submit" class="fira-mwd__btn" aria-pressed="{{ $account['watching'] ? 'true' : 'false' }}">
+                        {{ $account['watching'] ? __('market.watch.account.watch_remove') : __('market.watch.account.watch_add') }}
+                    </button>
+                </form>
+                <a class="fira-mwd__btn" href="{{ route('market-prices.export', [$detail['key'], 'range' => $exportRange]) }}" download>{{ __('market.watch.account.export') }}</a>
+            @else
+                <a class="fira-mwd__btn" href="{{ route('market-prices.sign-in', ['market' => $detail['key']]) }}">{{ __('market.watch.account.sign_in') }}</a>
+            @endif
+            <button type="button" class="fira-mwd__btn" data-fira-ai-prompt="{{ __('market.watch.account.ask_ai_prompt', ['name' => $detail['short_name']]) }}">{{ __('market.watch.account.ask_ai') }}</button>
+        </div>
+
+        @if($account)
+            <section class="fira-mwd__alerts" aria-labelledby="fira-mwd-alerts-title">
+                <h3 class="fira-mwd__subtitle" id="fira-mwd-alerts-title">{{ __('market.watch.account.alert_title') }}</h3>
+                @forelse($account['alerts'] as $alert)
+                    <div class="fira-mwd__alert">
+                        <span>{{ __('market.watch.account.alert_row', ['direction' => __('market.watch.account.' . $alert['direction']), 'threshold' => $fmt($alert['threshold'], $dec), 'unit' => $alert['unit_label']]) }}</span>
+                        <form method="POST" action="{{ route('market-prices.alerts.destroy', $alert['id']) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="fira-mwd__btn fira-mwd__btn--small">{{ __('market.watch.account.alert_delete') }}</button>
+                        </form>
+                    </div>
+                @empty
+                    <p class="fira-mwd__note">{{ __('market.watch.account.alerts_none') }}</p>
+                @endforelse
+                <form method="POST" action="{{ route('market-prices.alerts.store', $detail['key']) }}" class="fira-mwd__alert-form">
+                    @csrf
+                    <fieldset>
+                        <legend>{{ __('market.watch.account.alert_when') }}</legend>
+                        <label><input type="radio" name="direction" value="above" checked> {{ __('market.watch.account.above') }}</label>
+                        <label><input type="radio" name="direction" value="below"> {{ __('market.watch.account.below') }}</label>
+                    </fieldset>
+                    <label class="fira-mwd__field">
+                        <span>{{ __('market.watch.account.alert_threshold', ['unit' => $nativeUnit]) }}</span>
+                        <input type="number" name="threshold" step="any" min="0" inputmode="decimal" required value="{{ old('threshold') }}">
+                    </label>
+                    @error('threshold')<p class="fira-mwd__error" role="alert">{{ $message }}</p>@enderror
+                    <fieldset>
+                        <label><input type="checkbox" name="channels[]" value="push" checked> {{ __('market.watch.account.alert_push') }}</label>
+                        <label><input type="checkbox" name="channels[]" value="mail"> {{ __('market.watch.account.alert_mail') }}</label>
+                    </fieldset>
+                    <button type="submit" class="fira-mwd__btn">{{ __('market.watch.account.alert_save') }}</button>
+                </form>
+            </section>
+        @endif
 
         @if($points)
             <details class="fira-mwd__table">

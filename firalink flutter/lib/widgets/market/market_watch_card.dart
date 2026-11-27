@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/market_watch.dart';
 import '../../providers/market_watch_provider.dart';
-import '../../screens/coffee_toolkit/coffee_market_screen.dart';
+import '../../screens/market/market_watch_screen.dart';
 import '../../screens/home/widgets/home_design_constants.dart';
 import '../../theme/fira_colors.dart';
 import '../home_skeletons.dart';
@@ -18,12 +18,22 @@ import '../../models/market_series_detail.dart';
 /// On Home it stays hidden until one of the Home rows has a stored price (server: home.visible).
 /// Refreshes on open and every 15 minutes while visible; the data is a daily close or slower.
 class MarketWatchCard extends StatefulWidget {
-  const MarketWatchCard({super.key, this.provider, this.homeOnly = true, this.refreshInterval = const Duration(minutes: 15), this.detailActions});
+  const MarketWatchCard({
+    super.key,
+    this.provider,
+    this.homeOnly = true,
+    this.refreshInterval = const Duration(minutes: 15),
+    this.detailActions,
+    this.pinned = const {},
+  });
 
   /// For tests; otherwise the app-wide [MarketWatchProvider] is used (or a private one if none is provided).
   final MarketWatchProvider? provider;
   final bool homeOnly;
   final Duration refreshInterval;
+
+  /// Instruments on the person's watchlist: listed first on the full list.
+  final Set<String> pinned;
 
   /// Signed-in actions shown in the detail sheet (watchlist, alert, Fira AI, CSV).
   final List<Widget> Function(BuildContext context, MarketSeriesDetail detail)? detailActions;
@@ -61,8 +71,7 @@ class _MarketWatchCardState extends State<MarketWatchCard> {
     return TickerMode.valuesOf(context).enabled && (route?.isCurrent ?? true);
   }
 
-  void _open(BuildContext context, MarketWatchRow row) =>
-      showMarketDetailSheet(context, row, service: _provider!.service, actions: widget.detailActions);
+  void _open(BuildContext context, MarketWatchRow row) => showMarketDetailSheet(context, row, service: _provider!.service, actions: widget.detailActions);
 
   Future<void> _refresh() async => _refresher?.reportResult(await _provider!.load());
 
@@ -87,7 +96,10 @@ class _MarketWatchCardState extends State<MarketWatchCard> {
         if (widget.homeOnly && !watch.homeVisible) {
           return const SizedBox.shrink();
         }
-        return _card(context, snapshot, widget.homeOnly ? watch.homeRows : watch.rows, provider.loading);
+        final rows = widget.homeOnly
+            ? watch.homeRows
+            : [...watch.rows.where((r) => widget.pinned.contains(r.key)), ...watch.rows.where((r) => !widget.pinned.contains(r.key))];
+        return _card(context, snapshot, rows, provider.loading);
       },
     );
   }
@@ -244,7 +256,10 @@ class _MarketWatchCardState extends State<MarketWatchCard> {
                 ],
               ),
             ),
-          for (final row in rows) ...[Divider(height: 1, thickness: 1, color: hairline), MarketWatchRowTile(row: row, offlineSince: offlineSince, onTap: row.hasPrice ? () => _open(context, row) : null)],
+          for (final row in rows) ...[
+            Divider(height: 1, thickness: 1, color: hairline),
+            MarketWatchRowTile(row: row, offlineSince: offlineSince, onTap: row.hasPrice ? () => _open(context, row) : null),
+          ],
           Divider(height: 1, thickness: 1, color: hairline),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 8, 6),
@@ -257,7 +272,7 @@ class _MarketWatchCardState extends State<MarketWatchCard> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CoffeeMarketScreen())),
+                      onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MarketWatchScreen())),
                       style: TextButton.styleFrom(foregroundColor: onDeep, minimumSize: const Size(44, 44)),
                       child: Text(
                         l10n.marketWatchSeeAll,
