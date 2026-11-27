@@ -9,6 +9,7 @@ use App\Notifications\Catalog\NotificationType;
 use App\Services\Market\Adapters\ApiNinjasCoffeeAdapter;
 use App\Services\Market\Adapters\IcoDailyAdapter;
 use App\Services\Market\Adapters\MarketSourceAdapter;
+use App\Services\Market\Adapters\NbeDailyAdapter;
 use App\Services\Notifications\Notifier;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
@@ -26,6 +27,7 @@ class MarketIngestionService
     public const ADAPTERS = [
         'api_ninjas' => ApiNinjasCoffeeAdapter::class,
         'ico' => IcoDailyAdapter::class,
+        'nbe' => NbeDailyAdapter::class,
     ];
 
     public function __construct(

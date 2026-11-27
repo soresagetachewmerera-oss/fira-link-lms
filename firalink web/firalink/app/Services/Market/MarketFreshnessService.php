@@ -7,6 +7,10 @@ use App\Models\MarketSeries;
 
 class MarketFreshnessService
 {
+    /**
+     * Compute honest freshness status for a series price.
+     * Status values: 'live', 'delayed', 'daily_close', 'schedule', 'stale', 'unavailable'.
+     */
     public function for(MarketSeries $series, ?MarketPrice $price): array
     {
         if (!$price || !$series->source || !$series->source->enabled) {
@@ -36,3 +40,5 @@ class MarketFreshnessService
         return ['status' => 'delayed', 'delay_minutes' => $age, 'label' => __('market.freshness.delayed', ['minutes' => $age])];
     }
 }
+
+
