@@ -513,6 +513,7 @@
 }
 
 .fira-mwd__chipbtn:focus-visible,
+.fira-mwd__chart:focus,
 .fira-mwd__chart:focus-visible {
     outline: 2px solid var(--fira-market-focus);
     outline-offset: 2px;
