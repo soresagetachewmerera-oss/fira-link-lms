@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/rendering.dart';
 
 import '../../theme/app_theme.dart';
@@ -22,6 +23,8 @@ import 'widgets/home_header.dart';
 import 'widgets/home_search_bar.dart';
 import 'widgets/continue_learning_card.dart';
 import 'widgets/toolkit_bento.dart';
+import '../../providers/market_watch_provider.dart';
+import '../../widgets/market/market_watch_card.dart';
 import 'widgets/topic_chips.dart';
 import 'widgets/featured_course_card.dart';
 import 'widgets/home_primary_action.dart';
@@ -129,12 +132,20 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> _refreshMarket() async {
+    try {
+      await context.read<MarketWatchProvider>().load();
+    } on ProviderNotFoundException {
+      // No app-wide provider (tests): the card refreshes itself.
+    }
+  }
+
   Future<void> _onRefresh() async {
     if (_scrollController.hasClients) {
       _savedScrollPosition = _scrollController.offset;
     }
 
-    await _loadAllData();
+    await Future.wait([_loadAllData(), _refreshMarket()]);
 
     if (mounted && _scrollController.hasClients) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -393,7 +404,9 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
           ],
 
-          // The coffee market card inside ToolkitBento replaces the old Market pulse strip.
+          // Market watch (replaces Calculate profit and Market pulse). Hidden until a Home row has a price.
+          const MarketWatchCard(),
+          const SizedBox(height: 20),
           const ToolkitBento(),
           const SizedBox(height: 28),
 

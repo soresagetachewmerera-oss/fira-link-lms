@@ -1636,6 +1636,14 @@ class AppLocalizations {
   String marketAttribution(String names) => translate('marketAttribution', {'names': names});
   String marketChartSemantics(String low, String high, String from, String to) =>
       translate('marketChartSemantics', {'low': low, 'high': high, 'from': from, 'to': to});
+  String get marketWatchRefresh => _t('marketWatchRefresh');
+  String get marketWatchError => _t('marketWatchError');
+  String get marketWatchSeeAll => _t('marketWatchSeeAll');
+  String get marketWatchRowUnavailable => _t('marketWatchRowUnavailable');
+  String marketWatchOffline(String time) => translate('marketWatchOffline', {'time': time});
+  String marketWatchLastAt(String time) => translate('marketWatchLastAt', {'time': time});
+  String marketWatchSources(String names) => translate('marketWatchSources', {'names': names});
+  String marketWatchOfflineSpoken(String time) => translate('marketWatchOfflineSpoken', {'time': time});
   String get contactExporter => _t('contactExporter');
   String get contactExporterSubtitle => _t('contactExporterSubtitle');
   String get inquiryDeliveredSuccess => _t('inquiryDeliveredSuccess');
@@ -1666,6 +1674,26 @@ class AppLocalizations {
   String get gracePeriodWarning => _t('gracePeriodWarning');
   String get starterPlanNotice => _t('starterPlanNotice');
   String get unlimited => _t('unlimited');
+  String get docScannerAppBarTitle => _t('docScannerAppBarTitle');
+  String get docScannerTitle => _t('docScannerTitle');
+  String get docScannerSubtitle => _t('docScannerSubtitle');
+  String get docScannerCamera => _t('docScannerCamera');
+  String get docScannerUpload => _t('docScannerUpload');
+  String get docScannerScanButton => _t('docScannerScanButton');
+  String get docScannerSupportedFormats => _t('docScannerSupportedFormats');
+  String get docScannerReading => _t('docScannerReading');
+  String get docScannerExtracting => _t('docScannerExtracting');
+  String get docScannerKeyFindings => _t('docScannerKeyFindings');
+  String get docScannerSummary => _t('docScannerSummary');
+  String get docScannerAnalysis => _t('docScannerAnalysis');
+  String get docScannerExtractedText => _t('docScannerExtractedText');
+  String get docScannerCopyText => _t('docScannerCopyText');
+  String get docScannerCopied => _t('docScannerCopied');
+  String get docScannerScanAnother => _t('docScannerScanAnother');
+  String get docScannerCameraDenied => _t('docScannerCameraDenied');
+  String get docScannerCameraDisabled => _t('docScannerCameraDisabled');
+  String get docScannerFileTooLarge => _t('docScannerFileTooLarge');
+  String get docScannerFileEmpty => _t('docScannerFileEmpty');
 }
 
 class AppLocalizationsDelegate

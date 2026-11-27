@@ -11,6 +11,7 @@ import '../providers/chat_provider.dart';
 import '../providers/course_discussion_provider.dart';
 import '../providers/coffee_toolkit_provider.dart';
 import '../providers/workspace_provider.dart';
+import '../providers/market_watch_provider.dart';
 
 class AppProviders {
   static List<SingleChildWidget> get providers {
@@ -26,6 +27,8 @@ class AppProviders {
       ChangeNotifierProvider(create: (_) => ChatProvider()),
       ChangeNotifierProvider(create: (_) => CourseDiscussionProvider()),
       ChangeNotifierProvider(create: (_) => CoffeeToolkitProvider()),
+      // Public coffee market watch (guests too); loads when the Home card first shows.
+      ChangeNotifierProvider(create: (_) => MarketWatchProvider()),
     ];
   }
 }

@@ -5,7 +5,6 @@ import '../../coffee_toolkit/coffee_offer_generator_screen.dart';
 import '../../coffee_toolkit/coffee_toolkit_hub_screen.dart';
 import '../../document_scanner/fira_document_scanner_screen.dart';
 import 'home_design_constants.dart';
-import 'market_trend_card.dart';
 
 class ToolkitBento extends StatelessWidget {
   const ToolkitBento({super.key});
@@ -85,12 +84,8 @@ class ToolkitBento extends StatelessWidget {
               // Square tiles; taller when the text is enlarged so nothing is cut off.
               final scale = MediaQuery.textScalerOf(context).scale(1);
               final height = scale <= 1.3 ? width : width * 1.7;
-              // The coffee market card replaces Calculate profit (still under All tools).
-              final tiles = <Widget>[
-                _ToolTile(tool: tools[0]),
-                const MarketTrendCard(),
-                ...tools.skip(1).map((tool) => _ToolTile(tool: tool)),
-              ];
+              // Calculate profit stays under All tools; the market watch card sits above this bento.
+              final tiles = <Widget>[...tools.map((tool) => _ToolTile(tool: tool))];
               return Wrap(
                 spacing: gap,
                 runSpacing: gap,

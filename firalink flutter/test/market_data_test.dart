@@ -5,7 +5,6 @@ import 'package:eduex_app/l10n/lang_am.dart';
 import 'package:eduex_app/l10n/lang_en.dart';
 import 'package:eduex_app/models/market_overview.dart';
 import 'package:eduex_app/screens/coffee_toolkit/coffee_market_screen.dart';
-import 'package:eduex_app/screens/home/widgets/market_trend_card.dart';
 import 'package:eduex_app/services/market_data_service.dart';
 import 'package:eduex_app/theme/app_theme.dart';
 import 'package:eduex_app/widgets/market/market_ui.dart';
@@ -95,9 +94,6 @@ Widget _host(Widget child, {Locale locale = const Locale('en')}) => MaterialApp(
       home: Scaffold(body: child),
     );
 
-Widget _card(MarketDataService service, {Locale locale = const Locale('en')}) =>
-    _host(Center(child: SizedBox(width: 180, height: 200, child: MarketTrendCard(service: service))), locale: locale);
-
 /// Lets real async work (prefs, HTTP mock) finish, then rebuilds. Widget tests run on a fake clock.
 Future<void> _settle(WidgetTester tester) async {
   for (var i = 0; i < 4; i++) {
@@ -167,62 +163,6 @@ void main() {
       expect(r.nextDelay, const Duration(seconds: 600));
       r.reportResult(true);
       expect(r.nextDelay, const Duration(seconds: 60));
-    });
-  });
-
-  group('home card', () {
-    testWidgets('shows price, unit, trend word, freshness and source from the server', (tester) async {
-      final service = MarketDataService(client: _client(overview: _overview([_row(trend: 'bullish')]), series: _series([240, 242, 245, 249.09])));
-      await tester.pumpWidget(_card(service));
-      await _settle(tester);
-
-      expect(find.text('Coffee market'), findsOneWidget);
-      expect(find.text('Bullish'), findsOneWidget);
-      expect(find.byIcon(Icons.trending_up_rounded), findsOneWidget);
-      expect(find.textContaining('249.09'), findsOneWidget);
-      expect(find.textContaining('US¢/lb'), findsOneWidget);
-      expect(find.text('Daily close · 2026-11-12'), findsOneWidget);
-      expect(find.text('International Coffee Organization (ICO)'), findsOneWidget);
-      expect(find.byType(CustomPaint), findsWidgets);
-    });
-
-    testWidgets('unavailable when the server sends no value: no number, and Try again', (tester) async {
-      final log = <String>[];
-      final service = MarketDataService(client: _client(overview: _overview([_kcUnavailable], hero: _kcUnavailable), log: log));
-      await tester.pumpWidget(_card(service));
-      await _settle(tester);
-
-      expect(find.text('Price unavailable'), findsOneWidget);
-      expect(find.text('Try again'), findsOneWidget);
-      expect(find.textContaining(RegExp(r'\d+\.\d\d')), findsNothing);
-
-      await tester.tap(find.text('Try again'));
-      await _settle(tester);
-      expect(log.where((p) => p.endsWith('/market/overview')).length, 2);
-    });
-
-    testWidgets('unavailable when the request fails and nothing is cached', (tester) async {
-      await tester.pumpWidget(_card(MarketDataService(client: _client(overview: null))));
-      await _settle(tester);
-      expect(find.text('Price unavailable'), findsOneWidget);
-    });
-
-    testWidgets('a cached price is shown as Stale with the time it was received, never as current', (tester) async {
-      await tester.runAsync(() => MarketDataService(client: _client(overview: _overview([_row()]))).fetchOverview());
-      await tester.pumpWidget(_card(MarketDataService(client: _client(overview: null))));
-      await _settle(tester);
-
-      expect(find.textContaining('Stale ·'), findsOneWidget);
-      expect(find.text('Daily close · 2026-11-12'), findsNothing);
-      expect(find.byIcon(Icons.history_rounded), findsOneWidget);
-    });
-
-    testWidgets('Amharic labels', (tester) async {
-      final service = MarketDataService(client: _client(overview: _overview([_kcUnavailable], hero: _kcUnavailable)));
-      await tester.pumpWidget(_card(service, locale: const Locale('am')));
-      await _settle(tester);
-      expect(find.text(kLangAm['marketCardTitle']!), findsOneWidget);
-      expect(find.text(kLangAm['marketUnavailable']!), findsOneWidget);
     });
   });
 

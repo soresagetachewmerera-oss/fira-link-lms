@@ -24,6 +24,10 @@ class FiraColors extends ThemeExtension<FiraColors> {
     required this.chipUnselectedBg,
     required this.chipSelectedBg,
     required this.overlayScrim,
+    required this.brandDarker,
+    required this.marketUp,
+    required this.marketDown,
+    required this.marketFlat,
   });
 
   final Color brandPrimary;
@@ -46,6 +50,15 @@ class FiraColors extends ThemeExtension<FiraColors> {
   final Color chipSelectedBg;
   final Color overlayScrim;
 
+  /// Second stop of the deep brand gradient (#3B0764 -> #2A0549), e.g. the market watch card.
+  final Color brandDarker;
+
+  /// Market watch direction (option A, brand colours only; arrow shape and sign carry the meaning).
+  /// Used on the deep gradient surface in both themes.
+  final Color marketUp;
+  final Color marketDown;
+  final Color marketFlat;
+
   /// Light theme definition mapped directly from existing Fira Link theme tokens.
   static const FiraColors light = FiraColors(
     brandPrimary: AppTheme.primary, // #6D1A95
@@ -67,6 +80,10 @@ class FiraColors extends ThemeExtension<FiraColors> {
     chipUnselectedBg: AppTheme.mint100,
     chipSelectedBg: AppTheme.primary,
     overlayScrim: Color(0x800F0B1E),
+    brandDarker: Color(0xFF2A0549), // #2A0549, approved brand stop
+    marketUp: Color(0xFFD9BDEA), // lavender
+    marketDown: Color(0xFFFFFFFF),
+    marketFlat: Color(0x9EFFFFFF), // 62% white
   );
 
   /// Dark theme definition mapped directly from existing Fira Link dark tokens.
@@ -90,6 +107,10 @@ class FiraColors extends ThemeExtension<FiraColors> {
     chipUnselectedBg: AppTheme.mint100Dark,
     chipSelectedBg: AppTheme.primaryDark,
     overlayScrim: Color(0xA6000000),
+    brandDarker: Color(0xFF0C031C), // existing dark dock stop
+    marketUp: Color(0xFFD9BDEA),
+    marketDown: Color(0xFFFFFFFF),
+    marketFlat: Color(0x9EFFFFFF),
   );
 
   @override
@@ -113,6 +134,10 @@ class FiraColors extends ThemeExtension<FiraColors> {
     Color? chipUnselectedBg,
     Color? chipSelectedBg,
     Color? overlayScrim,
+    Color? brandDarker,
+    Color? marketUp,
+    Color? marketDown,
+    Color? marketFlat,
   }) {
     return FiraColors(
       brandPrimary: brandPrimary ?? this.brandPrimary,
@@ -134,6 +159,10 @@ class FiraColors extends ThemeExtension<FiraColors> {
       chipUnselectedBg: chipUnselectedBg ?? this.chipUnselectedBg,
       chipSelectedBg: chipSelectedBg ?? this.chipSelectedBg,
       overlayScrim: overlayScrim ?? this.overlayScrim,
+      brandDarker: brandDarker ?? this.brandDarker,
+      marketUp: marketUp ?? this.marketUp,
+      marketDown: marketDown ?? this.marketDown,
+      marketFlat: marketFlat ?? this.marketFlat,
     );
   }
 
@@ -160,6 +189,10 @@ class FiraColors extends ThemeExtension<FiraColors> {
       chipUnselectedBg: Color.lerp(chipUnselectedBg, other.chipUnselectedBg, t)!,
       chipSelectedBg: Color.lerp(chipSelectedBg, other.chipSelectedBg, t)!,
       overlayScrim: Color.lerp(overlayScrim, other.overlayScrim, t)!,
+      brandDarker: Color.lerp(brandDarker, other.brandDarker, t)!,
+      marketUp: Color.lerp(marketUp, other.marketUp, t)!,
+      marketDown: Color.lerp(marketDown, other.marketDown, t)!,
+      marketFlat: Color.lerp(marketFlat, other.marketFlat, t)!,
     );
   }
 }
