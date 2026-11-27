@@ -1699,6 +1699,17 @@ const Map<String, String> kLangEn = {
   'docScannerCameraDisabled': "Camera permission is disabled. Enable it in Settings to scan.",
   'docScannerFileTooLarge': "This document is larger than 20 MB. Choose a smaller file.",
   'docScannerFileEmpty': "This document is empty and cannot be processed.",
+  'firaAiVoiceTitle': "Fira AI Voice",
+  'firaAiVoiceSubtitle': "Real-time Voice Conversation",
+  'firaVoiceListening': "Listening...",
+  'firaVoiceSpeaking': "Fira AI Speaking...",
+  'firaVoiceThinking': "Thinking...",
+  'firaVoiceInterrupt': "Interrupt",
+  'firaVoiceOromoPreviewTitle': "Sagalee Afaan Oromoo (Preview)",
+  'firaVoiceOromoPreviewText': "Haasawaan sagalee Afaan Oromoo qorannoo irra jira. Fira AI barreeffamaan deebii guutuu Afaan Oromootiin kenna.",
+  'firaVoiceOromoSwitchChat': "Barreeffamaan Dubbisi",
+  'firaVoiceOromoContinueAm': "በአማርኛ ቀጥል",
+  'firaVoiceOromoContinueEn': "Voice in English",
 };
 
 const Map<String, String> langEn = kLangEn;

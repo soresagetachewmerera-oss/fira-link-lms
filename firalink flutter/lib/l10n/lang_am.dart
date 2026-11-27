@@ -1699,6 +1699,17 @@ const Map<String, String> kLangAm = {
   'docScannerCameraDisabled': "የካሜራ ፈቃድ ተዘግቷል። ለመቃኘት በቅንብሮች ውስጥ ያብሩት።",
   'docScannerFileTooLarge': "ይህ ሰነድ ከ20 ሜባ በላይ ነው። እባክዎ አነስ ያለ ፋይል ይምረጡ።",
   'docScannerFileEmpty': "ይህ ሰነድ ባዶ ስለሆነ ሊሰራ አይችልም።",
+  'firaAiVoiceTitle': "ፊራ AI ድምፅ",
+  'firaAiVoiceSubtitle': "የቀጥታ የድምፅ ውይይት",
+  'firaVoiceListening': "እያዳመጠ ነው...",
+  'firaVoiceSpeaking': "ፊራ AI እየተናገረ ነው...",
+  'firaVoiceThinking': "እያሰበ ነው...",
+  'firaVoiceInterrupt': "አቋርጥ",
+  'firaVoiceOromoPreviewTitle': "Sagalee Afaan Oromoo (ቅድመ እይታ)",
+  'firaVoiceOromoPreviewText': "የኦሮምኛ ድምጽ ሁነታ በዝግጅት ላይ ነው። ፊራ AI በጽሑፍ ሙሉ አገልግሎት ይሰጣል።",
+  'firaVoiceOromoSwitchChat': "በጽሑፍ አውራ",
+  'firaVoiceOromoContinueAm': "በአማርኛ ቀጥል",
+  'firaVoiceOromoContinueEn': "በእንግሊዝኛ ቀጥል",
 };
 
 const Map<String, String> langAm = kLangAm;

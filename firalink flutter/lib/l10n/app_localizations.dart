@@ -1708,6 +1708,17 @@ class AppLocalizations {
   String get docScannerCameraDisabled => _t('docScannerCameraDisabled');
   String get docScannerFileTooLarge => _t('docScannerFileTooLarge');
   String get docScannerFileEmpty => _t('docScannerFileEmpty');
+  String get firaAiVoiceTitle => _t('firaAiVoiceTitle');
+  String get firaAiVoiceSubtitle => _t('firaAiVoiceSubtitle');
+  String get firaVoiceListening => _t('firaVoiceListening');
+  String get firaVoiceSpeaking => _t('firaVoiceSpeaking');
+  String get firaVoiceThinking => _t('firaVoiceThinking');
+  String get firaVoiceInterrupt => _t('firaVoiceInterrupt');
+  String get firaVoiceOromoPreviewTitle => _t('firaVoiceOromoPreviewTitle');
+  String get firaVoiceOromoPreviewText => _t('firaVoiceOromoPreviewText');
+  String get firaVoiceOromoSwitchChat => _t('firaVoiceOromoSwitchChat');
+  String get firaVoiceOromoContinueAm => _t('firaVoiceOromoContinueAm');
+  String get firaVoiceOromoContinueEn => _t('firaVoiceOromoContinueEn');
 }
 
 class AppLocalizationsDelegate
