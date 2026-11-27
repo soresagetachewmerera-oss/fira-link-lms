@@ -36,7 +36,7 @@ Future<void> _golden(WidgetTester tester, String name, {Locale locale = const Lo
     },
   };
   final client = MockClient((_) async => http.Response.bytes(utf8.encode(jsonEncode(body)), 200, headers: {'content-type': 'application/json; charset=utf-8'}));
-  tester.view.physicalSize = const Size(390 * 2, 700 * 2);
+  tester.view.physicalSize = const Size(390 * 2, 1100 * 2);
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);

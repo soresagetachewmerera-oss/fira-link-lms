@@ -183,6 +183,7 @@ class _MarketWatchCardState extends State<MarketWatchCard> {
     return _frame(
       context,
       Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
