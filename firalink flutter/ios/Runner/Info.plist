@@ -68,6 +68,8 @@
 	<string>Fira Link records where you take lot evidence photos, so buyers know the photos were taken at your warehouse.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Fira Link uses the camera to photograph payment receipts, capture coffee lot evidence, and scan business verification documents.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Fira Link uses your microphone for voice conversations with Fira AI trade assistant.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Fira Link requires access to your photo library to upload bank payment slips, coffee lot evidence photos, and business verification documents.</string>
 	<key>UIApplicationSceneManifest</key>

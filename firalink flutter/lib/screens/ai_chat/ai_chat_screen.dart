@@ -7,9 +7,10 @@ import 'package:intl/intl.dart';
 import '../../providers/ai_chat_provider.dart';
 import '../../models/ai_chat_message.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/fira_colors.dart';
 import '../../l10n/app_localizations.dart';
-
 import '../../router/app_router.dart';
+import 'widgets/fira_voice_sheet.dart';
 
 class AiChatScreen extends StatefulWidget {
   const AiChatScreen({super.key, this.initialPrompt});
@@ -58,6 +59,19 @@ class _AiChatScreenState extends State<AiChatScreen> {
         curve: Curves.easeOut,
       );
     }
+  }
+
+  void _openVoiceSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => FiraVoiceSheet(
+        onSwitchToTextChat: () {
+          // Keep chat screen active
+        },
+      ),
+    );
   }
 
   @override
@@ -111,6 +125,17 @@ class _AiChatScreenState extends State<AiChatScreen> {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Fira AI Voice',
+            icon: Icon(
+              Icons.mic,
+              color: context.fira.brandPrimary,
+            ),
+            onPressed: _openVoiceSheet,
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: Column(
         children: [
@@ -244,7 +269,23 @@ class _AiChatScreenState extends State<AiChatScreen> {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
+          Container(
+            decoration: BoxDecoration(
+              color: context.fira.brandTint,
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              tooltip: 'Voice Mode',
+              icon: Icon(
+                Icons.mic,
+                size: 20,
+                color: context.fira.brandPrimary,
+              ),
+              onPressed: _openVoiceSheet,
+            ),
+          ),
+          const SizedBox(width: 8),
           Consumer<AiChatProvider>(
             builder: (context, provider, child) {
               return Container(
