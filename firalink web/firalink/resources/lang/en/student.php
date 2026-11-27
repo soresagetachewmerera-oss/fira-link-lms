@@ -262,7 +262,7 @@ return array (
   'all_caught_up' => 'All caught up!',
   'no_notifications_desc' => 'You have no new notifications at the moment.',
   'ai_assistant_title' => 'Fira AI',
-  'ai_assistant_subtitle' => 'Trade, Coffee Export & Learning Advisor (Powered by Google Gemini)',
+  'ai_assistant_subtitle' => 'Trade, Coffee Export & Learning Advisor',
   'no_messages_yet' => 'No messages yet',
   'start_conversation_desc' => 'Start a conversation with Fira AI to get instant export and learning guidance!',
   'type_message_placeholder' => 'Ask Fira AI anything about coffee export, logistics, or courses...',

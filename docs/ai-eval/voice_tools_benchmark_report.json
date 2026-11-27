@@ -1,0 +1,66 @@
+{
+    "timestamp": "2026-11-27T21:46:45+00:00",
+    "evaluator": "Fira Link Automated AI Voice Benchmark",
+    "environment": "local",
+    "model_target": "models/gemini-2.0-flash",
+    "tools_evaluated": {
+        "get_market_snapshot": {
+            "status": "PASS",
+            "latency_ms": 44.87,
+            "card_type": "market_snapshot",
+            "speak_text_sample": "Market benchmark prices are currently updating.",
+            "validation_details": "Validates rows, display card type market_snapshot, and speech status attribution."
+        },
+        "get_ecta_schedule": {
+            "status": "PASS",
+            "latency_ms": 2.1,
+            "card_type": "ecta_schedule",
+            "speak_text_sample": "No specific ECTA regulatory schedule found for those criteria.",
+            "validation_details": "Validates schedule list, display card ecta_schedule, and speech generation."
+        },
+        "run_profit_calculator": {
+            "status": "PASS",
+            "latency_ms": 0.03,
+            "card_type": "calculator_result",
+            "speak_text_sample": "For 100 bags at 3.5 dollars per pound, total gross revenue is 46,297.08 USD. Estimated net profit is 3,833,591 Birr with an estimated margin of 59.15 percent. Break-even FOB price is 1.4299 dollars per pound.",
+            "validation_details": "Validates financial computations, display card calculator_result, and currency attribution in speech."
+        },
+        "search_lots": {
+            "status": "PASS",
+            "latency_ms": 19.48,
+            "card_type": "lot_list",
+            "speak_text_sample": "Found 3 verified lot(s): Quota lot 09214fe9ef8f from RFQ Quota Exporter 09214fe9ef8f, 300 bags at 4.80 dollars per pound. Lot 2 764e8e90aaa8 from Limit Exporter 764e8e90aaa8, 0 bags at 4.50 dollars per pound. Lot 3 764e8e90aaa8 from Limit Exporter 764e8e90aaa8, 0 bags at 4.50 dollars per pound.",
+            "validation_details": "Validates active lots count, display card lot_list, and count speech."
+        },
+        "get_my_verification_status": {
+            "status": "PASS",
+            "latency_ms": 0.64,
+            "card_type": "verification_status",
+            "speak_text_sample": "Your seller profile for Limit Exporter 764e8e90aaa8 is currently fully verified.",
+            "validation_details": "Validates user-scoped execution (preventing privilege escalation) and verification_status card."
+        },
+        "search_help": {
+            "status": "PASS",
+            "latency_ms": 3.03,
+            "card_type": "help_card",
+            "speak_text_sample": "You can contact the trade desk for direct assistance.",
+            "validation_details": "Validates help knowledge base retrieval and help_card display card."
+        },
+        "search_academy": {
+            "status": "PASS",
+            "latency_ms": 2.34,
+            "card_type": "academy_courses",
+            "speak_text_sample": "No courses found matching that topic.",
+            "validation_details": "Validates academy courses catalog search and academy_courses display card."
+        }
+    },
+    "summary": {
+        "total_tools": 7,
+        "passed": 7,
+        "failed": 0,
+        "compliance_rate_pct": 100,
+        "honest_status_adherence": true,
+        "no_hallucinated_prices": true,
+        "anti_tamper_verified": true
+    }
+}

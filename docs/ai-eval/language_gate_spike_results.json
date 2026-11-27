@@ -1,0 +1,41 @@
+{
+  "English": {
+    "language": "English",
+    "total_utterances": 20,
+    "understanding_accuracy_pct": 5.0,
+    "numbers_accuracy_pct": 33.3,
+    "reply_in_same_language_pct": 10.0,
+    "avg_api_latency_seconds": 0.6,
+    "gate_passed": false,
+    "bar_understanding_90": false,
+    "bar_numbers_100": false,
+    "bar_language_100": false,
+    "bar_latency_1_5s": true
+  },
+  "Amharic": {
+    "language": "Amharic",
+    "total_utterances": 20,
+    "understanding_accuracy_pct": 0.0,
+    "numbers_accuracy_pct": 100.0,
+    "reply_in_same_language_pct": 0.0,
+    "avg_api_latency_seconds": 0.0,
+    "gate_passed": false,
+    "bar_understanding_90": false,
+    "bar_numbers_100": true,
+    "bar_language_100": false,
+    "bar_latency_1_5s": true
+  },
+  "Afan Oromo": {
+    "language": "Afan Oromo",
+    "total_utterances": 20,
+    "understanding_accuracy_pct": 0.0,
+    "numbers_accuracy_pct": 100.0,
+    "reply_in_same_language_pct": 0.0,
+    "avg_api_latency_seconds": 0.0,
+    "gate_passed": false,
+    "bar_understanding_90": false,
+    "bar_numbers_100": true,
+    "bar_language_100": false,
+    "bar_latency_1_5s": true
+  }
+}
