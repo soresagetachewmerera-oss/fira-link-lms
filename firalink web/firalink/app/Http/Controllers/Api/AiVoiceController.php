@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AiVoiceQuota;
+use App\Models\AiVoiceSession;
 use App\Services\FiraAiVoiceService;
+use App\Services\VoiceTools\VoiceToolDispatcher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class AiVoiceController extends Controller
 {
@@ -130,5 +133,119 @@ class AiVoiceController extends Controller
                 'allowed_languages' => config('services.gemini.voice.allowed_languages', ['en', 'am']),
             ],
         ]);
+    }
+
+    /**
+     * Execute a server-authorized tool call requested by Fira AI Voice.
+     */
+    public function tool(Request $request, VoiceToolDispatcher $dispatcher): JsonResponse
+    {
+        $validated = $request->validate([
+            'session_id' => ['required', 'string', 'max:64'],
+            'tool_name' => ['required', 'string', 'max:64'],
+            'args' => ['nullable', 'array'],
+        ]);
+
+        $user = Auth::user() ?: auth('sanctum')->user();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        $session = AiVoiceSession::where('session_id', $validated['session_id'])->first();
+        if (!$session) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Voice session not found.',
+            ], 404);
+        }
+
+        if ($session->user_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized voice session access.',
+            ], 403);
+        }
+
+        if ($session->status !== 'active') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Voice session is no longer active.',
+            ], 410);
+        }
+
+        $toolName = $validated['tool_name'];
+        if (!in_array($toolName, VoiceToolDispatcher::ALLOWED_TOOLS, true)) {
+            return response()->json([
+                'success' => false,
+                'message' => "Tool '{$toolName}' is not allowed for voice execution.",
+            ], 422);
+        }
+
+        $args = $validated['args'] ?? [];
+
+        $validator = Validator::make($args, match ($toolName) {
+            'get_market_snapshot' => [
+                'symbols' => ['nullable', 'array', 'max:20'],
+                'symbols.*' => ['string', 'max:32'],
+            ],
+            'get_ecta_schedule' => [
+                'origin' => ['nullable', 'string', 'max:50'],
+                'grade' => ['nullable'],
+                'processing' => ['nullable', 'string', 'max:50'],
+            ],
+            'run_profit_calculator' => [
+                'bags' => ['nullable', 'integer', 'min:1', 'max:50000'],
+                'fob_price_usd' => ['nullable', 'numeric', 'min:0.01', 'max:100.0'],
+                'purchase_price_etb' => ['nullable', 'numeric', 'min:0'],
+            ],
+            'search_lots' => [
+                'origin' => ['nullable', 'string', 'max:50'],
+                'grade' => ['nullable'],
+            ],
+            'get_my_verification_status' => [],
+            'search_help' => [
+                'query' => ['nullable', 'string', 'max:100'],
+            ],
+            'search_academy' => [
+                'query' => ['nullable', 'string', 'max:100'],
+            ],
+            default => [],
+        });
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid tool arguments.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $toolResult = $dispatcher->execute($toolName, $args, $user, $session->session_id);
+
+            // Update session tool metrics
+            $toolsUsed = $session->tools_used ?? [];
+            if (!in_array($toolName, $toolsUsed, true)) {
+                $toolsUsed[] = $toolName;
+            }
+            $session->increment('tool_calls_count');
+            $session->update(['tools_used' => $toolsUsed]);
+
+            return response()->json([
+                'success' => true,
+                'tool_name' => $toolResult['tool_name'],
+                'result' => $toolResult['result'],
+                'display_card' => $toolResult['display_card'],
+                'speak_text' => $toolResult['speak_text'],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error executing tool: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

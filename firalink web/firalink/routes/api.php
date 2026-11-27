@@ -570,6 +570,7 @@ Route::prefix('export-docs')->middleware(['auth:sanctum', 'throttle:api'])->grou
 // ==========================================
 Route::prefix('ai/voice')->middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/session', [\App\Http\Controllers\Api\AiVoiceController::class, 'session']);
+    Route::post('/tool', [\App\Http\Controllers\Api\AiVoiceController::class, 'tool']);
     Route::post('/end', [\App\Http\Controllers\Api\AiVoiceController::class, 'end']);
     Route::get('/status', [\App\Http\Controllers\Api\AiVoiceController::class, 'status']);
 });
