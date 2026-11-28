@@ -249,6 +249,17 @@ Route::middleware(['auth', 'role:admin', 'staff.2fa'])->prefix('admin')->name('a
     // Slice 8: category, agenda, tickets, organizer business (by Fira ID)
     Route::patch('/events/{event}/flow', [\App\Http\Controllers\Admin\EventTourFlowController::class, 'updateEvent'])->name('events.flow');
 
+    // Event Attendees & Attendance Management
+    Route::get('/events/{event}/attendees', [\App\Http\Controllers\Admin\EventAttendeeController::class, 'index'])->name('events.attendees');
+    Route::get('/events/{event}/attendees/export', [\App\Http\Controllers\Admin\EventAttendeeController::class, 'export'])->name('events.attendees.export');
+    Route::post('/events/bookings/{booking}/manual-checkin', [\App\Http\Controllers\Admin\EventAttendeeController::class, 'manualCheckIn'])->name('events.bookings.manual-checkin');
+
+    // Dedicated Gate Scanner Interface & APIs
+    Route::get('/events/{event}/scanner', [\App\Http\Controllers\Admin\EventAttendeeController::class, 'scanner'])->name('events.scanner');
+    Route::get('/gate-scanner', [\App\Http\Controllers\Admin\EventAttendeeController::class, 'scanner'])->name('gate-scanner');
+    Route::post('/events/{event}/scanner/lookup', [\App\Http\Controllers\Admin\EventAttendeeController::class, 'apiLookup'])->name('events.scanner.lookup');
+    Route::post('/events/{event}/scanner/check-in/{booking}', [\App\Http\Controllers\Admin\EventAttendeeController::class, 'apiCheckIn'])->name('events.scanner.checkin');
+
     // Tour management
     Route::get('/tours', [TourManagementController::class, 'index'])->name('tours.index');
     Route::get('/tours/create', [TourManagementController::class, 'create'])->name('tours.create');

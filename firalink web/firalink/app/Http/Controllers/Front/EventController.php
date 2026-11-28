@@ -175,12 +175,16 @@ class EventController extends Controller
 
         $reference = $this->generateReference();
         $user = $request->user();
+        $category = $data['category'] ?? EventBooking::CATEGORY_GENERAL;
+        $studentSection = ($category === EventBooking::CATEGORY_STUDENT) ? ($data['student_section'] ?? null) : null;
+        $verificationToken = Str::random(40);
 
         DB::beginTransaction();
         try {
             $booking = $event->bookings()->create([
                 'user_id' => $user->id,
                 'reference' => $reference,
+                'verification_token' => $verificationToken,
                 'status' => ($totalAmount <= 0) ? EventBooking::STATUS_CONFIRMED : EventBooking::STATUS_PENDING,
                 'payment_status' => ($totalAmount <= 0) ? EventBooking::PAYMENT_PAID : EventBooking::PAYMENT_PENDING,
                 'first_name' => $data['first_name'],
@@ -189,6 +193,8 @@ class EventController extends Controller
                 'phone' => $data['phone'] ?? null,
                 'company' => $data['company'] ?? null,
                 'ticket_type' => $data['ticket_type'] ?? 'general',
+                'category' => $category,
+                'student_section' => $studentSection,
                 'seats' => $seats,
                 'unit_price' => $unitPrice,
                 'total_amount' => $totalAmount,
@@ -322,28 +328,23 @@ class EventController extends Controller
     public function confirmation(Request $request, string $reference): View
     {
         $booking = EventBooking::with(['event', 'payment', 'user'])
-            ->where('reference', $reference)
+            ->where(function ($q) use ($reference) {
+                $q->where('reference', $reference)
+                  ->orWhere('verification_token', $reference);
+            })
             ->firstOrFail();
         // Names, contact details and payment: only the person who booked, or an admin (same 404 otherwise).
         $viewer = $request->user();
         abort_unless($viewer && ($viewer->isAdmin() || ($booking->user_id && (int) $booking->user_id === (int) $viewer->id)), 404);
 
-        $qrPayload = json_encode([
-            'reference' => $booking->reference,
-            'event' => $booking->event->title,
-            'attendee' => $booking->full_name,
-            'seats' => $booking->seats,
-            'date' => optional($booking->event->start_date)->format('Y-m-d'),
-            'status' => $booking->status,
-            'payment_status' => $booking->payment_status,
-        ], JSON_UNESCAPED_SLASHES);
-
-        $qrCodeDataUri = $this->generateQrSvg($qrPayload);
+        $verificationUrl = route('events.bookings.verify', $booking->verification_token ?: $booking->reference);
+        $qrCodeDataUri = $this->generateQrSvg($verificationUrl);
 
         return view('events.confirmation', [
             'pageTitle' => 'Event Ticket Confirmation - ' . $booking->reference,
             'booking' => $booking,
             'qrCode' => $qrCodeDataUri,
+            'verificationUrl' => $verificationUrl,
         ]);
     }
 

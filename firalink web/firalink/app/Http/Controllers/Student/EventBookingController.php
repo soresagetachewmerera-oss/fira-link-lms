@@ -73,11 +73,15 @@ class EventBookingController extends Controller
         $booking->loadMissing('event', 'user');
 
         $event = $booking->event;
+        $verificationUrl = route('events.bookings.verify', $booking->verification_token ?: $booking->reference);
         $ticket = [
             'reference' => $booking->reference,
             'attendee' => $booking->full_name ?: ($booking->user?->name ?? 'Attendee'),
             'email' => $booking->email ?: ($booking->user?->email ?? null),
             'phone' => $booking->phone,
+            'category' => $booking->category_label,
+            'is_student' => $booking->isStudent(),
+            'student_section' => $booking->student_section,
             'seats' => $booking->seats,
             'status' => ucfirst(Str::lower($booking->status ?? EventBooking::STATUS_PENDING)),
             'booked_at' => optional($booking->booked_at)->format('M d, Y H:i'),
@@ -95,17 +99,7 @@ class EventBookingController extends Controller
             ],
         ];
 
-        $verificationUrl = route('events.bookings.verify', $booking->reference);
-
-        $qrPayload = array_filter([
-            'reference' => $ticket['reference'],
-            'event' => Arr::only($ticket['event'], ['title', 'start_date', 'start_time', 'location']),
-            'attendee' => $ticket['attendee'],
-            'seats' => $ticket['seats'],
-            'verification_url' => $verificationUrl,
-        ]);
-
-        $qrCodeDataUri = $this->generateQrCodeDataUri(json_encode($qrPayload, JSON_UNESCAPED_SLASHES));
+        $qrCodeDataUri = $this->generateQrCodeDataUri($verificationUrl);
 
         $pdf = Pdf::loadView('student.events.booking-ticket', [
             'ticket' => $ticket,

@@ -170,7 +170,7 @@ Route::post('/payment/chapa/webhook', [CourseEnrollmentController::class, 'chapa
 
 // Events routes
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
-Route::get('/events/bookings/verify/{reference}', EventBookingVerificationController::class)->middleware('throttle:public')->name('events.bookings.verify');
+Route::match(['get', 'post'], '/events/bookings/verify/{reference}', EventBookingVerificationController::class)->name('events.bookings.verify');
 Route::match(['get', 'post'], '/events/payment/chapa/callback', [EventController::class, 'chapaCallback'])->name('events.chapa.callback');
 Route::get('/events/booking/confirmation/{reference}', [EventController::class, 'confirmation'])->middleware('auth')->name('events.confirmation');
 

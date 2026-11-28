@@ -101,6 +101,15 @@
                     <p class="mb-2"><strong>Contact Email:</strong> {{ $event->contact_email ?? '—' }}</p>
                     <p class="mb-3"><strong>Contact Phone:</strong> {{ $event->contact_phone ?? '—' }}</p>
 
+                    <div class="mb-3">
+                        <a href="{{ route('admin.events.attendees', $event) }}" class="btn btn-primary btn-block mb-2 font-weight-bold">
+                            <i class="fas fa-users mr-1"></i> Manage Attendees &amp; Attendance
+                        </a>
+                        <a href="{{ route('admin.events.scanner', $event) }}" class="btn btn-outline-primary btn-block font-weight-bold">
+                            <i class="fas fa-camera mr-1"></i> Launch Gate Scanner
+                        </a>
+                    </div>
+
                     <form action="{{ route('admin.events.toggle-publish', $event) }}" method="POST">
                         @csrf
                         @method('PATCH')
@@ -122,6 +131,9 @@
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Confirmed <span class="badge badge-success">{{ $bookingStats['confirmed'] }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Checked In at Gate <span class="badge badge-info">{{ $bookingStats['checked_in'] ?? 0 }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Pending <span class="badge badge-warning">{{ $bookingStats['pending'] }}</span>

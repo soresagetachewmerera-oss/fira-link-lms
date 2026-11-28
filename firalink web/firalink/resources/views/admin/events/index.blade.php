@@ -124,7 +124,13 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="{{ route('admin.events.show', $event) }}" class="btn btn-sm btn-outline-primary">
+                                <a href="{{ route('admin.events.attendees', $event) }}" class="btn btn-sm btn-info mr-1" title="Manage Attendees">
+                                    <i class="fas fa-users"></i> Attendees
+                                </a>
+                                <a href="{{ route('admin.events.scanner', $event) }}" class="btn btn-sm btn-primary mr-1" title="Gate Scanner">
+                                    <i class="fas fa-camera"></i>
+                                </a>
+                                <a href="{{ route('admin.events.show', $event) }}" class="btn btn-sm btn-outline-primary mr-1">
                                     <i class="fas fa-eye"></i> View
                                 </a>
                                 <form action="{{ route('admin.events.toggle-publish', $event) }}" method="POST" class="d-inline">

@@ -78,6 +78,7 @@ class EventManagementController extends Controller
         $bookingStats = [
             'total' => $event->bookings()->count(),
             'confirmed' => $event->bookings()->where('status', EventBooking::STATUS_CONFIRMED)->count(),
+            'checked_in' => $event->bookings()->whereNotNull('checked_in_at')->count(),
             'pending' => $event->bookings()->where('status', EventBooking::STATUS_PENDING)->count(),
             'seats_available' => $event->remainingSeats(),
         ];

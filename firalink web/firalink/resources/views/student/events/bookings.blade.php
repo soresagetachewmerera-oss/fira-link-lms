@@ -63,9 +63,14 @@
                                                 </td>
                                                 <td><code>{{ $booking['reference'] }}</code></td>
                                                 <td class="text-end">
-                                                    <a href="{{ $booking['ticket_url'] }}" class="back-btn" target="_blank">
-                                                        {{ __('student.view_ticket_btn') }}
-                                                    </a>
+                                                    <div class="d-inline-flex gap-2">
+                                                        <a href="{{ route('events.confirmation', ['reference' => $booking['reference']]) }}" class="btn btn-sm text-white px-3 py-1 rounded-pill fw-semibold" style="background-color: #6D1A95; font-size: 12px;">
+                                                            <i class="fa-solid fa-ticket me-1"></i> Pass / PNG
+                                                        </a>
+                                                        <a href="{{ $booking['ticket_url'] }}" class="btn btn-sm btn-light border px-2 py-1 rounded-pill text-muted" style="font-size: 12px;" target="_blank" title="Download PDF">
+                                                            <i class="fa-solid fa-file-pdf"></i>
+                                                        </a>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         @endforeach
