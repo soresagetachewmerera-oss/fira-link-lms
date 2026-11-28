@@ -48,12 +48,13 @@ class RegisterController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255',
-            'email'      => 'required|email|unique:users,email',
-            'phone'      => 'required|string|min:9|max:20',
-            'password'   => 'required|min:8|confirmed',
-            'terms'      => 'required|accepted',
+            'first_name'    => 'required|string|max:255',
+            'last_name'     => 'required|string|max:255',
+            'email'         => 'required|email|unique:users,email',
+            'phone'         => 'required|string|min:9|max:20',
+            'password'      => 'required|min:8|confirmed',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'terms'         => 'required|accepted',
         ]);
 
         if ($validator->fails()) {
@@ -91,6 +92,12 @@ class RegisterController extends Controller
                 'is_approved'       => true,
                 'phone_verified_at' => null, // Unverified until OTP confirmation
             ]);
+
+            if ($request->hasFile('profile_photo')) {
+                $photoPath = $request->file('profile_photo')->store('profile-photos', 'public');
+                $user->profile_photo = $photoPath;
+                $user->save();
+            }
 
             UserNotificationSetting::updateOrCreate(
                 ['user_id' => $user->id],

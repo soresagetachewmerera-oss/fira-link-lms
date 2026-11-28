@@ -238,6 +238,10 @@
                                         <i class="fa-regular fa-calendar-days"></i>
                                         <span>{{ $formattedDate }}</span>
                                     </span>
+                                    <span class="fira-spec-chip" style="{{ !$event->is_online ? 'color: #6D1A95; font-weight: 600;' : '' }}">
+                                        <i class="fa-solid {{ !$event->is_online ? 'fa-building' : 'fa-video' }}"></i>
+                                        <span>{{ !$event->is_online ? 'In-Person' : 'Online' }}</span>
+                                    </span>
                                     @if ($event->speakers_count ?? $event->speakers->count())
                                         <span class="fira-spec-chip">
                                             <i class="fa-solid fa-microphone"></i>

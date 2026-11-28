@@ -41,29 +41,158 @@
                                     </ul>
                                 @endif
 
-                                @if ($event->location_description)
-                                    <h2 class="mt-5">{{ __('frontend.event_location') }}</h2>
-                                    <p class="mt-2">{{ $event->location_description }}</p>
-                                @endif
+                                <!-- Event Venue & Interactive Location Section -->
+                                <div class="fira-venue-section mt-5 p-4 rounded-4" style="background: #ffffff; border: 1.5px solid #E9D5FF; box-shadow: 0 4px 20px rgba(109,26,149,0.06);">
+                                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 mb-3 border-bottom">
+                                        <div>
+                                            <div class="d-flex align-items-center gap-2 mb-2">
+                                                <span class="badge" style="background: #F3E8FF; color: #6D1A95; font-size: 11.5px; font-weight: 700; padding: 6px 14px; border-radius: 20px;">
+                                                    <i class="fa-solid fa-building me-1"></i> {{ $event->is_online ? 'Online Event' : 'In-Person Venue' }}
+                                                </span>
+                                                <span class="badge" style="background: #ECFDF5; color: #059669; font-size: 11.5px; font-weight: 700; padding: 6px 14px; border-radius: 20px;">
+                                                    <i class="fa-solid fa-circle-check me-1"></i> Venue Confirmed
+                                                </span>
+                                            </div>
+                                            <h3 class="fw-bold mb-1" style="color: #1E1B4B; font-size: 1.35rem;">
+                                                {{ $event->location ?? 'Vamdas Cinema, Addis Ababa' }}
+                                            </h3>
+                                            <p class="text-muted mb-0" style="font-size: 13.5px;">
+                                                <i class="fa-solid fa-location-dot me-1 text-danger"></i> Africa Avenue (Bole Road, near Olympia), Addis Ababa, Ethiopia
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <a href="https://maps.app.goo.gl/ro2Q5YnH8B7Ybu9j6" target="_blank" rel="noopener noreferrer" class="theme-btn btn-sm d-inline-flex align-items-center gap-2 text-nowrap" style="padding: 10px 20px; font-size: 13.5px; border-radius: 12px;">
+                                                <i class="fa-solid fa-diamond-turn-right"></i>
+                                                <span>Open in Google Maps</span>
+                                            </a>
+                                        </div>
+                                    </div>
 
-                                <ul class="location">
-                                    <li>
-                                        <i class="far fa-map-marker-alt"></i>
-                                        {{ $event->location ?? __('frontend.venue_tba') }}
-                                    </li>
-                                    @if ($event->contact_phone)
-                                        <li>
-                                            <i class="far fa-phone"></i>
-                                            <a href="tel:{{ $event->contact_phone }}">{{ $event->contact_phone }}</a>
-                                        </li>
+                                    @if ($event->location_description)
+                                        <div class="p-3 mb-3 rounded-3" style="background: #FAF5FF; border-left: 4px solid #8B5CF6;">
+                                            <div class="text-dark small" style="line-height: 1.6;">
+                                                <i class="fa-solid fa-circle-info text-primary me-1"></i> {{ $event->location_description }}
+                                            </div>
+                                        </div>
                                     @endif
-                                    @if ($event->contact_email)
-                                        <li>
-                                            <i class="far fa-envelope"></i>
-                                            <a href="mailto:{{ $event->contact_email }}">{{ $event->contact_email }}</a>
-                                        </li>
+
+                                    <!-- Responsive Interactive Google Map Embed -->
+                                    <div class="fira-map-container position-relative overflow-hidden rounded-3 shadow-sm" style="height: 380px; width: 100%; border: 1px solid #E5E7EB;">
+                                        <iframe
+                                            src="https://maps.google.com/maps?q=Vamdas+Cinema,+Addis+Ababa,+Ethiopia&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                                            width="100%"
+                                            height="100%"
+                                            style="border:0; position:absolute; top:0; left:0; width:100%; height:100%;"
+                                            allowfullscreen=""
+                                            loading="lazy"
+                                            referrerpolicy="no-referrer-when-downgrade"
+                                            title="Vamdas Cinema Location Map">
+                                        </iframe>
+                                    </div>
+
+                                    <!-- Venue Contact & Details -->
+                                    <div class="row g-3 mt-2 pt-2 text-muted" style="font-size: 12.5px;">
+                                        <div class="col-sm-4 d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-door-open text-primary"></i>
+                                            <span>Doors open at 08:30 AM EAT</span>
+                                        </div>
+                                        @if ($event->contact_phone)
+                                            <div class="col-sm-4 d-flex align-items-center gap-2">
+                                                <i class="fa-solid fa-phone text-success"></i>
+                                                <a href="tel:{{ $event->contact_phone }}" class="text-decoration-none text-muted">{{ $event->contact_phone }}</a>
+                                            </div>
+                                        @endif
+                                        @if ($event->contact_email)
+                                            <div class="col-sm-4 d-flex align-items-center gap-2">
+                                                <i class="fa-solid fa-envelope text-info"></i>
+                                                <a href="mailto:{{ $event->contact_email }}" class="text-decoration-none text-muted">{{ $event->contact_email }}</a>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <!-- Confirmed Attendees & Participants Section -->
+                                <div class="fira-attendees-section mt-5 p-4 rounded-4" style="background: #ffffff; border: 1.5px solid #E5E7EB; box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
+                                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 pb-3 mb-3 border-bottom">
+                                        <div>
+                                            <h3 class="fw-bold mb-0" style="color: #1E1B4B; font-size: 1.25rem;">
+                                                <i class="fa-solid fa-users text-primary me-2"></i>Confirmed Attendees &amp; Exporters
+                                            </h3>
+                                            <small class="text-muted">Registered coffee &amp; pulses exporters, A8/A9/A10 cohort graduates attending in-person at Vamdas Cinema.</small>
+                                        </div>
+                                        <span class="badge rounded-pill px-3 py-2" style="background: #F3E8FF; color: #6D1A95; font-size: 12px; font-weight: 700;">
+                                            {{ $event->confirmed_bookings_count ?? (isset($attendees) ? $attendees->count() : 0) }} Registered
+                                        </span>
+                                    </div>
+
+                                    @if(auth()->check() && isset($userBooking) && $userBooking)
+                                        <div class="alert p-3 mb-4 rounded-3 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3" style="background: linear-gradient(135deg, #ECFDF5, #F0FDF4); border: 1px solid #A7F3D0;">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background: #059669; color: #ffffff;">
+                                                    <i class="fa-solid fa-ticket fs-5"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold text-dark" style="font-size: 14px;">You're Registered for Sunday, Dec 20 at Vamdas Cinema!</div>
+                                                    <div class="text-muted" style="font-size: 12.5px;">
+                                                        Booking Reference: <strong class="text-dark">{{ $userBooking->reference }}</strong> · Ticket: Free Admission
+                                                        @if(!auth()->user()->hasProfilePhoto())
+                                                            · <span class="text-danger fw-semibold"><i class="fa-solid fa-camera"></i> Please upload your real profile photo before Dec 20.</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @if(!auth()->user()->hasProfilePhoto())
+                                                <a href="{{ route('student.settings') }}" class="btn btn-sm btn-outline-success text-nowrap rounded-pill px-3" style="font-size: 12px;">
+                                                    <i class="fa-solid fa-arrow-up-from-bracket me-1"></i> Upload Photo
+                                                </a>
+                                            @endif
+                                        </div>
                                     @endif
-                                </ul>
+
+                                    @if(isset($attendees) && $attendees->isNotEmpty())
+                                        <div class="row g-3">
+                                            @foreach($attendees as $att)
+                                                @php
+                                                    $u = $att->user;
+                                                    $hasPhoto = $u && $u->hasProfilePhoto();
+                                                    $photoUrl = $hasPhoto ? $u->profile_photo_url : null;
+                                                    $initials = $u ? $u->initials : mb_strtoupper(mb_substr($att->first_name, 0, 1) . mb_substr($att->last_name, 0, 1));
+                                                    $fullName = trim($att->first_name . ' ' . $att->last_name);
+                                                @endphp
+                                                <div class="col-md-6">
+                                                    <div class="p-3 rounded-3 h-100 d-flex align-items-center gap-3" style="background: #FAFAFA; border: 1px solid #F1F5F9; transition: all 0.2s ease;">
+                                                        <div class="position-relative flex-shrink-0">
+                                                            @if($hasPhoto)
+                                                                <img src="{{ $photoUrl }}" alt="{{ $fullName }}" class="rounded-circle shadow-sm" style="width: 50px; height: 50px; object-fit: cover; border: 2px solid #8B5CF6;">
+                                                            @else
+                                                                <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style="width: 50px; height: 50px; background: linear-gradient(135deg, #6D1A95, #3B0764); font-size: 15px;">
+                                                                    {{ $initials }}
+                                                                </div>
+                                                            @endif
+                                                            <span class="position-absolute bottom-0 end-0 rounded-circle" style="width: 12px; height: 12px; background: #10B981; border: 2px solid #ffffff;"></span>
+                                                        </div>
+                                                        <div class="overflow-hidden flex-grow-1">
+                                                            <div class="fw-bold text-dark text-truncate" style="font-size: 13.5px;" title="{{ $fullName }}">
+                                                                {{ $fullName }}
+                                                            </div>
+                                                            <div class="text-muted text-truncate" style="font-size: 11.5px;" title="{{ $att->company ?? 'Coffee & Pulses Exporter' }}">
+                                                                {{ $att->company ?? 'Coffee & Pulses Exporter' }}
+                                                            </div>
+                                                            <span class="badge mt-1" style="background: #F3E8FF; color: #6D1A95; font-size: 10px; font-weight: 600;">
+                                                                Confirmed Seat
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <div class="text-center py-4 text-muted">
+                                            <i class="fa-solid fa-users fs-2 mb-2 d-block text-secondary"></i>
+                                            <span>Seats are filling fast. Book your free seat below to be listed among confirmed attendees!</span>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                         <div class="col-lg-4">
@@ -113,15 +242,33 @@
                                             @endif
                                         </span>
                                     </li>
+                                    <li>
+                                        <span><i class="fas fa-layer-group"></i>Event Type</span>
+                                        <span class="text fw-bold" style="color: #6D1A95;">
+                                            <i class="fa-solid {{ !$event->is_online ? 'fa-building' : 'fa-video' }} me-1"></i>
+                                            {{ !$event->is_online ? 'In-Person Gathering' : 'Online Event' }}
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <span><i class="fas fa-map-pin"></i>Venue</span>
+                                        <span class="text text-truncate" title="{{ $event->location ?? 'Vamdas Cinema, Addis Ababa' }}">
+                                            {{ $event->location ? Str::limit($event->location, 24) : 'Vamdas Cinema' }}
+                                        </span>
+                                    </li>
                                 </ul>
                                 @if ($event->is_published)
                                     @auth
-                                        <a href="{{ route('events.book', $event->slug) }}" class="theme-btn wow fadeInUp"
+                                        <a href="{{ route('events.book', $event->slug) }}" class="theme-btn w-100 text-center wow fadeInUp"
                                             data-wow-delay=".6s">{{ __('frontend.book_your_seat') }}</a>
                                     @else
-                                        <a href="{{ route('login') }}" class="theme-btn style-2 wow fadeInUp"
+                                        <a href="{{ route('login') }}" class="theme-btn style-2 w-100 text-center wow fadeInUp"
                                             data-wow-delay=".6s">{{ __('frontend.login_to_book') }}</a>
                                     @endauth
+                                    <div class="mt-3 text-center">
+                                        <a href="https://maps.app.goo.gl/ro2Q5YnH8B7Ybu9j6" target="_blank" rel="noopener noreferrer" class="text-decoration-none fw-semibold small" style="color: #6D1A95;">
+                                            <i class="fa-solid fa-diamond-turn-right me-1"></i> Get Directions (Google Maps) &rarr;
+                                        </a>
+                                    </div>
                                 @else
                                     <div class="alert alert-warning mt-3" role="alert">
                                         {{ __('frontend.event_draft_mode') }}

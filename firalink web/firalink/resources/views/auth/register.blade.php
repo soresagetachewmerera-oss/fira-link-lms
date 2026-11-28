@@ -16,7 +16,7 @@
                             <p class="wow fadeInUp" data-wow-delay=".3s">{{ __('auth.join_learners') }}</p>
                         </div>
 
-                        <form action="{{ route('register') }}" method="POST" class="mhq-register-form">
+                        <form action="{{ route('register') }}" method="POST" enctype="multipart/form-data" class="mhq-register-form">
                             @csrf
 
 
@@ -96,6 +96,27 @@
                                         </button>
                                     </div>
                                 </div>
+
+                                <div class="col-lg-12 wow fadeInUp" data-wow-delay=".75s">
+                                    <div class="p-3 rounded-3 mb-2" style="background: #FDF4FF; border: 1.5px dashed #D8B4FE;">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="avatar-preview-box rounded-circle position-relative flex-shrink-0" style="width: 56px; height: 56px; background: #EDE9FE; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid #8B5CF6;">
+                                                <img id="registerPhotoPreview" src="" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                                <i id="registerPhotoPlaceholder" class="fa-solid fa-camera fs-5" style="color: #6D1A95;"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <label for="profile_photo" class="fw-bold d-block mb-1 text-dark" style="font-size: 13.5px; cursor: pointer;">
+                                                    Profile Photo <span class="badge" style="background: #F3E8FF; color: #6D1A95; font-size: 10.5px; font-weight: 600;">Recommended</span>
+                                                </label>
+                                                <div class="text-muted" style="font-size: 11.5px;">Upload a real photo so fellow exporters and event attendees recognize you.</div>
+                                                <input type="file" name="profile_photo" id="profile_photo" accept="image/jpeg,image/png,image/jpg,image/webp" class="form-control form-control-sm mt-2 @error('profile_photo') is-invalid @enderror" style="font-size: 12px;">
+                                            </div>
+                                        </div>
+                                        @error('profile_photo')
+                                            <div class="invalid-feedback d-block mt-2">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="form-check mb-4 wow fadeInUp" data-wow-delay=".8s">
@@ -164,6 +185,27 @@
                     registerForm.addEventListener('submit', function () {
                         submitBtn.disabled = true;
                         submitBtn.innerHTML = '{{ __('auth.creating') }} <i class="fa fa-spinner fa-spin"></i>';
+                    });
+                }
+
+                const photoInput = document.getElementById('profile_photo');
+                const photoPreview = document.getElementById('registerPhotoPreview');
+                const photoPlaceholder = document.getElementById('registerPhotoPlaceholder');
+                if (photoInput && photoPreview) {
+                    photoInput.addEventListener('change', function (e) {
+                        const file = e.target.files && e.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function (evt) {
+                                photoPreview.src = evt.target.result;
+                                photoPreview.style.display = 'block';
+                                if (photoPlaceholder) photoPlaceholder.style.display = 'none';
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            photoPreview.style.display = 'none';
+                            if (photoPlaceholder) photoPlaceholder.style.display = 'inline-block';
+                        }
                     });
                 }
             });

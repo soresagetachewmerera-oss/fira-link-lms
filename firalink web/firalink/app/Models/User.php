@@ -192,12 +192,30 @@ class User extends Authenticatable implements MustVerifyEmail, \Illuminate\Contr
     public function getProfilePhotoUrlAttribute(): ?string
     {
         if (empty($this->profile_photo)) {
-            return asset('assets/front/img/home-1/courses/client-01.png');
+            return null;
         }
         if (str_starts_with($this->profile_photo, 'http://') || str_starts_with($this->profile_photo, 'https://')) {
             return $this->profile_photo;
         }
         return asset('storage/' . ltrim($this->profile_photo, '/'));
+    }
+
+    public function hasProfilePhoto(): bool
+    {
+        return !empty($this->profile_photo);
+    }
+
+    public function getInitialsAttribute(): string
+    {
+        $name = trim($this->name ?? '');
+        if ($name === '') {
+            return 'FL';
+        }
+        $parts = preg_split('/\s+/', $name);
+        if (count($parts) >= 2) {
+            return mb_strtoupper(mb_substr($parts[0], 0, 1) . mb_substr(end($parts), 0, 1));
+        }
+        return mb_strtoupper(mb_substr($name, 0, 2));
     }
 
     public function getCoursesCountAttribute()

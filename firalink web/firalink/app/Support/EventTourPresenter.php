@@ -69,6 +69,19 @@ class EventTourPresenter
 
     public static function eventFields(Event $e, ?User $user): array
     {
+        $attendees = $e->bookings()
+            ->where('status', EventBooking::STATUS_CONFIRMED)
+            ->with('user:id,name,profile_photo')
+            ->orderBy('id', 'desc')
+            ->take(12)
+            ->get()
+            ->map(fn ($b) => [
+                'name' => $b->user?->name ?? $b->full_name,
+                'photo' => $b->user?->profile_photo ? asset('storage/' . $b->user->profile_photo) : null,
+                'initials' => $b->user?->initials ?? 'FL',
+                'company' => $b->company,
+            ]);
+
         return [
             'category' => $e->category,
             'is_online' => (bool) $e->is_online,
@@ -78,6 +91,7 @@ class EventTourPresenter
             'refund_policy' => $e->refund_policy,
             'seats_left' => $e->remainingSeats(),
             'organizer' => self::organizer($e),
+            'attendees' => $attendees,
         ];
     }
 

@@ -90,11 +90,28 @@ class EventController extends Controller
 
         $countdownTarget = $this->countdownTarget($event);
 
+        $confirmedAttendees = $event->bookings()
+            ->where('status', EventBooking::STATUS_CONFIRMED)
+            ->with('user')
+            ->orderBy('id', 'desc')
+            ->take(24)
+            ->get();
+
+        $userBooking = null;
+        if ($request->user()) {
+            $userBooking = $event->bookings()
+                ->where('user_id', $request->user()->id)
+                ->where('status', EventBooking::STATUS_CONFIRMED)
+                ->first();
+        }
+
         return view('events.show', [
             'pageTitle' => $event->title,
             'metaDescription' => Str::limit(strip_tags((string) ($event->summary ?? $event->description ?? '')), 160),
             'event' => $event,
             'countdownTarget' => $countdownTarget,
+            'attendees' => $confirmedAttendees,
+            'userBooking' => $userBooking,
         ]);
     }
 

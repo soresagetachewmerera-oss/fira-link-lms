@@ -75,8 +75,16 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Future<void> _openMaps() async {
+    final mapUrl = widget.event.metadata?['map_url']?.toString();
+    if (mapUrl != null && mapUrl.isNotEmpty) {
+      final uri = Uri.parse(mapUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        return;
+      }
+    }
     final String query = Uri.encodeComponent(
-      widget.event.locationDescription ?? widget.event.location ?? 'Addis Ababa, Ethiopia',
+      widget.event.locationDescription ?? widget.event.location ?? 'Vamdas Cinema, Addis Ababa, Ethiopia',
     );
     final Uri googleMapsUri = Uri.parse(
       'https://www.google.com/maps/search/?api=1&query=$query',
@@ -84,9 +92,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final Uri appleMapsUri = Uri.parse('http://maps.apple.com/?q=$query');
 
     if (await canLaunchUrl(googleMapsUri)) {
-      await launchUrl(googleMapsUri);
+      await launchUrl(googleMapsUri, mode: LaunchMode.externalApplication);
     } else if (await canLaunchUrl(appleMapsUri)) {
-      await launchUrl(appleMapsUri);
+      await launchUrl(appleMapsUri, mode: LaunchMode.externalApplication);
     } else {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -240,11 +248,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                             child: CircleAvatar(
                                               radius: 14,
                                               backgroundColor:
-                                                  AppTheme.getPrimaryColor(
-                                                    context,
-                                                  ),
-                                              backgroundImage: AssetImage(
-                                                'assets/img/profile/profile_${(index % 8) + 1}.jpg',
+                                                  const Color(0xFF6D1A95),
+                                              child: Text(
+                                                '#${index + 1}',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -1034,7 +1045,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                               ),
                             ),
                             clipBehavior: Clip.antiAlias,
-                            child: _GoogleMapEmbed(),
+                            child: _GoogleMapEmbed(location: event.location),
                           ),
                         ],
                       ),

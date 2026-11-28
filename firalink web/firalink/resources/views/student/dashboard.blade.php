@@ -16,6 +16,23 @@
                         <p>Welcome to your integrated coffee trade desk and export training workspace.</p>
                     </div>
 
+                    @if(auth()->check() && !auth()->user()->hasProfilePhoto())
+                        <div class="alert p-3 mb-4 rounded-3 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 wow fadeInUp" style="background: linear-gradient(135deg, #FDF4FF, #F3E8FF); border: 1.5px solid #D8B4FE; box-shadow: 0 2px 8px rgba(109,26,149,0.06);">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background: #6D1A95; color: #ffffff;">
+                                    <i class="fa-solid fa-camera fs-5"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark" style="font-size: 14px;">Complete Your Profile: Add a Profile Photo</div>
+                                    <div class="text-muted" style="font-size: 12.5px;">Upload a real photo so fellow exporters, instructors, and masterclass attendees recognize you.</div>
+                                </div>
+                            </div>
+                            <a href="{{ route('student.settings') }}" class="theme-btn btn-sm text-nowrap" style="padding: 8px 18px; font-size: 13px;">
+                                <i class="fa-solid fa-arrow-up-from-bracket me-1"></i> Add Photo
+                            </a>
+                        </div>
+                    @endif
+
                     <!-- Hub Quick Action Cards -->
                     <div class="row g-3 mb-4 wow fadeInUp">
                         <div class="col-md-6 col-xl-3">

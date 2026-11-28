@@ -23,11 +23,16 @@
                 <div class="col-lg-10">
                     <div class="booking-wrapper bg-white wow fadeInUp" data-wow-delay=".3s">
                         <div class="text-center mb-4">
+                            <div class="d-inline-flex align-items-center gap-2 mb-2 px-3 py-1 rounded-pill" style="background: #F3E8FF; color: #6D1A95; font-size: 12px; font-weight: 700;">
+                                <i class="fa-solid {{ !$event->is_online ? 'fa-building' : 'fa-video' }}"></i>
+                                <span>{{ !$event->is_online ? 'In-Person Event · ' . ($event->location ?? 'Vamdas Cinema, Addis Ababa') : 'Online Event' }}</span>
+                            </div>
                             <h2 class="fw-bold mb-2">{{ __('frontend.reserve_your_seat') }}</h2>
                             <p class="text-muted mb-0">
                                 {{ __('frontend.booking_for') }} <strong>{{ $event->title }}</strong> {{ __('frontend.on') }}
-                                <strong>{{ optional($event->start_date)->format('M d, Y') ?? __('frontend.date_tbd') }}</strong> {{ __('frontend.at_time') }}
-                                <strong>{{ $event->start_time ? optional($event->start_time)->format('h:i A') : __('frontend.date_tbd') }}</strong>.
+                                <strong>{{ optional($event->start_date)->format('l, M d, Y') ?? __('frontend.date_tbd') }}</strong> {{ __('frontend.at_time') }}
+                                <strong>{{ $event->start_time ? optional($event->start_time)->format('h:i A') : __('frontend.date_tbd') }}</strong> at
+                                <strong>{{ $event->location ?? 'Vamdas Cinema, Addis Ababa' }}</strong>.
                             </p>
                         </div>
 

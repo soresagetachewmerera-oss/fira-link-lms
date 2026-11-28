@@ -32,17 +32,34 @@
                             <div class="form-group avatar-upload-group">
                                 <label>{{ __('student.profile_picture') }}</label>
                                 <div class="avatar-upload-wrapper">
-                                    <div class="avatar-preview">
-                                        <img src="{{ $user->profile_photo ? asset('storage/' . $user->profile_photo) : asset('assets/front/img/home-1/courses/client-01.png') }}"
-                                            alt="{{ $user->name }}" id="avatarPreview">
+                                    <div class="avatar-preview position-relative" style="cursor: pointer;">
+                                        @if ($user->hasProfilePhoto())
+                                            <img src="{{ asset('storage/' . $user->profile_photo) }}"
+                                                alt="{{ $user->name }}" id="avatarPreview" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                                        @else
+                                            <img src="" alt="{{ $user->name }}" id="avatarPreview" style="width:100%; height:100%; object-fit:cover; border-radius:50%; display:none;">
+                                            <div id="avatarInitialsFallback" class="d-flex align-items-center justify-content-center text-white fw-bold fs-3" style="width:100%; height:100%; background: linear-gradient(135deg, #6D1A95, #3B0764); border-radius: 50%;">
+                                                {{ $user->initials }}
+                                            </div>
+                                        @endif
                                         <div class="avatar-overlay">
                                             <i class="fa-solid fa-camera"></i>
-                                            <span>{{ __('student.change_photo') }}</span>
+                                            <span>{{ $user->hasProfilePhoto() ? __('student.change_photo') : 'Upload Photo' }}</span>
                                         </div>
                                     </div>
-                                    <input type="file" name="profile_photo" id="avatarInput" accept="image/*"
+                                    <input type="file" name="profile_photo" id="avatarInput" accept="image/jpeg,image/png,image/jpg,image/webp"
                                         style="display: none;">
-                                    <small class="form-hint">{{ __('student.recommended_size') }}</small>
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" onclick="$('#avatarInput').click();" style="font-size: 12px; border-color: #6D1A95; color: #6D1A95;">
+                                            <i class="fa-solid fa-camera me-1"></i> {{ $user->hasProfilePhoto() ? 'Choose New Photo' : 'Choose Profile Picture' }}
+                                        </button>
+                                        <small class="form-hint d-block mt-1">{{ __('student.recommended_size') }} (JPEG, PNG, WebP up to 10MB)</small>
+                                    </div>
+                                    @if (!$user->hasProfilePhoto())
+                                        <div class="alert py-2 px-3 mt-2 mb-0 rounded-3" style="font-size: 12px; background: #F3E8FF; border: 1px solid #D8B4FE; color: #4A0E66;">
+                                            <i class="fa-solid fa-circle-info me-1"></i> <strong>Photo Needed:</strong> You do not have an active profile photo yet. Upload a real picture so attendees and instructors recognize you.
+                                        </div>
+                                    @endif
                                 </div>
                                 @error('profile_photo')
                                     <div class="text-danger mt-2">{{ $message }}</div>
@@ -307,11 +324,12 @@
             $(document).ready(function() {
                 // Avatar Preview
                 $('#avatarInput').on('change', function(e) {
-                    const file = e.target.files[0];
+                    const file = e.target.files && e.target.files[0];
                     if (file) {
                         const reader = new FileReader();
-                        reader.onload = function(e) {
-                            $('#avatarPreview').attr('src', e.target.result);
+                        reader.onload = function(evt) {
+                            $('#avatarPreview').attr('src', evt.target.result).show();
+                            $('#avatarInitialsFallback').hide();
                         };
                         reader.readAsDataURL(file);
                     }

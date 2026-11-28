@@ -17,10 +17,15 @@ class MasterclassEventSeeder extends Seeder
         $title = 'በተግባር የተፈተነ የቡና እና የጥራጥሬ ኤክስፖርት master-class !” እና የ Fira Link A8,A9,A10 online Export Business class የ certificate ዝግጅት እና ማጠቃለያ ስልጠና !!"';
         $slug = 'coffee-pulses-export-masterclass-a8-a9-a10-cert';
 
-        $summary = 'በተግባር የተፈተነ የቡና እና የጥራጥሬ ኤክስፖርት master-class እና የ Fira Link A8, A9, A10 ኦንላይን ኤክስፖርት ቢዝነስ ክፍል የሰርተፊኬት ዝግጅት እና ማጠቃለያ ስልጠና። ነጻ መግቢያ እና ምዝገባ።';
+        $summary = 'በተግባር የተፈተነ የቡና እና የጥራጥሬ ኤክስፖርት master-class እና የ A8, A9, A10 ተከታታይ ባቾች ማጠቃለያ እና የሰርተፊኬት ዝግጅት ስልጠና — በአካል በቫምዳስ ሲኒማ፣ አዲስ አበባ (Sunday, Dec 20, 2026)።';
 
         $description = <<<TEXT
 በተግባር የተፈተነ የቡና እና የጥራጥሬ ኤክስፖርት master-class !” እና የ Fira Link A8,A9,A10 online Export Business class የ certificate ዝግጅት እና ማጠቃለያ ስልጠና !!"
+
+📅 የቀን ቀጠሮ፡ እሁድ ታህሳስ 11 ቀን 2019 ዓ.ም (Sunday, December 20, 2026)
+⏰ ሰዓት፡ ከጠዋቱ 3:00 – 7:00 (09:00 AM – 01:00 PM)
+📍 ቦታ፡ ቫምዳስ ሲኒማ፣ ቦሌ መንገድ (ኦሊምፒያ አካባቢ)፣ አዲስ አበባ (Vamdas Cinema, Addis Ababa)
+🎟 የመግቢያ ሁኔታ፡ በአካል የሚካሄድ ነጻ መግቢያ (In-Person Event — Free Admission)
 
 በዚህ ልዩ የተግባር ማስተር ክላስ ውስጥ የሚከተሉት ዋና ዋና ርዕሶች በዝርዝር ይዳሰሳሉ፡
 
@@ -30,19 +35,20 @@ class MasterclassEventSeeder extends Seeder
 • ዓለም አቀፍ የገዢዎች ፍላጎት፣ ኮንትራት አዘገጃጀት እና የጥራት ደረጃዎች (Quality & Grading Specifications)።
 
 2. የ Fira Link A8, A9 እና A10 ኦንላይን ኤክስፖርት ቢዝነስ ክፍል ማጠቃለያ እና የሰርተፊኬት ዝግጅት፡
-• በ A8, A9 እና A10 ዙር የተሳተፉ ሰልጣኞች ስልጠናቸውን በተሳካ ሁኔታ በማጠናቀቃቸው የሰርተፊኬት ዝግጅት፣ ማረጋገጫ እና አሰጣጥ ሂደት ገለፃ።
+• በ A8, A9 እና A10 ዙር የተሳተፉ ሰልጣኞች ስልጠናቸውን በተሳካ ሁኔታ በማጠናቀቃቸው በአካል በቫምዳስ ሲኒማ አዳራሽ የሚደረግ የሰርተፊኬት ዝግጅት፣ ማረጋገጫ እና አሰጣጥ ሂደት ገለፃ።
 • የተግባር ፕሮጀክቶች ግምገማ እና የቀጣይ ቢዝነስ ማገናኘት (Business Linkage) ድጋፍ።
 • የኤክስፖርት ንግድ ፍቃድ፣ የገበያ መረጃ እና የ Fira Link B2B ማርኬትፕሌስ ተጠቃሚነት መመሪያዎች።
 
-3. የቀጥታ ጥያቄና መልስ እና የኔትወርኪንግ መድረክ (Live Q&A & Networking):
-• ከተሞከሩ የዘርፉ ባለሙያዎች እና ከተሳካላቸው ላኪዎች ጋር የቀጥታ የውይይት መድረክ።
-• ነጻ የመግቢያ ትኬት በማስያዝ በቀጥታ በኦንላይን ይሳተፉ!
+3. የቀጥታ ጥያቄና መልስ እና የኔትወርኪንግ መድረክ (In-Person Q&A & Networking):
+• ከተሞከሩ የዘርፉ ባለሙያዎች፣ ላኪዎች እና ከስራ ባልደረቦች ጋር በአካል የመገናኘትና የመወያየት ዕድል።
+• ነጻ የመግቢያ ትኬት በማስያዝ በቦታው ይገኙ!
 TEXT;
 
-        $locationDescription = 'ይህ መርሃግብር በቀጥታ በኦንላይን (Fira Link Virtual Hall & Zoom Live Session) የሚካሄድ ሲሆን የተመዘገቡ ተሳታፊዎች የመግቢያ ሊንክ እና የትኬት ማረጋገጫ በቀጥታ ይደርሳቸዋል።';
+        $location = 'Vamdas Cinema, Bole Road, Addis Ababa, Ethiopia';
+        $locationDescription = 'ቫምዳስ ሲኒማ፣ ቦሌ መንገድ (ኦሊምፒያ አካባቢ)፣ አዲስ አበባ፣ ኢትዮጵያ / Vamdas Cinema, Africa Avenue (Bole Road), near Olympia, Addis Ababa, Ethiopia. በአካል በስፍራው በመገኘት በተግባር የተፈተነ የቡና እና የጥራጥሬ ኤክስፖርት ማስተር ክላስ እና የሰርተፊኬት ዝግጅት ላይ ይሳተፉ።';
 
-        $startDate = Carbon::now()->addDays(7)->format('Y-m-d');
-        $endDate = $startDate;
+        $startDate = '2026-12-20';
+        $endDate = '2026-12-20';
 
         $event = Event::updateOrCreate(
             ['slug' => $slug],
@@ -52,8 +58,8 @@ TEXT;
                 'category' => 'training',
                 'description' => $description,
                 'location_description' => $locationDescription,
-                'location' => 'Online (Fira Link Virtual Hall & Zoom) / አዲስ አበባ፣ ኢትዮጵያ',
-                'is_online' => true,
+                'location' => $location,
+                'is_online' => false,
                 'contact_phone' => '+251911000000',
                 'contact_email' => 'academy@fira-link.com',
                 'start_date' => $startDate,
@@ -64,7 +70,7 @@ TEXT;
                 'price' => 0.00,
                 'member_price' => 0.00,
                 'service_fee' => 0.00,
-                'refund_policy' => 'ነጻ መግቢያ - ቅድመ ምዝገባ ብቻ ያስፈልጋል። (Free Admission - Pre-registration only)',
+                'refund_policy' => 'ነጻ መግቢያ - በስፍራው ለመገኘት ቅድመ ምዝገባ ብቻ ያስፈልጋል። (In-Person Free Admission - Pre-registration only)',
                 'organized_by_fira_link' => true,
                 'is_published' => true,
                 'featured_image' => 'events/event-5-export-contracts-logistics.jpg',
@@ -86,7 +92,7 @@ TEXT;
                     ],
                     [
                         'time' => '12:30 - 13:00',
-                        'title' => 'የጥያቄና መልስ መድረክ፣ ኔትወርኪንግ እና የትብብር አቅጣጫዎች',
+                        'title' => 'የጥያቄና መልስ መድረክ፣ በአካል ኔትወርኪንግ እና የትብብር አቅጣጫዎች',
                         'speaker' => 'All Speakers & Participants',
                     ],
                 ],
@@ -96,6 +102,12 @@ TEXT;
                     'ticket_type' => 'Free Admission',
                     'language' => 'Amharic',
                     'batch' => 'A8, A9, A10',
+                    'is_online' => false,
+                    'is_in_person' => true,
+                    'venue_name' => 'Vamdas Cinema',
+                    'venue_address' => 'Bole Road (Africa Ave, near Olympia), Addis Ababa, Ethiopia',
+                    'map_url' => 'https://maps.app.goo.gl/ro2Q5YnH8B7Ybu9j6',
+                    'map_embed_query' => 'Vamdas+Cinema,+Addis+Ababa,+Ethiopia',
                 ],
             ]
         );
@@ -104,8 +116,8 @@ TEXT;
         $event->highlights()->delete();
         $highlights = [
             [
-                'title' => 'የተግባር የቡና እና የጥራጥሬ ኤክስፖርት ስሌት',
-                'description' => 'የቡና እና የጥራጥሬ ሰብሎች የገበያ ሁኔታ፣ የዋጋ ስሌት (FOB, CIF) እና የአዋጭነት ትንተና',
+                'title' => 'በአካል የሚካሄድ የተግባር ስልጠና (Vamdas Cinema)',
+                'description' => 'በቫምዳስ ሲኒማ አዳራሽ በአካል በመገኘት የቡና እና የጥራጥሬ ሰብሎች የገበያ ሁኔታ እና የዋጋ ስሌት (FOB, CIF) መማማር',
                 'position' => 1,
             ],
             [
@@ -115,12 +127,12 @@ TEXT;
             ],
             [
                 'title' => 'A8, A9, A10 የሰርተፊኬት ዝግጅት እና ማረጋገጫ',
-                'description' => 'የ Fira Link A8, A9, A10 ኦንላይን ኤክስፖርት ቢዝነስ ክፍል ተመራቂዎች የሰርተፊኬት ዝግጅት፣ ማረጋገጫ እና አሰጣጥ',
+                'description' => 'የ Fira Link A8, A9, A10 ኦንላይን ኤክስፖርት ቢዝነስ ክፍል ተመራቂዎች በአካል የሚደረግ የሰርተፊኬት ዝግጅት፣ ማረጋገጫ እና አሰጣጥ',
                 'position' => 3,
             ],
             [
-                'title' => 'የቀጥታ የጥያቄና መልስ እና የኔትወርኪንግ መድረክ',
-                'description' => 'ከተሞከሩ የዘርፉ ባለሙያዎች ጋር የቀጥታ ውይይት እና የነጻ ትኬት ምዝገባ',
+                'title' => 'የቀጥታ የፊት ለፊት ውይይት እና ኔትወርኪንግ',
+                'description' => 'ከተሞከሩ የዘርፉ ባለሙያዎች ጋር የቀጥታ በአካል ውይይት እና የነጻ ትኬት ምዝገባ',
                 'position' => 4,
             ],
         ];
@@ -150,19 +162,20 @@ TEXT;
             $event->speakers()->create($spk);
         }
 
-        // Add confirmed free booked tickets
-        $user = User::first();
-        if ($user) {
+        // Ensure registered demo attendees
+        $users = User::take(3)->get();
+        if ($users->isNotEmpty()) {
+            $u1 = $users[0];
             EventBooking::updateOrCreate(
                 ['reference' => 'EVT-FREE-MASTERCLASS-01'],
                 [
                     'event_id' => $event->id,
-                    'user_id' => $user->id,
+                    'user_id' => $u1->id,
                     'status' => EventBooking::STATUS_CONFIRMED,
                     'payment_status' => EventBooking::PAYMENT_PAID,
                     'first_name' => 'Abebe',
                     'last_name' => 'Bekele',
-                    'email' => $user->email ?? 'attendee@fira-link.com',
+                    'email' => $u1->email ?? 'attendee@fira-link.com',
                     'phone' => '+251911223344',
                     'company' => 'Coffee & Pulses Exporters Cohort A8',
                     'ticket_type' => 'general',
@@ -173,35 +186,38 @@ TEXT;
                     'currency' => 'ETB',
                     'payment_method' => 'free',
                     'contact_method' => 'email',
-                    'notes' => 'A8 Batch Graduate - Free Masterclass & Certificate Session Attendance',
+                    'notes' => 'A8 Batch Graduate - In-person Masterclass & Certificate Session Attendance at Vamdas Cinema',
                     'booked_at' => Carbon::now(),
                 ]
             );
 
-            EventBooking::updateOrCreate(
-                ['reference' => 'EVT-FREE-MASTERCLASS-02'],
-                [
-                    'event_id' => $event->id,
-                    'user_id' => $user->id,
-                    'status' => EventBooking::STATUS_CONFIRMED,
-                    'payment_status' => EventBooking::PAYMENT_PAID,
-                    'first_name' => 'Selam',
-                    'last_name' => 'Haile',
-                    'email' => 'selam@fira-link.com',
-                    'phone' => '+251922334455',
-                    'company' => 'Export Business Class A9',
-                    'ticket_type' => 'general',
-                    'seats' => 1,
-                    'unit_price' => 0.00,
-                    'service_fee' => 0.00,
-                    'total_amount' => 0.00,
-                    'currency' => 'ETB',
-                    'payment_method' => 'free',
-                    'contact_method' => 'phone',
-                    'notes' => 'A9 Batch Graduate - Free Masterclass Seat Confirmation',
-                    'booked_at' => Carbon::now(),
-                ]
-            );
+            if (isset($users[1])) {
+                $u2 = $users[1];
+                EventBooking::updateOrCreate(
+                    ['reference' => 'EVT-FREE-MASTERCLASS-02'],
+                    [
+                        'event_id' => $event->id,
+                        'user_id' => $u2->id,
+                        'status' => EventBooking::STATUS_CONFIRMED,
+                        'payment_status' => EventBooking::PAYMENT_PAID,
+                        'first_name' => 'Selam',
+                        'last_name' => 'Haile',
+                        'email' => $u2->email ?? 'selam@fira-link.com',
+                        'phone' => '+251922334455',
+                        'company' => 'Export Business Class A9',
+                        'ticket_type' => 'general',
+                        'seats' => 1,
+                        'unit_price' => 0.00,
+                        'service_fee' => 0.00,
+                        'total_amount' => 0.00,
+                        'currency' => 'ETB',
+                        'payment_method' => 'free',
+                        'contact_method' => 'phone',
+                        'notes' => 'A9 Batch Graduate - In-person Masterclass Seat Confirmation at Vamdas Cinema',
+                        'booked_at' => Carbon::now(),
+                    ]
+                );
+            }
         }
     }
 }

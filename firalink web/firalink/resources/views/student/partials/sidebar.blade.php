@@ -36,12 +36,21 @@
 <aside class="dashboard-sidebar">
     <div class="dashboard-profile">
         <div class="dashboard-profile-image">
-            @if ($user && $user->profile_photo)
+            @if ($user && $user->hasProfilePhoto())
                 <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="{{ $user->name }}">
             @else
-                <img src="{{ asset('assets/front/img/home-1/courses/client-01.png') }}" alt="{{ $user->name ?? 'User' }}">
+                <div class="d-flex align-items-center justify-content-center text-white fw-bold fs-4 shadow-sm" style="width: 80px; height: 80px; background: linear-gradient(135deg, #6D1A95, #3B0764); border-radius: 50%; margin: 0 auto;">
+                    {{ $user ? $user->initials : 'FL' }}
+                </div>
             @endif
         </div>
+        @if ($user && !$user->hasProfilePhoto())
+            <div class="text-center mb-2">
+                <a href="{{ route('student.settings') }}" class="badge rounded-pill text-decoration-none" style="background: #F3E8FF; color: #6D1A95; font-size: 11px; padding: 4px 10px; border: 1px solid #D8B4FE;">
+                    <i class="fa-solid fa-camera me-1"></i> Add Photo
+                </a>
+            </div>
+        @endif
         <h4>{{ $user->name ?? 'Account' }}</h4>
         <p class="user-role-label">{{ $roleTitle }}</p>
         @if ($isVerified)
