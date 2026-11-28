@@ -72,9 +72,12 @@
     --box-shadow: none;
 }
 
-html { color-scheme: light; overflow-x: hidden; }
+/* clip, not hidden: hidden on both html and body makes body a scroll container that never scrolls,
+   so position: sticky (dashboard sidebar) never sticks. hidden stays as the fallback for old browsers. */
+html { color-scheme: light; overflow-x: hidden; overflow-x: clip; }
 body {
     overflow-x: hidden;
+    overflow-x: clip;
     color: var(--fira-neutral-700);
     background: var(--fira-white);
     font-family: var(--fira-font) !important;
@@ -276,6 +279,13 @@ label, .form-label { color: var(--fira-neutral-700); font-size: .8125rem; font-w
     max-height: calc(100vh - 110px) !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
+}
+
+/* Dashboard pages sit in section.fix (overflow: hidden), which makes the section the sticky container:
+   the sidebar never sticks and sits 90px below the page heading. Clip keeps the clipping without
+   creating a scroll container, so the sidebar starts level with the content and sticks to the viewport. */
+.fix:has(.dashboard-layout) {
+    overflow: clip;
 }
 
 .dashboard-sidebar::-webkit-scrollbar {

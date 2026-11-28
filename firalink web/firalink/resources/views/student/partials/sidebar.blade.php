@@ -112,7 +112,7 @@
                     <a href="{{ route('marketplace.verification.center') }}"
                         class="{{ request()->routeIs('marketplace.verification.*') ? 'active' : '' }}"
                         title="Legal Documents & ECTA Verification Vault">
-                        <i class="fa-solid fa-shield-halved"></i>
+                        <i class="fa-solid fa-shield-check"></i>
                         <span>Verification Vault</span>
                     </a>
                 </li>

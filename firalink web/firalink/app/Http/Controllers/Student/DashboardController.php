@@ -7,7 +7,6 @@ use App\Models\Enrollment;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Services\LiveClassService;
-use Illuminate\Support\Str;
 
 /**
  * Dashboard Controller
@@ -65,8 +64,7 @@ class DashboardController extends Controller
             'total_lessons' => $totalLessons,
         ];
 
-        $firstName = Str::of($user->name)->before(' ');
-        $firstName = $firstName === '' ? $user->name : $firstName;
+        $firstName = self::greetingName((string) $user->name);
 
         $activeSubscription = null;
         $latestSubscription = null;
@@ -74,6 +72,23 @@ class DashboardController extends Controller
         return view('student.dashboard', compact(
             'user', 'stats', 'recentEnrollments', 'firstName', 'upcomingLiveClass', 'activeSubscription', 'latestSubscription'
         ));
+    }
+
+    /**
+     * The name used in "Welcome back, …": the first word that is not a title,
+     * so "Mr. Donato Mosciski" and "Ato Abebe Kebede" greet Donato and Abebe.
+     */
+    public static function greetingName(string $name): string
+    {
+        $titles = ['mr', 'mrs', 'ms', 'miss', 'dr', 'prof', 'ato', 'w/ro', 'w/rt', 'weyzero', 'weyzerit', 'አቶ', 'ወ/ሮ', 'ወ/ሪት', 'ዶ/ር'];
+        $words = preg_split('/\s+/u', trim($name), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        foreach ($words as $word) {
+            if (! in_array(mb_strtolower(rtrim($word, '.')), $titles, true)) {
+                return $word;
+            }
+        }
+
+        return $words[0] ?? $name;
     }
 
     private function currentUser(): User

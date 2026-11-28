@@ -73,12 +73,13 @@
                     </div>
 
                     <!-- Quick Action Banner -->
-                    <div class="alert alert-info d-flex align-items-center justify-content-between p-3 mb-4 rounded-3 shadow-sm border-0" style="background: linear-gradient(135deg, #6D1A95 0%, #4B1268 100%); color: white;">
+                    {{-- Solid brand colour: fira-design-system.css removes inline gradients (this banner was white text on no background). --}}
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 p-3 mb-4 rounded-3 shadow-sm" style="background-color: var(--fira-primary, #6D1A95); color: #fff;">
                         <div class="d-flex align-items-center">
-                            <div class="fs-2 me-3"><i class="fa-solid fa-graduation-cap text-warning"></i></div>
+                            <div class="fs-2 me-3" aria-hidden="true"><i class="fa-solid fa-graduation-cap" style="color: var(--fira-primary-tint, #F3E8FF);"></i></div>
                             <div>
                                 <h5 class="mb-1 text-white fw-bold">Explore Our Courses & Training</h5>
-                                <p class="mb-0 text-white-50 small">Discover certified coffee export training, live classes, and practical tools.</p>
+                                <p class="mb-0 small" style="color: var(--fira-primary-tint, #F3E8FF);">Discover certified coffee export training, live classes, and practical tools.</p>
                             </div>
                         </div>
                         <a href="{{ route('courses') }}" class="btn btn-light btn-sm fw-bold text-dark rounded-pill px-3 py-2">
@@ -132,7 +133,8 @@
                     {{-- Live Class Banner --}}
                     @if ($upcomingLiveClass)
                         <div class="wow fadeInUp" style="margin-top: 30px;">
-                            <div style="background: {{ $upcomingLiveClass->is_currently_live ? 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)' : 'linear-gradient(135deg, #6D1A95 0%, #50126F 100%)' }}; border-radius: 20px; padding: 30px 35px; color: #fff; position: relative; overflow: hidden;">
+                            {{-- Solid colours: fira-design-system.css removes inline gradients, which left white text on no background. --}}
+                            <div style="background-color: {{ $upcomingLiveClass->is_currently_live ? '#dc3545' : 'var(--fira-primary, #6D1A95)' }}; border-radius: 20px; padding: 30px 35px; color: #fff; position: relative; overflow: hidden;">
                                 {{-- Decorative circles --}}
                                 <div style="position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.08);"></div>
                                 <div style="position: absolute; bottom: -20px; right: 60px; width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.05);"></div>

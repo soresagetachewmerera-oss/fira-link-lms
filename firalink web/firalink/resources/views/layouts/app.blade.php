@@ -32,7 +32,7 @@
         <link rel="stylesheet" href="{{ asset('assets/front/css/fira_pixel_perfect.css') }}?v={{ file_exists(public_path('assets/front/css/fira_pixel_perfect.css')) ? filemtime(public_path('assets/front/css/fira_pixel_perfect.css')) : '2.0.1' }}">
     @endif
 
-    <link rel="stylesheet" href="{{ asset('assets/front/css/header-premium.css') }}?v={{ file_exists(public_path('assets/front/css/header-premium.css')) ? filemtime(public_path('assets/front/css/header-premium.css')) : '1.0.0' }}">
+    @include('partials.site-shell-styles')
 
     {!! ToastMagic::styles() !!}
 
@@ -111,7 +111,7 @@
         <script src="{{ asset('assets/front/js/main.js') }}"></script>
         <script src="{{ asset('assets/front/js/sweetalert2@11.js') }}"></script>
     @endif
-    <script src="{{ asset('assets/front/js/header-premium.js') }}?v={{ file_exists(public_path('assets/front/js/header-premium.js')) ? filemtime(public_path('assets/front/js/header-premium.js')) : '1.0.0' }}"></script>
+    @include('partials.site-shell-scripts')
     {!! ToastMagic::scripts() !!}
 
     @if($customJs = custom_scripts('custom_js'))

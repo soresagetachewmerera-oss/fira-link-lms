@@ -32,6 +32,7 @@
     <link rel="stylesheet" href="{{ asset('assets/front/css/nice-select.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/front/css/main.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/front/css/instructor/style.css') }}">
+    @include('partials.site-shell-styles')
 
     {!! ToastMagic::styles() !!}
 
@@ -81,6 +82,7 @@
     <script src="{{ asset('assets/front/js/main.js') }}"></script>
     <script src="{{ asset('assets/front/js/instructor/script.js') }}"></script>
     <script src="{{ asset('assets/front/js/sweetalert2@11.js') }}"></script>
+    @include('partials.site-shell-scripts')
 
     {!! ToastMagic::scripts() !!}
 
